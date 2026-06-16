@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Cormorant_Garamond, DM_Sans, Fira_Code } from "next/font/google";
 import UnRetireNav from "./UnRetireNav";
 import UnRetireFooter from "./UnRetireFooter";
+import "./unretire.css";
 
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["400","500","600","700"], style: ["normal","italic"], display: "swap", variable: "--font-cormorant" });
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["300","400","500","600"], display: "swap", variable: "--font-dm-sans" });
@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function UnRetireLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${cormorant.variable} ${dmSans.variable} ${firaCode.variable}`}>
+    <div className={`ur-site ${cormorant.variable} ${dmSans.variable} ${firaCode.variable}`}>
       <UnRetireNav />
       <main>{children}</main>
       <UnRetireFooter />
