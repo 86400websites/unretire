@@ -12,9 +12,26 @@ const libre = Libre_Baskerville({
 });
 
 export const metadata = {
-  title: "UnRetire — Reboot. Don't Mute.",
+  metadataBase: new URL("https://half-a-life.vercel.app"),
+  title: {
+    default: "UnRetire — Reboot. Don't Mute.",
+    template: "%s · UnRetire",
+  },
   description:
     "Design your next chapter with intention. The 5 Mindsets and 7 Practices framework by Maher Kaddoura.",
+  openGraph: {
+    title: "UnRetire — Reboot. Don't Mute.",
+    description:
+      "Design your next chapter with intention. The 5 Mindsets and 7 Practices framework by Maher Kaddoura.",
+    url: "/unretire",
+    siteName: "UnRetire",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "UnRetire — Reboot. Don't Mute.",
+    description: "Design your next chapter with intention — the 5 Mindsets and 7 Practices framework.",
+  },
 };
 
 export default function UnRetireLayout({ children }: { children: React.ReactNode }) {

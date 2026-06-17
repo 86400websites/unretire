@@ -1,6 +1,11 @@
 import Link from "next/link";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "Start Your Next Chapter",
+  description: "You don't need a five-year plan — you need a first step. The free 14-Day Starter Plan, the 2-minute check, and the book.",
+};
+
 const steps = [
   {
     title: "Take the 2-minute check",

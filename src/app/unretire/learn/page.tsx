@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "Learn",
+  description: "Three ways into the next chapter: the (Un)Retire course, the podcast, and short essays on living fully.",
+};
+
 const formats = [
   {
     label: "Online Course",

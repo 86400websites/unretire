@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "About Maher",
+  description: "Maher Kaddoura on why he wrote UnRetire — and why usefulness has no expiry date.",
+};
+
 export default function AboutPage() {
   return (
     <>

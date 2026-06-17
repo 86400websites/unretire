@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "The Book",
+  description: "UnRetire by Maher Kaddoura — the framework of 5 mindsets and 7 practices to design a next chapter with meaning, balance, and adventure.",
+};
+
 const mindsets = [
   { icon: "freedom", title: "Freedom", line: "Living life on your own terms" },
   { icon: "evolution", title: "Evolution", line: "Honor the past, but move forward" },
