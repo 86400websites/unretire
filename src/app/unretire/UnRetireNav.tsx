@@ -1,83 +1,254 @@
 "use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+
+type Child = { label: string; href: string; desc: string };
+type NavItem = { label: string; href: string; children?: Child[] };
+
+const navItems: NavItem[] = [
+  { label: "The Book", href: "/unretire/book" },
+  {
+    label: "Learn",
+    href: "/unretire/learn",
+    children: [
+      { label: "Online Course", href: "/unretire/online-course", desc: "Twelve guided lessons across the framework." },
+      { label: "Podcast", href: "/unretire/podcast", desc: "Conversations with people who refused to fade." },
+      { label: "Blog", href: "/unretire/blog", desc: "Short, practical notes on living fully." },
+    ],
+  },
+  {
+    label: "Practice",
+    href: "/unretire/practice",
+    children: [
+      { label: "The 5 Mindsets", href: "/unretire/practice#mindsets", desc: "How you think — five belief shifts." },
+      { label: "The 7 Practices", href: "/unretire/practice#practices", desc: "What you do — seven daily practices." },
+      { label: "14-Day Starter Plan", href: "/unretire/practice#tools", desc: "One small move a day for two weeks." },
+      { label: "The Toolkit", href: "/unretire/tools", desc: "Experiments and the Wheel of Life." },
+    ],
+  },
+  { label: "Stories", href: "/unretire/stories" },
+  { label: "About", href: "/unretire/about" },
+];
+
+const chevron = (open: boolean) => (
+  <svg
+    className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+  </svg>
+);
 
 export default function UnRetireNav() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [mobileSub, setMobileSub] = useState<string | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pathname = usePathname() ?? "/unretire";
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  const openNow = (label: string) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setOpenMenu(label);
+  };
+  const closeSoon = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenMenu(null), 120);
+  };
 
   return (
-    <>
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, height: 70, background: "rgba(13,8,4,.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,.06)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2.5rem" }}>
-        {/* Logo */}
-        <Link href="/unretire" style={{ display: "flex", alignItems: "baseline", gap: ".3rem", textDecoration: "none" }}>
-          <span style={{ fontFamily: "var(--serif)", fontSize: "1.4rem", fontWeight: 700, color: "#F2EDE4", letterSpacing: ".06em" }}>UN</span>
-          <span style={{ fontFamily: "var(--serif)", fontSize: "1.4rem", fontWeight: 300, color: "rgba(242,237,228,.45)", letterSpacing: ".06em" }}>RETIRE</span>
-        </Link>
-
-        {/* Desktop links */}
-        <div className="ur-desktop-nav" style={{ display: "flex", alignItems: "center", gap: "2.2rem" }}>
-          {[
-            { label: "The Book", href: "/unretire/book" },
-            { label: "Framework", href: "/unretire/framework" },
-            { label: "Articles", href: "/unretire/articles" },
-            { label: "Journeys", href: "/unretire/journeys" },
-            { label: "Community", href: "/unretire/community" },
-          ].map(l => (
-            <Link key={l.href} href={l.href}
-              style={{ fontSize: ".85rem", color: "rgba(242,237,228,.55)", textDecoration: "none", transition: "color .18s" }}
-              onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.color = "#F2EDE4"}
-              onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.55)"}>
-              {l.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Right side */}
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {/* Back to Half a Life — subtle link */}
-        
-
-          <Link href="/unretire/community" className="ur-desktop-nav"
-            style={{ padding: ".5rem 1.4rem", background: "#8B1A1A", color: "#F2EDE4", borderRadius: 999, fontSize: ".75rem", fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none", transition: "background .2s" }}
-            onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.background = "#A82020"}
-            onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.background = "#8B1A1A"}>
-            Join
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#ECECEC]">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-[70px] gap-4">
+          {/* Logo */}
+          <Link href="/unretire" aria-label="UnRetire — home" className="flex items-center flex-shrink-0">
+            <Image
+              src="/assets/unretire/logo-color.png"
+              alt="UnRetire"
+              width={150}
+              height={54}
+              priority
+              className="h-[26px] w-auto"
+            />
           </Link>
 
-          {/* Mobile hamburger */}
-          <button onClick={() => setDrawerOpen(true)} className="ur-mobile-only" aria-label="Open menu"
-            style={{ background: "none", border: "none", color: "#F2EDE4", padding: ".4rem", display: "flex", flexDirection: "column", gap: 5, cursor: "pointer" }}>
-            {[0,1,2].map(i => <span key={i} style={{ display: "block", width: 22, height: 1.5, background: "#F2EDE4" }} />)}
+          {/* Desktop nav */}
+          <nav className="hidden lg:flex items-center gap-1" aria-label="UnRetire">
+            {navItems.map((item) => {
+              const active = isActive(item.href);
+              if (!item.children) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
+                      active ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+              const open = openMenu === item.label;
+              return (
+                <div key={item.href} className="relative" onMouseEnter={() => openNow(item.label)} onMouseLeave={closeSoon}>
+                  <Link
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    aria-expanded={open}
+                    onFocus={() => openNow(item.label)}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
+                      active || open ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
+                    }`}
+                  >
+                    {item.label}
+                    {chevron(open)}
+                  </Link>
+                  {open && (
+                    <div className="absolute left-0 top-full pt-2 w-[300px]" onMouseEnter={() => openNow(item.label)} onMouseLeave={closeSoon}>
+                      <div className="rounded-2xl bg-white border border-[#ECECEC] shadow-[0_22px_44px_-22px_rgba(17,17,17,0.28)] p-2">
+                        {item.children.map((c) => (
+                          <Link
+                            key={c.label}
+                            href={c.href}
+                            onClick={() => setOpenMenu(null)}
+                            className="block rounded-xl px-4 py-3 hover:bg-[#FBF5F2] transition-colors"
+                          >
+                            <span className="block text-[13px] font-bold text-[#232F3F]">{c.label}</span>
+                            <span className="block text-[12px] text-[#666666] leading-snug mt-0.5">{c.desc}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Desktop CTA */}
+          <div className="hidden lg:flex items-center">
+            <Link href="/unretire/start" className="btn btn-crimson">
+              Start Your Next Chapter
+            </Link>
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="ur-mobile-menu"
+            className="lg:hidden p-2 -mr-2 text-[#232F3F]"
+          >
+            {mobileOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
-      </nav>
-
-      {/* Mobile drawer */}
-      {drawerOpen && <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,.6)" }} onClick={() => setDrawerOpen(false)} />}
-      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 2001, width: 300, background: "#0D0807", borderLeft: "1px solid rgba(255,255,255,.07)", padding: "2rem 1.5rem", transform: drawerOpen ? "translateX(0)" : "translateX(100%)", transition: "transform .28s cubic-bezier(.25,.46,.45,.94)", overflowY: "auto" }}>
-        <button onClick={() => setDrawerOpen(false)} style={{ background: "none", border: "none", color: "rgba(242,237,228,.4)", fontSize: "1.5rem", marginBottom: "2rem", display: "block", marginLeft: "auto", cursor: "pointer" }}>×</button>
-        {[{ label: "The Book", href: "/unretire/book" }, { label: "Framework", href: "/unretire/framework" }, { label: "Articles", href: "/unretire/articles" }, { label: "Journeys", href: "/unretire/journeys" }, { label: "Community", href: "/unretire/community" }].map(l => (
-          <Link key={l.href} href={l.href} onClick={() => setDrawerOpen(false)}
-            style={{ display: "block", padding: ".8rem 0", fontSize: ".95rem", color: "rgba(242,237,228,.7)", borderBottom: "1px solid rgba(255,255,255,.05)", textDecoration: "none" }}>
-            {l.label}
-          </Link>
-        ))}
-        <Link href="/" onClick={() => setDrawerOpen(false)}
-          style={{ display: "block", padding: ".8rem 0", marginTop: ".5rem", fontSize: ".75rem", fontFamily: "var(--mono)", letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(242,237,228,.3)", textDecoration: "none" }}>
-          ← Back to Half a Life
-        </Link>
-        <Link href="/unretire/community" onClick={() => setDrawerOpen(false)}
-          style={{ display: "block", marginTop: "1.5rem", padding: ".9rem", background: "#8B1A1A", color: "#F2EDE4", borderRadius: 8, fontSize: ".85rem", fontWeight: 600, textAlign: "center", letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>
-          Join
-        </Link>
       </div>
 
-      <div style={{ height: 70 }} />
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div id="ur-mobile-menu" className="lg:hidden border-t border-[#ECECEC] bg-white">
+          <div className="px-5 sm:px-6 py-4 space-y-1">
+            {navItems.map((item) => {
+              const active = isActive(item.href);
+              if (!item.children) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={`block px-3 py-3 rounded-xl text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
+                      active ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#232F3F] hover:bg-[#FBF5F2]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+              const sub = mobileSub === item.label;
+              return (
+                <div key={item.href}>
+                  <div className="flex items-center">
+                    <Link
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      aria-current={active ? "page" : undefined}
+                      className="flex-1 px-3 py-3 rounded-xl text-[12px] font-bold tracking-[0.1em] uppercase text-[#232F3F] hover:bg-[#FBF5F2] transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setMobileSub(sub ? null : item.label)}
+                      aria-label={`${item.label} submenu`}
+                      aria-expanded={sub}
+                      className="p-3 text-[#232F3F] hover:text-[#D05D11] transition-colors"
+                    >
+                      {chevron(sub)}
+                    </button>
+                  </div>
+                  {sub && (
+                    <div className="pl-3 pb-2 space-y-1">
+                      {item.children.map((c) => (
+                        <Link
+                          key={c.label}
+                          href={c.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="block px-3 py-2 rounded-lg text-[13px] text-[#444444] hover:bg-[#FBF5F2] hover:text-[#D05D11] transition-colors"
+                        >
+                          {c.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
-      <style>{`
-        @media(max-width:768px){ .ur-desktop-nav{ display:none!important; } .ur-mobile-only{ display:flex!important; } }
-        @media(min-width:769px){ .ur-mobile-only{ display:none!important; } }
-      `}</style>
-    </>
+            <div className="pt-3 mt-2 border-t border-[#ECECEC] space-y-2">
+              <Link
+                href="/"
+                onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2.5 text-[12px] font-bold tracking-[0.12em] uppercase text-[#666666] hover:text-[#D05D11] transition-colors"
+              >
+                ← Back to Half a Life
+              </Link>
+              <Link href="/unretire/start" onClick={() => setMobileOpen(false)} className="btn btn-crimson w-full">
+                Start Your Next Chapter
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }

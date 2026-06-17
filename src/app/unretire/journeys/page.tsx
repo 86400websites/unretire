@@ -1,4 +1,3 @@
-"use client";
 import Link from "next/link";
 
 const journeys = [
@@ -14,38 +13,61 @@ const journeys = [
 export default function JourneysPage() {
   return (
     <>
-      <div style={{ background: "linear-gradient(160deg,#0D0807 0%,#111108 100%)", paddingTop: "calc(98px + 3rem)", paddingBottom: "4rem", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 2.5rem" }}>
-          <p style={{ fontFamily: "var(--mono)", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "#7A3A28", marginBottom: "1rem" }}>Life Journeys</p>
-          <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2.5rem,5vw,4rem)", fontWeight: 500, color: "#F2EDE4", lineHeight: 1.1, marginBottom: "1.2rem" }}>Guided Journeys for Your Next Chapter</h1>
-          <p style={{ fontSize: ".95rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, maxWidth: "60ch", fontWeight: 300 }}>Each journey is a structured, self-paced experience designed to help you go deeper into one dimension of your (Un)Retire life.</p>
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <section className="bg-white">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="max-w-3xl">
+            <p className="eyebrow mb-6">Life Journeys</p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">
+              Guided Journeys for Your Next Chapter
+            </h1>
+            <span className="rule mt-7 mb-7" aria-hidden="true" />
+            <p className="lede max-w-[60ch]">
+              Each journey is a structured, self-paced experience designed to help you go deeper into
+              one dimension of your (Un)Retire life.
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <section style={{ background: "#EDE8DF", padding: "5rem 2.5rem" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <div style={{ background: "#fff", border: "1px solid #D9CEBD", borderRadius: 14, padding: "2.5rem 3rem", marginBottom: "3rem", textAlign: "center" }}>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.8rem", fontWeight: 400, color: "#0D0D0D", marginBottom: ".75rem" }}>How the Journeys Work</h2>
-            <p style={{ fontSize: ".88rem", color: "#5C5248", lineHeight: 1.85, maxWidth: "58ch", margin: "0 auto" }}>Each journey is divided into stages — reflection, insight, and action. You move at your own pace. There is no right order. The best journey is the one that resonates with where you are right now.</p>
+      {/* ── HOW IT WORKS + CARDS ─────────────────────────────── */}
+      <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          {/* How journeys work */}
+          <div className="card text-center max-w-3xl mx-auto p-10 sm:p-12 mb-12 sm:mb-16">
+            <p className="eyebrow mb-5">How It Works</p>
+            <h2 className="text-2xl sm:text-3xl mb-5">How the Journeys Work</h2>
+            <p className="prose-body leading-[1.85] max-w-[58ch] mx-auto">
+              Each journey is divided into stages — reflection, insight, and action. You move at your
+              own pace. There is no right order. The best journey is the one that resonates with where
+              you are right now.
+            </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }}>
-            {journeys.map(j => (
-              <div key={j.title} style={{ background: "#fff", border: "1px solid #D9CEBD", borderRadius: 12, padding: "2rem", position: "relative", transition: "box-shadow .2s, transform .2s", cursor: j.access === "free" ? "pointer" : "default" }}
-                onMouseOver={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 28px rgba(0,0,0,.1)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
-                onMouseOut={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
+          {/* Journey cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {journeys.map((j) => (
+              <div key={j.title} className="card card-hover p-7 flex flex-col">
                 {j.access === "free" ? (
-                  <span style={{ display: "inline-block", background: "rgba(122,58,40,.1)", color: "#7A3A28", fontSize: ".55rem", fontFamily: "var(--mono)", letterSpacing: ".12em", textTransform: "uppercase", padding: ".2rem .6rem", borderRadius: 999, marginBottom: ".75rem" }}>Free</span>
+                  <span className="self-start inline-flex items-center bg-[#FAF3EE] text-[#D05D11] text-[10px] font-bold tracking-[0.12em] uppercase rounded-full px-2.5 py-1 mb-4">
+                    Free
+                  </span>
                 ) : (
-                  <span style={{ display: "inline-block", background: "rgba(13,13,13,.07)", color: "#9A9080", fontSize: ".55rem", fontFamily: "var(--mono)", letterSpacing: ".12em", textTransform: "uppercase", padding: ".2rem .6rem", borderRadius: 999, marginBottom: ".75rem" }}>✦ Premium</span>
+                  <span className="self-start inline-flex items-center gap-1 bg-[#F2F2F2] text-[#888888] text-[10px] font-bold tracking-[0.12em] uppercase rounded-full px-2.5 py-1 mb-4">
+                    ✦ Premium
+                  </span>
                 )}
-                <p style={{ fontFamily: "var(--mono)", fontSize: ".58rem", letterSpacing: ".15em", textTransform: "uppercase", color: "#9A9080", marginBottom: ".5rem" }}>{j.stages}</p>
-                <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.2rem", fontWeight: 400, color: "#0D0D0D", marginBottom: ".5rem" }}>{j.title}</h3>
-                <p style={{ fontSize: ".82rem", color: "#9A9080", lineHeight: 1.7, marginBottom: "1rem" }}>{j.desc}</p>
+                <p className="eyebrow eyebrow-muted mb-2">{j.stages}</p>
+                <h3 className="text-xl mb-2">{j.title}</h3>
+                <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">{j.desc}</p>
                 {j.access === "free" ? (
-                  <Link href={j.href} style={{ fontSize: ".78rem", fontWeight: 600, color: "#7A3A28", textDecoration: "none" }}>Begin Journey →</Link>
+                  <Link href={j.href} className="pill-link">
+                    Begin Journey →
+                  </Link>
                 ) : (
-                  <span style={{ fontSize: ".78rem", color: "#9A9080" }}>🔒 Premium Members Only</span>
+                  <span className="text-[12px] font-bold tracking-[0.08em] uppercase text-[#888888]">
+                    🔒 Premium Members Only
+                  </span>
                 )}
               </div>
             ))}
@@ -53,11 +75,20 @@ export default function JourneysPage() {
         </div>
       </section>
 
-      <section style={{ background: "#0D0807", padding: "4rem 2.5rem", textAlign: "center" }}>
-        <div style={{ maxWidth: 500, margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.8rem", fontWeight: 400, color: "#F2EDE4", marginBottom: ".75rem" }}>Unlock All Journeys</h2>
-          <p style={{ fontSize: ".88rem", color: "rgba(242,237,228,.55)", marginBottom: "1.8rem", lineHeight: 1.8 }}>Get access to all 7 guided journeys plus the full tool library, premium articles, and community.</p>
-          <Link href="/unretire/community" style={{ display: "inline-block", padding: ".8rem 2.2rem", background: "#7A3A28", color: "#fff", borderRadius: 4, fontSize: ".8rem", fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", textDecoration: "none" }}>Join Premium →</Link>
+      {/* ── PREMIUM CTA ──────────────────────────────────────── */}
+      <section className="bg-[#D05D11]">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] text-white leading-tight">
+            Unlock All Journeys
+          </h2>
+          <span className="block w-12 h-[3px] bg-white/80 rounded-full mx-auto mt-6 mb-6" aria-hidden="true" />
+          <p className="text-white/80 text-[16px] leading-[1.7] mb-9 max-w-md mx-auto">
+            Get access to all 7 guided journeys plus the full tool library, premium articles, and
+            community.
+          </p>
+          <Link href="/unretire/community" className="btn bg-white text-[#D05D11] hover:bg-[#232F3F] hover:text-white">
+            Join Premium →
+          </Link>
         </div>
       </section>
     </>
