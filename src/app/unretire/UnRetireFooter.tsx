@@ -1,60 +1,95 @@
-"use client";
 import Link from "next/link";
+import Image from "next/image";
 
-function FooterCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
-  return (
-    <div>
-      <div style={{ fontFamily: "var(--mono)", fontSize: ".55rem", letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(242,237,228,.25)", marginBottom: "1.2rem" }}>{title}</div>
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: ".75rem" }}>
-        {links.map(l => (
-          <li key={l.href}>
-            <Link href={l.href} style={{ fontSize: ".88rem", color: "rgba(242,237,228,.5)", textDecoration: "none", transition: "color .18s" }}
-              onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.color = "#F2EDE4"}
-              onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.5)"}>
-              {l.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+const columns = [
+  {
+    title: "Explore",
+    links: [
+      { label: "The Book", href: "/unretire/book" },
+      { label: "Learn", href: "/unretire/learn" },
+      { label: "Practice", href: "/unretire/practice" },
+      { label: "Stories", href: "/unretire/stories" },
+      { label: "About Maher", href: "/unretire/about" },
+    ],
+  },
+  {
+    title: "Practice",
+    links: [
+      { label: "The 5 Mindsets", href: "/unretire/practice#mindsets" },
+      { label: "The 7 Practices", href: "/unretire/practice#practices" },
+      { label: "14-Day Starter Plan", href: "/unretire/practice#tools" },
+      { label: "Wheel of Life", href: "/unretire/assess" },
+    ],
+  },
+  {
+    title: "Connect",
+    links: [
+      { label: "Newsletter", href: "/unretire/newsletter" },
+      { label: "Podcast", href: "/unretire/podcast" },
+      { label: "Blog", href: "/unretire/blog" },
+      { label: "Contact", href: "/unretire/contact" },
+    ],
+  },
+];
 
 export default function UnRetireFooter() {
   return (
-    <footer style={{ background: "#0D0D0D", borderTop: "1px solid rgba(255,255,255,.07)", padding: "4rem 2.5rem 2rem" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: "3rem", paddingBottom: "3rem", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: ".4rem", marginBottom: "1.2rem" }}>
-              <span style={{ fontFamily: "var(--serif)", fontSize: "1.2rem", fontWeight: 700, color: "#F2EDE4", letterSpacing: ".04em" }}>UN</span>
-              <span style={{ fontFamily: "var(--serif)", fontSize: "1.2rem", fontWeight: 400, color: "#9A7A6A", letterSpacing: ".04em" }}>RETIRE</span>
-            </div>
-            <p style={{ fontSize: ".82rem", color: "rgba(242,237,228,.4)", lineHeight: 1.75, maxWidth: 240, marginBottom: "1.5rem" }}>Reboot. Don&apos;t Mute. Design your next chapter with intention, purpose, and joy.</p>
-            <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: ".5rem", fontSize: ".7rem", fontFamily: "var(--mono)", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(242,237,228,.3)", textDecoration: "none", border: "1px solid rgba(255,255,255,.08)", borderRadius: 999, padding: ".35rem .9rem", transition: "color .2s" }}
-              onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.65)"}
-              onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.3)"}>
-              <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", overflow: "hidden", position: "relative", flexShrink: 0 }}>
-                <span style={{ position: "absolute", left: 0, top: 0, width: "50%", height: "100%", background: "#111" }} />
-                <span style={{ position: "absolute", right: 0, top: 0, width: "50%", height: "100%", background: "#8B1A1A" }} />
+    <footer className="bg-[#232F3F] text-white">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 pt-16 pb-10">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-10 pb-12 border-b border-white/10">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-5">
+            <Image
+              src="/assets/unretire/logo-on-dark.png"
+              alt="UnRetire"
+              width={150}
+              height={54}
+              className="h-7 w-auto mb-4"
+            />
+            <p className="text-[14px] leading-relaxed text-white/55 max-w-[280px] mb-3">
+              Reboot. Don&apos;t Mute.
+            </p>
+            <p className="text-[14px] italic leading-relaxed text-white/45 max-w-[280px] mb-6">
+              &ldquo;Aging is inevitable. Diminishing is optional.&rdquo;
+            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] uppercase text-white/55 hover:text-white transition-colors border border-white/15 rounded-full px-3.5 py-1.5"
+            >
+              <span className="relative inline-block w-3 h-3 rounded-full overflow-hidden flex-shrink-0">
+                <span className="absolute left-0 top-0 w-1/2 h-full bg-white" />
+                <span className="absolute right-0 top-0 w-1/2 h-full bg-[#D05D11]" />
               </span>
               Part of Half a Life
             </Link>
           </div>
-          <FooterCol title="Explore" links={[{ label: "The Book", href: "/unretire/book" }, { label: "Framework", href: "/unretire/framework" }, { label: "Start Here", href: "/unretire/start" }, { label: "Articles", href: "/unretire/articles" }]} />
-          <FooterCol title="Journey" links={[{ label: "Journeys", href: "/unretire/journeys" }, { label: "Tools", href: "/unretire/tools" }, { label: "Community", href: "/unretire/community" }, { label: "Course", href: "/unretire/course" }]} />
-          <FooterCol title="Connect" links={[{ label: "Newsletter", href: "/unretire/newsletter" }, { label: "Speaking", href: "/unretire/speaking" }, { label: "Contact", href: "/unretire/contact" }]} />
+
+          {/* Link columns */}
+          {columns.map((col) => (
+            <div key={col.title} className="md:col-span-2">
+              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/35 mb-4">{col.title}</p>
+              <ul className="space-y-3">
+                {col.links.map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href} className="text-[14px] text-white/55 hover:text-white transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
-          <span style={{ fontSize: ".75rem", color: "rgba(242,237,228,.2)" }}>© 2026 UnRetire · Maher Kaddoura · Part of Half a Life</span>
-          <div style={{ display: "flex", gap: "1.5rem" }}>
-            {[{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }].map(l => (
-              <Link key={l.href} href={l.href} style={{ fontSize: ".75rem", color: "rgba(242,237,228,.2)", textDecoration: "none", transition: "color .18s" }}
-                onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.5)"}
-                onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.2)"}>
-                {l.label}
-              </Link>
-            ))}
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-7">
+          <p className="text-[12px] text-white/35">© 2026 UnRetire · Maher Kaddoura · Part of Half a Life</p>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">
+              Terms
+            </Link>
           </div>
         </div>
       </div>

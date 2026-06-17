@@ -1,303 +1,262 @@
-"use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import EmailCaptureBand from "./EmailCaptureBand";
 
-const mindsets = [
-  { title: "Freedom", desc: "Design life on your own terms." },
-  { title: "Evolution", desc: "Growth continues throughout life." },
-  { title: "Balance", desc: "Harmony across all dimensions." },
-  { title: "Relevance", desc: "You don't have an expiry date." },
-  { title: "Joy", desc: "Curiosity and play are essential." },
+const whoFor = [
+  "You don't want to disappear just because your job title did.",
+  "You feel financially okay — but existentially restless.",
+  "You still feel useful, but don't know where to point it.",
+  "You're allergic to clichés about \u201Cslowing down\u201D and \u201Ctaking it easy.\u201D",
+  "You want meaning without hustle, and purpose without pressure.",
 ];
 
-const practices = ["Ignite", "Move", "Connect", "Contribute", "Explore", "Grow", "Optimize"];
-
-const challenges = [
-  { title: "Loss of Structure", desc: "At first, retirement feels like a long weekend. Then a long vacation. Then a blur. Days blend into each other. The calendar that once commanded your attention sits empty.", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3A28" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
-  { title: "Loss of Identity", desc: "You're safe. Comfortable. Respected for who you were. Yet something inside asks an uncomfortable question: \"Is this it?\" Not because you want more success — but because you want more life.", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3A28" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/></svg> },
-  { title: "Loss of Purpose", desc: "No one warns you about this part. They told you retirement is freedom. What they didn't tell you: retirement done wrong doesn't feel like freedom. It feels like drift.", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3A28" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> },
-];
-
-const profiles = [
-  { href: "/unretire/profile/status-dropper", title: "The Status Dropper", quote: "\"I didn't realise how much my title defined me.\"" },
-  { href: "/unretire/profile/comfortable-drifter", title: "The Comfortable Drifter", quote: "\"Life is pleasant... but it feels a little flat.\"" },
-  { href: "/unretire/profile/family-first-caretaker", title: "The Family-First Caretaker", quote: "\"My time now revolves around family.\"" },
-  { href: "/unretire/profile/still-ambitious-builder", title: "The Still-Ambitious Builder", quote: "\"I'm not finished creating.\"" },
-  { href: "/unretire/profile/health-reset-retiree", title: "The Health Reset Retiree", quote: "\"Now it's time to take care of myself.\"" },
-  { href: "/unretire/profile/forced-retiree", title: "The Forced Retiree", quote: "\"I didn't choose this transition.\"" },
-];
-
-const bookFeatures = [
-  "5 Transformational Mindsets: Freedom, Evolution, Balance, Relevance, Joy",
-  "7 Daily Practices: Ignite, Move, Connect, Contribute, Explore, Grow, Optimize",
-  "Real stories from Japan, Kenya, Italy, Costa Rica, Jordan, and beyond",
-  "The 14-Day Starter Plan to build real momentum immediately",
-  "Companion Life Design Workbook with structured exercises",
+const paths = [
+  {
+    title: "Learn",
+    desc: "Discover the framework through the book, the online course, and short, honest conversations about life after work.",
+    href: "/unretire/learn",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 4 2 9l10 5 10-5-10-5Zm-6 7v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4M22 9v6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Practice",
+    desc: "Put it to work. The 5 Mindsets, the 7 Practices, the 14-Day Starter Plan, and the toolkit — designed for real life, not theory.",
+    href: "/unretire/practice",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 3.5v17l14-8.5-14-8.5Z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Assess",
+    desc: "Where have you started muting yourself? Take the Wheel of Life check and see your next chapter clearly.",
+    href: "/unretire/assess",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9.5" />
+        <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Stories",
+    desc: "Real people who refused to fade. See how others rebooted — and find the permission to begin your own.",
+    href: "/unretire/stories",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3 20c0-3 2.7-5 6-5s6 2 6 5M16 14c2.5 0 5 1.6 5 4.5" />
+      </svg>
+    ),
+  },
 ];
 
 export default function UnRetirePage() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
   return (
     <>
-  
-<Link href="/" style={{ position: "fixed", bottom: "1.4rem", right: "1.4rem", zIndex: 8000, background: "rgba(13,8,4,.9)", color: "rgba(242,237,228,.6)", border: "1px solid rgba(255,255,255,.12)", borderRadius: 999, padding: ".5rem 1.1rem", fontSize: ".68rem", fontFamily: "var(--mono)", fontWeight: 500, letterSpacing: ".08em", textTransform: "uppercase", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: ".4rem", boxShadow: "0 4px 18px rgba(0,0,0,.3)" }}>
-  ← Half a Life
-</Link>
-   
-     {/* ── HERO — replace everything from section start to end of hero ── */}
-<section
-  style={{
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    background: "linear-gradient(145deg,#0D0807 0%,#1A0F08 45%,#0D0807 100%)",
-    padding: "0 2.5rem",
-    position: "relative",
-    overflow: "hidden",
-  }}
->
-  {/* Background texture */}
-  <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 70% 40%, rgba(139,26,26,.12) 0%, transparent 55%), radial-gradient(ellipse at 20% 80%, rgba(200,100,30,.06) 0%, transparent 45%)", pointerEvents: "none" }} />
+      {/* Fixed "back to Half a Life" pill */}
+      <Link
+        href="/"
+        className="fixed bottom-5 right-5 z-[60] inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm border border-[#E5E5E5] text-[#444444] hover:text-[#D05D11] text-[11px] font-bold tracking-[0.1em] uppercase rounded-full px-4 py-2 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] transition-colors"
+      >
+        ← Half a Life
+      </Link>
 
-  {/* Giant ghost word */}
-  <div style={{ position: "absolute", right: "-5vw", top: "50%", transform: "translateY(-52%)", fontFamily: "var(--serif)", fontSize: "clamp(180px,28vw,360px)", fontWeight: 700, color: "rgba(255,255,255,.025)", lineHeight: 1, letterSpacing: "-.02em", userSelect: "none", pointerEvents: "none" }}>
-    REBOOT
-  </div>
-
-  <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center", position: "relative", zIndex: 2, padding: "6rem 0" }}>
-
-    {/* Left — text */}
-    <div>
-      <p style={{ fontFamily: "var(--mono)", fontSize: ".58rem", letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(242,237,228,.3)", marginBottom: "2rem", display: "flex", alignItems: "center", gap: ".8rem" }}>
-        <span style={{ display: "inline-block", width: 28, height: 1, background: "rgba(242,237,228,.3)" }} />
-        Life after work is just the beginning
-      </p>
-
-      <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(3rem,6vw,5.5rem)", fontWeight: 700, lineHeight: .95, color: "#F2EDE4", letterSpacing: ".04em", marginBottom: "2rem" }}>
-        <span style={{ color: "#8B1A1A" }}>UN</span>RETIRE
-      </h1>
-
-      <div style={{ width: 1, height: 60, background: "linear-gradient(to bottom, rgba(139,26,26,.8), transparent)", marginBottom: "2rem" }} />
-
-      <p style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.4rem,2.5vw,2rem)", fontWeight: 300, color: "#F2EDE4", lineHeight: 1.35, marginBottom: ".75rem", fontStyle: "italic" }}>
-        Reboot. Don&apos;t Mute.
-      </p>
-
-      <p style={{ fontSize: ".9rem", color: "rgba(242,237,228,.5)", lineHeight: 1.85, maxWidth: "44ch", marginBottom: "2.5rem", fontWeight: 300 }}>
-        Retirement is not a finish line. It&apos;s an inflection point — and the framework to design what comes next starts here.
-      </p>
-
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-        <Link href="/unretire/framework"
-          style={{ display: "inline-flex", alignItems: "center", gap: ".5rem", padding: ".85rem 2.2rem", background: "#8B1A1A", color: "#F2EDE4", borderRadius: 3, fontSize: ".78rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", textDecoration: "none", transition: "background .2s" }}
-          onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.background = "#A82020"}
-          onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.background = "#8B1A1A"}>
-          Explore the Framework
-        </Link>
-        <Link href="/unretire/book"
-          style={{ display: "inline-flex", alignItems: "center", padding: ".85rem 2.2rem", background: "transparent", color: "rgba(242,237,228,.6)", border: "1px solid rgba(255,255,255,.15)", borderRadius: 3, fontSize: ".78rem", fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", textDecoration: "none", transition: "all .2s" }}
-          onMouseOver={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#F2EDE4"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,.35)"; }}
-          onMouseOut={e => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.6)"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,.15)"; }}>
-          The Book
-        </Link>
-      </div>
-    </div>
-
-    {/* Right — book cover */}
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <div style={{ position: "relative" }}>
-        {/* Glow behind book */}
-        <div style={{ position: "absolute", inset: "-20%", background: "radial-gradient(ellipse, rgba(139,26,26,.2) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <Image
-          src="/assets/images/1.png"
-          alt="UnRetire by Maher Kaddoura"
-          width={320}
-          height={440}
-          style={{ position: "relative", zIndex: 1, filter: "drop-shadow(0 32px 64px rgba(0,0,0,.6))" }}
-          priority
-        />
-      </div>
-    </div>
-  </div>
-</section>
-
-
-      {/* ── VIDEO + PROBLEM ───────────────────── */}
-      <section style={{ background: "#E8E0D4", padding: "5rem 2.5rem" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center" }} className="two-col">
-          <div style={{ background: "#1A1208", borderRadius: 16, overflow: "hidden", boxShadow: "0 16px 48px rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.06)" }}>
-            <div style={{ aspectRatio: "16/10", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", cursor: "pointer" }}>
-              <div style={{ width: 54, height: 54, background: "#7A3A28", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.2rem", boxShadow: "0 8px 24px rgba(122,58,40,.4)", flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1 text-center lg:text-left">
+              <p className="eyebrow mb-6">Reboot. Don&apos;t Mute.</p>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05]">
+                Reboot.<br />Don&apos;t Mute.
+              </h1>
+              <span className="rule mt-7 mb-7 mx-auto lg:mx-0" aria-hidden="true" />
+              <p className="font-bold text-xl sm:text-2xl text-[#232F3F] leading-snug mb-5 max-w-[42ch] mx-auto lg:mx-0">
+                Retirement isn&apos;t the finish line. It&apos;s the most important beginning of your
+                life — if you choose to design it.
+              </p>
+              <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-9">
+                Retirement is the only major life transition we prepare for financially but avoid
+                emotionally. We plan the numbers. And then the day arrives — the title disappears, the
+                calendar empties — and too many people find themselves not free, but adrift. UnRetire
+                is the invitation to flip that script: to step <em>through</em> retirement, not away
+                from life.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <Link href="/unretire/assess" className="btn btn-crimson">
+                  Start With One Question →
+                </Link>
+                <Link href="/unretire/book" className="btn btn-outline">
+                  Read the Book
+                </Link>
               </div>
-              <p style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", fontWeight: 600, color: "#F2EDE4", textAlign: "center", marginBottom: ".3rem" }}>Watch the UnRetire message</p>
-              <p style={{ fontSize: ".72rem", color: "rgba(242,237,228,.4)", textAlign: "center", lineHeight: 1.5 }}>Maher&apos;s personal message about what it means to UnRetire</p>
             </div>
-            <div style={{ background: "#1A1208", borderTop: "1px solid rgba(255,255,255,.06)", padding: ".75rem 1.2rem", display: "flex", alignItems: "center", gap: ".75rem" }}>
-              <div style={{ background: "#7A3A28", borderRadius: 4, padding: ".2rem .5rem", fontSize: ".5rem", fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase", color: "#fff", whiteSpace: "nowrap", lineHeight: 1.4 }}>NEW<br />CHAPTER</div>
-              <p style={{ fontSize: ".72rem", color: "rgba(242,237,228,.45)", lineHeight: 1.5 }}>Reboot. Don&apos;t Mute. The beginning of an intentional next chapter.</p>
+
+            <div className="lg:col-span-6 order-1 lg:order-2">
+              <div className="relative w-full max-w-[600px] mx-auto aspect-[3/2]">
+                <Image
+                  src="/assets/unretire/images/homepage/hero.png"
+                  alt="Stepping through retirement toward a new path — reboot, don't mute"
+                  fill
+                  sizes="(min-width: 1024px) 600px, 100vw"
+                  priority
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
-          <div>
-            <p style={{ fontSize: "1.05rem", color: "#3A3228", lineHeight: 1.9, fontWeight: 400 }}>Retirement is the only major life transition we prepare for financially — but avoid emotionally. (Un)Retire gives you the framework to design what comes next — on purpose, not by default.</p>
-          </div>
         </div>
       </section>
 
-      {/* ── THE CHALLENGE ─────────────────────── */}
-      <section style={{ background: "#111108", padding: "6rem 2.5rem" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "#7A3A28", display: "block", marginBottom: ".75rem" }}>The Challenge</span>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 500, lineHeight: 1.12, color: "#F2EDE4", letterSpacing: "-.015em" }}>The Problem with Retirement</h2>
-            <p style={{ fontSize: ".92rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, maxWidth: 580, margin: ".8rem auto 0", fontWeight: 300 }}>For generations, retirement has been framed as the reward for a lifetime of work — a time to slow down, step aside, and finally rest.</p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.5rem" }} className="three-col">
-            {challenges.map(c => (
-              <div key={c.title} style={{ background: "#0D0807", border: "1px solid rgba(255,255,255,.07)", borderRadius: 12, padding: "2rem", transition: "transform .2s, box-shadow .2s", cursor: "default" }}
-                onMouseOver={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 40px rgba(0,0,0,.3)"; }}
-                onMouseOut={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}>
-                <div style={{ width: 48, height: 48, background: "rgba(122,58,40,.12)", border: "1px solid rgba(122,58,40,.25)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.1rem" }}>{c.icon}</div>
-                <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.3rem", color: "#F2EDE4", marginBottom: ".7rem", fontWeight: 500 }}>{c.title}</h3>
-                <p style={{ fontSize: ".82rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, fontWeight: 300 }}>{c.desc}</p>
+      {/* ── SIGNATURE QUOTE ──────────────────────────────────── */}
+      <section className="bg-white border-y border-[#ECECEC]">
+        <div className="max-w-3xl mx-auto px-6 py-14 sm:py-16 text-center">
+          <span className="rule mx-auto mb-7" aria-hidden="true" />
+          <blockquote className="text-[#1B1B1B] text-2xl md:text-3xl italic leading-[1.4]">
+            &ldquo;Aging is inevitable. Diminishing is optional.&rdquo;
+          </blockquote>
+          <cite className="block text-[#D05D11] font-bold text-[12px] tracking-[0.14em] uppercase mt-5 not-italic">
+            — Maher Kaddoura
+          </cite>
+        </div>
+      </section>
+
+      {/* ── THE FRAMEWORK ────────────────────────────────────── */}
+      <section className="bg-[#FBF5F2] border-b border-[#ECECEC]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <p className="eyebrow mb-5">The Framework</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">
+                A Practical Way to Live Fully — at Any Age
+              </h2>
+              <span className="rule mt-6 mb-7" aria-hidden="true" />
+              <p className="prose-body leading-[1.85] mb-4">
+                Most books about retirement tell you how to <em>slow down</em>. This one shows you how
+                to <em>wake up</em>.
+              </p>
+              <p className="prose-body leading-[1.85] mb-4">
+                The (Un)Retire framework is built on one simple equation:{" "}
+                <strong className="text-[#1B1B1B] font-bold">Mindset &times; Practice.</strong>
+              </p>
+              <p className="prose-body leading-[1.85] mb-8">
+                Five mindsets to change how you think. Seven practices to change what you do. Together
+                they turn the empty calendar into a blank canvas — not time to fill, but a life to
+                design.
+              </p>
+              <Link href="/unretire/practice#tools" className="btn btn-crimson">
+                Download the Free 14-Day Starter Plan
+              </Link>
+            </div>
+
+            <div className="lg:col-span-6 order-1 lg:order-2">
+              <div className="relative w-full max-w-[520px] mx-auto aspect-[1254/980]">
+                <Image
+                  src="/assets/unretire/diagrams/mindset-practice-loop.png"
+                  alt="The Mindset × Practice framework — five mindsets and seven practices"
+                  fill
+                  sizes="(min-width: 1024px) 520px, 100vw"
+                  className="object-contain"
+                />
               </div>
-            ))}
-          </div>
-          <div style={{ marginTop: "3rem", background: "#7A3A28", borderRadius: 10, padding: "2.5rem 3rem", textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.1rem,2vw,1.5rem)", color: "#fff", fontWeight: 400, lineHeight: 1.6, fontStyle: "italic" }}>&ldquo;The real risk is not aging. It&apos;s muting yourself — your curiosity, your contribution, your sense of relevance, your joy.&rdquo;</p>
-            <p style={{ marginTop: "1rem", fontSize: ".72rem", color: "rgba(255,255,255,.6)", fontStyle: "italic" }}>&ldquo;Retirement is not a finish line. It&apos;s an inflection point — a new beginning.&rdquo;</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── PHILOSOPHY ────────────────────────── */}
-      <section style={{ background: "#0D0807", padding: "6rem 2.5rem" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center" }} className="two-col">
-          <div>
-            <span style={{ fontFamily: "var(--mono)", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "#7A3A28", display: "block", marginBottom: ".75rem" }}>The Philosophy</span>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 500, color: "#F2EDE4", lineHeight: 1.12, marginBottom: "1.5rem", letterSpacing: "-.015em" }}>A New Way to<br />Think About Retirement</h2>
-            <p style={{ fontSize: ".92rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, fontWeight: 300, marginBottom: "1rem" }}>(Un)Retire is not about working forever. It&apos;s not about staying busy. It&apos;s not about denying age or pretending nothing has changed.</p>
-            <p style={{ fontSize: ".92rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, fontWeight: 300, marginBottom: "1.5rem" }}>It&apos;s about <strong style={{ color: "#F2EDE4", fontWeight: 500 }}>rebooting</strong> your identity when old labels fall away. <strong style={{ color: "#F2EDE4", fontWeight: 500 }}>Choosing</strong> purpose over drift. <strong style={{ color: "#F2EDE4", fontWeight: 500 }}>Designing</strong> a life that feels whole — not just comfortable.</p>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "1.1rem", color: "#7A3A28", fontStyle: "italic" }}>Not by default — but by design.</p>
-          </div>
-          <div style={{ background: "#111108", borderRadius: 14, padding: "3rem", textAlign: "center", border: "1px solid rgba(255,255,255,.07)" }}>
-            <p style={{ fontFamily: "var(--mono)", fontSize: ".55rem", letterSpacing: ".2em", textTransform: "uppercase", color: "#7A3A28", marginBottom: "1.5rem" }}>The Core Equation</p>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "3rem", color: "#F2EDE4", fontWeight: 400, lineHeight: 1 }}>Mindset</p>
-            <p style={{ fontSize: "2.5rem", color: "#7A3A28", margin: ".3rem 0", fontWeight: 700 }}>✕</p>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "3rem", color: "#F2EDE4", fontWeight: 400, lineHeight: 1 }}>Practice</p>
-            <p style={{ fontSize: ".78rem", color: "rgba(242,237,228,.65)", margin: "1.5rem 0 2rem", lineHeight: 1.85, fontWeight: 300 }}>Five powerful mindsets. Seven intentional practices. Together, a complete guide for the next chapter of life.</p>
-            <Link href="/unretire/framework" style={{ display: "inline-flex", alignItems: "center", padding: ".7rem 1.8rem", background: "#7A3A28", color: "#fff", borderRadius: 4, fontSize: ".75rem", fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", textDecoration: "none", transition: "background .2s" }}
-              onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.background = "#8F4A35"}
-              onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.background = "#7A3A28"}>
-              Explore the Framework +
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── THE FRAMEWORK ─────────────────────── */}
-      <section style={{ background: "#F2EDE4", padding: "6rem 2.5rem" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "#7A3A28", display: "block", marginBottom: ".75rem" }}>The Framework</span>
-          <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "#0D0D0D", marginBottom: ".7rem" }}>Five Mindsets. Seven Practices.</h2>
-          <p style={{ fontSize: ".88rem", color: "#9A9080", marginBottom: "3rem" }}>The building blocks of an intentional life after career.</p>
-          <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", justifyContent: "center", flexWrap: "wrap" }}>
-            {mindsets.map(m => (
-              <div key={m.title} style={{ flex: 1, minWidth: 140, maxWidth: 180, background: "#fff", borderRadius: 10, padding: "1.4rem 1rem", boxShadow: "0 2px 12px rgba(0,0,0,.06)", textAlign: "center" }}>
-                <div style={{ width: 36, height: 36, background: "rgba(122,58,40,.1)", borderRadius: 8, margin: "0 auto .8rem" }} />
-                <div style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", color: "#0D0D0D", marginBottom: ".4rem" }}>{m.title}</div>
-                <div style={{ fontSize: ".72rem", color: "#9A9080", lineHeight: 1.5 }}>{m.desc}</div>
+      {/* ── WHO IS IT FOR ────────────────────────────────────── */}
+      <section className="bg-white">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            <div className="lg:col-span-5">
+              <p className="eyebrow mb-5">Who Is It For</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">Who is this for?</h2>
+              <span className="rule mt-6 mb-7" aria-hidden="true" />
+              <p className="prose-body leading-[1.85] mb-6">
+                If you&apos;re looking for permission to fade quietly, this isn&apos;t your book. But
+                if you&apos;re ready to reclaim the next chapter — you&apos;re exactly where you need
+                to be.
+              </p>
+              <Link href="/unretire/book" className="btn btn-outline">
+                Read the First Chapter Free
+              </Link>
+              <div className="relative w-full max-w-[440px] mx-auto lg:mx-0 mt-9 aspect-[2/1]">
+                <Image
+                  src="/assets/unretire/images/homepage/who-is-it-for.png"
+                  alt="People living a fuller next chapter — painting, staying active, connecting"
+                  fill
+                  sizes="(min-width: 1024px) 440px, 100vw"
+                  className="object-contain"
+                />
               </div>
-            ))}
+            </div>
+
+            <div className="lg:col-span-7">
+              <ul className="card p-8 sm:p-10 space-y-5">
+                {whoFor.map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="text-[#D05D11] font-bold mt-1 flex-shrink-0" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    </span>
+                    <span className="prose-body text-[16px] leading-[1.6]">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div style={{ background: "#0D0807", borderRadius: 10, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: ".5rem" }}>
-            {practices.map(p => (
-              <Link key={p} href={`/unretire/framework/practice-${p.toLowerCase()}`} style={{ fontFamily: "var(--mono)", fontSize: ".62rem", letterSpacing: ".15em", textTransform: "uppercase", color: "rgba(242,237,228,.7)", textDecoration: "none", padding: ".3rem .5rem", transition: "color .18s" }}
-                onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.color = "#7A3A28"}
-                onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.color = "rgba(242,237,228,.7)"}>
-                {p}
+        </div>
+      </section>
+
+      {/* ── FOUR WAYS TO ENGAGE ──────────────────────────────── */}
+      <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
+            <p className="eyebrow mb-5">Four ways to begin</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">Choose your path into UnRetire</h2>
+            <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {paths.map((p) => (
+              <Link
+                key={p.title}
+                href={p.href}
+                className="card card-hover relative p-7 flex flex-col before:content-[''] before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-[#D05D11] before:opacity-0 hover:before:opacity-100 before:transition-opacity before:rounded-t-2xl"
+              >
+                <span className="icon-block mb-5">{p.icon}</span>
+                <h3 className="text-xl mb-3">{p.title}</h3>
+                <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">{p.desc}</p>
+                <span className="pill-link">Explore →</span>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── PROFILES ──────────────────────────── */}
-      <section style={{ background: "#F2EDE4", padding: "6rem 2.5rem", borderTop: "1px solid rgba(0,0,0,.06)" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "#7A3A28", display: "block", marginBottom: ".75rem" }}>Is this you?</span>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "#0D0D0D", marginBottom: ".7rem" }}>Which Retiree Are You?</h2>
-            <p style={{ fontSize: ".88rem", color: "#9A9080" }}>The (Un)Retire journey speaks to people at many different points in the retirement transition.</p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }} className="three-col">
-            {profiles.map(p => (
-              <Link key={p.href} href={p.href} style={{ background: "#F2EDE4", border: "1.5px solid rgba(0,0,0,.08)", borderRadius: 10, padding: "1.5rem", textDecoration: "none", transition: "all .2s", display: "block" }}
-                onMouseOver={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "#7A3A28"; (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)"; }}
-                onMouseOut={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(0,0,0,.08)"; (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "1.05rem", color: "#0D0D0D", marginBottom: ".5rem", fontWeight: 500 }}>{p.title}</div>
-                <div style={{ fontSize: ".78rem", color: "#9A9080", fontStyle: "italic" }}>{p.quote}</div>
-              </Link>
-            ))}
-          </div>
+      {/* ── EMAIL CAPTURE ────────────────────────────────────── */}
+      <EmailCaptureBand showFaq blurb="The best chapter of your life hasn't been written yet. Get the free 14-Day Starter Plan and a weekly note on living fully — at any age." />
+
+      {/* ── CLOSING BAND ─────────────────────────────────────── */}
+      <section className="bg-[#232F3F]">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
+          <p className="text-white/70 text-[16px] leading-[1.7] mb-7">Take a moment. Ask yourself, honestly:</p>
+          <p className="text-2xl sm:text-3xl font-bold text-white leading-[1.4] mb-3">
+            Where have I started muting myself?
+          </p>
+          <p className="text-2xl sm:text-3xl font-bold text-white leading-[1.4] mb-8">
+            What part of me is still awake, asking for more?
+          </p>
+          <p className="text-white/60 text-[16px] italic leading-[1.7]">
+            You don&apos;t need the answers yet. Just the courage to ask.
+          </p>
         </div>
       </section>
-
-      {/* ── BUY THE BOOK ──────────────────────── */}
-      <section style={{ background: "#0D0807", padding: "7rem 2.5rem" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "5rem", alignItems: "center" }} className="two-col">
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Image src="/assets/images/book-unretire-cover.png" alt="UnRetire" width={240} height={320} style={{ maxWidth: 240, width: "100%", borderRadius: 6, boxShadow: "0 24px 64px rgba(0,0,0,.5)" }} />
-          </div>
-          <div>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 400, color: "#F2EDE4", lineHeight: 1.15, marginBottom: "1.5rem" }}>The complete guide to designing your next chapter</h2>
-            <p style={{ fontSize: ".92rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, fontWeight: 300, marginBottom: "1.5rem" }}>From &ldquo;Reboot Don&apos;t Mute&rdquo; to the 14-Day Starter Plan — a comprehensive framework for approaching retirement not as an end, but as a beginning.</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: ".6rem", marginBottom: "2rem" }}>
-              {bookFeatures.map(f => (
-                <div key={f} style={{ display: "flex", alignItems: "flex-start", gap: ".75rem" }}>
-                  <span style={{ color: "#7A3A28", marginTop: ".1rem", flexShrink: 0 }}>—</span>
-                  <span style={{ fontSize: ".85rem", color: "rgba(242,237,228,.65)", lineHeight: 1.85, fontWeight: 300 }}>{f}</span>
-                </div>
-              ))}
-            </div>
-            <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", padding: ".8rem 2rem", background: "#7A3A28", color: "#fff", borderRadius: 4, fontSize: ".8rem", fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", textDecoration: "none", transition: "background .2s" }}
-              onMouseOver={e => (e.currentTarget as HTMLAnchorElement).style.background = "#8F4A35"}
-              onMouseOut={e => (e.currentTarget as HTMLAnchorElement).style.background = "#7A3A28"}>
-              Buy on Amazon →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── NEWSLETTER ────────────────────────── */}
-      <section style={{ background: "#7A3A28", padding: "6rem 2.5rem", textAlign: "center" }}>
-        <div style={{ maxWidth: 540, margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "#fff", marginBottom: "1rem" }}>Join the<br />(Un)Retire Newsletter</h2>
-          <p style={{ fontSize: ".9rem", color: "rgba(255,255,255,.75)", lineHeight: 1.8, marginBottom: "2.5rem", fontWeight: 300 }}>Weekly insights on designing the life you were made for — delivered every Monday morning.</p>
-          {submitted ? (
-            <p style={{ color: "rgba(255,255,255,.9)", fontSize: ".9rem" }}>✓ You&apos;re in. See you Monday.</p>
-          ) : (
-            <div style={{ display: "flex", gap: ".75rem", maxWidth: 400, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
-              <input type="email" placeholder="Enter Email Address" value={email} onChange={e => setEmail(e.target.value)} required style={{ flex: 1, minWidth: 200, padding: ".85rem 1.4rem", background: "#F2EDE4", border: "none", borderRadius: 999, fontSize: ".88rem", color: "#0D0D0D", fontFamily: "var(--body)", outline: "none" }} />
-              <button onClick={() => email && setSubmitted(true)} style={{ padding: ".85rem 1.8rem", background: "#0D0D0D", color: "#fff", border: "none", borderRadius: 999, fontSize: ".78rem", fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", whiteSpace: "nowrap", transition: "background .2s" }}
-                onMouseOver={e => (e.currentTarget as HTMLButtonElement).style.background = "#1A1A1A"}
-                onMouseOut={e => (e.currentTarget as HTMLButtonElement).style.background = "#0D0D0D"}>
-                Join
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <style>{`
-        @media(max-width:768px){
-          .two-col{grid-template-columns:1fr!important;gap:2.5rem!important;}
-          .three-col{grid-template-columns:1fr!important;}
-        }
-      `}</style>
     </>
   );
 }
