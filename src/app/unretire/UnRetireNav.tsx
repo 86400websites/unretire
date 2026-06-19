@@ -26,7 +26,7 @@ const navItems: NavItem[] = [
       { label: "The 5 Mindsets", href: "/unretire/practice#mindsets", desc: "How you think — five belief shifts." },
       { label: "The 7 Practices", href: "/unretire/practice#practices", desc: "What you do — seven daily practices." },
       { label: "14-Day Starter Plan", href: "/unretire/practice#tools", desc: "One small move a day for two weeks." },
-      { label: "The Toolkit", href: "/unretire/tools", desc: "Experiments and the Wheel of Life." },
+      { label: "The Toolkit", href: "/unretire/tools", desc: "28 experiments across the 7 practices." },
     ],
   },
   { label: "Stories", href: "/unretire/stories" },
