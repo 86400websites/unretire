@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "Stories",
+  description: "Real people who refused to fade — artists, mentors, athletes, and change-makers who rebooted instead of muting.",
+};
+
 const stories = [
   { img: "mentor", kind: "Practice", tag: "Contribute", title: "The Mentor", desc: "Spent forty years building companies. Now spends mornings building people — one founder, one coffee, one hard question at a time." },
   { img: "artist", kind: "Mindset", tag: "Evolution", title: "The Beginner at 68", desc: "Picked up a paintbrush for the first time the year she retired. Three exhibitions later, she's not slowing down — she's just getting started." },

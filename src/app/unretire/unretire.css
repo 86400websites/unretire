@@ -37,11 +37,26 @@
 .ur-site h2,
 .ur-site h3,
 .ur-site h4 {
-  color: var(--ur-ink);
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.14;
 }
+
+/* Heading color lives in @layer base so Tailwind text-color utilities
+   (e.g. text-white on dark/colored bands) reliably override it. Without
+   this, the unlayered rule beats the utility and headings render dark. */
+@layer base {
+  .ur-site h1,
+  .ur-site h2,
+  .ur-site h3,
+  .ur-site h4 {
+    color: var(--ur-ink);
+  }
+}
+
+/* Safeguard: guarantee solid white headings on dark/colored bands regardless
+   of cascade-layer ordering (higher specificity than the heading color rule). */
+.ur-site .text-white { color: #fff; }
 
 .ur-site p { margin: 0; }
 .ur-site ::selection { background: var(--ur-crimson); color: #fff; }
@@ -210,6 +225,7 @@
 .ur-site .my-7 { margin-top:1.75rem;margin-bottom:1.75rem; }
 .ur-site .p-0 { padding:0px; }
 .ur-site .p-2 { padding:0.5rem; }
+.ur-site .p-3 { padding:0.75rem; }
 .ur-site .p-4 { padding:1rem; }
 .ur-site .p-5 { padding:1.25rem; }
 .ur-site .p-6 { padding:1.5rem; }
@@ -225,12 +241,14 @@
 .ur-site .pt-2 { padding-top:0.5rem; }
 .ur-site .pt-3 { padding-top:0.75rem; }
 .ur-site .pt-7 { padding-top:1.75rem; }
+.ur-site .px-2 { padding-left:0.5rem;padding-right:0.5rem; }
 .ur-site .px-3 { padding-left:0.75rem;padding-right:0.75rem; }
 .ur-site .px-3\.5 { padding-left:0.875rem;padding-right:0.875rem; }
 .ur-site .px-4 { padding-left:1rem;padding-right:1rem; }
 .ur-site .px-5 { padding-left:1.25rem;padding-right:1.25rem; }
 .ur-site .px-6 { padding-left:1.5rem;padding-right:1.5rem; }
 .ur-site .px-7 { padding-left:1.75rem;padding-right:1.75rem; }
+.ur-site .py-0\.5 { padding-top:0.125rem;padding-bottom:0.125rem; }
 .ur-site .py-1\.5 { padding-top:0.375rem;padding-bottom:0.375rem; }
 .ur-site .py-14 { padding-top:3.5rem;padding-bottom:3.5rem; }
 .ur-site .py-16 { padding-top:4rem;padding-bottom:4rem; }

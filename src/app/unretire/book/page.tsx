@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "The Book",
+  description: "UnRetire by Maher Kaddoura — the framework of 5 mindsets and 7 practices to design a next chapter with meaning, balance, and adventure.",
+};
+
 const mindsets = [
   { icon: "freedom", title: "Freedom", line: "Living life on your own terms" },
   { icon: "evolution", title: "Evolution", line: "Honor the past, but move forward" },
@@ -62,9 +67,9 @@ export default function BookPage() {
                 blueprint for living fully, at any age.
               </p>
               <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" className="btn btn-crimson">
-                  Buy Now
-                </a>
+                <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
+                  Buy on Amazon — Coming Soon
+                </span>
                 <Link href="/unretire/start" className="btn btn-outline">
                   Download the Free First Chapter
                 </Link>
@@ -206,9 +211,9 @@ export default function BookPage() {
             The best chapter of your life hasn&apos;t been written yet.
           </h2>
           <div className="flex flex-wrap gap-3 justify-center">
-            <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" className="btn btn-crimson">
-              Buy the Book
-            </a>
+            <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
+              Buy on Amazon — Coming Soon
+            </span>
             <Link href="/unretire/start" className="btn btn-outline">
               Download the Free First Chapter
             </Link>

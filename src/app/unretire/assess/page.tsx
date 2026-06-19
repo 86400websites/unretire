@@ -1,6 +1,11 @@
 import WheelOfLife from "./WheelOfLife";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "The Wheel of Life",
+  description: "A two-minute, no-signup check across the eight dimensions of a full life. See where you've started muting yourself.",
+};
+
 export default function AssessPage() {
   return (
     <>

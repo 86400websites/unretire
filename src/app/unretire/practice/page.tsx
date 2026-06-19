@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "Practice",
+  description: "The 5 Mindsets and 7 Practices of the (Un)Retire framework — plus the tools to begin this week.",
+};
+
 const mindsets = [
   { n: "01", icon: "freedom", title: "Freedom", sub: "Living Life on My Terms", quote: "I now have the freedom to shape life on my terms.", line: "Trade the rails of obligation for a life you direct." },
   { n: "02", icon: "evolution", title: "Evolution", sub: "Honor the Past, But Move Forward", quote: "My identity is evolving — not ending.", line: "Stop asking \u201CWho was I?\u201D Start asking \u201CWho am I becoming?\u201D" },

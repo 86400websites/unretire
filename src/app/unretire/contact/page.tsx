@@ -2,6 +2,11 @@ import Link from "next/link";
 import ContactForm from "./ContactForm";
 import EmailCaptureBand from "../EmailCaptureBand";
 
+export const metadata = {
+  title: "Contact",
+  description: "Questions about the book, a speaking inquiry, or a story to share — get in touch with the UnRetire team.",
+};
+
 const reach = [
   { title: "General questions", desc: "About the book, the framework, or finding your way in." },
   { title: "Speaking & events", desc: "Invite Maher to speak.", href: "/unretire/speaking", cta: "Speaking →" },
