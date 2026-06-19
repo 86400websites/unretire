@@ -80,8 +80,8 @@ export default function BookPage() {
               <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px]">
                 <div className="absolute -inset-8 bg-[radial-gradient(ellipse,rgba(208,93,17,0.12),transparent_70%)]" aria-hidden="true" />
                 <Image
-                  src="/assets/images/1.png"
-                  alt="UnRetire by Maher Kaddoura — book cover"
+                  src="/assets/unretire/cover.jpg"
+                  alt="UnRetire by Maher Kaddoura — Reboot, Don't Mute."
                   width={320}
                   height={442}
                   priority
