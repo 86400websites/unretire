@@ -9,9 +9,9 @@ export const metadata = {
 };
 
 const tools = [
-  { img: "practice/starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. The simplest way to feel the framework working before you finish the book.", cta: "Download free (PDF) →", href: "/assets/unretire/14-day-starter-plan.pdf", external: true },
-  { img: "practice/toolkit", title: "The Practice Toolkit", desc: "28 small experiments across the seven practices — one a week for half a year. No pressure. Just forward motion.", cta: "Download free (PDF) →", href: "/assets/unretire/practice-toolkit.pdf", external: true },
-  { img: "practice/wheel-of-life", title: "The Wheel of Life", desc: "A quick, honest check across the eight dimensions of a full life. See where you've started muting yourself.", cta: "Take the 2-minute check →", href: "/unretire/assess", external: false },
+  { img: "images/practice/starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. The simplest way to feel the framework working before you finish the book.", cta: "Download free (PDF) →", href: "/assets/unretire/14-day-starter-plan.pdf", external: true },
+  { img: "images/practice/toolkit", title: "The Practice Toolkit", desc: "28 small experiments across the seven practices — one a week for half a year. No pressure. Just forward motion.", cta: "Download free (PDF) →", href: "/assets/unretire/practice-toolkit.pdf", external: true },
+  { img: "images/practice/wheel-of-life", title: "The Wheel of Life", desc: "A quick, honest check across the eight dimensions of a full life. See where you've started muting yourself.", cta: "Take the 2-minute check →", href: "/unretire/assess", external: false },
   { img: "diagrams/ikigai", title: "The Life Design Workbook", desc: "Structured reflection — purpose, passion, contribution — to personalise the framework to your own life.", cta: "From the book →", href: "/unretire/book", external: false },
 ];
 
