@@ -120,7 +120,7 @@ export default function BookPage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">What&apos;s Inside</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">One equation. A whole new chapter.</h2>
+            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">One equation.<br />A whole new chapter.</h2>
             <span className="rule mt-6 mb-7 mx-auto" aria-hidden="true" />
             <p className="lede">
               Everything in UnRetire flows from a single idea —{" "}
@@ -182,7 +182,7 @@ export default function BookPage() {
         <div className="max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">What Readers Say</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">Don&apos;t just take our word for it.</h2>
+            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">Don&apos;t just take our<br />word for it.</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
