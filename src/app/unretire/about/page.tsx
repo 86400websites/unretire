@@ -123,7 +123,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <p className="eyebrow mb-5">Why UnRetire</p>
           <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">
-            Because no one warns you about this part.
+            Because no one warns you<br />about this part.
           </h2>
           <span className="rule mt-6 mb-7" aria-hidden="true" />
           <p className="prose-body leading-[1.85] mb-4">
