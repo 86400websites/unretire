@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
+import ToolkitGate from "../ToolkitGate";
 
 export const metadata = {
   title: "Tools",
@@ -9,10 +10,10 @@ export const metadata = {
 };
 
 const tools = [
-  { img: "images/practice/starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. The simplest way to feel the framework working before you finish the book.", cta: "Download free (PDF) →", href: "/assets/unretire/14-day-starter-plan.pdf", external: true },
-  { img: "images/practice/toolkit", title: "The Practice Toolkit", desc: "28 small experiments across the seven practices — one a week for half a year. No pressure. Just forward motion.", cta: "Download free (PDF) →", href: "/assets/unretire/practice-toolkit.pdf", external: true },
-  { img: "images/practice/wheel-of-life", title: "The Wheel of Life", desc: "A quick, honest check across the eight dimensions of a full life. See where you've started muting yourself.", cta: "Take the 2-minute check →", href: "/unretire/assess", external: false },
-  { img: "diagrams/ikigai", title: "The Life Design Workbook", desc: "Structured reflection — purpose, passion, contribution — to personalise the framework to your own life.", cta: "From the book →", href: "/unretire/book", external: false },
+  { img: "images/practice/starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. The simplest way to feel the framework working before you finish the book.", cta: "Download free (PDF) →", href: "/assets/unretire/14-day-starter-plan.pdf", external: true, gated: false },
+  { img: "images/practice/toolkit", title: "The Practice Toolkit", desc: "28 small experiments across the seven practices — one a week for half a year. No pressure. Just forward motion.", cta: "Get the free Toolkit →", href: "/assets/unretire/practice-toolkit.pdf", external: false, gated: true },
+  { img: "images/practice/wheel-of-life", title: "The Wheel of Life", desc: "A quick, honest check across the eight dimensions of a full life. See where you've started muting yourself.", cta: "Take the 2-minute check →", href: "/unretire/assess", external: false, gated: false },
+  { img: "diagrams/ikigai", title: "The Life Design Workbook", desc: "Structured reflection — purpose, passion, contribution — to personalise the framework to your own life.", cta: "From the book →", href: "/unretire/book", external: false, gated: false },
 ];
 
 export default function ToolsPage() {
@@ -34,6 +35,18 @@ export default function ToolsPage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {tools.map((t) => {
+              if (t.gated) {
+                return (
+                  <ToolkitGate
+                    key={t.title}
+                    img={t.img}
+                    title={t.title}
+                    desc={t.desc}
+                    cta={t.cta}
+                    pdfHref={t.href}
+                  />
+                );
+              }
               const inner = (
                 <>
                   <div className="relative sm:w-40 sm:flex-shrink-0 aspect-[4/3] sm:aspect-auto bg-white border-b sm:border-b-0 sm:border-r border-[#ECECEC]">
