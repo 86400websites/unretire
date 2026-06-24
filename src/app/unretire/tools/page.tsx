@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
-import ToolkitGate from "../ToolkitGate";
+import DownloadGate from "../DownloadGate";
 
 export const metadata = {
   title: "Tools",
@@ -10,11 +10,24 @@ export const metadata = {
 };
 
 const tools = [
-  { img: "images/practice/starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. The simplest way to feel the framework working before you finish the book.", cta: "Download free (PDF) →", href: "/assets/unretire/14-day-starter-plan.pdf", external: true, gated: false },
-  { img: "images/practice/toolkit", title: "The Practice Toolkit", desc: "28 small experiments across the seven practices — one a week for half a year. No pressure. Just forward motion.", cta: "Get the free Toolkit →", href: "/assets/unretire/practice-toolkit.pdf", external: false, gated: true },
-  { img: "images/practice/wheel-of-life", title: "The Wheel of Life", desc: "A quick, honest check across the eight dimensions of a full life. See where you've started muting yourself.", cta: "Take the 2-minute check →", href: "/unretire/assess", external: false, gated: false },
-  { img: "diagrams/ikigai", title: "The Life Design Workbook", desc: "Structured reflection — purpose, passion, contribution — to personalise the framework to your own life.", cta: "From the book →", href: "/unretire/book", external: false, gated: false },
+  { img: "images/practice/starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. The simplest way to feel the framework working before you finish the book.", cta: "Get it free by email →", href: "/unretire/start", gate: "starter-plan" },
+  { img: "images/practice/toolkit", title: "The Practice Toolkit", desc: "28 small experiments across the seven practices — one a week for half a year. No pressure. Just forward motion.", cta: "Get it free by email →", href: "", gate: "toolkit" },
+  { img: "images/practice/wheel-of-life", title: "The Wheel of Life", desc: "A quick, honest check across the eight dimensions of a full life. See where you've started muting yourself.", cta: "Take the 2-minute check →", href: "/unretire/assess", gate: "" },
+  { img: "diagrams/ikigai", title: "The Life Design Workbook", desc: "Structured reflection — purpose, passion, contribution — to personalise the framework to your own life.", cta: "From the book →", href: "/unretire/book", gate: "" },
 ];
+
+const gateCopy: Record<string, { item: string; heading: string; blurb: string }> = {
+  "starter-plan": {
+    item: "14-Day Starter Plan",
+    heading: "Get the 14-Day Starter Plan",
+    blurb: "Drop your email and we'll send the 14-Day Starter Plan straight to your inbox — plus a weekly note on living fully, at any age.",
+  },
+  toolkit: {
+    item: "Practice Toolkit",
+    heading: "Get the Practice Toolkit",
+    blurb: "Drop your email and we'll send the Toolkit your way — 28 small experiments across the seven practices, plus a short series to help you put them to work.",
+  },
+};
 
 export default function ToolsPage() {
   return (
@@ -35,18 +48,6 @@ export default function ToolsPage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {tools.map((t) => {
-              if (t.gated) {
-                return (
-                  <ToolkitGate
-                    key={t.title}
-                    img={t.img}
-                    title={t.title}
-                    desc={t.desc}
-                    cta={t.cta}
-                    pdfHref={t.href}
-                  />
-                );
-              }
               const inner = (
                 <>
                   <div className="relative sm:w-40 sm:flex-shrink-0 aspect-[4/3] sm:aspect-auto bg-white border-b sm:border-b-0 sm:border-r border-[#ECECEC]">
@@ -65,9 +66,22 @@ export default function ToolsPage() {
                   </div>
                 </>
               );
-              return t.external ? (
-                <a key={t.title} href={t.href} target="_blank" rel="noopener noreferrer" className="card card-hover overflow-hidden flex flex-col sm:flex-row">{inner}</a>
-              ) : (
+
+              if (t.gate) {
+                const c = gateCopy[t.gate];
+                return (
+                  <DownloadGate
+                    key={t.title}
+                    tag={t.gate}
+                    item={c.item}
+                    heading={c.heading}
+                    blurb={c.blurb}
+                    triggerClassName="card card-hover overflow-hidden flex flex-col sm:flex-row text-left w-full"
+                    triggerContent={inner}
+                  />
+                );
+              }
+              return (
                 <Link key={t.title} href={t.href} className="card card-hover overflow-hidden flex flex-col sm:flex-row">{inner}</Link>
               );
             })}

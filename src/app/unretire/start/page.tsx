@@ -1,22 +1,31 @@
 import Link from "next/link";
 import EmailCaptureBand from "../EmailCaptureBand";
+import DownloadGate from "../DownloadGate";
 
 export const metadata = {
   title: "Start Your Next Chapter",
-  description: "Download the free 14-Day (Un)Retire Starter Plan, take the 2-minute Wheel of Life check, or open the book — one small step is all it takes.",
+  description: "Get the free 14-Day (Un)Retire Starter Plan by email, take the 2-minute Wheel of Life check, or open the book — one small step is all it takes.",
+};
+
+const STARTER = {
+  tag: "starter-plan",
+  item: "14-Day Starter Plan",
+  heading: "Get the 14-Day Starter Plan",
+  blurb:
+    "Drop your email and we'll send the 14-Day Starter Plan straight to your inbox — plus a weekly note on living fully, at any age.",
 };
 
 const steps = [
   {
-    title: "Download the free 14-Day Starter Plan",
+    title: "Get the free 14-Day Starter Plan",
     desc: "Fourteen days. One small move a day. Most take under twenty minutes and need no preparation. The simplest way to feel the framework working.",
-    href: "/assets/unretire/14-day-starter-plan.pdf",
-    cta: "Download free (PDF) →",
-    external: true,
+    href: "",
+    cta: "Get it free by email →",
+    gate: "starter-plan",
     highlight: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3v13M7 11l5 5 5-5" /><path d="M5 21h14" />
+        <path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" /><path d="M14 4v5h5M8 13h8M8 17h5" />
       </svg>
     ),
   },
@@ -25,7 +34,7 @@ const steps = [
     desc: "A quick, honest look across the eight dimensions of a full life — see where you've started muting yourself, and where to begin.",
     href: "/unretire/assess",
     cta: "Take the check →",
-    external: false,
+    gate: "",
     highlight: false,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +47,7 @@ const steps = [
     desc: "The 5 Mindsets and 7 Practices — how you think, multiplied by what you do. The full system behind the Starter Plan.",
     href: "/unretire/practice",
     cta: "See the practice →",
-    external: false,
+    gate: "",
     highlight: false,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -63,14 +72,14 @@ export default function StartPage() {
             Fourteen days. One small move a day. The free 14-Day Starter Plan is the simplest
             way to feel the (Un)Retire framework working — before you even finish the book.
           </p>
-          <a
-            href="/assets/unretire/14-day-starter-plan.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-crimson"
-          >
-            Download the Free Starter Plan (PDF)
-          </a>
+          <DownloadGate
+            tag={STARTER.tag}
+            item={STARTER.item}
+            heading={STARTER.heading}
+            blurb={STARTER.blurb}
+            triggerClassName="btn btn-crimson"
+            triggerContent="Get the Free Starter Plan →"
+          />
         </div>
       </section>
 
@@ -96,9 +105,20 @@ export default function StartPage() {
                   <span className="pill-link">{s.cta}</span>
                 </>
               );
-              return s.external ? (
-                <a key={s.title} href={s.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
-              ) : (
+              if (s.gate) {
+                return (
+                  <DownloadGate
+                    key={s.title}
+                    tag={STARTER.tag}
+                    item={STARTER.item}
+                    heading={STARTER.heading}
+                    blurb={STARTER.blurb}
+                    triggerClassName={`${cls} text-left w-full`}
+                    triggerContent={inner}
+                  />
+                );
+              }
+              return (
                 <Link key={s.title} href={s.href} className={cls}>{inner}</Link>
               );
             })}
@@ -123,14 +143,14 @@ export default function StartPage() {
               </div>
             ))}
           </div>
-          <a
-            href="/assets/unretire/14-day-starter-plan.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-crimson"
-          >
-            Download free (PDF) →
-          </a>
+          <DownloadGate
+            tag={STARTER.tag}
+            item={STARTER.item}
+            heading={STARTER.heading}
+            blurb={STARTER.blurb}
+            triggerClassName="btn btn-crimson"
+            triggerContent="Get it free by email →"
+          />
         </div>
       </section>
 
