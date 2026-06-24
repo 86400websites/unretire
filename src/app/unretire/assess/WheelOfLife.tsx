@@ -1,58 +1,101 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
-const dims = [
-  { name: "Passion & Purpose", practice: "Ignite" },
-  { name: "Health & Vitality", practice: "Move" },
-  { name: "Relationships", practice: "Connect" },
-  { name: "Personal Growth & Creativity", practice: "Grow" },
-  { name: "Spirituality & Inner Peace", practice: "Grow" },
-  { name: "Fun & Adventure", practice: "Explore" },
-  { name: "Money With Meaning", practice: "Optimize" },
-  { name: "Contribution & Legacy", practice: "Contribute" },
+type Spoke = { key: string; q: string; sub: string; high: string; low: string };
+
+const SPOKES: Spoke[] = [
+  { key: "Passion & Purpose",
+    q: "I wake up with a reason to get going — something that genuinely pulls me forward.",
+    sub: "Not a job. A direction worth your energy.",
+    high: "Purpose is your engine, and it's running. The next step is aiming it.",
+    low: "When the calendar empties, purpose has to be chosen — it rarely just arrives." },
+  { key: "Health & Vitality",
+    q: "My energy and body can keep up with the life I actually want to live.",
+    sub: "Vitality is the fuel everything else burns.",
+    high: "Your body isn't holding you back. Protect that — it compounds.",
+    low: "Low energy is easy to mistake for low happiness. Often it's the first thing to fix." },
+  { key: "Relationships",
+    q: "I have people in my life who truly lift me — not just people I happen to see.",
+    sub: "A circle that raises you, not one that drains you.",
+    high: "A strong circle is rare. It's quietly the best investment you have.",
+    low: "Connection drifts silently after work ends. It has to be rebuilt on purpose." },
+  { key: "Personal Growth & Creativity",
+    q: "I'm still learning, stretching, and making things — not just maintaining.",
+    sub: "Growth is expansion, not decline.",
+    high: "Curiosity is keeping you young. Keep feeding it new terrain.",
+    low: "The danger isn't aging — it's assuming your growth is already complete." },
+  { key: "Spirituality & Inner Peace",
+    q: "I feel anchored to something deeper than my achievements and to-do list.",
+    sub: "The quiet foundation beneath everything else.",
+    high: "You have an anchor. That's what keeps balance steady when life shifts.",
+    low: "Without an anchor, balance stays fragile — even when everything looks fine." },
+  { key: "Fun & Adventure",
+    q: "My weeks include real novelty, play, and moments that make me feel alive.",
+    sub: "Joy isn't random. It's designed.",
+    high: "You're protecting joy instead of postponing it. That's the whole game.",
+    low: "Joy fades when days become identical. Novelty is the cure, and it's closer than you think." },
+  { key: "Money with Meaning",
+    q: "My money supports the life I want now — it's a tool, not just a scorecard.",
+    sub: "From accumulating to using, with intention.",
+    high: "You treat money as a tool. That permission is harder to earn than the money itself.",
+    low: "Many have the resources but not the permission to use them. That's a shift, not a number." },
+  { key: "Contribution & Legacy",
+    q: "I'm passing on wisdom, time, or resources in a way that outlives me.",
+    sub: "Usefulness has no expiry date.",
+    high: "You're already gifting forward. That's where lasting meaning quietly lives.",
+    low: "Wisdom unused doesn't disappear — it just goes unshared. There's still time to change that." },
 ];
 
-const CX = 200;
-const CY = 200;
-const R = 150;
-const SEG = 360 / dims.length;
-
-const polar = (deg: number, r: number): [number, number] => {
-  const t = (deg * Math.PI) / 180;
-  return [CX + r * Math.sin(t), CY - r * Math.cos(t)];
-};
-
-const wedgePath = (i: number, r: number) => {
-  const [x0, y0] = polar(i * SEG, r);
-  const [x1, y1] = polar((i + 1) * SEG, r);
-  return `M${CX} ${CY} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
-};
-
-// "Health & Vitality" -> "health and vitality" (for mid-sentence use in emails)
 const toLower = (s: string) => s.toLowerCase().replace(/\s*&\s*/g, " and ");
 
-export default function WheelOfLife() {
-  const [scores, setScores] = useState<number[]>(Array(dims.length).fill(5));
-  const [revealed, setRevealed] = useState(false);
+function verdictFor(t: number) {
+  if (t >= 64) return "Your wheel is rolling. The work now is protecting it.";
+  if (t >= 48) return "A strong wheel with one or two flat spots to firm up.";
+  if (t >= 32) return "Your wheel turns — but it's wobbling in a few real places.";
+  return "Right now the wheel is dragging. The good news: that's fixable, by design.";
+}
 
-  // Email capture state
+// radar geometry
+const CX = 180, CY = 180, R = 125, N = SPOKES.length;
+const ang = (i: number) => ((-90 + i * (360 / N)) * Math.PI) / 180;
+const pt = (i: number, r: number): [number, number] => [CX + Math.cos(ang(i)) * r, CY + Math.sin(ang(i)) * r];
+
+export default function WheelOfLife() {
+  const [screen, setScreen] = useState<"intro" | "quiz" | "building" | "results">("intro");
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(SPOKES.length).fill(null));
+
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const setScore = (i: number, v: number) =>
-    setScores((s) => s.map((x, j) => (j === i ? v : x)));
+  const choose = (v: number) => setAnswers((a) => a.map((x, i) => (i === current ? v : x)));
+  const start = () => { setCurrent(0); setScreen("quiz"); };
+  const back = () => { if (current > 0) setCurrent((c) => c - 1); };
+  const build = () => { setScreen("building"); setTimeout(() => setScreen("results"), 1700); };
+  const next = () => {
+    if (answers[current] == null) return;
+    if (current < SPOKES.length - 1) setCurrent((c) => c + 1);
+    else build();
+  };
+  const restart = () => {
+    setAnswers(Array(SPOKES.length).fill(null));
+    setCurrent(0);
+    setStatus("idle");
+    setEmail("");
+    setFirstName("");
+    setScreen("intro");
+  };
 
-  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  const totalScore = scores.reduce((a, b) => a + b, 0); // out of 80
-  const ranked = dims
-    .map((d, i) => ({ ...d, score: scores[i], i }))
-    .sort((a, b) => a.score - b.score);
-  const quiet = ranked.slice(0, 3);
-  const weakest = ranked[0]; // single lowest spoke -> drives the email sequence
+  // results
+  const raw = answers.map((a) => a ?? 0);
+  const total = raw.reduce((a, b) => a + b, 0) * 2; // 5-point scale -> /80
+  let hi = 0, lo = 0;
+  raw.forEach((v, idx) => { if (v > raw[hi]) hi = idx; if (v < raw[lo]) lo = idx; });
+  const brightest = SPOKES[hi];
+  const weakest = SPOKES[lo];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,187 +109,223 @@ export default function WheelOfLife() {
           email,
           firstName,
           tag: "wheel-of-life",
-          mergeFields: {
-            WEAKEST: weakest.name,
-            WEAKLOW: toLower(weakest.name),
-            SCORE: totalScore,
-          },
+          mergeFields: { WEAKEST: weakest.key, WEAKLOW: toLower(weakest.key), SCORE: total },
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        setStatus("success");
-      } else {
-        setErrorMsg(data.error || "Something went wrong. Please try again.");
-        setStatus("error");
-      }
+      if (data.success) setStatus("success");
+      else { setErrorMsg(data.error || "Something went wrong. Please try again."); setStatus("error"); }
     } catch {
       setErrorMsg("Something went wrong. Please try again.");
       setStatus("error");
     }
   };
 
+  const inputClass =
+    "flex-1 min-w-0 bg-white rounded-full px-5 py-3 text-[15px] text-[#232F3F] placeholder-[#9A9080] outline-none border border-[#E5DED4] focus:border-[#D05D11] focus:ring-2 focus:ring-[#D05D11]/20";
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-      {/* Wheel */}
-      <div className="order-2 lg:order-1">
-        <svg viewBox="0 0 400 440" className="w-full max-w-[440px] mx-auto" role="img" aria-label="Your Wheel of Life">
-          {/* base + guide rings */}
-          <circle cx={CX} cy={CY} r={R} fill="#F7F2EC" stroke="#E5E5E5" strokeWidth="1" />
-          {[0.25, 0.5, 0.75].map((f) => (
-            <circle key={f} cx={CX} cy={CY} r={R * f} fill="none" stroke="#ECE5DB" strokeWidth="1" />
-          ))}
-          {/* filled wedges */}
-          {scores.map((s, i) => (
-            <path key={`w${i}`} d={wedgePath(i, (s / 10) * R)} fill="#D05D11" fillOpacity="0.82" />
-          ))}
-          {/* spokes */}
-          {dims.map((_, i) => {
-            const [x, y] = polar(i * SEG, R);
-            return <line key={`s${i}`} x1={CX} y1={CY} x2={x} y2={y} stroke="#fff" strokeWidth="2" />;
-          })}
-          <circle cx={CX} cy={CY} r={R} fill="none" stroke="#D8CFC2" strokeWidth="1.5" />
-          <circle cx={CX} cy={CY} r="4" fill="#232F3F" />
-          {/* numbers */}
-          {dims.map((_, i) => {
-            const [x, y] = polar(i * SEG + SEG / 2, R + 22);
-            return (
-              <text key={`n${i}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize="15" fontWeight="700" fill="#232F3F">
-                {i + 1}
-              </text>
-            );
-          })}
-        </svg>
-      </div>
+    <div className="max-w-3xl mx-auto">
+      {/* ── INTRO ── */}
+      {screen === "intro" && (
+        <div className="card p-8 sm:p-10 text-center max-w-2xl mx-auto">
+          <p className="eyebrow mb-5">8 questions · about 2 minutes · honest, not graded</p>
+          <p className="prose-body text-[17px] leading-[1.85] mb-8 max-w-[52ch] mx-auto">
+            Most people plan their retirement on a spreadsheet. Almost no one designs it for meaning.
+            This short check shows you which parts of your life are thriving — and which are running on
+            empty.
+          </p>
+          <button type="button" onClick={start} className="btn btn-crimson">Check my wheel →</button>
+        </div>
+      )}
 
-      {/* Sliders */}
-      <div className="order-1 lg:order-2">
-        <p className="prose-body text-[15px] text-[#666666] leading-[1.7] mb-6">
-          Move each slider to where you are <em>today</em> — not where you think you should be. There
-          are no wrong answers, only honest ones.
-        </p>
-        <ul className="space-y-4">
-          {dims.map((d, i) => (
-            <li key={d.name}>
-              <div className="flex items-center justify-between gap-3 mb-1">
-                <label htmlFor={`dim-${i}`} className="flex items-center gap-2 text-[14px] text-[#232F3F]">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#FAF3EE] text-[#D05D11] text-[11px] font-bold flex-shrink-0">
-                    {i + 1}
-                  </span>
-                  {d.name}
-                </label>
-                <span className="text-[14px] font-bold text-[#D05D11] tabular-nums w-6 text-right">{scores[i]}</span>
-              </div>
-              <input
-                id={`dim-${i}`}
-                type="range"
-                min={1}
-                max={10}
-                step={1}
-                value={scores[i]}
-                onChange={(e) => setScore(i, Number(e.target.value))}
-                className="w-full accent-[#D05D11] cursor-pointer"
+      {/* ── QUIZ ── */}
+      {screen === "quiz" && (
+        <div className="card p-8 sm:p-10 max-w-2xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-[12px] font-bold tracking-[0.14em] text-[#9A9080] tabular-nums">
+              {String(current + 1).padStart(2, "0")} / 08
+            </span>
+            <div className="flex-1 h-[3px] bg-[#ECE5DB] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#D05D11] rounded-full transition-all duration-300"
+                style={{ width: `${(current / SPOKES.length) * 100}%` }}
               />
-            </li>
-          ))}
-        </ul>
-        <button type="button" onClick={() => setRevealed(true)} className="btn btn-crimson w-full mt-7">
-          See where I&apos;m muting myself
-        </button>
-      </div>
+            </div>
+          </div>
 
-      {/* Results */}
-      {revealed && (
-        <div className="lg:col-span-2 order-3" role="region" aria-label="Your results">
-          <div className="card p-8 sm:p-10 mt-2">
-            <p className="eyebrow mb-3">Your reflection</p>
-            <h3 className="text-2xl sm:text-3xl mb-4">
-              {avg >= 7
-                ? "You're living a fairly full wheel."
-                : avg >= 4.5
-                  ? "A few areas are asking for your attention."
-                  : "Several areas are ready to be turned back up."}
-            </h3>
-            <p className="prose-body leading-[1.85] mb-7 max-w-[60ch]">
-              This isn&apos;t a score to pass or fail. It&apos;s a snapshot. The lowest spokes
-              aren&apos;t weaknesses — they&apos;re the places your next chapter is quietly asking for
-              more. Start with one.
+          <p className="eyebrow mb-3">{SPOKES[current].key}</p>
+          <h3 className="text-2xl sm:text-[1.9rem] leading-[1.3] mb-2">{SPOKES[current].q}</h3>
+          <p className="prose-body text-[15px] text-[#666666] mb-8">{SPOKES[current].sub}</p>
+
+          <div className="flex justify-between text-[12px] text-[#9A9080] mb-2">
+            <span>Rarely true</span>
+            <span>Completely true</span>
+          </div>
+          <div className="grid grid-cols-5 gap-3 mb-8">
+            {[1, 2, 3, 4, 5].map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => choose(v)}
+                aria-label={`Rate ${v} of 5`}
+                className={`aspect-square rounded-xl border text-[18px] font-bold transition-all ${
+                  answers[current] === v
+                    ? "bg-[#D05D11] border-[#D05D11] text-white"
+                    : "bg-white border-[#E5DED4] text-[#232F3F] hover:border-[#D05D11]"
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between gap-3">
+            <button type="button" onClick={back} className={`btn btn-outline ${current === 0 ? "invisible" : ""}`}>
+              ← Back
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              disabled={answers[current] == null}
+              className="btn btn-crimson disabled:opacity-50"
+            >
+              {current === SPOKES.length - 1 ? "See my wheel →" : "Next →"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── BUILDING ── */}
+      {screen === "building" && (
+        <div className="card p-8 sm:p-10 text-center max-w-2xl mx-auto">
+          <div className="w-10 h-10 mx-auto mb-6 rounded-full border-2 border-[#ECE5DB] border-t-[#D05D11] animate-spin" />
+          <p className="prose-body text-[#666666]">Mapping your wheel…</p>
+        </div>
+      )}
+
+      {/* ── RESULTS ── */}
+      {screen === "results" && (
+        <div role="region" aria-label="Your results">
+          <div className="text-center mb-8">
+            <p className="eyebrow mb-5">Your Wheel of Life</p>
+            <div className="text-[3.5rem] leading-none text-[#D05D11] mb-3">
+              {total}
+              <span className="text-[1.1rem] text-[#9A9080]">/80</span>
+            </div>
+            <p className="text-xl sm:text-2xl leading-[1.4] text-[#232F3F] max-w-[40ch] mx-auto">
+              {verdictFor(total)}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              {quiet.map((q) => (
-                <div key={q.name} className="rounded-2xl bg-[#FBF5F2] border border-[#ECECEC] p-5">
-                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-[#888888] mb-1">
-                    {q.score}/10
-                  </p>
-                  <p className="text-[1.05rem] text-[#232F3F] leading-snug mb-2">{q.name}</p>
-                  <p className="text-[13px] text-[#666666] leading-snug">
-                    Start with the <span className="text-[#D05D11] font-bold">{q.practice}</span> practice.
-                  </p>
+          </div>
+
+          {/* radar wheel */}
+          <div className="mb-6">
+            <svg viewBox="0 0 360 360" className="w-full max-w-[400px] mx-auto" role="img" aria-label="Your Wheel of Life result">
+              <circle cx={CX} cy={CY} r={R} fill="#F7F2EC" stroke="#E2D9CC" strokeWidth={1.4} />
+              {[0.25, 0.5, 0.75].map((f) => (
+                <circle key={f} cx={CX} cy={CY} r={R * f} fill="none" stroke="#E2D9CC" strokeWidth={1} />
+              ))}
+              {SPOKES.map((_, i) => {
+                const [x, y] = pt(i, R);
+                return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="#E2D9CC" strokeWidth={1} />;
+              })}
+              <polygon
+                points={raw.map((v, i) => pt(i, (v / 5) * R).map((n) => n.toFixed(1)).join(",")).join(" ")}
+                fill="#D05D11"
+                fillOpacity={0.18}
+                stroke="#D05D11"
+                strokeWidth={2}
+                strokeLinejoin="round"
+              />
+              {raw.map((v, i) => {
+                const [x, y] = pt(i, (v / 5) * R);
+                return <circle key={i} cx={x} cy={y} r={3} fill="#D05D11" />;
+              })}
+              <circle cx={CX} cy={CY} r={3} fill="#232F3F" />
+              {SPOKES.map((_, i) => {
+                const [x, y] = pt(i, R + 18);
+                return (
+                  <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="700" fill="#232F3F">
+                    {i + 1}
+                  </text>
+                );
+              })}
+            </svg>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 max-w-xl mx-auto mt-2 text-[12px] text-[#666666]">
+              {SPOKES.map((s, i) => (
+                <div key={i} className="flex gap-2">
+                  <span className="font-bold text-[#D05D11]">{i + 1}</span>
+                  <span className="leading-snug">{s.key}</span>
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Email capture — sends the weakest spoke + score to Mailchimp */}
-            <div className="rounded-2xl bg-[#FBF5F2] border border-[#ECECEC] p-6 sm:p-8 mb-8">
-              {status === "success" ? (
-                <div>
-                  <p className="eyebrow mb-2">You&apos;re in</p>
-                  <p className="prose-body text-[15px] text-[#666666] leading-[1.7] max-w-[55ch]">
-                    ✓ Check your inbox — a personal reading of your{" "}
-                    <span className="text-[#232F3F] font-semibold">{weakest.name}</span> result is on its
-                    way, followed by a short series on bringing that spoke back to life.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <p className="eyebrow mb-3">Your personal reading</p>
-                  <h4 className="text-xl sm:text-2xl mb-2">Want a personal reading of your result?</h4>
-                  <p className="prose-body text-[15px] text-[#666666] leading-[1.7] mb-5 max-w-[55ch]">
-                    Enter your email and we&apos;ll send a personal reading of your wheel — plus a short
-                    series on strengthening your weakest spoke,{" "}
-                    <span className="text-[#232F3F] font-semibold">{weakest.name}</span>, drawn straight
-                    from the (Un)Retire framework.
-                  </p>
-                  <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-xl">
-                    <label htmlFor="ur-wheel-first" className="sr-only">First name</label>
-                    <input
-                      id="ur-wheel-first"
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="First name"
-                      className="flex-1 min-w-0 bg-white rounded-full px-5 py-3 text-[15px] text-[#232F3F] placeholder-[#9A9080] outline-none border border-[#E5DED4] focus:border-[#D05D11] focus:ring-2 focus:ring-[#D05D11]/20"
-                    />
-                    <label htmlFor="ur-wheel-email" className="sr-only">Email address</label>
-                    <input
-                      id="ur-wheel-email"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Email address"
-                      className="flex-1 min-w-0 bg-white rounded-full px-5 py-3 text-[15px] text-[#232F3F] placeholder-[#9A9080] outline-none border border-[#E5DED4] focus:border-[#D05D11] focus:ring-2 focus:ring-[#D05D11]/20"
-                    />
-                    <button type="submit" disabled={status === "loading"} className="btn btn-crimson whitespace-nowrap disabled:opacity-60">
-                      {status === "loading" ? "Sending…" : "Send my reading"}
-                    </button>
-                  </form>
-                  {status === "error" && (
-                    <p className="text-[13px] text-[#B91C1C] mt-2">{errorMsg}</p>
-                  )}
-                  <p className="text-[12px] text-[#999999] mt-2">No spam. Unsubscribe anytime.</p>
-                </>
-              )}
+          {/* brightest + weakest */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <div className="card p-6">
+              <p className="eyebrow mb-2" style={{ color: "#3F7E54" }}>Brightest spoke</p>
+              <h3 className="text-xl mb-2">{brightest.key}</h3>
+              <p className="prose-body text-[14px] text-[#666666] leading-[1.7]">{brightest.high}</p>
             </div>
+            <div className="card p-6">
+              <p className="eyebrow mb-2">Weakest spoke</p>
+              <h3 className="text-xl mb-2">{weakest.key}</h3>
+              <p className="prose-body text-[14px] text-[#666666] leading-[1.7]">{weakest.low}</p>
+            </div>
+          </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Link href="/unretire/practice#practices" className="btn btn-crimson">
-                Explore the 7 Practices
-              </Link>
-              <Link href="/unretire/start" className="btn btn-outline">
-                Get the Free 14-Day Starter Plan
-              </Link>
-            </div>
+          {/* teaser */}
+          <div className="rounded-2xl bg-[#FBF5F2] border border-[#ECECEC] p-6 sm:p-8 mb-8 text-center">
+            <p className="eyebrow mb-3">What this score doesn&apos;t tell you</p>
+            <h3 className="text-xl sm:text-2xl leading-[1.4] mb-4 max-w-[44ch] mx-auto">
+              Knowing where the wheel wobbles is the easy part. Knowing what to do about it is the work.
+            </h3>
+            <p className="prose-body text-[15px] text-[#666666] leading-[1.7] max-w-[54ch] mx-auto">
+              Each spoke maps to a specific mindset and practice in the (Un)Retire system — the small,
+              deliberate shifts that bring a weak area back to life.
+            </p>
+          </div>
+
+          {/* email gate */}
+          <div className="card p-6 sm:p-8 mb-6">
+            {status === "success" ? (
+              <div>
+                <p className="eyebrow mb-2">You&apos;re in</p>
+                <p className="prose-body text-[15px] text-[#666666] leading-[1.7] max-w-[55ch]">
+                  ✓ Check your inbox — a personal reading of your{" "}
+                  <span className="text-[#232F3F] font-semibold">{weakest.key}</span> result is on its
+                  way, followed by a short series on bringing that spoke back to life.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="eyebrow mb-2">Get your free Wheel breakdown</p>
+                <h3 className="text-xl sm:text-2xl mb-2">A personal reading of your {weakest.key} result</h3>
+                <p className="prose-body text-[15px] text-[#666666] leading-[1.7] mb-5 max-w-[55ch]">
+                  Enter your email and we&apos;ll send a personal reading — plus a short series on
+                  strengthening your weakest spoke, drawn straight from the (Un)Retire framework.
+                </p>
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-xl">
+                  <label htmlFor="ur-wheel-first" className="sr-only">First name</label>
+                  <input id="ur-wheel-first" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First name" className={inputClass} />
+                  <label htmlFor="ur-wheel-email" className="sr-only">Email address</label>
+                  <input id="ur-wheel-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className={inputClass} />
+                  <button type="submit" disabled={status === "loading"} className="btn btn-crimson whitespace-nowrap disabled:opacity-60">
+                    {status === "loading" ? "Sending…" : "Send it to me"}
+                  </button>
+                </form>
+                {status === "error" && <p className="text-[13px] text-[#B91C1C] mt-2">{errorMsg}</p>}
+                <p className="text-[12px] text-[#999999] mt-2">No spam. Unsubscribe anytime.</p>
+              </>
+            )}
+          </div>
+
+          <div className="text-center">
+            <button type="button" onClick={restart} className="pill-link">↺ Retake the assessment</button>
+            <p className="prose-body text-[13px] text-[#9A9080] mt-6 max-w-[48ch] mx-auto">
+              The wheel isn&apos;t about perfection. It&apos;s a compass — it just tells you where to look next.
+            </p>
           </div>
         </div>
       )}
