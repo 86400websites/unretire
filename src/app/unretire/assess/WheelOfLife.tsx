@@ -30,18 +30,61 @@ const wedgePath = (i: number, r: number) => {
   return `M${CX} ${CY} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
 };
 
+// "Health & Vitality" -> "health and vitality" (for mid-sentence use in emails)
+const toLower = (s: string) => s.toLowerCase().replace(/\s*&\s*/g, " and ");
+
 export default function WheelOfLife() {
   const [scores, setScores] = useState<number[]>(Array(dims.length).fill(5));
   const [revealed, setRevealed] = useState(false);
+
+  // Email capture state
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const setScore = (i: number, v: number) =>
     setScores((s) => s.map((x, j) => (j === i ? v : x)));
 
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const totalScore = scores.reduce((a, b) => a + b, 0); // out of 80
   const ranked = dims
     .map((d, i) => ({ ...d, score: scores[i], i }))
     .sort((a, b) => a.score - b.score);
   const quiet = ranked.slice(0, 3);
+  const weakest = ranked[0]; // single lowest spoke -> drives the email sequence
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          firstName,
+          tag: "wheel-of-life",
+          mergeFields: {
+            WEAKEST: weakest.name,
+            WEAKLOW: toLower(weakest.name),
+            SCORE: totalScore,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus("success");
+      } else {
+        setErrorMsg(data.error || "Something went wrong. Please try again.");
+        setStatus("error");
+      }
+    } catch {
+      setErrorMsg("Something went wrong. Please try again.");
+      setStatus("error");
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -142,6 +185,60 @@ export default function WheelOfLife() {
                 </div>
               ))}
             </div>
+
+            {/* Email capture — sends the weakest spoke + score to Mailchimp */}
+            <div className="rounded-2xl bg-[#FBF5F2] border border-[#ECECEC] p-6 sm:p-8 mb-8">
+              {status === "success" ? (
+                <div>
+                  <p className="eyebrow mb-2">You&apos;re in</p>
+                  <p className="prose-body text-[15px] text-[#666666] leading-[1.7] max-w-[55ch]">
+                    ✓ Check your inbox — a personal reading of your{" "}
+                    <span className="text-[#232F3F] font-semibold">{weakest.name}</span> result is on its
+                    way, followed by a short series on bringing that spoke back to life.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="eyebrow mb-3">Your personal reading</p>
+                  <h4 className="text-xl sm:text-2xl mb-2">Want a personal reading of your result?</h4>
+                  <p className="prose-body text-[15px] text-[#666666] leading-[1.7] mb-5 max-w-[55ch]">
+                    Enter your email and we&apos;ll send a personal reading of your wheel — plus a short
+                    series on strengthening your weakest spoke,{" "}
+                    <span className="text-[#232F3F] font-semibold">{weakest.name}</span>, drawn straight
+                    from the (Un)Retire framework.
+                  </p>
+                  <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-xl">
+                    <label htmlFor="ur-wheel-first" className="sr-only">First name</label>
+                    <input
+                      id="ur-wheel-first"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First name"
+                      className="flex-1 min-w-0 bg-white rounded-full px-5 py-3 text-[15px] text-[#232F3F] placeholder-[#9A9080] outline-none border border-[#E5DED4] focus:border-[#D05D11] focus:ring-2 focus:ring-[#D05D11]/20"
+                    />
+                    <label htmlFor="ur-wheel-email" className="sr-only">Email address</label>
+                    <input
+                      id="ur-wheel-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Email address"
+                      className="flex-1 min-w-0 bg-white rounded-full px-5 py-3 text-[15px] text-[#232F3F] placeholder-[#9A9080] outline-none border border-[#E5DED4] focus:border-[#D05D11] focus:ring-2 focus:ring-[#D05D11]/20"
+                    />
+                    <button type="submit" disabled={status === "loading"} className="btn btn-crimson whitespace-nowrap disabled:opacity-60">
+                      {status === "loading" ? "Sending…" : "Send my reading"}
+                    </button>
+                  </form>
+                  {status === "error" && (
+                    <p className="text-[13px] text-[#B91C1C] mt-2">{errorMsg}</p>
+                  )}
+                  <p className="text-[12px] text-[#999999] mt-2">No spam. Unsubscribe anytime.</p>
+                </>
+              )}
+            </div>
+
             <div className="flex flex-wrap gap-3">
               <Link href="/unretire/practice#practices" className="btn btn-crimson">
                 Explore the 7 Practices
