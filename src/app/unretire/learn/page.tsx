@@ -12,15 +12,15 @@ const formats = [
     label: "Online Course",
     img: "course",
     title: "The (Un)Retire Course",
-    desc: "The book's companion course. Twelve guided lessons across the five mindsets and seven practices — with reflections, simple exercises, and a plan you build as you go. Not a lecture. A walk through your own next chapter, one step at a time.",
+    desc: "The book's companion course. Ten guided modules across the five mindsets and seven practices — each lesson with a short video, a downloadable companion guide, and a plan you build as you go. Not a lecture. A walk through your own next chapter, one step at a time.",
     cta: "Start the Course →",
-    href: "/unretire/online-course",
+    href: "/unretire/learn/course",
   },
   {
     label: "Podcast",
     img: "podcast",
     title: "Reboot, Don't Mute — the Podcast",
-    desc: "Conversations with people who refused to fade. Retirees who started over, experts on purpose and longevity, and honest talk about the questions no one warns you about. Real stories, no clichés about \u201Cslowing down.\u201D",
+    desc: "Conversations with people who refused to fade. Retirees who started over, experts on purpose and longevity, and honest talk about the questions no one warns you about. Real stories, no clich\u00e9s about \u201Cslowing down.\u201D",
     cta: "Tune In →",
     href: "/unretire/podcast",
   },
@@ -107,7 +107,7 @@ export default function LearnPage() {
           </h2>
           <p className="text-white/70 text-[17px] italic leading-[1.6] mb-9">Pick a page and begin.</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/unretire/online-course" className="btn btn-crimson">
+            <Link href="/unretire/learn/course" className="btn btn-crimson">
               Start the Course
             </Link>
             <Link href="/unretire/start" className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]">
