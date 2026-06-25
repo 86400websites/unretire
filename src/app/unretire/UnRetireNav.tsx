@@ -14,7 +14,7 @@ const navItems: NavItem[] = [
     label: "Learn",
     href: "/unretire/learn",
     children: [
-      { label: "Online Course", href: "/unretire/online-course", desc: "Twelve guided lessons across the framework." },
+      { label: "Online Course", href: "/unretire/learn/course", desc: "Ten guided modules across the framework." },
       { label: "Podcast", href: "/unretire/podcast", desc: "Conversations with people who refused to fade." },
       { label: "Blog", href: "/unretire/blog", desc: "Short, practical notes on living fully." },
     ],
