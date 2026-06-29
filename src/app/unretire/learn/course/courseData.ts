@@ -2,23 +2,33 @@
 // (Un)Retire Course — single source of truth for all course content.
 //
 // HOW TO USE:
-//  • Replace the placeholder module/lesson titles + summaries with Frank's
-//    real curriculum (10 modules, varying lessons each).
-//  • For each lesson, fill in `youtubeId` (the YouTube video ID — the part
-//    after "watch?v=") and `pdfUrl` (the companion guide link) as they arrive.
-//  • When payment / access control is ready, flip COURSE_UNLOCKED to `true`.
-//    While it is `false`, every module shows its outline but the lessons stay
-//    locked (no video/PDF revealed).
+//  • Each module can have an `intro` (an introduction video + a downloadable
+//    "deliverable" worksheet) shown before its lessons, and a list of `lessons`
+//    (each with a video + optional worksheet PDF).
+//  • Add `youtubeId` (the part of a youtu.be/… link after the slash) and
+//    `pdfUrl` as content arrives. Modules 2–10 are still placeholders.
+//  • COURSE_INTRO_YOUTUBE_ID is the whole-course intro, shown as a free preview
+//    on the hub page.
+//  • COURSE_UNLOCKED gates the module content. While `false`, modules show their
+//    outline but videos/PDFs stay locked. Flip to `true` once payment/access
+//    is wired (or to preview locally).
 // ─────────────────────────────────────────────────────────────────────────
 
-export const COURSE_UNLOCKED = false;
+export const COURSE_UNLOCKED = true;
+
+// Whole-course introduction (free preview on the hub).
+export const COURSE_INTRO_YOUTUBE_ID = "6cUHqODZJ28";
 
 export type Lesson = {
   id: string;
   title: string;
-  duration?: string; // e.g. "8 min" (optional)
-  youtubeId?: string; // e.g. "dQw4w9WgXcQ" — add later
-  pdfUrl?: string; // companion guide — add later
+  youtubeId?: string;
+  pdfUrl?: string;
+};
+
+export type ModuleIntro = {
+  youtubeId?: string;
+  deliverablePdf?: string;
 };
 
 export type Module = {
@@ -26,20 +36,31 @@ export type Module = {
   slug: string;
   title: string;
   summary: string;
+  intro?: ModuleIntro;
   lessons: Lesson[];
 };
 
-// PLACEHOLDER CONTENT — replace titles/summaries/lessons with the real course.
 export const modules: Module[] = [
   {
-    num: 1, slug: "module-1",
-    title: "Welcome & the (Un)Retire Mindset",
-    summary: "Why this chapter is designed, not drifted into — and how to use the course.",
+    num: 1,
+    slug: "module-1",
+    title: "Foundation: Reboot, Don't Mute",
+    summary:
+      "Treat retirement as a beginning that needs design — not a default that runs on the old rules. Set your engagement commitment, then work through the four foundation lessons.",
+    intro: {
+      youtubeId: "nIm49kwQLaU",
+      deliverablePdf: "/assets/unretire/course/Module1_Deliverable_Worksheet.pdf",
+    },
     lessons: [
-      { id: "1-1", title: "Welcome: how this course works" },
-      { id: "1-2", title: "From drifting to designing" },
+      { id: "1-1", title: "Why Retirement Is the Most Dangerous Beginning", youtubeId: "UwHZsnL7NTE", pdfUrl: "/assets/unretire/course/Module1_Lesson1_Worksheet.pdf" },
+      { id: "1-2", title: "The Identity Gap", youtubeId: "Rse87ZWuH7k", pdfUrl: "/assets/unretire/course/Module1_Lesson2_Worksheet.pdf" },
+      { id: "1-3", title: "The Mindset × Practice Equation", youtubeId: "yGjknj7EQk4", pdfUrl: "/assets/unretire/course/Module1_Lesson3_Worksheet.pdf" },
+      // Lesson 4 has a video but no worksheet. TODO: confirm the lesson title with Frank.
+      { id: "1-4", title: "Lesson 4", youtubeId: "gFFXNGQdU3I" },
     ],
   },
+  // ── Modules 2–10: placeholders — replace titles/summaries/lessons and add
+  //    intro/youtubeId/pdfUrl as Frank sends each module. ─────────────────
   {
     num: 2, slug: "module-2",
     title: "Reboot, Don't Mute",
