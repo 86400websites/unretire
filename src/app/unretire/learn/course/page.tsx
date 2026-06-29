@@ -1,6 +1,6 @@
 import Link from "next/link";
 import EmailCaptureBand from "../../EmailCaptureBand";
-import { modules, totalLessons, COURSE_UNLOCKED } from "./courseData";
+import { modules, totalLessons, COURSE_INTRO_YOUTUBE_ID } from "./courseData";
 
 export const metadata = {
   title: "The (Un)Retire Course",
@@ -13,7 +13,7 @@ export default function CoursePage() {
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="bg-white">
-        <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
+        <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 pt-16 pb-12 text-center">
           <p className="eyebrow mb-6">Online Course</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">The (Un)Retire Course</h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
@@ -24,6 +24,24 @@ export default function CoursePage() {
           </p>
         </div>
       </section>
+
+      {/* ── COURSE INTRO VIDEO (free preview) ────────────────── */}
+      {COURSE_INTRO_YOUTUBE_ID && (
+        <section className="bg-white">
+          <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 pb-12">
+            <p className="eyebrow mb-3 text-center">Course introduction · free preview</p>
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-[#ECECEC]">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${COURSE_INTRO_YOUTUBE_ID}`}
+                title="Course introduction"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── WHAT'S INSIDE (stats) ────────────────────────────── */}
       <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
@@ -69,11 +87,9 @@ export default function CoursePage() {
                 </span>
                 <span className="flex-shrink-0 flex items-center gap-2 text-[13px] text-[#9A9080]">
                   <span className="hidden sm:inline">{m.lessons.length} lessons</span>
-                  {!COURSE_UNLOCKED && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9080" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Locked">
-                      <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                    </svg>
-                  )}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9080" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Locked">
+                    <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
                 </span>
               </Link>
             ))}
