@@ -67,9 +67,7 @@ export default function BookPage() {
                 blueprint for living fully, at any age.
               </p>
               <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
-                  Buy on Amazon — Coming Soon
-                </span>
+                
                 <Link href="/unretire/start" className="btn btn-outline">
                   Download the Free First Chapter
                 </Link>
@@ -169,10 +167,10 @@ export default function BookPage() {
           <div className="rounded-2xl bg-[#FBF5F2] border border-[#ECECEC] p-7 sm:p-8 text-center">
             <p className="prose-body text-[16px] leading-[1.8] max-w-[60ch] mx-auto">
               And to put it to work from day one — the{" "}
-              <strong className="text-[#1B1B1B] font-bold">14-Day (Un)Retire Starter Plan</strong>, the{" "}
-              <strong className="text-[#1B1B1B] font-bold">Practice Toolkit</strong>, and the{" "}
-              <strong className="text-[#1B1B1B] font-bold">Wheel of Life — (Un)Retirement Edition</strong>.
-            </p>
+             <Link href="/unretire/start" className="text-[#D05D11] font-bold underline decoration-1 underline-offset-2 hover:text-[#8B1A1A] transition-colors">14-Day (Un)Retire Starter Plan</Link>, the{" "}
+        <Link href="/unretire/tools" className="text-[#D05D11] font-bold underline decoration-1 underline-offset-2 hover:text-[#8B1A1A] transition-colors">Practice Toolkit</Link>, and the{" "}
+        <Link href="/unretire/assess" className="text-[#D05D11] font-bold underline decoration-1 underline-offset-2 hover:text-[#8B1A1A] transition-colors">Wheel of Life — (Un)Retirement Edition</Link>.
+</p>
           </div>
         </div>
       </section>

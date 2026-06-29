@@ -138,6 +138,16 @@ export default function PracticePage() {
             {mindsets.map((m) => (
               <Card key={m.title} item={m} />
             ))}
+             {/* CTA block — Starter Plan (sits beside Joy · 05) */}
+            <div className="card relative p-7 flex flex-col justify-center">
+              <p className="eyebrow mb-3">Try it free</p>
+              <p className="text-[15px] text-[#232F3F] leading-[1.6] mb-5">
+                Try the 5 Mindsets in the free 14-Day Starter Plan — a taste of these key components from the book.
+              </p>
+              <Link href="/unretire/start" className="btn btn-crimson self-start">
+                Get the Free 14-Day Starter Plan
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -158,6 +168,16 @@ export default function PracticePage() {
             {practices.map((p) => (
               <Card key={p.title} item={p} />
             ))}
+             {/* CTA block — Practice Toolkit (sits after Optimize · 07) */}
+            <div className="card relative p-7 flex flex-col justify-center">
+              <p className="eyebrow mb-3">Try it free</p>
+              <p className="text-[15px] text-[#232F3F] leading-[1.6] mb-5">
+                Explore a few easy-to-implement practices from our Practice Toolkit — basic lifestyle changes you can make that will change your next chapter.
+              </p>
+              <Link href="/unretire/tools" className="btn btn-crimson self-start">
+                Explore the Practice Toolkit
+              </Link>
+            </div>
           </div>
         </div>
       </section>

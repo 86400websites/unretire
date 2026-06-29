@@ -85,7 +85,7 @@ export default function UnRetireNav() {
               width={150}
               height={54}
               priority
-              className="h-[26px] w-auto"
+              className="h-[32px] w-auto"
             />
           </Link>
 
