@@ -70,7 +70,7 @@ export default function UnRetirePage() {
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <div className="lg:col-span-6 order-2 lg:order-1 text-center lg:text-left">
-              <p className="eyebrow mb-6">Reboot. Don&apos;t Mute.</p>
+           <p className="eyebrow mb-6">Re-Imagine</p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05]">
                 Reboot.<br />Don&apos;t Mute.
               </h1>
@@ -79,13 +79,10 @@ export default function UnRetirePage() {
                 Retirement isn&apos;t the finish line. It&apos;s the most important beginning of your
                 life — if you choose to design it.
               </p>
-              <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-9">
-                Retirement is the only major life transition we prepare for financially but avoid
-                emotionally. We plan the numbers. And then the day arrives — the title disappears, the
-                calendar empties — and too many people find themselves not free, but adrift. UnRetire
-                is the invitation to flip that script: to step <em>through</em> retirement, not away
-                from life.
-              </p>
+           <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-9">
+  Too many people find themselves free, but adrift in retirement. UnRetire is the
+  invitation to flip that script: to step <em>through</em> retirement, not away from life.
+</p>
               <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                 <Link href="/unretire/assess" className="btn btn-crimson">
                   Start With One Question →
