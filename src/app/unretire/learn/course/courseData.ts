@@ -55,8 +55,8 @@ export const modules: Module[] = [
       { id: "1-1", title: "Why Retirement Is the Most Dangerous Beginning", youtubeId: "UwHZsnL7NTE", pdfUrl: "/assets/unretire/course/Module1_Lesson1_Worksheet.pdf" },
       { id: "1-2", title: "The Identity Gap", youtubeId: "Rse87ZWuH7k", pdfUrl: "/assets/unretire/course/Module1_Lesson2_Worksheet.pdf" },
       { id: "1-3", title: "The Mindset × Practice Equation", youtubeId: "yGjknj7EQk4", pdfUrl: "/assets/unretire/course/Module1_Lesson3_Worksheet.pdf" },
-      // Lesson 4 has a video but no worksheet. TODO: confirm the lesson title with Frank.
-      { id: "1-4", title: "Lesson 4", youtubeId: "gFFXNGQdU3I" },
+      { id: "1-4", title: "Commit to Completion", youtubeId: "gFFXNGQdU3I" },
+       
     ],
   },
   // ── Modules 2–10: placeholders — replace titles/summaries/lessons and add
