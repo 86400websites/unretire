@@ -66,11 +66,10 @@ export default function BookPage() {
                 next chapter with meaning, balance, and adventure. Not advice on how to take it easy. A
                 blueprint for living fully, at any age.
               </p>
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                
-                <Link href="/unretire/start" className="btn btn-outline">
-                  Download the Free First Chapter
-                </Link>
+             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
+                  Buy on Amazon — Coming Soon
+                </span>
               </div>
             </div>
 
@@ -212,9 +211,7 @@ export default function BookPage() {
             <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
               Buy on Amazon — Coming Soon
             </span>
-            <Link href="/unretire/start" className="btn btn-outline">
-              Download the Free First Chapter
-            </Link>
+          
           </div>
         </div>
       </section>
