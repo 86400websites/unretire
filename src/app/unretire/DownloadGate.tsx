@@ -70,9 +70,9 @@ export default function DownloadGate({ tag, item, heading, blurb, triggerClassNa
               <div>
                 <p className="eyebrow mb-2">You&apos;re in</p>
                 <h3 className="text-xl sm:text-2xl mb-2">Check your inbox</h3>
-                <p className="prose-body text-[15px] text-[#666666] leading-[1.7]">
-                  ✓ Your {item} is on its way to your inbox. If you don&apos;t see it in a few minutes,
-                  check your spam or promotions folder.
+               <p className="prose-body text-[15px] text-[#666666] leading-[1.7]">
+                  ✓ Your {item}{" "}is on its way to your inbox. If you don&apos;t see it in a few
+                  minutes, check your spam or promotions folder.
                 </p>
               </div>
             ) : (
