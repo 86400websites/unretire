@@ -10,27 +10,22 @@ type NavItem = { label: string; href: string; children?: Child[] };
 
 const navItems: NavItem[] = [
   { label: "The Book", href: "/unretire/book" },
+  { label: "Course", href: "/unretire/learn/course" },
   {
-    label: "Learn",
-    href: "/unretire/learn",
-    children: [
-      { label: "Online Course", href: "/unretire/learn/course", desc: "Ten guided modules across the framework." },
-      { label: "Podcast", href: "/unretire/podcast", desc: "Conversations with people who refused to fade." },
-      { label: "Blog", href: "/unretire/blog", desc: "Short, practical notes on living fully." },
-    ],
-  },
-  {
-    label: "Practice",
+    label: "Resources",
     href: "/unretire/practice",
     children: [
       { label: "The 5 Mindsets", href: "/unretire/practice#mindsets", desc: "How you think — five belief shifts." },
       { label: "The 7 Practices", href: "/unretire/practice#practices", desc: "What you do — seven daily practices." },
       { label: "14-Day Starter Plan", href: "/unretire/practice#tools", desc: "One small move a day for two weeks." },
       { label: "The Toolkit", href: "/unretire/tools", desc: "28 experiments across the 7 practices." },
+      { label: "Podcast", href: "/unretire/podcast", desc: "Conversations with people who refused to fade." },
+      { label: "Blog", href: "/unretire/blog", desc: "Short, practical notes on living fully." },
+      { label: "Stories", href: "/unretire/stories", desc: "Real people, real next chapters." },
     ],
   },
-  { label: "Stories", href: "/unretire/stories" },
   { label: "About", href: "/unretire/about" },
+  { label: "Premium", href: "/unretire/premium" },
 ];
 
 const chevron = (open: boolean) => (
