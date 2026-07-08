@@ -75,7 +75,7 @@ export default function DownloadGate({ tag, item, heading, blurb, triggerClassNa
                   minutes, check your spam or promotions folder.
                 </p>
               </div>
-            ) : (
+            ) : ( 
               <>
                 <p className="eyebrow mb-2">Free — sent by email</p>
                 <h3 className="text-xl sm:text-2xl mb-2">{heading}</h3>
