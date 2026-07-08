@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
   },
   { label: "About", href: "/unretire/about" },
   { label: "Premium", href: "/unretire/premium" },
+  { label: "Enterprise", href: "/unretire/enterprise" },
 ];
 
 const chevron = (open: boolean) => (
@@ -139,12 +140,7 @@ export default function UnRetireNav() {
             })}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center">
-            <Link href="/unretire/start" className="btn btn-crimson">
-              Start Your Next Chapter
-            </Link>
-          </div>
+         
 
           {/* Mobile toggle */}
           <button
@@ -237,9 +233,7 @@ export default function UnRetireNav() {
               >
                 ← Back to Half a Life
               </Link>
-              <Link href="/unretire/start" onClick={() => setMobileOpen(false)} className="btn btn-crimson w-full">
-                Start Your Next Chapter
-              </Link>
+              
             </div>
           </div>
         </div>
