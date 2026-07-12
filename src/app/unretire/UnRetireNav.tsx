@@ -41,7 +41,7 @@ const chevron = (open: boolean) => (
   </svg>
 );
 
-export default function UnRetireNav() {
+export default function UnRetireNav({ userEmail }: { userEmail: string | null }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileSub, setMobileSub] = useState<string | null>(null);
@@ -138,6 +138,13 @@ export default function UnRetireNav() {
                 </div>
               );
             })}
+            {/* Auth (desktop) */}
+            <Link
+              href={userEmail ? "/unretire/account" : "/unretire/login"}
+              className="inline-flex items-center border border-[#ECE5DB] rounded-full px-4 py-2 text-[12px] font-bold tracking-[0.1em] uppercase text-[#232F3F] hover:border-[#D05D11] hover:text-[#D05D11] transition-colors"
+            >
+              {userEmail ? "Account" : "Log in"}
+            </Link>
           </nav>
 
          
@@ -226,6 +233,13 @@ export default function UnRetireNav() {
             })}
 
             <div className="pt-3 mt-2 border-t border-[#ECECEC] space-y-2">
+              <Link
+                href={userEmail ? "/unretire/account" : "/unretire/login"}
+                onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2.5 text-[12px] font-bold tracking-[0.12em] uppercase text-[#D05D11] hover:text-[#8B1A1A] transition-colors"
+              >
+                {userEmail ? "Account" : "Log in"}
+              </Link>
               <Link
                 href="/"
                 onClick={() => setMobileOpen(false)}

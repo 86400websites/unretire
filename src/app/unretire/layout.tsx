@@ -1,5 +1,6 @@
 import { Libre_Baskerville } from "next/font/google";
 import UnRetireNav from "./UnRetireNav";
+import { createClient } from "@/lib/supabase/server";
 import UnRetireFooter from "./UnRetireFooter";
 import "./unretire.css";
 
@@ -34,10 +35,14 @@ export const metadata = {
   },
 };
 
-export default function UnRetireLayout({ children }: { children: React.ReactNode }) {
+export default async function UnRetireLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return (
     <div className={`ur-site ${libre.variable}`}>
-      <UnRetireNav />
+      <UnRetireNav userEmail={user?.email ?? null} />
       <main>{children}</main>
       <UnRetireFooter />
     </div>
