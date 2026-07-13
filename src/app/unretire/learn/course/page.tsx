@@ -1,6 +1,8 @@
 import Link from "next/link";
 import EmailCaptureBand from "../../EmailCaptureBand";
 import { modules, totalLessons, COURSE_INTRO_YOUTUBE_ID } from "./courseData";
+import { getAccess } from "@/lib/auth/entitlements";
+import CheckoutButton from "@/app/unretire/premium/CheckoutButton";
 
 export const metadata = {
   title: "The (Un)Retire Course",
@@ -8,7 +10,11 @@ export const metadata = {
     "The (Un)Retire online course — ten guided modules across the framework, each lesson with a video and a downloadable companion guide.",
 };
 
-export default function CoursePage() {
+export default async function CoursePage() {
+  const { userId, products } = await getAccess();
+  const loggedIn = !!userId;
+  const unlocked = products.includes("premium") || products.includes("course");
+
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -87,9 +93,15 @@ export default function CoursePage() {
                 </span>
                 <span className="flex-shrink-0 flex items-center gap-2 text-[13px] text-[#9A9080]">
                   <span className="hidden sm:inline">{m.lessons.length} lessons</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9080" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Locked">
-                    <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                  </svg>
+                  {unlocked ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Open">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9080" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Locked">
+                      <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                    </svg>
+                  )}
                 </span>
               </Link>
             ))}
@@ -97,19 +109,41 @@ export default function CoursePage() {
         </div>
       </section>
 
-      {/* ── ENROLL CTA (locked placeholder) ──────────────────── */}
+      {/* ── ENROLL / ACCESS CTA ──────────────────────────────── */}
       <section className="bg-[#8B1A1A]">
         <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
-          <p className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">
-            Enrollment opens soon.
-          </p>
-          <p className="text-white/70 text-[17px] leading-[1.7] mb-8 max-w-[46ch] mx-auto">
-            The full course is being finished now. Get the free Starter Plan in the meantime — and
-            you&apos;ll be first to know when the doors open.
-          </p>
-          <Link href="/unretire/start" className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]">
-            Get the Free Starter Plan
-          </Link>
+          {unlocked ? (
+            <>
+              <p className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">You&apos;re enrolled.</p>
+              <p className="text-white/70 text-[17px] leading-[1.7] mb-8 max-w-[46ch] mx-auto">
+                Everything is unlocked. Jump back in wherever you left off.
+              </p>
+              <Link href="/unretire/learn/course/module-1" className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]">
+                Start the course →
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">Get the full course.</p>
+              <p className="text-white/70 text-[17px] leading-[1.7] mb-2 max-w-[46ch] mx-auto">
+                Ten modules, every lesson and worksheet — yours to keep.
+              </p>
+              <p className="text-5xl sm:text-6xl font-bold text-white leading-none mt-6 mb-2">$99</p>
+              <p className="text-white/70 text-[15px] mb-8">one-time</p>
+              <div className="flex flex-col items-center gap-4">
+                <CheckoutButton
+                  product="course"
+                  loggedIn={loggedIn}
+                  owned={unlocked}
+                  label="Buy the course — $99"
+                  className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]"
+                />
+                <Link href="/unretire/premium" className="text-white/80 text-[14px] underline hover:text-white">
+                  Or get it free with Premium ($199/year) →
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

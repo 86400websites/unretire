@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { modules, COURSE_UNLOCKED, COURSE_INTRO_YOUTUBE_ID, type Module } from "./courseData";
+import { modules, COURSE_INTRO_YOUTUBE_ID, type Module } from "./courseData";
 
 type Item = {
   key: string;
@@ -50,7 +50,7 @@ const PlayIcon = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
-export default function CoursePlayer({ initialSlug }: { initialSlug: string }) {
+export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: string; unlocked: boolean }) {
   const allItems = useMemo(() => modules.flatMap(buildItems), []);
   const initialModule = modules.find((m) => m.slug === initialSlug) ?? modules[0];
   const firstKey = buildItems(initialModule)[0]?.key ?? allItems[0]?.key;
@@ -114,14 +114,14 @@ export default function CoursePlayer({ initialSlug }: { initialSlug: string }) {
                           return (
                             <li key={it.key}>
                               <button
-                                onClick={() => COURSE_UNLOCKED && select(it)}
-                                disabled={!COURSE_UNLOCKED}
+                                onClick={() => unlocked && select(it)}
+                                disabled={!unlocked}
                                 className={`w-full flex items-center gap-3 px-5 py-2.5 text-left transition-colors ${
                                   isActive ? "bg-white" : "hover:bg-white/60"
-                                } ${COURSE_UNLOCKED ? "cursor-pointer" : "cursor-default"}`}
+                                } ${unlocked ? "cursor-pointer" : "cursor-default"}`}
                               >
                                 <span className={isActive ? "text-[#D05D11]" : "text-[#9A9080]"}>
-                                  {COURSE_UNLOCKED ? <PlayIcon /> : <LockIcon />}
+                                  {unlocked ? <PlayIcon /> : <LockIcon />}
                                 </span>
                                 <span
                                   className={`flex-1 text-[13px] leading-snug ${
@@ -144,7 +144,7 @@ export default function CoursePlayer({ initialSlug }: { initialSlug: string }) {
 
           {/* ── MAIN: video + resources ──────────────────────── */}
           <div className="flex-1 min-w-0 lg:order-2">
-            {COURSE_UNLOCKED ? (
+            {unlocked ? (
               <>
                 {active.youtubeId ? (
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-[#ECECEC]">

@@ -72,7 +72,7 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#ECECEC]">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[70px] gap-4">
+        <div className="relative flex items-center justify-between h-[70px] gap-4">
           {/* Logo */}
           <Link href="/unretire" aria-label="UnRetire — home" className="flex items-center flex-shrink-0">
             <Image
@@ -86,7 +86,7 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1" aria-label="UnRetire">
+          <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2" aria-label="UnRetire">
             {navItems.map((item) => {
               const active = isActive(item.href);
               if (!item.children) {
@@ -138,19 +138,20 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
                 </div>
               );
             })}
-            {/* Auth (desktop) */}
+          </nav>
+
+          {/* Right: account button + mobile toggle */}
+          <div className="flex items-center gap-2">
+            {/* Auth (desktop) — orange */}
             <Link
               href={userEmail ? "/unretire/account" : "/unretire/login"}
-              className="inline-flex items-center border border-[#ECE5DB] rounded-full px-4 py-2 text-[12px] font-bold tracking-[0.1em] uppercase text-[#232F3F] hover:border-[#D05D11] hover:text-[#D05D11] transition-colors"
+              className="hidden lg:inline-flex items-center rounded-full bg-[#D05D11] px-5 py-2.5 text-[12px] font-bold tracking-[0.1em] uppercase text-white hover:bg-[#B34E11] transition-colors"
             >
               {userEmail ? "Account" : "Log in"}
             </Link>
-          </nav>
 
-         
-
-          {/* Mobile toggle */}
-          <button
+            {/* Mobile toggle */}
+            <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -168,6 +169,7 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
               </svg>
             )}
           </button>
+          </div>
         </div>
       </div>
 
