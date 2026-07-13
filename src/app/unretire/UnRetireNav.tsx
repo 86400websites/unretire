@@ -95,7 +95,7 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
+                    className={`whitespace-nowrap px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
                       active ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
                     }`}
                   >
@@ -111,7 +111,7 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
                     aria-current={active ? "page" : undefined}
                     aria-expanded={open}
                     onFocus={() => openNow(item.label)}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
+                    className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
                       active || open ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
                     }`}
                   >

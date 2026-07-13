@@ -138,7 +138,7 @@ export default async function CoursePage() {
                   label="Buy the course — $99"
                   className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]"
                 />
-                <Link href="/unretire/premium" className="text-white/80 text-[14px] underline hover:text-white">
+                <Link href="/unretire/premium" className="text-white text-[14px] underline hover:opacity-80">
                   Or get it free with Premium ($199/year) →
                 </Link>
               </div>
