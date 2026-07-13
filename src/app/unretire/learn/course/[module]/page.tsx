@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { modules, getModule } from "../courseData";
 import CoursePlayer from "../CoursePlayer";
+import { hasAccess } from "@/lib/auth/entitlements";
 
 export function generateStaticParams() {
   return modules.map((m) => ({ module: m.slug }));
@@ -20,5 +21,7 @@ export default async function ModulePage({ params }: { params: Promise<{ module:
   const { module } = await params;
   const m = getModule(module);
   if (!m) notFound();
-  return <CoursePlayer initialSlug={m.slug} />;
+
+  const unlocked = await hasAccess("course");
+  return <CoursePlayer initialSlug={m.slug} unlocked={unlocked} />;
 }

@@ -1,13 +1,12 @@
 import Link from "next/link";
+import CheckoutButton from "./CheckoutButton";
+import { getAccess } from "@/lib/auth/entitlements";
 
 export const metadata = {
   title: "Premium",
   description:
     "UnRetire Premium — the course, an electronic copy of the book and workbook, a monthly letter from Maher, and a growing toolkit. $199/year.",
 };
-
-// ── Set this to your Stripe Payment Link (or checkout URL) when ready. ──
-const PREMIUM_CHECKOUT_URL = "#";
 
 const features = [
   {
@@ -42,7 +41,11 @@ const features = [
   },
 ];
 
-export default function PremiumPage() {
+export default async function PremiumPage() {
+  const { userId, products } = await getAccess();
+  const loggedIn = !!userId;
+  const hasPremium = products.includes("premium");
+
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -58,9 +61,13 @@ export default function PremiumPage() {
             season, for as long as you&apos;re building.
           </p>
           <div className="mt-9 flex flex-col items-center gap-4">
-            <Link href={PREMIUM_CHECKOUT_URL} className="btn btn-crimson">
-              Join Premium — $199/year
-            </Link>
+            <CheckoutButton
+              product="premium"
+              loggedIn={loggedIn}
+              owned={hasPremium}
+              label="Join Premium — $199/year"
+              className="btn btn-crimson"
+            />
             <Link href="/unretire/learn/course" className="pill-link">
               Just want the course? Start here →
             </Link>
@@ -130,9 +137,13 @@ export default function PremiumPage() {
           </p>
           <p className="text-5xl sm:text-6xl font-bold text-white leading-none mb-2">$199</p>
           <p className="text-white/70 text-[15px] mb-8">per year</p>
-          <Link href={PREMIUM_CHECKOUT_URL} className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]">
-            Join Premium
-          </Link>
+          <CheckoutButton
+            product="premium"
+            loggedIn={loggedIn}
+            owned={hasPremium}
+            label="Join Premium"
+            className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]"
+          />
         </div>
       </section>
     </>
