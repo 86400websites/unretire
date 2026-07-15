@@ -156,7 +156,7 @@ export default function EnterprisePage() {
       </section>
 
       {/* ── BRIDGE BAND ──────────────────────────────────────── */}
-      <section className="bg-[#8B1A1A]">
+      <section className="bg-[#D05D11]">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-14 text-center">
           <p className="text-2xl sm:text-3xl font-bold text-white leading-[1.35]">
             Whichever you choose, nobody leaves with a notebook of nice ideas.

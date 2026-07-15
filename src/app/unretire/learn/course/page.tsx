@@ -110,7 +110,7 @@ export default async function CoursePage() {
       </section>
 
       {/* ── ENROLL / ACCESS CTA ──────────────────────────────── */}
-      <section className="bg-[#8B1A1A]">
+      <section className="bg-[#232F3F]">
         <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
           {unlocked ? (
             <>
@@ -118,7 +118,7 @@ export default async function CoursePage() {
               <p className="text-white/70 text-[17px] leading-[1.7] mb-8 max-w-[46ch] mx-auto">
                 Everything is unlocked. Jump back in wherever you left off.
               </p>
-              <Link href="/unretire/learn/course/module-1" className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]">
+              <Link href="/unretire/learn/course/module-1" className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]">
                 Start the course →
               </Link>
             </>
@@ -136,7 +136,7 @@ export default async function CoursePage() {
                   loggedIn={loggedIn}
                   owned={unlocked}
                   label="Buy the course — $99"
-                  className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]"
+                  className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]"
                 />
                 <Link href="/unretire/premium" className="text-white text-[14px] underline hover:opacity-80">
                   Or get it free with Premium ($199/year) →

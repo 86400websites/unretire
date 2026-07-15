@@ -126,7 +126,7 @@ export default async function PremiumPage() {
       </section>
 
       {/* ── CLOSING / PRICING (crimson band) ─────────────────── */}
-      <section className="bg-[#8B1A1A]">
+      <section className="bg-[#D05D11]">
         <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
           <p className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">
             One course teaches you. Premium keeps you going.
@@ -142,7 +142,7 @@ export default async function PremiumPage() {
             loggedIn={loggedIn}
             owned={hasPremium}
             label="Join Premium"
-            className="btn bg-white text-[#8B1A1A] hover:bg-[#F5F5F5]"
+            className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]"
           />
         </div>
       </section>
