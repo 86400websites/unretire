@@ -55,6 +55,10 @@ export async function POST(request: NextRequest) {
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
       metadata: { supabase_user_id: user.id, product },
+      // Show the "Add promotion code" field on Stripe Checkout. Works for
+      // both one-off (course) and subscription (premium) modes. The codes
+      // themselves are created in the Stripe dashboard, per environment.
+      allow_promotion_codes: true,
       success_url: `${origin}/unretire/account?checkout=success`,
       cancel_url: `${origin}/unretire/premium?checkout=cancelled`,
     });
