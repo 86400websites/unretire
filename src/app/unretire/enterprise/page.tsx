@@ -16,8 +16,8 @@ const fourWeek: [string, string, string][] = [
   ["Week 4", "Redesign.", "Lock in the 90-day plan and the next chapter."],
 ];
 const halfDay: [string, string, string][] = [
-  ["Movement 1", "The 5 Mindsets.", "Change how they think."],
-  ["Movement 2", "The 7 Practices.", "Change what they do."],
+  ["Session 1", "The 5 Mindsets.", "Change how they think."],
+  ["Session 2", "The 7 Practices.", "Change what they do."],
   ["Lunch", "", "The room keeps talking. That is the point."],
 ];
 const faqs: [string, string][] = [
@@ -33,7 +33,7 @@ function Rows({ items }: { items: [string, string, string][] }) {
     <div className="space-y-3 mb-6">
       {items.map(([label, theme, desc]) => (
         <div key={label} className="flex gap-4">
-          <span className="w-[92px] flex-shrink-0 text-[12px] font-bold text-[#D05D11] uppercase tracking-wide">{label}</span>
+          <span className="w-[92px] flex-shrink-0 whitespace-nowrap text-[12px] font-bold text-[#D05D11] uppercase tracking-wide">{label}</span>
           <span className="flex-1 text-[14px] leading-[1.6]">
             {theme && <span className="font-bold text-[#232F3F]">{theme} </span>}
             <span className="text-[#666666]">{desc}</span>
@@ -66,21 +66,24 @@ export default function EnterprisePage() {
             <div>
               <p className="eyebrow mb-6">UnRetire · For Organisations</p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">
-                Send them off. Don&apos;t switch them off.
+                You planned their pension. Who planned their purpose?
               </h1>
               <span className="rule mt-7 mb-7" aria-hidden="true" />
               <p className="prose-body text-[17px] leading-[1.8] mb-5">
-                Your people spent decades building your company. Most will leave it emotionally
-                unprepared — not because you failed them on the money, but because no one prepared them
-                for the meaning.
+                They gave you thirty years. You gave them a spreadsheet and a farewell cake for
+                retirement.
+              </p>
+              <p className="prose-body text-[17px] leading-[1.8] mb-5">
+                Your people will not retire broke. They will retire blank. Not because you failed them
+                on the money — because nobody prepared them for the morning after.
               </p>
               <p className="lede mb-8">
-                UnRetire fixes that. Two programs. One book. One framework. A workforce that leaves
-                loyal, and lives fully.
+                That gap yours to close. UnRetire closes it. One book. One framework. Two programs. A
+                workforce that leaves loyal, and lives fully.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="#discovery" className="btn btn-crimson">Book a Discovery Call →</Link>
-                <Link href="#programs" className="btn btn-outline">See the Two Programs ↓</Link>
+                <Link href="#discovery" className="btn btn-crimson">Book a Call →</Link>
+                <Link href="#programs" className="btn btn-outline">Explore the Programs</Link>
               </div>
             </div>
             <div className="relative aspect-[3/2] rounded-2xl overflow-hidden bg-white border border-[#ECE5DB]">
@@ -112,7 +115,7 @@ export default function EnterprisePage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">Two Ways to Deliver It</p>
-            <h2 className="text-3xl sm:text-4xl">Choose a morning, or a four-week program.</h2>
+            <h2 className="text-3xl sm:text-4xl">Choose a four-week program, or a morning program.</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
             <p className="lede">
               Same book. Same workbook. Same framework. One question of time. Some teams can give the
@@ -151,6 +154,10 @@ export default function EnterprisePage() {
               ]} />
               <p className="text-[14px] italic text-[#837A6E]">The trade: momentum. No gap for good intentions to cool.</p>
             </div>
+          </div>
+
+          <div className="text-center mt-9">
+            <Link href="#discovery" className="btn btn-crimson">Book a Call →</Link>
           </div>
         </div>
       </section>
@@ -198,6 +205,9 @@ export default function EnterprisePage() {
               <p className="text-[17px] italic text-[#D05D11] leading-[1.7]">
                 Retirement is the only major transition we prepare for financially and avoid emotionally.
               </p>
+              <div className="mt-8">
+                <Link href="#discovery" className="btn btn-crimson">Book a Call →</Link>
+              </div>
             </div>
           </div>
         </div>

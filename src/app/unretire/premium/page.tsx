@@ -1,4 +1,3 @@
-import Link from "next/link";
 import CheckoutButton from "./CheckoutButton";
 import { getAccess } from "@/lib/auth/entitlements";
 
@@ -57,8 +56,8 @@ export default async function PremiumPage() {
           </h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
           <p className="lede max-w-[56ch] mx-auto">
-            The course shows you the framework. Premium walks the road with you — every month, every
-            season, for as long as you&apos;re building.
+            You already know how to work. What comes next is harder — and nobody hands you a map for
+            it. Premium walks the road with you. Every month. Every season. Your UnRetire mentor.
           </p>
           <div className="mt-9 flex flex-col items-center gap-4">
             <CheckoutButton
@@ -68,9 +67,9 @@ export default async function PremiumPage() {
               label="Join Premium — $199/year"
               className="btn btn-crimson"
             />
-            <Link href="/unretire/learn/course" className="pill-link">
-              Just want the course? Start here →
-            </Link>
+            <p className="text-[15px] text-[#666666] leading-[1.6] max-w-[46ch]">
+              Everything you need to design your next chapter. In one place. Starting today.
+            </p>
           </div>
         </div>
       </section>
@@ -79,13 +78,19 @@ export default async function PremiumPage() {
       <section className="bg-[#FAF5F0] border-y border-[#ECE5DB]">
         <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            Most people finish a course and close the tab. The ideas fade. The old routines return.
-            Nothing changes.
+            Most people leave the office with a plan for their money and no plan for their life.
           </p>
           <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            That&apos;s not a knowledge problem. It&apos;s a company problem. Change is hard to do
-            alone. It&apos;s far easier when someone walks beside you — with a rhythm to follow, a room
-            of people doing the same work, and a way to see how far you&apos;ve come.
+            The first months feel like a holiday. Then the calendar empties. The phone goes quiet. The
+            old routines creep back — smaller, slower, safer.
+          </p>
+          <p className="prose-body text-[17px] leading-[1.85] mb-6">
+            That&apos;s not a knowledge problem. It&apos;s a design problem.
+          </p>
+          <p className="prose-body text-[17px] leading-[1.85] mb-6">
+            Change is hard to do alone. It&apos;s far easier when someone walks beside you — with a
+            rhythm to follow, a room of people doing the same work, and a way to see how far
+            you&apos;ve come.
           </p>
           <p className="text-2xl sm:text-[1.75rem] leading-[1.5] text-[#14110D] mt-9 mb-4">
             That&apos;s what Premium is.
@@ -101,10 +106,10 @@ export default async function PremiumPage() {
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">What&apos;s inside</p>
-            <h2 className="text-3xl sm:text-4xl">What you get with Premium</h2>
+            <h2 className="text-3xl sm:text-4xl">Everything you need to UnRetire.</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
             <p className="lede">
-              Everything in the $99 course. Plus five things a course can never give you on its own.
+              Five elements to design your next chapter.
             </p>
           </div>
 
@@ -127,9 +132,10 @@ export default async function PremiumPage() {
 
       {/* ── CLOSING / PRICING (crimson band) ─────────────────── */}
       <section className="bg-[#D05D11]">
-        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
+        <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
           <p className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">
-            One course teaches you. Premium keeps you going.
+            Knowing what to do is easy. Doing it — for a year, then another — is the whole game.
+            Premium is how you stay in it.
           </p>
           <p className="text-white/70 text-[17px] leading-[1.7] mb-8">
             A yearly membership — the course, the book, the workbook, the monthly letter, and a toolkit
@@ -144,6 +150,9 @@ export default async function PremiumPage() {
             label="Join Premium"
             className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]"
           />
+          <p className="mt-6 text-[15px] italic text-white/70 leading-[1.6]">
+            Aging is inevitable. Diminishing is optional. Choose.
+          </p>
         </div>
       </section>
     </>
