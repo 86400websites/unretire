@@ -8,9 +8,12 @@ export const metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; intent?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, intent: rawIntent } = await searchParams;
+  const intent =
+    rawIntent === "course" || rawIntent === "premium" ? rawIntent : "account";
+
   const initialError =
     error === "confirmation_failed"
       ? "That confirmation link didn't work or has expired. Please log in, or sign up again."
@@ -25,7 +28,7 @@ export default async function LoginPage({
           <span className="rule mt-6 mx-auto" aria-hidden="true" />
         </div>
         <div className="card p-8 sm:p-10">
-          <LoginForm initialError={initialError} />
+          <LoginForm initialError={initialError} intent={intent} />
         </div>
       </div>
     </section>

@@ -35,7 +35,7 @@ export default function CheckoutButton({
 
   async function go() {
     if (!loggedIn) {
-      router.push("/unretire/signup");
+      router.push(`/unretire/signup?intent=${product}`);
       return;
     }
     setLoading(true);

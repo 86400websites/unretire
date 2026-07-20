@@ -3,15 +3,22 @@ import crypto from "crypto";
 
 export const runtime = "nodejs";
 
-const API_KEY = process.env.MAILCHIMP_API_KEY!;
-const LIST_ID = process.env.MAILCHIMP_LIST_ID!;
-const DC = API_KEY.split("-")[1]; // e.g. "us22"
-const BASE = `https://${DC}.api.mailchimp.com/3.0`;
-
-function authHeaders() {
+/**
+ * Mailchimp config, read lazily inside the request instead of at import
+ * time, so builds/environments without these env vars don't crash on load.
+ */
+function mailchimpConfig() {
+  const apiKey = process.env.MAILCHIMP_API_KEY;
+  const listId = process.env.MAILCHIMP_LIST_ID;
+  if (!apiKey || !listId) throw new Error("Mailchimp env vars are not set");
+  const dc = apiKey.split("-")[1]; // e.g. "us22"
   return {
-    Authorization: `Bearer ${API_KEY}`,
-    "Content-Type": "application/json",
+    listId,
+    base: `https://${dc}.api.mailchimp.com/3.0`,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
   };
 }
 
@@ -22,6 +29,8 @@ export async function POST(req: NextRequest) {
     if (!email || typeof email !== "string") {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
+
+    const { listId, base, headers } = mailchimpConfig();
 
     // Build the merge fields. FNAME stays for backward compatibility; the
     // assessment passes WEAKEST / WEAKLOW / SCORE via mergeFields.
@@ -41,10 +50,10 @@ export async function POST(req: NextRequest) {
     // fields if they already exist. status_if_new avoids resurrecting anyone
     // who previously unsubscribed (compliance-safe).
     const upsertRes = await fetch(
-      `${BASE}/lists/${LIST_ID}/members/${subscriberHash}`,
+      `${base}/lists/${listId}/members/${subscriberHash}`,
       {
         method: "PUT",
-        headers: authHeaders(),
+        headers,
         body: JSON.stringify({
           email_address: email,
           status_if_new: "subscribed",
@@ -67,10 +76,10 @@ export async function POST(req: NextRequest) {
     // Works for both new and existing contacts and is idempotent.
     if (tag) {
       const tagRes = await fetch(
-        `${BASE}/lists/${LIST_ID}/members/${subscriberHash}/tags`,
+        `${base}/lists/${listId}/members/${subscriberHash}/tags`,
         {
           method: "POST",
-          headers: authHeaders(),
+          headers,
           body: JSON.stringify({ tags: [{ name: tag, status: "active" }] }),
         }
       );

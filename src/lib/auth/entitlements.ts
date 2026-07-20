@@ -3,6 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 export type Product = "course" | "premium";
 
 /**
+ * The one ownership rule, shared everywhere access is decided:
+ * premium includes the course.
+ */
+export function ownsProduct(product: Product, owned: string[]): boolean {
+  if (owned.includes(product)) return true;
+  if (product === "course" && owned.includes("premium")) return true;
+  return false;
+}
+
+/**
  * Returns the current user (or null) plus which products they have active
  * access to. Runs on the server, under the user's own session + RLS, so it
  * can only ever see that user's own entitlement rows.
@@ -40,7 +50,5 @@ export async function getAccess(): Promise<{
  */
 export async function hasAccess(product: Product): Promise<boolean> {
   const { products } = await getAccess();
-  if (products.includes(product)) return true;
-  if (product === "course" && products.includes("premium")) return true;
-  return false;
+  return ownsProduct(product, products);
 }
