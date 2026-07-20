@@ -1,4 +1,4 @@
-import { stripe } from "@/lib/stripe/server";
+import { getStripe } from "@/lib/stripe/server";
 
 export type PaidProduct = "course" | "premium";
 
@@ -38,7 +38,7 @@ export async function createCheckoutSession(opts: {
   const price = config.priceEnv();
   if (!price) throw new Error(`Stripe price not configured for ${opts.product}`);
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: config.mode,
     line_items: [{ price, quantity: 1 }],
     customer_email: opts.email ?? undefined,
