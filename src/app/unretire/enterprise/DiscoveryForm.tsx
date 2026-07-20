@@ -13,7 +13,7 @@ import { useState } from "react";
  * wrong: it tells them the form is unavailable and gives them the address
  * to email instead, so a real lead is never silently dropped.
  */
-const ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "";
+const ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "https://formspree.io/f/mgogyqey";
 const CONTACT_EMAIL = "unretire86400@gmail.com";
 
 // A placeholder like ".../YOUR_FORM_ID" must not count as configured.
