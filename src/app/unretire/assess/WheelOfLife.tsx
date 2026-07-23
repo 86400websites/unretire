@@ -2,45 +2,45 @@
 
 import { useState } from "react";
 
-type Spoke = { key: string; q: string; sub: string; high: string; low: string };
+type Spoke = { key: string; tag: string; q: string; sub: string; high: string; low: string };
 
 const SPOKES: Spoke[] = [
-  { key: "Passion & Purpose",
+  { key: "Passion & Purpose", tag: "S_PASSION",
     q: "I wake up with a reason to get going — something that genuinely pulls me forward.",
     sub: "Not a job. A direction worth your energy.",
     high: "Purpose is your engine, and it's running. The next step is aiming it.",
     low: "When the calendar empties, purpose has to be chosen — it rarely just arrives." },
-  { key: "Health & Vitality",
+  { key: "Health & Vitality", tag: "S_HEALTH",
     q: "My energy and body can keep up with the life I actually want to live.",
     sub: "Vitality is the fuel everything else burns.",
     high: "Your body isn't holding you back. Protect that — it compounds.",
     low: "Low energy is easy to mistake for low happiness. Often it's the first thing to fix." },
-  { key: "Relationships",
+  { key: "Relationships", tag: "S_RELAT",
     q: "I have people in my life who truly lift me — not just people I happen to see.",
     sub: "A circle that raises you, not one that drains you.",
     high: "A strong circle is rare. It's quietly the best investment you have.",
     low: "Connection drifts silently after work ends. It has to be rebuilt on purpose." },
-  { key: "Personal Growth & Creativity",
+  { key: "Personal Growth & Creativity", tag: "S_GROWTH",
     q: "I'm still learning, stretching, and making things — not just maintaining.",
     sub: "Growth is expansion, not decline.",
     high: "Curiosity is keeping you young. Keep feeding it new terrain.",
     low: "The danger isn't aging — it's assuming your growth is already complete." },
-  { key: "Spirituality & Inner Peace",
+  { key: "Spirituality & Inner Peace", tag: "S_SPIRIT",
     q: "I feel anchored to something deeper than my achievements and to-do list.",
     sub: "The quiet foundation beneath everything else.",
     high: "You have an anchor. That's what keeps balance steady when life shifts.",
     low: "Without an anchor, balance stays fragile — even when everything looks fine." },
-  { key: "Fun & Adventure",
+  { key: "Fun & Adventure", tag: "S_FUN",
     q: "My weeks include real novelty, play, and moments that make me feel alive.",
     sub: "Joy isn't random. It's designed.",
     high: "You're protecting joy instead of postponing it. That's the whole game.",
     low: "Joy fades when days become identical. Novelty is the cure, and it's closer than you think." },
-  { key: "Money with Meaning",
+  { key: "Money with Meaning", tag: "S_MONEY",
     q: "My money supports the life I want now — it's a tool, not just a scorecard.",
     sub: "From accumulating to using, with intention.",
     high: "You treat money as a tool. That permission is harder to earn than the money itself.",
     low: "Many have the resources but not the permission to use them. That's a shift, not a number." },
-  { key: "Contribution & Legacy",
+  { key: "Contribution & Legacy", tag: "S_CONTRIB",
     q: "I'm passing on wisdom, time, or resources in a way that outlives me.",
     sub: "Usefulness has no expiry date.",
     high: "You're already gifting forward. That's where lasting meaning quietly lives.",
@@ -97,6 +97,13 @@ export default function WheelOfLife() {
   const brightest = SPOKES[hi];
   const weakest = SPOKES[lo];
 
+  // Each answer is on a 5-point scale; doubled it gives a score out of 10
+  // per spoke (and /80 overall). Keyed by each spoke's Mailchimp merge tag
+  // so the mapping can never drift out of sync with SPOKES.
+  const spokeScores: Record<string, number> = Object.fromEntries(
+    SPOKES.map((s, i) => [s.tag, raw[i] * 2])
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
@@ -109,7 +116,13 @@ export default function WheelOfLife() {
           email,
           firstName,
           tag: "wheel-of-life",
-          mergeFields: { WEAKEST: weakest.key, WEAKLOW: toLower(weakest.key), SCORE: total },
+          mergeFields: {
+            WEAKEST: weakest.key,
+            WEAKLOW: toLower(weakest.key),
+            BRIGHTEST: brightest.key,
+            SCORE: total,
+            ...spokeScores,
+          },
         }),
       });
       const data = await res.json();
