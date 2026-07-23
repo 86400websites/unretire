@@ -179,7 +179,7 @@ export default function UnRetirePage() {
                 to be.
               </p>
               <Link href="/unretire/book" className="btn btn-outline">
-                Read the First Chapter Free
+               Check out the Book
               </Link>
               <div className="relative w-full max-w-[440px] mx-auto lg:mx-0 mt-9 aspect-[2/1]">
                 <Image
