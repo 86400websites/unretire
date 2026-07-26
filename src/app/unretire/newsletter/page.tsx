@@ -50,7 +50,7 @@ export default function NewsletterPage() {
         </div>
       </section>
 
-      <EmailCaptureBand blurb="Join the (Un)Retire newsletter. One idea, every Monday — plus the free 14-Day Starter Plan when you sign up." />
+      <EmailCaptureBand heading="Begin Your Next Chapter" blurb="Join the (Un)Retire newsletter. One idea, every Monday — plus the free 14-Day Starter Plan when you sign up." />
     </>
   );
 }

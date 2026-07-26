@@ -51,6 +51,7 @@ export default function AssessPage() {
       {/* ── EMAIL CAPTURE ────────────────────────────────────── */}
       <EmailCaptureBand
         showFaq
+        heading="Begin Your Next Chapter"
         blurb="Want the worksheet version to revisit each month? Get the free 14-Day Starter Plan and a weekly note on living fully — at any age."
       />
     </>

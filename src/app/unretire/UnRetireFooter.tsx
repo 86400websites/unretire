@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import BackToTop from "./BackToTop";
 
 const columns = [
   {
@@ -79,6 +80,19 @@ export default function UnRetireFooter() {
               </ul>
             </div>
           ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-7">
+          <Link
+            href="/unretire"
+            className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] uppercase text-white/55 hover:text-white transition-colors border border-white/15 rounded-full px-3.5 py-1.5"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 11l9-8 9 8M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
+            </svg>
+            Home
+          </Link>
+          <BackToTop />
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-7">

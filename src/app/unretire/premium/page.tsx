@@ -10,33 +10,33 @@ export const metadata = {
 const features = [
   {
     n: "1",
-    title: "The Full (Un)Retire Course",
-    tagline: "Included — a $99 value on its own.",
-    body: "All ten modules. Five Mindsets. Seven Practices. Yours to keep and revisit whenever a new season of life calls for it.",
+    title: "The full course",
+    tagline: "$99 on its own — included here.",
+    body: "All ten modules, the five mindsets and seven practices. Yours to keep and to revisit whenever a new season calls for it.",
   },
   {
     n: "2",
-    title: "Electronic Version of The Book",
-    tagline: "The heart of Premium.",
-    body: "An electronic version of the book you can keep on your phone or tablet — to reference any time and find inspiration for the challenges of retirement.",
+    title: "The book, digital",
+    tagline: "On your phone, on your tablet, always with you.",
+    body: "The whole of (Un)Retire, ready to reach for on the hard mornings and the flat afternoons — wherever you happen to be standing.",
   },
   {
     n: "3",
-    title: "Electronic Version of the Workbook",
-    tagline: "Make UnRetire part of your lifestyle.",
-    body: "An electronic workbook makes the practice portable and easy to reach. Take it with you when you travel — and redo your evaluations every three months to check your progress.",
+    title: "The workbook, digital",
+    tagline: "The practice, made portable.",
+    body: "Take it travelling. Redo your evaluations every three months and watch, in your own handwriting, how far the year has moved you.",
   },
   {
     n: "4",
     title: "The Premium Letter",
-    tagline: "A note from me, once a month.",
-    body: "Not a newsletter. A letter. One idea, one story, one small action you can take this week — some from my travels, some from the book, some from a reader who found something worth passing on. Short enough to read with your coffee. Deep enough to stay with you.",
+    tagline: "Not a newsletter. A letter. Once a month.",
+    body: "One idea, one story, one small thing to try this week — short enough for your coffee break. It stays with you longer than that.",
   },
   {
     n: "5",
-    title: "The Practice Toolkit — Always Growing",
-    tagline: "The exercises, digitized. And added to.",
-    body: "The Permission Letter. The Career Timeline. The Ideal Week. The Direction Exercise. The Wheel of Life. Every worksheet from the framework, ready to use — with new tools added through the year. Your library gets richer the longer you stay.",
+    title: "The toolkit — and it grows",
+    tagline: "Every worksheet, digitised. New ones through the year.",
+    body: "The Permission Letter, the Career Timeline, the Ideal Week, the Direction Exercise, the Wheel of Life — all of it, ready to use. And it gets richer the longer you stay.",
   },
 ];
 
@@ -56,8 +56,9 @@ export default async function PremiumPage() {
           </h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
           <p className="lede max-w-[56ch] mx-auto">
-            You already know how to work. What comes next is harder — and nobody hands you a map for
-            it. Premium walks the road with you. Every month. Every season. Your UnRetire mentor.
+            You already know how to work. Nobody ever taught you how to do this. Premium is the whole
+            framework, in one place, with a note from Maher every month — so you keep going after the
+            first burst of motivation fades.
           </p>
           <div className="mt-9 flex flex-col items-center gap-4">
             <CheckoutButton
@@ -68,7 +69,7 @@ export default async function PremiumPage() {
               className="btn btn-crimson"
             />
             <p className="text-[15px] text-[#666666] leading-[1.6] max-w-[46ch]">
-              Everything you need to design your next chapter. In one place. Starting today.
+              Includes the full $99 course. Cancel any time — and keep the course if you do.
             </p>
           </div>
         </div>
@@ -77,26 +78,21 @@ export default async function PremiumPage() {
       {/* ── WHY PREMIUM ──────────────────────────────────────── */}
       <section className="bg-[#FAF5F0] border-y border-[#ECE5DB]">
         <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight mb-7">
+            Knowing what to do was never the hard part.
+          </h2>
           <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            Most people leave the office with a plan for their money and no plan for their life.
-          </p>
-          <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            The first months feel like a holiday. Then the calendar empties. The phone goes quiet. The
-            old routines creep back — smaller, slower, safer.
-          </p>
-          <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            That&apos;s not a knowledge problem. It&apos;s a design problem.
+            You left with a plan for your money and none for your life. The first months feel like a
+            holiday. Then the calendar empties, the phone goes quiet, and the old routines creep back
+            — smaller, slower, safer.
           </p>
           <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            Change is hard to do alone. It&apos;s far easier when someone walks beside you — with a
-            rhythm to follow, a room of people doing the same work, and a way to see how far
-            you&apos;ve come.
+            That isn&apos;t a knowledge problem. It&apos;s a design problem — and design is hard to
+            hold on your own.
           </p>
-          <p className="text-2xl sm:text-[1.75rem] leading-[1.5] text-[#14110D] mt-9 mb-4">
-            That&apos;s what Premium is.
-          </p>
-          <p className="text-[1.2rem] italic text-[#8B1A1A] leading-[1.6]">
-            Not more content to consume. A place to keep evolving.
+          <p className="prose-body text-[17px] leading-[1.85]">
+            Premium gives it a rhythm: the framework in one place, a room of people doing the same
+            work, and a way to see how far you&apos;ve come. Not more to read. A place to keep going.
           </p>
         </div>
       </section>
@@ -106,10 +102,10 @@ export default async function PremiumPage() {
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">What&apos;s inside</p>
-            <h2 className="text-3xl sm:text-4xl">Everything you need to UnRetire.</h2>
+            <h2 className="text-3xl sm:text-4xl">Five things. One of them is the $99 course.</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
             <p className="lede">
-              Five elements to design your next chapter.
+              Everything you need to design the next chapter, in one place.
             </p>
           </div>
 
@@ -130,16 +126,36 @@ export default async function PremiumPage() {
         </div>
       </section>
 
+      {/* ── DO THE MATHS ─────────────────────────────────────── */}
+      <section className="bg-[#FAF5F0] border-y border-[#ECE5DB]">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight mb-7">
+            Do the maths. We&apos;ll help.
+          </h2>
+          <p className="prose-body text-[17px] leading-[1.85] mb-6">
+            The course inside Premium is $99 on its own. So the book, the workbook, twelve monthly
+            letters and the whole growing toolkit come to about $100 for the year.
+          </p>
+          <p className="prose-body text-[17px] leading-[1.85] mb-6">
+            That&apos;s under nine dollars a month. Less than one dinner out, for a year of staying in
+            it.
+          </p>
+          <p className="prose-body text-[17px] leading-[1.85]">
+            You can check that arithmetic yourself — there&apos;s no bundle discount to untangle and no
+            introductory rate that jumps later. One price. One year. Everything in.
+          </p>
+        </div>
+      </section>
+
       {/* ── CLOSING / PRICING (crimson band) ─────────────────── */}
       <section className="bg-[#D05D11]">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
           <p className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">
-            Knowing what to do is easy. Doing it — for a year, then another — is the whole game.
-            Premium is how you stay in it.
+            One year. Everything in. $199.
           </p>
           <p className="text-white/70 text-[17px] leading-[1.7] mb-8">
-            A yearly membership — the course, the book, the workbook, the monthly letter, and a toolkit
-            that keeps growing.
+            The course, the book, the workbook, a letter every month, and a toolkit that keeps growing
+            for as long as you&apos;re a member.
           </p>
           <p className="text-5xl sm:text-6xl font-bold text-white leading-none mb-2">$199</p>
           <p className="text-white/70 text-[15px] mb-8">per year</p>
@@ -150,8 +166,11 @@ export default async function PremiumPage() {
             label="Join Premium"
             className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]"
           />
-          <p className="mt-6 text-[15px] italic text-white/70 leading-[1.6]">
-            Aging is inevitable. Diminishing is optional. Choose.
+          <p className="mt-6 text-[15px] text-white/80 leading-[1.6]">
+            Cancel any time. If you cancel, you keep the course. Prefer just the course?{" "}
+            <a href="/unretire/learn/course" className="font-bold underline underline-offset-2 hover:text-white">
+              Get it for $99 →
+            </a>
           </p>
         </div>
       </section>
