@@ -157,6 +157,7 @@ export default function StartPage() {
       {/* ── EMAIL CAPTURE ────────────────────────────────────── */}
       <EmailCaptureBand
         showFaq
+        heading="Begin Your Next Chapter"
         blurb="Want it sent to your inbox? Drop your email and we&apos;ll send the 14-Day Starter Plan over, plus a weekly note on living fully — at any age."
       />
 

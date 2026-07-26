@@ -3,38 +3,19 @@ import Image from "next/image";
 import EmailCaptureBand from "./EmailCaptureBand";
 
 const whoFor = [
-  "You don't want to disappear just because your job title did.",
-  "You feel financially okay — but existentially restless.",
-  "You still feel useful, but don't know where to point it.",
-  "You're allergic to clichés about \u201Cslowing down\u201D and \u201Ctaking it easy.\u201D",
-  "You want meaning without hustle, and purpose without pressure.",
+  "Your job title disappeared. You didn't.",
+  "You still feel useful. You just don't know how.",
+  "The freedom was wonderful for about a month.",
+  "Money's tighter than expected.",
+  "You're tired of being told to take it easy.",
 ];
 
 const paths = [
   {
-    title: "Learn",
-    desc: "Discover the framework through the book, the online course, and short, honest conversations about life after work.",
-    href: "/unretire/learn",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 4 2 9l10 5 10-5-10-5Zm-6 7v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4M22 9v6" />
-      </svg>
-    ),
-  },
-  {
-    title: "Practice",
-    desc: "Put it to work. The 5 Mindsets, the 7 Practices, the 14-Day Starter Plan, and the toolkit — designed for real life, not theory.",
-    href: "/unretire/practice",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 3.5v17l14-8.5-14-8.5Z" />
-      </svg>
-    ),
-  },
-  {
     title: "Assess",
-    desc: "Where have you started muting yourself? Take the Wheel of Life check and see your next chapter clearly.",
+    desc: "Eight questions, two minutes, no signup. See which parts have gone quiet.",
     href: "/unretire/assess",
+    cta: "Start the check →",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9.5" />
@@ -43,9 +24,32 @@ const paths = [
     ),
   },
   {
+    title: "Learn",
+    desc: "The book, the ten-module course, and honest conversations about life after work.",
+    href: "/unretire/learn",
+    cta: "See the course →",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 4 2 9l10 5 10-5-10-5Zm-6 7v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4M22 9v6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Practice",
+    desc: "The 5 Mindsets, the 7 Practices, the 14-Day Starter Plan.",
+    href: "/unretire/practice",
+    cta: "Get the free plan →",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 3.5v17l14-8.5-14-8.5Z" />
+      </svg>
+    ),
+  },
+  {
     title: "Stories",
-    desc: "Real people who refused to fade. See how others rebooted — and find the permission to begin your own.",
+    desc: "People who refused to fade.",
     href: "/unretire/stories",
+    cta: "Read them →",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3 20c0-3 2.7-5 6-5s6 2 6 5M16 14c2.5 0 5 1.6 5 4.5" />
@@ -70,36 +74,54 @@ export default function UnRetirePage() {
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <div className="lg:col-span-6 order-2 lg:order-1 text-center lg:text-left">
-           <p className="eyebrow mb-6">Re-Imagine</p>
+           <p className="eyebrow mb-6">Reboot. Don&apos;t Mute.</p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05]">
-                Reboot.<br />Don&apos;t Mute.
+                The job ended.<br />You didn&apos;t.
               </h1>
               <span className="rule mt-7 mb-7 mx-auto lg:mx-0" aria-hidden="true" />
               <p className="font-bold text-xl sm:text-2xl text-[#232F3F] leading-snug mb-5 max-w-[42ch] mx-auto lg:mx-0">
-                Retirement isn&apos;t the finish line. It&apos;s the most important beginning of your
-                life — if you choose to design it.
+                The title goes. The calendar empties. Nobody prepares you for that part.
               </p>
-           <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-9">
-  Too many people find themselves free, but adrift in retirement. UnRetire is the
-  invitation to flip that script: to step <em>through</em> retirement, not away from life.
+           <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-5">
+  Discover a book, a ten-module course, and a framework built for this — by Maher
+  Kaddoura, who redefined his own retirement at 40.
 </p>
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <Link href="/unretire/assess" className="btn btn-crimson">
-                  Start With One Question →
-                </Link>
-                <Link href="/unretire/book" className="btn btn-outline">
+              <p className="prose-body font-bold text-[#1B1B1B] leading-[1.7] max-w-[52ch] mx-auto lg:mx-0 mb-9">
+                The course: 10 modules · 31 lessons · a video and a workbook for each module ·
+                $99 once, yours to keep.
+              </p>
+              <div className="flex flex-nowrap gap-2.5 justify-center lg:justify-start">
+                <Link href="/unretire/book" className="btn btn-crimson whitespace-nowrap text-[13px] px-5">
                   Read the Book
                 </Link>
+                <Link href="/unretire/assess" className="btn btn-outline whitespace-nowrap text-[13px] px-5">
+                  Take the 2-minute check
+                </Link>
+                <Link href="/unretire/learn/course" className="btn btn-outline whitespace-nowrap text-[13px] px-5">
+                  See what&apos;s in the course
+                </Link>
               </div>
+              <p className="prose-body text-[12px] text-[#837A6E] leading-[1.6] mt-4 max-w-[52ch] mx-auto lg:mx-0">
+                Prefer to look around first?{" "}
+                <a
+                  href="https://youtu.be/6cUHqODZJ28"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#D05D11] font-bold hover:underline"
+                >
+                  Watch the course introduction
+                </a>{" "}
+                — 3 minutes, no email needed.
+              </p>
             </div>
 
             <div className="lg:col-span-6 order-1 lg:order-2">
-              <div className="relative w-full max-w-[600px] mx-auto aspect-[3/2]">
+              <div className="relative w-full max-w-[500px] mx-auto aspect-[3/2]">
                 <Image
                   src="/assets/unretire/images/homepage/hero.png"
                   alt="Stepping through retirement toward a new path — reboot, don't mute"
                   fill
-                  sizes="(min-width: 1024px) 600px, 100vw"
+                  sizes="(min-width: 1024px) 500px, 100vw"
                   priority
                   className="object-contain"
                 />
@@ -127,7 +149,7 @@ export default function UnRetirePage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             <div className="lg:col-span-6 order-2 lg:order-1">
-              <p className="eyebrow mb-5">The Framework</p>
+              <p className="eyebrow mb-5">What It&apos;s About</p>
               <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">
                 A Practical Way to Live Fully — at Any Age
               </h2>
@@ -171,15 +193,14 @@ export default function UnRetirePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             <div className="lg:col-span-5">
               <p className="eyebrow mb-5">Who Is It For</p>
-              <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">Who is this for?</h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">Who this is for</h2>
               <span className="rule mt-6 mb-7" aria-hidden="true" />
               <p className="prose-body leading-[1.85] mb-6">
-                If you&apos;re looking for permission to fade quietly, this isn&apos;t your book. But
-                if you&apos;re ready to reclaim the next chapter — you&apos;re exactly where you need
-                to be.
+                UnRetire isn&apos;t about fading quietly. It&apos;s about what you do next. Write your
+                next chapter.
               </p>
               <Link href="/unretire/book" className="btn btn-outline">
-               Check out the Book
+                Check out the Book
               </Link>
               <div className="relative w-full max-w-[440px] mx-auto lg:mx-0 mt-9 aspect-[2/1]">
                 <Image
@@ -210,12 +231,54 @@ export default function UnRetirePage() {
         </div>
       </section>
 
+      {/* ── HERE'S WHAT YOU PAY FOR ───────────────────────────── */}
+      <section className="bg-[#FBF5F2] border-t border-[#ECECEC]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
+            <p className="eyebrow mb-5">Simple pricing</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">Here&apos;s What You Pay For</h2>
+            <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+            <div className="card p-8 sm:p-10 flex flex-col">
+              <h3 className="text-2xl mb-4">The Course — $99, once.</h3>
+              <p className="prose-body leading-[1.8] mb-6 flex-1">
+                Ten modules. Thirty-one lessons. A short video and a downloadable workbook for each
+                module. It moves from an honest look at where you are now, through purpose, health,
+                relationships, growth, money and contribution, and finishes with a written 90-day
+                plan. Work at your own pace. Yours to keep and to come back to.
+              </p>
+              <Link href="/unretire/learn/course" className="pill-link">
+                See the ten modules →
+              </Link>
+            </div>
+
+            <div className="card p-8 sm:p-10 flex flex-col">
+              <h3 className="text-2xl mb-4">Premium — $199 a year.</h3>
+              <p className="prose-body leading-[1.8] mb-6 flex-1">
+                Everything in the course, plus the book and the workbook in electronic form, a
+                letter from Maher once a month, and the full practice toolkit — which keeps growing
+                for as long as you&apos;re a member.
+              </p>
+              <Link href="/unretire/premium" className="pill-link">
+                What&apos;s in Premium →
+              </Link>
+            </div>
+          </div>
+
+          <p className="prose-body text-center text-[15px] text-[#666666] leading-[1.7] mt-8 max-w-2xl mx-auto">
+            Start free. The 2-minute check costs nothing and asks for nothing.
+          </p>
+        </div>
+      </section>
+
       {/* ── FOUR WAYS TO ENGAGE ──────────────────────────────── */}
       <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">Four ways to begin</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">Choose your path into UnRetire</h2>
+            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">Choose where you start</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
           </div>
 
@@ -229,7 +292,7 @@ export default function UnRetirePage() {
                 <span className="icon-block mb-5">{p.icon}</span>
                 <h3 className="text-xl mb-3">{p.title}</h3>
                 <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">{p.desc}</p>
-                <span className="pill-link">Explore →</span>
+                <span className="pill-link">{p.cta}</span>
               </Link>
             ))}
           </div>
@@ -237,7 +300,7 @@ export default function UnRetirePage() {
       </section>
 
       {/* ── EMAIL CAPTURE ────────────────────────────────────── */}
-      <EmailCaptureBand showFaq blurb="The best chapter of your life hasn't been written yet. Get the free 14-Day Starter Plan and a weekly note on living fully — at any age." />
+      <EmailCaptureBand showFaq heading="Begin Your Next Chapter" blurb="The best chapter of your life hasn't been written yet. Get the free 14-Day Starter Plan and a weekly note on living fully — at any age." />
 
       {/* ── CLOSING BAND ─────────────────────────────────────── */}
       <section className="bg-[#232F3F]">

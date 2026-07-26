@@ -44,9 +44,9 @@ export const modules: Module[] = [
   {
     num: 1,
     slug: "module-1",
-    title: "Foundation: Reboot, Don't Mute",
+    title: "Do the groundwork",
     summary:
-      "Treat retirement as a beginning that needs design — not a default that runs on the old rules. Set your engagement commitment, then work through the four foundation lessons.",
+      "Switch it off and commit — in writing — to how much of yourself you're bringing.",
     intro: {
       youtubeId: "nIm49kwQLaU",
       deliverablePdf: "/assets/unretire/course/Module1_Deliverable_Worksheet.pdf",
@@ -63,8 +63,8 @@ export const modules: Module[] = [
   //    intro/youtubeId/pdfUrl as Frank sends each module. ─────────────────
   {
     num: 2, slug: "module-2",
-    title: "Reboot, Don't Mute",
-    summary: "The core shift: rebooting into your next chapter instead of quietly fading.",
+    title: "Stop fading",
+    summary: "There's a version of retirement where you slowly turn your own volume down — reboot instead.",
     lessons: [
       { id: "2-1", title: "The quiet crisis no one warns you about" },
       { id: "2-2", title: "Aging vs. diminishing" },
@@ -73,8 +73,8 @@ export const modules: Module[] = [
   },
   {
     num: 3, slug: "module-3",
-    title: "The Wheel of Life",
-    summary: "Mapping the eight dimensions of a full life and finding your weakest spoke.",
+    title: "Find what's gone quiet",
+    summary: "A full life runs on eight things at once. Map all eight, and find what's missing.",
     lessons: [
       { id: "3-1", title: "The eight spokes" },
       { id: "3-2", title: "Reading your wheel" },
@@ -82,8 +82,8 @@ export const modules: Module[] = [
   },
   {
     num: 4, slug: "module-4",
-    title: "Passion & Purpose",
-    summary: "Finding a reason to rise that the job no longer hands you.",
+    title: "Find a reason to get up",
+    summary: "The job used to hand you a reason to rise. Now build a reason that's yours.",
     lessons: [
       { id: "4-1", title: "What pulls you forward" },
       { id: "4-2", title: "Designing purpose" },
@@ -93,8 +93,8 @@ export const modules: Module[] = [
   },
   {
     num: 5, slug: "module-5",
-    title: "Health & Vitality",
-    summary: "The energy to live the life you're designing.",
+    title: "Build the energy for it",
+    summary: "Not a fitness programme — just the energy that makes everything else possible.",
     lessons: [
       { id: "5-1", title: "Vitality as fuel" },
       { id: "5-2", title: "Moving for life, not for looks" },
@@ -103,8 +103,8 @@ export const modules: Module[] = [
   },
   {
     num: 6, slug: "module-6",
-    title: "Relationships That Lift You",
-    summary: "Rebuilding a circle that raises you after work ends.",
+    title: "Rebuild the circle",
+    summary: "Much of your social life was quietly subcontracted to work. Then work ends. Rebuild a new circle that fits.",
     lessons: [
       { id: "6-1", title: "The circle that lifts you" },
       { id: "6-2", title: "Reconnecting on purpose" },
@@ -113,8 +113,8 @@ export const modules: Module[] = [
   },
   {
     num: 7, slug: "module-7",
-    title: "Growth & Creativity",
-    summary: "Staying curious, learning, and making — never just maintaining.",
+    title: "Keep learning. Keep creating.",
+    summary: "Don't just tick the boxes. Stay curious, make things, keep your mind awake.",
     lessons: [
       { id: "7-1", title: "Why growth doesn't end" },
       { id: "7-2", title: "Learning something new" },
@@ -123,8 +123,8 @@ export const modules: Module[] = [
   },
   {
     num: 8, slug: "module-8",
-    title: "Fun, Adventure & Inner Peace",
-    summary: "Designing joy and finding an anchor deeper than achievement.",
+    title: "Design the joy",
+    summary: "Joy won't just turn up. Design it in on purpose — and find an anchor deeper than achievement.",
     lessons: [
       { id: "8-1", title: "Joy is designed, not random" },
       { id: "8-2", title: "Novelty and play" },
@@ -134,8 +134,8 @@ export const modules: Module[] = [
   },
   {
     num: 9, slug: "module-9",
-    title: "Money & Contribution with Meaning",
-    summary: "From accumulating to using — and passing wisdom forward.",
+    title: "Spend it. Pass it on.",
+    summary: "A working life is spent accumulating. Money, time, hard-won wisdom — put it to work and pass it forward.",
     lessons: [
       { id: "9-1", title: "Money as a tool, not a scorecard" },
       { id: "9-2", title: "Permission to use it" },
@@ -144,8 +144,8 @@ export const modules: Module[] = [
   },
   {
     num: 10, slug: "module-10",
-    title: "Your 90-Day Design Plan",
-    summary: "Turning everything into a simple, repeatable plan you build on.",
+    title: "Write the 90-day plan",
+    summary: "It's all together. Leave with a plan in your hand — not a notebook of nice ideas.",
     lessons: [
       { id: "10-1", title: "Putting it together" },
       { id: "10-2", title: "The next 90 days" },

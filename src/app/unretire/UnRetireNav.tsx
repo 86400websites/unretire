@@ -10,6 +10,7 @@ type NavItem = { label: string; href: string; children?: Child[] };
 
 const navItems: NavItem[] = [
   { label: "The Book", href: "/unretire/book" },
+  { label: "The Author", href: "/unretire/about" },
   { label: "Course", href: "/unretire/learn/course" },
   {
     label: "Resources",
@@ -24,7 +25,6 @@ const navItems: NavItem[] = [
       { label: "Stories", href: "/unretire/stories", desc: "Real people, real next chapters." },
     ],
   },
-  { label: "About", href: "/unretire/about" },
   { label: "Premium", href: "/unretire/premium" },
   { label: "Enterprise", href: "/unretire/enterprise" },
 ];

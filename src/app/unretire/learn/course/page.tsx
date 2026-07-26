@@ -21,19 +21,37 @@ export default async function CoursePage() {
       <section className="bg-white">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 pt-16 pb-12 text-center">
           <p className="eyebrow mb-6">Online Course</p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">The (Un)Retire Course</h1>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">Design the next chapter. Ten modules.</h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
-          <p className="lede max-w-[58ch] mx-auto">
-            The book&apos;s companion course — a guided walk through the whole framework, at your own
-            pace. Ten modules, each lesson with a short video and a downloadable companion guide you can
-            actually use.
+          <p className="lede max-w-[58ch] mx-auto mb-4">
+            The book&apos;s companion course, at your own pace. Ten modules, thirty-one lessons, a short
+            video and a workbook you&apos;ll actually use with every one.
           </p>
+          <p className="prose-body font-bold text-[#1B1B1B] text-[17px] mb-8">$99 once. Yours to keep.</p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            {unlocked ? (
+              <Link href="/unretire/learn/course/module-1" className="btn btn-crimson">
+                Start the course →
+              </Link>
+            ) : (
+              <CheckoutButton
+                product="course"
+                loggedIn={loggedIn}
+                owned={unlocked}
+                label="Buy the course — $99"
+                className="btn btn-crimson"
+              />
+            )}
+            <a href="#course-intro" className="btn btn-outline">
+              Watch 3 minutes free
+            </a>
+          </div>
         </div>
       </section>
 
       {/* ── COURSE INTRO VIDEO (free preview) ────────────────── */}
       {COURSE_INTRO_YOUTUBE_ID && (
-        <section className="bg-white">
+        <section id="course-intro" className="bg-white scroll-mt-24">
           <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 pb-12">
             <p className="eyebrow mb-3 text-center">Course introduction · free preview</p>
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-[#ECECEC]">
@@ -73,7 +91,7 @@ export default async function CoursePage() {
         <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
             <p className="eyebrow mb-5">The curriculum</p>
-            <h2 className="text-3xl sm:text-4xl">Ten modules, one step at a time</h2>
+            <h2 className="text-3xl sm:text-4xl">Start where you are. Finish with a plan.</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
           </div>
 

@@ -78,8 +78,9 @@ export default function EnterprisePage() {
                 on the money — because nobody prepared them for the morning after.
               </p>
               <p className="lede mb-8">
-                That gap yours to close. UnRetire closes it. One book. One framework. Two programs. A
-                workforce that leaves loyal, and lives fully.
+                That gap is yours to close — and it is the cheapest gap you will ever close. One book.
+                One framework. Two programmes. A workforce that leaves loyal, stays sharper to the last
+                day, and speaks well of you long after.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="#discovery" className="btn btn-crimson">Book a Call →</Link>
@@ -192,16 +193,6 @@ export default function EnterprisePage() {
               <p className="prose-body text-[17px] leading-[1.85] mb-6">
                 Then the day comes. The title disappears. The calendar empties. And a hole opens that no pension can fill.
               </p>
-              <p className="prose-body text-[17px] leading-[1.85] mb-6">
-                I have watched capable people — leaders, builders, experts — walk out the door and quietly
-                deflate within a year. Not because they ran out of money.{" "}
-                <strong className="font-bold text-[#232F3F]">Because they ran out of meaning.</strong>
-              </p>
-              <p className="prose-body text-[17px] leading-[1.85] mb-6">
-                Your organisation pays for it too. Knowledge walks out undocumented. Long-serving people
-                disengage in their final months. And your remaining staff absorb a quiet lesson:{" "}
-                <em>this is how it ends here.</em>
-              </p>
               <p className="text-[17px] italic text-[#D05D11] leading-[1.7]">
                 Retirement is the only major transition we prepare for financially and avoid emotionally.
               </p>
@@ -210,6 +201,59 @@ export default function EnterprisePage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── ALREADY PAYING (cost argument) ───────────────────── */}
+      <section className="bg-[#232F3F]">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] text-white leading-tight mb-7">
+            You are already paying for this. Quietly.
+          </h2>
+          <p className="text-white/75 text-[17px] leading-[1.85] mb-8">
+            The cost of an unprepared retirement never shows up as a line on a budget. It shows up
+            everywhere else.
+          </p>
+          <p className="text-white font-bold text-[19px] leading-[1.5] mb-6">
+            And here is the part that reaches your bottom line.
+          </p>
+          <p className="text-white/75 text-[17px] leading-[1.85] mb-6">
+            A loyal, capable person deflates within a year of a send-off that felt like an afterthought.
+          </p>
+          <p className="text-white/75 text-[17px] leading-[1.85] mb-6">
+            The team watches how it ends, and files the answer: this is how they treat you on the way
+            out.
+          </p>
+          <p className="text-white/75 text-[17px] leading-[1.85] mb-8">
+            You know the pension was handled and the person was not — and it has never had an owner.
+            Now it can.
+          </p>
+          <p className="text-[17px] italic text-[#F0A56E] leading-[1.7]">
+            Prepare people properly and it reverses — on both sides of that table. Knowledge is handed
+            over. Retirement dates get named. People leave as advocates, not cautionary tales. And the
+            whole workforce learns something better about what it means to grow old inside your company.
+          </p>
+        </div>
+      </section>
+
+      {/* ── WHAT THIS ASKS OF YOU ────────────────────────────── */}
+      <section className="bg-white">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <p className="eyebrow mb-5">The Lift on Your Side</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight mb-7">
+            What this asks of you: almost nothing.
+          </h2>
+          <p className="prose-body text-[17px] leading-[1.85] mb-6">
+            One approval. One named contact on your side. A room, or a link.
+          </p>
+          <p className="prose-body text-[17px] leading-[1.85] mb-6">
+            We handle the design, the facilitation, the materials, the scheduling and the closing
+            report. Nobody on your team builds anything, chases anyone, or stands at the front. We even
+            draft the internal note announcing it, and hand it to you ready to send.
+          </p>
+          <p className="text-[17px] font-bold text-[#232F3F] leading-[1.6]">
+            You approve it once. After that, you receive a report.
+          </p>
         </div>
       </section>
 
