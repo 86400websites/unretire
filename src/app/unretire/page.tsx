@@ -86,10 +86,7 @@ export default function UnRetirePage() {
   Discover a book, a ten-module course, and a framework built for this — by Maher
   Kaddoura, who redefined his own retirement at 40.
 </p>
-              <p className="prose-body font-bold text-[#1B1B1B] leading-[1.7] max-w-[52ch] mx-auto lg:mx-0 mb-9">
-                The course: 10 modules · 31 lessons · a video and a workbook for each module ·
-                $99 once, yours to keep.
-              </p>
+              
               <div className="flex flex-nowrap gap-2.5 justify-center lg:justify-start">
                 <Link href="/unretire/book" className="btn btn-crimson whitespace-nowrap text-[13px] px-5">
                   Read the Book
@@ -101,7 +98,7 @@ export default function UnRetirePage() {
                   See what&apos;s in the course
                 </Link>
               </div>
-              <p className="prose-body text-[12px] text-[#837A6E] leading-[1.6] mt-4 max-w-[52ch] mx-auto lg:mx-0">
+              <p className="prose-body text-[9px] text-[#837A6E] leading-[1.6] mt-4 max-w-[52ch] mx-auto lg:mx-0">
                 Prefer to look around first?{" "}
                 <a
                   href="https://youtu.be/6cUHqODZJ28"
