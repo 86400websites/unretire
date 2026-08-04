@@ -164,3 +164,64 @@ export async function logout(): Promise<void> {
   revalidatePath("/", "layout");
   redirect("/unretire/login");
 }
+
+/**
+ * Step 1 of password reset: email the user a recovery link. The link lands
+ * on /auth/confirm (which exchanges the recovery token for a session), then
+ * forwards to /unretire/reset-password where they set a new password.
+ * Always returns a generic success message — we never reveal whether an
+ * email is registered (enumeration protection).
+ */
+export async function requestPasswordReset(formData: FormData): Promise<AuthResult> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Please enter a valid email address." };
+  }
+
+  const supabase = await createClient();
+  const origin = await getOrigin();
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/confirm?next=/unretire/reset-password`,
+  });
+
+  // Don't leak whether the address exists; show the same message either way.
+  if (error) console.error("Password reset request failed:", error);
+
+  return {
+    message:
+      "If an account exists for that email, a reset link is on its way. Check your inbox.",
+  };
+}
+
+/**
+ * Step 2 of password reset: the user arrives here already signed in via the
+ * recovery session (set by /auth/confirm). Set the new password, then send
+ * them to their account page.
+ * NOTE: redirect() throws internally, so it stays OUTSIDE any try/catch.
+ */
+export async function updatePassword(formData: FormData): Promise<AuthResult> {
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+
+  const supabase = await createClient();
+
+  // Must have an active (recovery) session to change the password.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      error:
+        "Your reset link has expired or is invalid. Please request a new one.",
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  redirect("/unretire/account?password=updated");
+}

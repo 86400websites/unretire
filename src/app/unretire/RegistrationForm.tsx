@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { register, login, type AuthResult } from "@/app/auth/actions";
+import PasswordField from "./PasswordField";
 
 type Intent = "course" | "premium" | "account";
 
@@ -127,14 +128,10 @@ export default function RegistrationForm({
       </div>
 
       <div>
-        <label className={label} htmlFor="reg-password">Password</label>
-        <input
+        <PasswordField
           id="reg-password"
-          name="password"
-          type="password"
           autoComplete={mode === "register" ? "new-password" : "current-password"}
-          required
-          className={field}
+          minLength={mode === "register" ? 8 : undefined}
         />
         {mode === "register" && (
           <p className="text-[12px] text-[#9A9080] mt-2">At least 8 characters.</p>

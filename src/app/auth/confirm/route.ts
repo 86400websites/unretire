@@ -3,13 +3,16 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Email-confirmation callback. This is where the link in the Supabase
- * confirmation email lands. It exchanges the one-time token for a real
- * session (cookies set via the server client), then redirects the user
- * onward. Required because Confirm-email is ON.
+ * Email callback for BOTH sign-up confirmation and password recovery.
+ * Supabase may send either flow:
+ *   • PKCE flow  → arrives with `?code=...`; exchange via exchangeCodeForSession.
+ *   • OTP flow   → arrives with `?token_hash=...&type=...`; verify via verifyOtp.
+ * Recovery links (type=recovery) use PKCE, which is why the code path is needed.
+ * After a session is established, redirect onward (default: account page).
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
 
@@ -17,8 +20,18 @@ export async function GET(request: NextRequest) {
   const nextParam = searchParams.get("next") ?? "/unretire/account";
   const next = nextParam.startsWith("/") ? nextParam : "/unretire/account";
 
+  const supabase = await createClient();
+
+  // PKCE flow (used by recovery links): exchange the code for a session.
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      return NextResponse.redirect(new URL(next, request.url));
+    }
+  }
+
+  // OTP flow (used by older confirm links): verify the token hash.
   if (token_hash && type) {
-    const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
       return NextResponse.redirect(new URL(next, request.url));
