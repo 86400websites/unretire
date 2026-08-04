@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { login } from "@/app/auth/actions";
+import PasswordField from "../PasswordField";
 
 type Intent = "course" | "premium" | "account";
 
@@ -47,8 +48,15 @@ export default function LoginForm({
         <input id="email" name="email" type="email" autoComplete="email" required className={field} />
       </div>
       <div>
-        <label className={label} htmlFor="password">Password</label>
-        <input id="password" name="password" type="password" autoComplete="current-password" required className={field} />
+        <PasswordField autoComplete="current-password" />
+        <p className="text-right mt-2">
+          <Link
+            href="/unretire/forgot-password"
+            className="text-[13px] text-[#D05D11] font-semibold hover:text-[#8B1A1A]"
+          >
+            Forgot password?
+          </Link>
+        </p>
       </div>
 
       {error && (
