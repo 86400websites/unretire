@@ -17,7 +17,8 @@
 export const COURSE_UNLOCKED = true;
 
 // Whole-course introduction (free preview on the hub).
-export const COURSE_INTRO_YOUTUBE_ID = "6cUHqODZJ28";
+// This is the "Welcome" video from the course.
+export const COURSE_INTRO_YOUTUBE_ID = "uUsQyq5PaTY";
 
 export type Lesson = {
   id: string;
@@ -48,15 +49,14 @@ export const modules: Module[] = [
     summary:
       "Switch it off and commit — in writing — to how much of yourself you're bringing.",
     intro: {
-      youtubeId: "nIm49kwQLaU",
+      youtubeId: "ilShYAJFc6o",
       deliverablePdf: "/assets/unretire/course/Module1_Deliverable_Worksheet.pdf",
     },
     lessons: [
-      { id: "1-1", title: "Why Retirement Is the Most Dangerous Beginning", youtubeId: "UwHZsnL7NTE", pdfUrl: "/assets/unretire/course/Module1_Lesson1_Worksheet.pdf" },
-      { id: "1-2", title: "The Identity Gap", youtubeId: "Rse87ZWuH7k", pdfUrl: "/assets/unretire/course/Module1_Lesson2_Worksheet.pdf" },
-      { id: "1-3", title: "The Mindset × Practice Equation", youtubeId: "yGjknj7EQk4", pdfUrl: "/assets/unretire/course/Module1_Lesson3_Worksheet.pdf" },
-      { id: "1-4", title: "Commit to Completion", youtubeId: "gFFXNGQdU3I" },
-       
+      { id: "1-1", title: "What If Retirement Is the Most Dangerous Beginning of Your Life?", youtubeId: "r81jMzTX0uI", pdfUrl: "/assets/unretire/course/Module1_Lesson1_Worksheet.pdf" },
+      { id: "1-2", title: "Who Are You When the Title Is Gone?", youtubeId: "EUaQQ8p0EH8", pdfUrl: "/assets/unretire/course/Module1_Lesson2_Worksheet.pdf" },
+      { id: "1-3", title: "Why Is Thinking Differently Never Enough?", youtubeId: "N44pfLLWiTw", pdfUrl: "/assets/unretire/course/Module1_Lesson3_Worksheet.pdf" },
+      { id: "1-4", title: "How Do You Make Sure You Actually Finish This Course?", youtubeId: "mBn6Q77LwAY" },
     ],
   },
   // ── Modules 2–10: placeholders — replace titles/summaries/lessons and add
