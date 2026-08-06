@@ -63,12 +63,19 @@ export const modules: Module[] = [
   //    intro/youtubeId/pdfUrl as Frank sends each module. ─────────────────
   {
     num: 2, slug: "module-2",
-    title: "Stop fading",
-    summary: "There's a version of retirement where you slowly turn your own volume down — reboot instead.",
+    title: "Your Baseline: The Truth Before the Design",
+    summary: "Before you design the next chapter, tell yourself the truth about where you are now.",
+    intro: {
+      youtubeId: "2AFHUQsDyr8",
+      deliverablePdf: "/assets/unretire/course/Module2_Deliverable_Worksheet.pdf",
+    },
     lessons: [
-      { id: "2-1", title: "The quiet crisis no one warns you about" },
-      { id: "2-2", title: "Aging vs. diminishing" },
-      { id: "2-3", title: "Choosing relevance" },
+      { id: "2-1", title: "Are You Designing Your Life — or Drifting Through It?", youtubeId: "d4ZrqHh6wN4" },
+      { id: "2-2", title: "What Has Your Retirement Actually Given You — and Quietly Taken?", youtubeId: "ATdqtQ0K_8w" },
+      { id: "2-3", title: "Where Are You Strong — and Where Are You Empty?", youtubeId: "GgJ2_uI2xQA" },
+      { id: "2-4", title: "Which of Your Limits Are Real — and Which Are Stories?", youtubeId: "baI7KU77Nxo" },
+      { id: "2-5", title: "What Are You Refusing to Carry Into the Next Chapter?", youtubeId: "gjvOODOF1No" },
+      { id: "2-6", title: "Are You Ready to Sign the Decision?", youtubeId: "OtRnwu5MKOM" },
     ],
   },
   {
