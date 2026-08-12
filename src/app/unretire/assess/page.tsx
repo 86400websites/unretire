@@ -14,19 +14,23 @@ export default function AssessPage() {
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
           <p className="eyebrow mb-6">Assess · The Wheel of Life</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">
-            Where have you started muting yourself?
+            There&apos;s more — and you have the time now.
           </h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
-          <p className="lede max-w-[60ch] mx-auto">
-            The Wheel of Life — (Un)Retirement Edition. A quick, honest check across the eight
-            dimensions of a full life. It takes two minutes, and there&apos;s nothing to sign up for.
-            Just rate where you are today, and see your next chapter more clearly.
+          <p className="lede max-w-[60ch] mx-auto mb-4">
+            For the first time in decades, your calendar answers to you.
           </p>
+          <p className="lede max-w-[60ch] mx-auto mb-9">
+            Spend two minutes of it finding out which parts of your life are asking for attention.
+          </p>
+          <a href="#wheel" className="btn btn-crimson">
+            Spend 2 minutes well
+          </a>
         </div>
       </section>
 
       {/* ── THE WHEEL (client island) ────────────────────────── */}
-      <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
+      <section id="wheel" className="bg-[#FBF5F2] border-y border-[#ECECEC] scroll-mt-24">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <WheelOfLife />
         </div>
