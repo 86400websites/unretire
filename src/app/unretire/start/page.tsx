@@ -33,7 +33,7 @@ const steps = [
     title: "Take the 2-minute Wheel of Life check",
     desc: "A quick, honest look across the eight dimensions of a full life — see where you've started muting yourself, and where to begin.",
     href: "/unretire/assess",
-    cta: "Take the check →",
+    cta: "Spend 2 minutes well →",
     gate: "",
     highlight: false,
     icon: (
