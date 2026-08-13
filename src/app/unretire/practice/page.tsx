@@ -28,7 +28,7 @@ const practices = [
 const tools = [
   { img: "starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. Feel the framework work before you finish the book.", cta: "Download free →", href: "/unretire/start" },
   { img: "toolkit", title: "The Practice Toolkit", desc: "A menu of small experiments. Once a week, pick one and try it. No pressure, just motion.", cta: "Explore →", href: "/unretire/tools" },
-  { img: "wheel-of-life", title: "The 2-Minute Check", desc: "A quick, honest read across every part of a full life. See which parts have gone quiet.", cta: "Take the check →", href: "/unretire/assess" },
+  { img: "wheel-of-life", title: "The 2-Minute Check", desc: "A quick, honest read across every part of a full life. See which parts have gone quiet.", cta: "Spend 2 minutes well →", href: "/unretire/assess" },
 ];
 
 function Card({ item }: { item: (typeof mindsets)[number] }) {
@@ -222,7 +222,7 @@ export default function PracticePage() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/unretire/assess" className="btn btn-crimson">
-              Take the 2-minute check →
+              Spend 2 minutes well
             </Link>
           </div>
         </div>
