@@ -2,7 +2,7 @@ import ForgotPasswordForm from "./ForgotPasswordForm";
 
 export const metadata = {
   title: "Reset your password",
-  description: "Request a link to reset your UnRetire account password.",
+  description: "Request a link to reset your (Un)Retire account password.",
 };
 
 export default function ForgotPasswordPage() {

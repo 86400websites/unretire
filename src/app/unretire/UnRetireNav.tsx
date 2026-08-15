@@ -74,10 +74,10 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-[70px] gap-4">
           {/* Logo */}
-          <Link href="/unretire" aria-label="UnRetire — home" className="flex items-center flex-shrink-0">
+          <Link href="/unretire" aria-label="(Un)Retire — home" className="flex items-center flex-shrink-0">
             <Image
               src="/assets/unretire/logo-color.png"
-              alt="UnRetire"
+              alt="(Un)Retire"
               width={150}
               height={54}
               priority
@@ -86,7 +86,7 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2" aria-label="UnRetire">
+          <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2" aria-label="(Un)Retire">
             {navItems.map((item) => {
               const active = isActive(item.href);
               if (!item.children) {

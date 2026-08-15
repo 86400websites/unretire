@@ -4,7 +4,7 @@ import RegistrationForm from "../RegistrationForm";
 
 export const metadata = {
   title: "Create your account",
-  description: "Create your UnRetire account to access the course and Premium.",
+  description: "Create your (Un)Retire account to access the course and Premium.",
 };
 
 const COPY = {
@@ -13,7 +13,7 @@ const COPY = {
     lede: "One quick step — then you'll go straight to secure checkout.",
   },
   premium: {
-    eyebrow: "UnRetire Premium",
+    eyebrow: "(Un)Retire Premium",
     lede: "One quick step — then you'll go straight to secure checkout.",
   },
   account: {

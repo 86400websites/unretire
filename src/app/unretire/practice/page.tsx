@@ -28,7 +28,7 @@ const practices = [
 const tools = [
   { img: "starter-plan", title: "The 14-Day Starter Plan", desc: "Two weeks, one small move a day. Feel the framework work before you finish the book.", cta: "Download free →", href: "/unretire/start" },
   { img: "toolkit", title: "The Practice Toolkit", desc: "A menu of small experiments. Once a week, pick one and try it. No pressure, just motion.", cta: "Explore →", href: "/unretire/tools" },
-  { img: "wheel-of-life", title: "The 2-Minute Check", desc: "A quick, honest read across every part of a full life. See which parts have gone quiet.", cta: "Spend 2 minutes well →", href: "/unretire/assess" },
+  { img: "wheel-of-life", title: "The 2-Minute Check", desc: "A quick, honest read across every part of a full life. See which parts have gone quiet.", cta: "Take the check →", href: "/unretire/assess" },
 ];
 
 function Card({ item }: { item: (typeof mindsets)[number] }) {
@@ -63,7 +63,7 @@ export default function PracticePage() {
               <span className="rule mt-7 mb-7 mx-auto lg:mx-0" aria-hidden="true" />
               <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-9">
                 A framework you only understand is an idea. A framework you <em>use</em> becomes a
-                life. This is where UnRetire stops being a book. Five mindsets to change how you
+                life. This is where (Un)Retire stops being a book. Five mindsets to change how you
                 think. Seven practices to change what you do. And one small thing to start this week.
               </p>
               <Link href="#tools" className="btn btn-crimson">
@@ -222,7 +222,7 @@ export default function PracticePage() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/unretire/assess" className="btn btn-crimson">
-              Spend 2 minutes well
+              Take the 2-minute check →
             </Link>
           </div>
         </div>

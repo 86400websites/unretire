@@ -42,7 +42,7 @@ export default function UnRetireFooter() {
           <div className="col-span-2 md:col-span-5">
             <Image
               src="/assets/unretire/logo-on-dark.png"
-              alt="UnRetire"
+              alt="(Un)Retire"
               width={150}
               height={54}
               className="h-7 w-auto mb-4"
@@ -96,7 +96,7 @@ export default function UnRetireFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-7">
-          <p className="text-[12px] text-white/35">© 2026 UnRetire · Maher Kaddoura · Part of Half a Life</p>
+          <p className="text-[12px] text-white/35">© 2026 (Un)Retire · Maher Kaddoura · Part of Half a Life</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">
               Privacy

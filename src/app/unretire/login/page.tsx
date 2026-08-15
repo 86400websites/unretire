@@ -2,7 +2,7 @@ import LoginForm from "./LoginForm";
 
 export const metadata = {
   title: "Log in",
-  description: "Log in to your UnRetire account.",
+  description: "Log in to your (Un)Retire account.",
 };
 
 export default async function LoginPage({

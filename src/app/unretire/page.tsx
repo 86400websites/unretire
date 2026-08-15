@@ -193,7 +193,7 @@ export default function UnRetirePage() {
               <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">Who this is for</h2>
               <span className="rule mt-6 mb-7" aria-hidden="true" />
               <p className="prose-body leading-[1.85] mb-6">
-                UnRetire isn&apos;t about fading quietly. It&apos;s about what you do next. Write your
+                (Un)Retire isn&apos;t about fading quietly. It&apos;s about what you do next. Write your
                 next chapter.
               </p>
               <Link href="/unretire/book" className="btn btn-outline">
@@ -241,7 +241,7 @@ export default function UnRetirePage() {
             <div className="card p-8 sm:p-10 flex flex-col">
               <h3 className="text-2xl mb-4">The Course — $99, once.</h3>
               <p className="prose-body leading-[1.8] mb-6 flex-1">
-                Ten modules. Forty-eight lessons. A short video and a downloadable workbook for each
+                Ten modules. Thirty-one lessons. A short video and a downloadable workbook for each
                 module. It moves from an honest look at where you are now, through purpose, health,
                 relationships, growth, money and contribution, and finishes with a written 90-day
                 plan. Work at your own pace. Yours to keep and to come back to.

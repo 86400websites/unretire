@@ -4,7 +4,7 @@ import EmailCaptureBand from "../EmailCaptureBand";
 
 export const metadata = {
   title: "About Maher",
-  description: "Maher Kaddoura on why he wrote UnRetire — and why usefulness has no expiry date.",
+  description: "Maher Kaddoura on why he wrote (Un)Retire — and why usefulness has no expiry date.",
 };
 
 export default function AboutPage() {
@@ -22,7 +22,7 @@ export default function AboutPage() {
               <span className="rule mt-7 mb-7 mx-auto lg:mx-0" aria-hidden="true" />
               <p className="lede max-w-[54ch] mx-auto lg:mx-0">
                 I&apos;m Maher Kaddoura. Consultant by profession. Entrepreneur by instinct. Seeker of
-                meaning by nature. UnRetire is the book I wish someone had handed me — and millions of
+                meaning by nature. (Un)Retire is the book I wish someone had handed me — and millions of
                 others — long before the calendar emptied and the question arrived:{" "}
                 <em className="text-[#232F3F]">Is this it?</em>
               </p>
@@ -121,7 +121,7 @@ export default function AboutPage() {
       {/* ── WHY I WROTE THIS BOOK ────────────────────────────── */}
       <section className="bg-white">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-          <p className="eyebrow mb-5">Why UnRetire</p>
+          <p className="eyebrow mb-5">Why (Un)Retire</p>
           <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">
             Because no one warns you<br />about this part.
           </h2>
@@ -136,7 +136,7 @@ export default function AboutPage() {
             to old roles. To design a life without waiting for instructions.
           </p>
           <p className="prose-body leading-[1.85]">
-            I wrote UnRetire to hand you that permission — and a practical way to use it. Not platitudes.
+            I wrote (Un)Retire to hand you that permission — and a practical way to use it. Not platitudes.
             Not reinvention fantasies. A framework, a compass, and a set of practices grounded in real
             life. Because the most dangerous thing about retirement isn&apos;t stopping work. It&apos;s
             stopping yourself.

@@ -4,7 +4,7 @@ import { getAccess } from "@/lib/auth/entitlements";
 export const metadata = {
   title: "Premium",
   description:
-    "UnRetire Premium — the course, an electronic copy of the book and workbook, a monthly letter from Maher, and a growing toolkit. $199/year.",
+    "(Un)Retire Premium — the course, an electronic copy of the book and workbook, a monthly letter from Maher, and a growing toolkit. $199/year.",
 };
 
 const features = [
@@ -50,7 +50,7 @@ export default async function PremiumPage() {
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="bg-white">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
-          <p className="eyebrow mb-6">UnRetire Premium</p>
+          <p className="eyebrow mb-6">(Un)Retire Premium</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">
             You didn&apos;t retire to stand still.
           </h1>
