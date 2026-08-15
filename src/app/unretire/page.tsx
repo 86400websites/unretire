@@ -15,7 +15,7 @@ const paths = [
     title: "Assess",
     desc: "Eight questions, two minutes, no signup. See which parts have gone quiet.",
     href: "/unretire/assess",
-    cta: "Spend 2 minutes well →",
+    cta: "Start the check →",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D05D11" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9.5" />
@@ -92,7 +92,7 @@ export default function UnRetirePage() {
                   Read the Book
                 </Link>
                 <Link href="/unretire/assess" className="btn btn-outline whitespace-nowrap text-[13px] px-5">
-                  Spend 2 minutes well
+                  Take the 2-minute check
                 </Link>
                 <Link href="/unretire/learn/course" className="btn btn-outline whitespace-nowrap text-[13px] px-5">
                   See what&apos;s in the course
@@ -241,7 +241,7 @@ export default function UnRetirePage() {
             <div className="card p-8 sm:p-10 flex flex-col">
               <h3 className="text-2xl mb-4">The Course — $99, once.</h3>
               <p className="prose-body leading-[1.8] mb-6 flex-1">
-                Ten modules. Thirty-one lessons. A short video and a downloadable workbook for each
+                Ten modules. Forty-eight lessons. A short video and a downloadable workbook for each
                 module. It moves from an honest look at where you are now, through purpose, health,
                 relationships, growth, money and contribution, and finishes with a written 90-day
                 plan. Work at your own pace. Yours to keep and to come back to.
