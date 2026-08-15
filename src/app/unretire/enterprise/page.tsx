@@ -6,7 +6,7 @@ import FaqAccordion from "./FaqAccordion";
 export const metadata = {
   title: "For Organisations",
   description:
-    "UnRetire for organisations — two programs built on the (Un)Retire book and framework that prepare your people for retirement emotionally, not just financially.",
+    "(Un)Retire for organisations — two programs built on the (Un)Retire book and framework that prepare your people for retirement emotionally, not just financially.",
 };
 
 const fourWeek: [string, string, string][] = [
@@ -64,7 +64,7 @@ export default function EnterprisePage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div>
-              <p className="eyebrow mb-6">UnRetire · For Organisations</p>
+              <p className="eyebrow mb-6">(Un)Retire · For Organisations</p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">
                 You planned their pension. Who planned their purpose?
               </h1>

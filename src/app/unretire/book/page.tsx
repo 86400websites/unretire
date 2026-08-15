@@ -4,19 +4,8 @@ import EmailCaptureBand from "../EmailCaptureBand";
 
 export const metadata = {
   title: "The Book",
-  description: "UnRetire by Maher Kaddoura — the framework of 5 mindsets and 7 practices to design a next chapter with meaning, balance, and adventure.",
+  description: "(Un)Retire by Maher Kaddoura — the framework of 5 mindsets and 7 practices to design a next chapter with meaning, balance, and adventure.",
 };
-
-// All available Amazon editions. Update here if links change.
-const BOOK_EDITIONS = [
-  { format: "Paperback", size: "A5", href: "https://www.amazon.com/dp/B0H5D4N39D" },
-  { format: "Hardcover", size: "A5", href: "https://www.amazon.com/dp/B0HCBTKVVB" },
-  { format: "Paperback", size: "B5", href: "https://www.amazon.com/dp/B0H5CS433Q" },
-  { format: "Hardcover", size: "B5", href: "https://www.amazon.com/dp/B0HCBYVDHH" },
-  { format: "Kindle", size: "eBook", href: "https://www.amazon.com/dp/B0HDYSZ8T7" },
-];
-
-const KINDLE_HREF = "https://www.amazon.com/dp/B0HDYSZ8T7";
 
 const mindsets = [
   { icon: "freedom", title: "Freedom", line: "Living life on your own terms" },
@@ -72,18 +61,15 @@ export default function BookPage() {
               </h1>
               <span className="rule mt-7 mb-7 mx-auto lg:mx-0" aria-hidden="true" />
               <p className="lede max-w-[52ch] mx-auto lg:mx-0 mb-9">
-                Most retirement books prepare your finances and forget your life. UnRetire does the
+                Most retirement books prepare your finances and forget your life. (Un)Retire does the
                 opposite. It hands you a framework — five mindsets and seven practices — to design a
                 next chapter with meaning, balance, and adventure. Not advice on how to take it easy. A
                 blueprint for living fully, at any age.
               </p>
              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <a href={KINDLE_HREF} target="_blank" rel="noopener noreferrer" className="btn btn-crimson">
-                  Get it on Kindle
-                </a>
-                <a href="#editions" className="btn btn-outline">
-                  See all editions ↓
-                </a>
+                <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
+                  Buy on Amazon — Coming Soon
+                </span>
               </div>
             </div>
 
@@ -92,7 +78,7 @@ export default function BookPage() {
                 <div className="absolute -inset-8 bg-[radial-gradient(ellipse,rgba(208,93,17,0.12),transparent_70%)]" aria-hidden="true" />
                 <Image
                   src="/assets/unretire/cover.jpg"
-                  alt="UnRetire by Maher Kaddoura — Reboot, Don't Mute."
+                  alt="(Un)Retire by Maher Kaddoura — Reboot, Don't Mute."
                   width={320}
                   height={442}
                   priority
@@ -134,7 +120,7 @@ export default function BookPage() {
             <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">One equation.<br />A whole new chapter.</h2>
             <span className="rule mt-6 mb-7 mx-auto" aria-hidden="true" />
             <p className="lede">
-              Everything in UnRetire flows from a single idea —{" "}
+              Everything in (Un)Retire flows from a single idea —{" "}
               <strong className="text-[#1B1B1B] font-bold">Mindset &times; Practice</strong>. How you
               think, multiplied by what you do.
             </p>
@@ -215,36 +201,6 @@ export default function BookPage() {
         </div>
       </section>
 
-      {/* ── CHOOSE YOUR EDITION ──────────────────────────────── */}
-      <section id="editions" className="bg-[#FAF5F0] border-y border-[#ECE5DB] scroll-mt-24">
-        <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-          <div className="text-center mb-10 sm:mb-12">
-            <p className="eyebrow mb-5">Available now on Amazon</p>
-            <h2 className="text-3xl sm:text-4xl">Choose your edition</h2>
-            <span className="rule mt-6 mx-auto" aria-hidden="true" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {BOOK_EDITIONS.map((ed) => (
-              <a
-                key={`${ed.format}-${ed.size}`}
-                href={ed.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card card-hover flex items-center justify-between px-6 py-5 group"
-              >
-                <span>
-                  <span className="block text-[17px] font-bold text-[#232F3F]">{ed.format}</span>
-                  <span className="block text-[13px] text-[#837A6E] mt-0.5">{ed.size}</span>
-                </span>
-                <span className="text-[#D05D11] font-bold text-[14px] group-hover:translate-x-0.5 transition-transform">
-                  Buy →
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── CLOSING CTA ──────────────────────────────────────── */}
       <section className="bg-white">
         <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
@@ -252,12 +208,10 @@ export default function BookPage() {
             The best chapter of your life hasn&apos;t been written yet.
           </h2>
           <div className="flex flex-wrap gap-3 justify-center">
-            <a href={KINDLE_HREF} target="_blank" rel="noopener noreferrer" className="btn btn-crimson">
-              Get it on Kindle
-            </a>
-            <a href="#editions" className="btn btn-outline">
-              See all editions ↓
-            </a>
+            <span className="btn btn-crimson opacity-60 cursor-not-allowed" title="Amazon link coming soon">
+              Buy on Amazon — Coming Soon
+            </span>
+          
           </div>
         </div>
       </section>

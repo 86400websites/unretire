@@ -26,7 +26,7 @@ export default function ComingSoon({
               Explore the Practice
             </Link>
             <Link href="/unretire" className="btn btn-outline">
-              ← Back to UnRetire
+              ← Back to (Un)Retire
             </Link>
           </div>
         </div>

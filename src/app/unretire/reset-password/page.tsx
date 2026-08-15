@@ -4,7 +4,7 @@ import ResetPasswordForm from "./ResetPasswordForm";
 
 export const metadata = {
   title: "Set a new password",
-  description: "Choose a new password for your UnRetire account.",
+  description: "Choose a new password for your (Un)Retire account.",
 };
 
 export default async function ResetPasswordPage() {

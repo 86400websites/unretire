@@ -4,7 +4,7 @@ import EmailCaptureBand from "../EmailCaptureBand";
 
 export const metadata = {
   title: "Contact",
-  description: "Questions about the book, a speaking inquiry, or a story to share — get in touch with the UnRetire team.",
+  description: "Questions about the book, a speaking inquiry, or a story to share — get in touch with the (Un)Retire team.",
 };
 
 const reach = [
@@ -16,7 +16,7 @@ const reach = [
 
 const faqs = [
   {
-    q: "Is UnRetire only for people who've already retired?",
+    q: "Is (Un)Retire only for people who've already retired?",
     a: "No. It's for anyone sensing the question \u201CIs this it?\u201D — whether retirement is decades away, on the horizon, or already here. The framework is about designing a fuller life at any age.",
   },
   {
