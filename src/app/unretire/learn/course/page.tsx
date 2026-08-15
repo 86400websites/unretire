@@ -24,7 +24,7 @@ export default async function CoursePage() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">Design the next chapter. Ten modules.</h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
           <p className="lede max-w-[58ch] mx-auto mb-4">
-            The book&apos;s companion course, at your own pace. Ten modules, thirty-one lessons, a short
+            The book&apos;s companion course, at your own pace. Ten modules, forty-eight lessons, a short
             video and a workbook you&apos;ll actually use with every one.
           </p>
           <p className="prose-body font-bold text-[#1B1B1B] text-[17px] mb-8">$99 once. Yours to keep.</p>
