@@ -14,6 +14,7 @@ const BOOK_EDITIONS = [
   { format: "Paperback", size: "B5", href: "https://www.amazon.com/dp/B0H5CS433Q" },
   { format: "Hardcover", size: "B5", href: "https://www.amazon.com/dp/B0HCBYVDHH" },
   { format: "Kindle", size: "eBook", href: "https://www.amazon.com/dp/B0HDYSZ8T7" },
+  { format: "Workbook", size: "A4 Paperback", href: "https://www.amazon.com/dp/B0H6J2QG9Q" },
 ];
 
 const KINDLE_HREF = "https://www.amazon.com/dp/B0HDYSZ8T7";
