@@ -41,6 +41,11 @@ export async function createCheckoutSession(opts: {
   const session = await getStripe().checkout.sessions.create({
     mode: config.mode,
     line_items: [{ price, quantity: 1 }],
+    // Shows the "Add promotion code" field at checkout so guests can enter
+    // a Stripe promotion code (e.g. FREE during the preview). Discounts are
+    // configured entirely in the Stripe dashboard — no code changes to add,
+    // change, or expire a coupon.
+    allow_promotion_codes: true,
     customer_email: opts.email ?? undefined,
     client_reference_id: opts.userId,
     metadata: { supabase_user_id: opts.userId, product: opts.product },

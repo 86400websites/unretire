@@ -61,6 +61,16 @@ const paths = [
 export default function UnRetirePage() {
   return (
     <>
+      {/* ── GUEST PREVIEW BANNER ─────────────────────────────── */}
+      <div className="bg-[#232F3F] text-center px-5 py-3.5">
+        <p className="text-[14px] sm:text-[15px] font-bold text-white leading-snug tracking-[0.01em]">
+          Welcome to the (Un)Retire Exclusive Guest Preview
+        </p>
+        <p className="text-[13px] sm:text-[14px] italic text-white/70 leading-snug mt-1">
+          This private preview is available to selected guests until 31 August.
+        </p>
+      </div>
+
       {/* Fixed "back to Half a Life" pill */}
       <Link
         href="/"
@@ -193,7 +203,7 @@ export default function UnRetirePage() {
               <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] leading-tight">Who this is for</h2>
               <span className="rule mt-6 mb-7" aria-hidden="true" />
               <p className="prose-body leading-[1.85] mb-6">
-                (Un)Retire isn&apos;t about fading quietly. It&apos;s about what you do next. Write your
+                UnRetire isn&apos;t about fading quietly. It&apos;s about what you do next. Write your
                 next chapter.
               </p>
               <Link href="/unretire/book" className="btn btn-outline">
