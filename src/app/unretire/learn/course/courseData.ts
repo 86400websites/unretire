@@ -18,7 +18,7 @@ export const COURSE_UNLOCKED = true;
 
 // Whole-course introduction (free preview on the hub).
 // This is the "Welcome" video from the course.
-export const COURSE_INTRO_YOUTUBE_ID = "uUsQyq5PaTY";
+export const COURSE_INTRO_YOUTUBE_ID = "yfADRqlETUU";
 
 export type Lesson = {
   id: string;
