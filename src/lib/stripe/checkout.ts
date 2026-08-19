@@ -46,6 +46,13 @@ export async function createCheckoutSession(opts: {
     // configured entirely in the Stripe dashboard — no code changes to add,
     // change, or expire a coupon.
     allow_promotion_codes: true,
+    // For subscriptions only: don't force a card when nothing is due now.
+    // A 100%-off ("Forever") coupon makes the subscription $0, so with this
+    // set Stripe completes checkout without asking for a card. One-time
+    // payments (the course) don't need this and already skip the card at $0.
+    ...(config.mode === "subscription"
+      ? { payment_method_collection: "if_required" as const }
+      : {}),
     customer_email: opts.email ?? undefined,
     client_reference_id: opts.userId,
     metadata: { supabase_user_id: opts.userId, product: opts.product },
