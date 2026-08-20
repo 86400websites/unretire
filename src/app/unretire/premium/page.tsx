@@ -1,10 +1,11 @@
 import CheckoutButton from "./CheckoutButton";
 import { getAccess } from "@/lib/auth/entitlements";
+import BookDownloadModal from "./BookDownloadModal";
 
 export const metadata = {
   title: "Premium",
   description:
-    "(Un)Retire Premium — the course, an electronic copy of the book and workbook, a monthly letter from Maher, and a growing toolkit. $199/year.",
+    "UnRetire Premium — the course, an electronic copy of the book and workbook, a monthly letter from Maher, and a growing toolkit. $199/year.",
 };
 
 const features = [
@@ -50,7 +51,7 @@ export default async function PremiumPage() {
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="bg-white">
         <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
-          <p className="eyebrow mb-6">(Un)Retire Premium</p>
+          <p className="eyebrow mb-6">UnRetire Premium</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08]">
             You didn&apos;t retire to stand still.
           </h1>
@@ -120,6 +121,14 @@ export default async function PremiumPage() {
                 </div>
                 <p className="text-[15px] italic text-[#8B1A1A] leading-[1.5] mb-3">{f.tagline}</p>
                 <p className="prose-body text-[15px] text-[#4A443B] leading-[1.75]">{f.body}</p>
+                {f.n === "2" && hasPremium && <BookDownloadModal />}
+                {f.n === "3" && hasPremium && (
+                  <BookDownloadModal
+                    type="workbook"
+                    buttonLabel="Download the workbook"
+                    docLabel="workbook"
+                  />
+                )}
               </div>
             ))}
           </div>
