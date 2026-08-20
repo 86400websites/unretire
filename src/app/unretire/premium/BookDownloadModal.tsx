@@ -5,11 +5,15 @@ import { useState, useEffect } from "react";
 export default function BookDownloadModal({
   type = "book",
   buttonLabel = "Download the book",
-  docLabel = "book",
+  heading = "Download your book",
+  intro = "Enter your name below and we\u2019ll prepare your personal copy of (Un)Retire.",
+  copyright = "(Un)Retire is protected by copyright.",
 }: {
   type?: "book" | "workbook";
   buttonLabel?: string;
-  docLabel?: string;
+  heading?: string;
+  intro?: string;
+  copyright?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -86,16 +90,21 @@ export default function BookDownloadModal({
           onClick={() => setOpen(false)}
           role="dialog"
           aria-modal="true"
-          aria-label="Download your book"
+          aria-label={heading}
         >
           <div
             className="w-full max-w-md rounded-2xl bg-white p-7 sm:p-8 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-[1.4rem] text-[#14110D] leading-snug mb-2">Download your {docLabel}</h3>
-            <p className="prose-body text-[14px] text-[#4A443B] leading-[1.7] mb-5">
-              Your name is printed on every page of your personal copy. Please keep it to
-              yourself — don&apos;t share or redistribute it.
+            <h3 className="text-[1.4rem] text-[#14110D] leading-snug mb-3">{heading}</h3>
+            <p className="prose-body text-[14px] text-[#4A443B] leading-[1.7] mb-2">{intro}</p>
+            <p className="prose-body text-[14px] text-[#4A443B] leading-[1.7] mb-2">
+              This copy has been prepared especially for you and is intended for your personal use.
+            </p>
+            <p className="text-[13px] text-[#837A6E] leading-[1.6] mb-4">{copyright}</p>
+
+            <p className="text-[13px] font-semibold text-[#8B1A1A] leading-[1.6] mb-5">
+              You can download this once, so please make sure your name is correct before you continue.
             </p>
 
             <label className="block text-[13px] font-semibold text-[#4A443B] mb-2" htmlFor="modal-name">

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 import { getAccess, ownsProduct } from "@/lib/auth/entitlements";
+import { createClient } from "@/lib/supabase/server";
 
 // Node runtime (not edge) — pdf-lib + fs need Node.
 export const runtime = "nodejs";
@@ -55,6 +56,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
   }
 
+  // 2b. One download per user per document. Check whether they've already
+  //     downloaded this doc. (Reviewed with Mohammad after building — writes
+  //     to the new book_downloads table, under the user's own RLS session.)
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("book_downloads")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("doc_type", type)
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json(
+      {
+        error:
+          "You've already downloaded this — it's a one-time download. If you can't find your copy, contact support.",
+      },
+      { status: 409 },
+    );
+  }
+
   // 3. Load the selected master PDF.
   let masterBytes: Buffer;
   try {
@@ -69,22 +91,38 @@ export async function POST(request: NextRequest) {
   // 4. Stamp "Private Copy — [Name]" diagonally across every page.
   const pdf = await PDFDocument.load(masterBytes);
   const font = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const label = `Private Copy — ${name}`;
+  const line1 = "Private Copy —";
+  const line2 = name;
 
   for (const page of pdf.getPages()) {
     const { width, height } = page.getSize();
     const size = Math.max(14, Math.floor(width / 32));
-    const textWidth = font.widthOfTextAtSize(label, size);
+    const gap = size * 1.25; // vertical space between the two lines
+    const w1 = font.widthOfTextAtSize(line1, size);
+    const w2 = font.widthOfTextAtSize(line2, size);
+    const cos = Math.cos(Math.PI / 4);
+    const sin = Math.sin(Math.PI / 4);
 
     // Two diagonal stamps per page — one toward the left, one toward the
     // right — so the name is harder to crop out (matches the reference).
-    // Each x is the centre of that stamp; we offset by half the rotated
-    // text width so the label sits centred on that point.
+    // Each stamp is two lines: "Private Copy —" above the name. Because the
+    // text is rotated 45°, the second line is stepped along the rotation so
+    // it sits directly beneath the first.
     const centres = [width * 0.3, width * 0.68];
     for (const cx of centres) {
-      page.drawText(label, {
-        x: cx - (textWidth / 2) * Math.cos(Math.PI / 4),
-        y: height / 2 - (textWidth / 2) * Math.sin(Math.PI / 4),
+      const cy = height / 2;
+      page.drawText(line1, {
+        x: cx - (w1 / 2) * cos,
+        y: cy - (w1 / 2) * sin,
+        size,
+        font,
+        color: rgb(0.5, 0.5, 0.5),
+        opacity: 0.22,
+        rotate: degrees(45),
+      });
+      page.drawText(line2, {
+        x: cx - (w2 / 2) * cos + gap * sin,
+        y: cy - (w2 / 2) * sin - gap * cos,
         size,
         font,
         color: rgb(0.5, 0.5, 0.5),
@@ -95,6 +133,26 @@ export async function POST(request: NextRequest) {
   }
 
   const out = await pdf.save();
+
+  // 4b. Record the download so it can't be repeated. The unique
+  //     (user_id, doc_type) constraint also guards against a race where two
+  //     requests slip past the check above — the second insert errors, and we
+  //     refuse. (If the insert fails for any OTHER reason we still let this
+  //     one download through, since the user did legitimately request it.)
+  const { error: insertError } = await supabase
+    .from("book_downloads")
+    .insert({ user_id: userId, doc_type: type });
+
+  if (insertError && insertError.code === "23505") {
+    // 23505 = unique_violation → they already have a row (race). Refuse.
+    return NextResponse.json(
+      {
+        error:
+          "You've already downloaded this — it's a one-time download. If you can't find your copy, contact support.",
+      },
+      { status: 409 },
+    );
+  }
 
   // 5. Stream it back as a download.
   const prefix = type === "workbook" ? "UnRetire-Workbook" : "UnRetire";

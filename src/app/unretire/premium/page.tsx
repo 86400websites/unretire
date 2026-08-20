@@ -126,7 +126,9 @@ export default async function PremiumPage() {
                   <BookDownloadModal
                     type="workbook"
                     buttonLabel="Download the workbook"
-                    docLabel="workbook"
+                    heading="Download your workbook"
+                    intro="Enter your name below and we’ll prepare your personal copy of the (Un)Retire Workbook."
+                    copyright="The (Un)Retire Workbook is protected by copyright."
                   />
                 )}
               </div>
