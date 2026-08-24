@@ -40,8 +40,8 @@ function readIntent(formData: FormData): Intent {
 }
 
 const PRODUCT_PAGE: Record<PaidProduct, string> = {
-  course: "/unretire/learn/course",
-  premium: "/unretire/premium",
+  course: "/learn/course",
+  premium: "/premium",
 };
 /**
  * After a successful signup/login: paid intents go straight to Stripe
@@ -68,7 +68,7 @@ async function continueByIntent(
     const owned = (data ?? []).map((r) => r.product as string);
 
     if (ownsProduct(intent, owned)) {
-      redirect("/unretire/learn/course");
+      redirect("/learn/course");
     }
 
     let url: string | null = null;
@@ -84,7 +84,7 @@ async function continueByIntent(
     }
     redirect(url ?? `${PRODUCT_PAGE[intent]}?checkout=error`);
   }
-  redirect("/unretire/account");
+  redirect("/account");
 }
 
 export async function register(formData: FormData): Promise<AuthResult> {
@@ -162,7 +162,7 @@ export async function logout(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
-  redirect("/unretire/login");
+  redirect("/login");
 }
 
 /**
@@ -223,5 +223,5 @@ export async function updatePassword(formData: FormData): Promise<AuthResult> {
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  redirect("/unretire/account?password=updated");
+  redirect("/account?password=updated");
 }

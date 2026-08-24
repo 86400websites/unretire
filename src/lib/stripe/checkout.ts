@@ -12,12 +12,12 @@ const PRODUCT_CONFIG = {
   course: {
     priceEnv: () => process.env.STRIPE_PRICE_COURSE,
     mode: "payment" as const,
-    cancelPath: "/unretire/learn/course",
+    cancelPath: "/learn/course",
   },
   premium: {
     priceEnv: () => process.env.STRIPE_PRICE_PREMIUM,
     mode: "subscription" as const,
-    cancelPath: "/unretire/premium",
+    cancelPath: "/premium",
   },
 };
 

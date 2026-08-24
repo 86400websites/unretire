@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
 
   // Only allow same-origin relative redirects, and default somewhere safe.
-  const nextParam = searchParams.get("next") ?? "/unretire/account";
-  const next = nextParam.startsWith("/") ? nextParam : "/unretire/account";
+  const nextParam = searchParams.get("next") ?? "/account";
+  const next = nextParam.startsWith("/") ? nextParam : "/account";
 
   const supabase = await createClient();
 
@@ -40,6 +40,6 @@ export async function GET(request: NextRequest) {
 
   // Token missing/expired/invalid → send to login with a flag we can show.
   return NextResponse.redirect(
-    new URL("/unretire/login?error=confirmation_failed", request.url),
+    new URL("/login?error=confirmation_failed", request.url),
   );
 }
