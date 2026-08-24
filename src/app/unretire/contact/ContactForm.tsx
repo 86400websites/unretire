@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 
+const ENDPOINT = "https://formspree.io/f/mgogyqey";
 const reasons = ["General question", "Speaking inquiry", "Share my story", "Media / press"];
 
 export default function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", reason: reasons[0], message: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "failed">("idle");
 
-  if (submitted) {
+  if (status === "done") {
     return (
       <div className="card p-8 text-center" role="status">
         <p className="text-[#D05D11] font-bold text-[1.05rem] mb-1">✓ Message sent.</p>
@@ -17,9 +18,23 @@ export default function ContactForm() {
     );
   }
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.name.trim() && form.email.trim() && form.message.trim()) setSubmitted(true);
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return;
+    setStatus("sending");
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          ...form,
+          _subject: `Contact — ${form.reason} — ${form.name}`,
+        }),
+      });
+      setStatus(res.ok ? "done" : "failed");
+    } catch {
+      setStatus("failed");
+    }
   };
 
   const label = "block text-[11px] font-bold tracking-[0.1em] uppercase text-[#232F3F] mb-2";
@@ -39,7 +54,7 @@ export default function ContactForm() {
           onChange={(e) => setForm({ ...form, email: e.target.value })} className={field} />
       </div>
       <div>
-        <label htmlFor="ct-reason" className={label}>What's this about?</label>
+        <label htmlFor="ct-reason" className={label}>What&apos;s this about?</label>
         <select id="ct-reason" value={form.reason}
           onChange={(e) => setForm({ ...form, reason: e.target.value })} className={field}>
           {reasons.map((r) => (
@@ -53,7 +68,14 @@ export default function ContactForm() {
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           className={`${field} min-h-[130px] resize-y`} />
       </div>
-      <button type="submit" className="btn btn-crimson w-full">Send Message</button>
+      <button type="submit" disabled={status === "sending"} className="btn btn-crimson w-full">
+        {status === "sending" ? "Sending…" : "Send Message"}
+      </button>
+      {status === "failed" && (
+        <p className="text-[13px] text-[#8B1A1A] leading-[1.5]" role="alert">
+          Sorry — we couldn&apos;t send that just now. Please email us directly at unretire86400@gmail.com.
+        </p>
+      )}
     </form>
   );
 }

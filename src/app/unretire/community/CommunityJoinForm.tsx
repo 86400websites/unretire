@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 
+const ENDPOINT = "https://formspree.io/f/mgogyqey";
+
 export default function CommunityJoinForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "failed">("idle");
 
-  if (submitted) {
+  if (status === "done") {
     return (
       <div className="rounded-2xl bg-white p-8 text-center" role="status">
         <p className="text-[#D05D11] font-bold text-[1.05rem] mb-1">✓ Request received!</p>
@@ -15,9 +17,23 @@ export default function CommunityJoinForm() {
     );
   }
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.name.trim() && form.email.trim()) setSubmitted(true);
+    if (!form.name.trim() || !form.email.trim()) return;
+    setStatus("sending");
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          ...form,
+          _subject: `Community join request — ${form.name}`,
+        }),
+      });
+      setStatus(res.ok ? "done" : "failed");
+    } catch {
+      setStatus("failed");
+    }
   };
 
   const label = "block text-[11px] font-bold tracking-[0.1em] uppercase text-[#232F3F] mb-2";
@@ -66,9 +82,14 @@ export default function CommunityJoinForm() {
           className={`${field} min-h-[110px] resize-y`}
         />
       </div>
-      <button type="submit" className="btn bg-[#232F3F] text-white hover:bg-black w-full">
-        Send Request
+      <button type="submit" disabled={status === "sending"} className="btn bg-[#232F3F] text-white hover:bg-black w-full">
+        {status === "sending" ? "Sending…" : "Send Request"}
       </button>
+      {status === "failed" && (
+        <p className="text-[13px] text-[#8B1A1A] leading-[1.5]" role="alert">
+          Sorry — we couldn&apos;t send that just now. Please email us at unretire86400@gmail.com.
+        </p>
+      )}
     </form>
   );
 }
