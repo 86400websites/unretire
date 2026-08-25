@@ -36,11 +36,11 @@ Why this matters: the prefix is not decoration — it is the boundary between "p
 - Any file containing a real value — including docs, PR descriptions, and screenshots.
 - The ONLY env file in git is `.env.example`: variable NAMES + safe placeholders, no real values. (Make sure `.gitignore` doesn't accidentally swallow it — whitelist with `!.env.example` if needed.)
 
-> **(Un)Retire status — 2026-08-25 (Sprint S1.1):** the committed example currently sits at **`env.example`**
-> (no leading dot) because agent tooling is blocked from writing `.env*` paths. Two owner actions close this,
-> both scheduled in Sprint S2.1: rename `env.example` → `.env.example`, and add `!.env.example` to `.gitignore`
-> — this repo's `.gitignore` has a blanket `.env*` rule that would otherwise swallow it. Verified 2026-08-25:
-> no `.env*` file exists in the working tree, and `git check-ignore` confirms `.env.local` would be ignored.
+> **(Un)Retire status — 2026-08-25 (Sprint S1.1): DONE.** The committed example is `.env.example`
+> (placeholder-only, 1326 bytes) and `.gitignore` whitelists it with `!.env.example` beneath the blanket
+> `.env*` rule — without that line the blanket rule hides it from git entirely. Verified 2026-08-25:
+> `.env.example` is tracked; `.env.local` exists on the owner's machine, is git-ignored and untracked,
+> and has never been opened by an agent.
 
 **Never do this:** never paste a real key into a chat, a commit message, a code comment, or a "temporary" file. AI agents must not open, print, copy, or edit live env files. They verify ignore/tracked state without reading values.
 

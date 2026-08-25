@@ -21,9 +21,8 @@ Claude Code does everything else. Status of the build itself: `docs/PROJECT-STAT
 
 ## 🔷 NOW — to finish Stage 1 (System Integration)
 
-**1. Rename the env example file** *(30 seconds — I'm blocked from writing `.env*` paths)*
-- In the repo root, rename `env.example` → `.env.example`
-- Tell me when done; I add `!.env.example` to `.gitignore` so it stays committed.
+**1. ~~Rename the env example file~~** ✅ **DONE 2026-08-25** — renamed, and `!.env.example` added to
+`.gitignore` (without it the blanket `.env*` rule hid the file from git). Verified tracked.
 
 **2. Protect the `master` branch** *(2 minutes, GitHub web UI — `gh` CLI isn't installed here)*
 - GitHub → repo → **Settings** → **Branches** → **Add branch protection rule**
@@ -48,18 +47,29 @@ Claude Code does everything else. Status of the build itself: `docs/PROJECT-STAT
 ## 🔷 STAGE 2 — Readiness Setup ("100% ready on clone")
 
 **5. Supabase project refs** *(2 minutes — needed to wire the MCPs)*
-- Supabase dashboard → open your **non-production / test** project → copy the ref from the URL:
-  `https://supabase.com/dashboard/project/`**`<THIS-PART>`**
+- ✅ **Test project received 2026-08-25:** `unretire-test` → `dtdadtggahjsrmevwvbu` (ap-south-1).
+- ⚠ **Still needed: the production project ref.** Supabase dashboard → production project → Settings →
+  General → **Project ID** (the same field you screenshotted for test).
 - Do the same for your **production** project.
 - Send me both, labelled test and prod. These are identifiers, not secrets.
 - ⚠ **If no test project exists yet**, create one (Supabase → New Project, name it e.g. `unretire-test`).
   A non-production database is required before any automated testing — the robot must never touch real data.
 
-**6. Approve production read-only MCP** *(decision D-11 — one line back to me)*
+**6. ~~Approve production read-only MCP~~** ✅ **APPROVED 2026-08-25** (D-11 recorded) — original text below for the record.
+
+<details><summary>Original ask</summary>
+
+**Approve production read-only MCP** *(decision D-11)*
 - Default policy in `docs/SUPABASE-MCP-SAFETY.md` is **Profile A: production MCP stays disconnected.**
 - You asked for prod read-only, which is **Profile B** and needs your explicit, recorded approval.
 - Reply with: *"Approve Profile B — production Supabase MCP, read-only, for schema inspection and debugging.
   Remove when the project is handed over."* I'll record it with your name and today's date.
+
+</details>
+
+⚠ **Still needed from you:** the **production** Supabase project ref (you sent the test one:
+`dtdadtggahjsrmevwvbu` / `unretire-test`). Supabase dashboard → production project → Settings → General →
+**Project ID**. Send that and I wire both MCP servers.
 
 **7. Authenticate the MCP servers** *(3 minutes, browser — after I wire them)*
 - I run the connect commands, then you run `claude /mcp` in a terminal and click through the browser login
@@ -72,7 +82,8 @@ Claude Code does everything else. Status of the build itself: `docs/PROJECT-STAT
   - `visitor@example.test` — no access (this proves the locks actually lock)
 - Send me the **emails only**. Never send passwords in chat — put them in Vercel/GitHub when I tell you where.
 
-**9. Sentry** *(5 minutes — error alerts)*
+**9. Sentry** *(5 minutes — error alerts)* — ⏸ **DEFERRED by owner to Stage S2.4** (do it when we implement
+error tracking, not before)
 - Create a free account at sentry.io → **Create Project** → platform **Next.js** → name it `unretire`
 - Copy the **DSN** and send it to me (a DSN is safe to share — it's an inbox address, it unlocks nothing).
 - After I ship the PR: Vercel → project → Settings → Environment Variables → add the DSN under the name I
@@ -108,7 +119,8 @@ Claude Code does everything else. Status of the build itself: `docs/PROJECT-STAT
 - Home page says "Thirty-one lessons", the course page says "forty-eight" — the code has **48**. Confirm 48.
 - Book page testimonials still say *"Reader name, former executive"* — send real attributions or I'll remove them.
 - Community page claims *"340+ Members, 18 Countries"* — confirm or I'll remove the numbers.
-- The **"Guest Preview until 31 August"** banner expires in days. Tell me what replaces it.
+- ~~The **"Guest Preview until 31 August"** banner~~ ✅ **DECIDED 2026-08-25:** let it expire as originally
+  set up — it is date-bound by design, no code change needed (D-10 resolved, Known issue 12 closed).
 
 ---
 

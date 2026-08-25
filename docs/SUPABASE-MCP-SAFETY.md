@@ -8,9 +8,9 @@
 > | Slot | Value |
 > |---|---|
 > | `[PROJECT_PATH]` | `c:/Users/Khalid Siddiqui/OneDrive/Desktop/Qatada/86400/9. Websites/3. Unretire/unretire` |
-> | `[SUPABASE_DEV_PROJECT_REF]` | ⚠ Owner to confirm — a non-production project is required before the Launch Gate (Open decision D-8) |
+> | `[SUPABASE_DEV_PROJECT_REF]` | `dtdadtggahjsrmevwvbu` — project `unretire-test`, region ap-south-1 (confirmed 2026-08-25, D-8 resolved) |
 > | `[SUPABASE_PROD_PROJECT_REF]` | ⚠ Owner to confirm — **stays disconnected from MCP by default** |
-> | Profile | **A — no production MCP.** No read-only exception has been requested or approved for this project. |
+> | Profile | **B — approved production read-only exception**, granted by the owner 2026-08-25 (D-11). Reason: schema inspection + debugging parity. Scope `read_only=true`, features `database,debugging,docs`. Removal: at client handover or on request. Manual tool-call approval stays ON. |
 > | Data classification | Confidential — the database holds account identities and purchase entitlements. |
 >
 > Status: **Supabase MCP is NOT currently connected** for this project (no `.mcp.json` exists in the repo).
