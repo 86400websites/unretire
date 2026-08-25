@@ -10,6 +10,15 @@
 > `R1` and `S1.1` as the same work. A surviving `R1` name in *those two places* is correct; a surviving
 > `R1`–`R7` **plan** elsewhere is stale (see focus item 8).
 
+> **Reviewed head — read this first.** The **substantive** head of Stage 1 is
+> `f01f139475a03b3f5277d6148b70c6f82a77fb30` — every file the stage delivers is in it. The branch tip may
+> sit one or more commits later; those later commits touch **only this review record** (pinning SHAs,
+> appending the returned verdict). Per `docs/WORKFLOW.md`, a commit that only appends the review record does
+> not invalidate the reviewed range. So: review `0983ad55…..f01f1394…`, and treat any commit after
+> `f01f139` as in-scope only to confirm it changed nothing but this file (`git diff f01f139..HEAD --name-only`
+> must list `docs/code-reviews/S1-stage-review.md` and nothing else — if it lists anything else, that is a
+> Blocking target mismatch: stop and report it).
+
 > **Status: READY TO SEND.** Branch pushed 2026-08-25. Fill `[PR_NUMBER]`/`[PR_URL]` and the Preview
 > result once the PR is opened and its Vercel Preview is tested, then hand this file to Codex.
 
