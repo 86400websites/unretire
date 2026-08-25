@@ -43,3 +43,7 @@ yarn-error.log*
 next-env.d.ts
 
 stripe.exe
+# The reusable Website-Development-System SOP source — deliberately NOT committed (decision D-12, 2026-08-25).
+# The ingested, project-specific copies live in docs/ and .claude/ and ARE committed.
+# The owner keeps the master copy outside this repo.
+Website-Development-System/
