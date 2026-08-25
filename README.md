@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# (Un)Retire
 
-## Getting Started
+Website for Maher Kaddoura (author) — a standalone marketing + membership website for the (Un)Retire book, course, and premium membership, a retirement-life-design product built on the "5 Mindsets × 7 Practices" framework, serving people approaching or in retirement.
+Primary goal: Sell the (Un)Retire book, course, and Premium membership; capture emails. Primary conversion: paid enrollment via Stripe Checkout — course purchase ($99 one-time) or Premium subscription ($199/yr).
+Live at: `TBC (Open decision D-2)` (production deploys from `master`).
 
-First, run the development server:
+## Stack
+
+Next.js 16.2.7 (App Router, `src/`), React 19.2.4, TypeScript 5 (strict), Tailwind CSS v4 (@tailwindcss/postcss) + hand-written CSS design system (`src/app/unretire.css`, `.ur-site` scope), Supabase (auth + Postgres via @supabase/ssr), Stripe (Checkout + webhook), Mailchimp (Marketing API), Formspree (static forms), pdf-lib (watermarked member downloads), deployed on Vercel
+
+Full detail (locked layers, integrations, invariants): `docs/TECH-ARCHITECTURE.md`.
+If the code and docs disagree, report the mismatch; update docs only in an authorized task.
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install             # install dependencies (pnpm; version pin lands in Sprint S2.1)
+pnpm dev                 # dev server → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Checks (run before reporting a change ready — all applicable commands must pass):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm exec tsc --noEmit   # typecheck (Sprint S2.1 adds a `pnpm typecheck` script)
+pnpm lint                # lint
+# tests: N/A — no automated suite yet; auth + payments make an e2e suite REQUIRED
+#        before launch (Launch Gate module: Sprint S2.3 setup, then /activate-testing)
+pnpm build               # production build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
 
-## Learn More
+- The authorized owner creates `.env.local` from the committed example file outside the AI workflow. The example file is currently named `env.example` (pending owner rename to `.env.example`).
+- The live env file is gitignored — never open, print, copy, edit, or commit it. The example file carries names + safe placeholders only.
+- Deployed values live in Vercel's secret/environment settings, scoped per environment.
+- Full rules (public vs server-only, redeploy-after-change): `docs/ENV-VARS-SAFETY.md`.
 
-To learn more about Next.js, take a look at the following resources:
+**Never do this:** commit a secret, put a server-only value behind a public env prefix,
+or paste real values into any committed file.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project docs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| File | What it answers |
+|---|---|
+| `CLAUDE.md` (root) | *How does the primary AI build engine behave here?* |
+| `AGENTS.md` (root) | *How does the second-pass reviewer agent behave here?* |
+| `docs/PROJECT-STATUS.md` | *Where is the build right now? Read this first in every fresh session.* |
+| `docs/OWNER-ACTIONS.md` | *What do **I**, the owner, need to do — and in what order?* |
+| `docs/ROADMAP.md` | *What are we building, in what order, with what exit gates?* |
+| `docs/WORKFLOW.md` | *How does a change get from a branch to production safely?* |
+| `docs/TECH-ARCHITECTURE.md` | *What is the locked stack and its invariants?* |
+| `docs/DESIGN.md` | *What are the design tokens and locked visual rules?* |
+| `docs/content/` | *The frozen approved copy (`page-copy/*.md`) and locked facts (`locked-facts.md`) — the build's canonical content source, implemented verbatim.* |
+| `docs/SECURITY-CHECKLIST.md` | *Which security checks gate every merge and the launch?* |
+| `docs/QA-CHECKLIST.md` · `docs/LAUNCH-CHECKLIST.md` | *What gets tested before launch?* |
+| `docs/ROLLBACK.md` | *Something broke in production — what now?* |
+| `docs/HANDOFF.md` | *What does the owner get at the end?* |
+| `docs/templates/` | *Which reusable prompt, PR, Preview, and change-record templates do we use?* |
+| `docs/sprint-prompts/` · `docs/code-reviews/` | *Per-sprint records and review verdicts.* |
 
-## Deploy on Vercel
+## Workflow (summary)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Every change follows: **branch → build → local checks → PR → deployed Preview (Vercel or approved equivalent) → Codex review → merge →
+Production smoke test**. `master` is protected and always production-ready; one focused change per branch;
+one sprint at a time; local green is necessary but not sufficient — the Preview must be tested before
+merging. Full process with per-stage checklists: `docs/WORKFLOW.md`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy
+
+`Vercel` builds every PR into an isolated Preview and deploys Production only from `master`.
+Host rollback action: `Vercel dashboard → Project → Deployments → previous good Production deployment → "Instant Rollback" (promote previous deployment)`. Then fix GitHub's source of truth through the normal workflow; see `docs/ROLLBACK.md`. Host rollback does not restore database data.
