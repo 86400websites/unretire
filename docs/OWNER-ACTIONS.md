@@ -1,227 +1,169 @@
-# Owner Actions — (Un)Retire
+# Your Checklist — (Un)Retire
 
-Everything only you can do, in the order you'll need to do it. Each item says **where**, **what**, and
-**what to send back**. Nothing here needs you to read code or open a terminal unless it says so.
+Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 
-Claude Code does everything else. Status of the build itself: `docs/PROJECT-STATUS.md`.
+> **The rule that protects everything:** your live Stripe account is shared with other projects
+> (The Singapore Way, and others). **Sandbox/Test mode is a completely separate account** — Stripe gives it
+> a different account ID entirely. Nothing you do in Sandbox can touch a real customer or a real payment.
+> When this checklist says "Sandbox", you are safe. When it says "live", go slowly.
 
 ---
 
-## ✅ Already done — nothing to do
+## PART 0 — Already working. Do not change these.
 
-| Item | Status |
+| Thing | State |
 |---|---|
-| GitHub repo exists (`86400websites/unretire`) | Done |
-| Vercel connected, site deploying | Done |
-| Supabase, Stripe, Mailchimp, Formspree wired in code | Done |
-| `.env.local` created and confirmed git-ignored | Done — 2026-08-25 |
-| Playwright MCP + Agent Browser installed on this machine | Verified 2026-08-25 — nothing to install |
-| **Both Supabase project refs received** — test `unretire-test` / `dtdadtggahjsrmevwvbu`, production `unretire-prod` / `hcjivvlwxltyiycfbttc` | Done — 2026-08-25 |
+| Live site `www.unretireproject.com` | Live and serving |
+| Live Stripe product **UnRetire — Course** | $99 USD, one-time — correct |
+| Live Stripe product **UnRetire — Premium** | $199 USD, **per year** — correct |
+| Live webhook `brilliant-splendor` to `www.unretireproject.com/api/stripe/webhook` | Active, 0% errors |
+| Sandbox products **Course (Test)** $99 and **Premium (Test)** $199/yr | Already exist |
+| GitHub branch protection on `master` | Done |
+| `.env.example` and the 5 Claude skills in the repo | Done — every clone gets them |
+| Supabase test project `unretire-test` | Exists |
+
+### Never touch these — they belong to other projects
+
+- Stripe product **The Singapore Way (PDF)**
+- Stripe webhook **the-singapore-way** to `thesingaporeway.com`
+- Stripe webhook **upbeat-splendor** to `…amplifyapp.com` *(shows 100% errors — not ours)*
+- Stripe products named **pkprobe** *(leftover test junk in the live account — harmless, leave alone)*
 
 ---
 
-## 🔷 NOW — to finish Stage 1 (System Integration)
+## PART 1 — DO NOW, to finish Stage 1 · about 10 minutes
 
-**1. ~~Rename the env example file~~** ✅ **DONE 2026-08-25** — renamed, and `!.env.example` added to
-`.gitignore` (without it the blanket `.env*` rule hid the file from git). Verified tracked.
+*Why: the reviewer cannot approve the pull request until it can actually see the Preview site working.*
 
-**2. Protect the `master` branch** *(2 minutes, GitHub web UI — `gh` CLI isn't installed here)*
-- GitHub → repo → **Settings** → **Branches** → **Add branch protection rule**
-- Branch name pattern: `master`
-- Tick **Require a pull request before merging**
-- Tick **Require status checks to pass before merging** — leave the check list empty for now; you'll add
-  **"Code Check"** to it after Stage 2.1 creates it.
-- Save.
+- [ ] **1.1** Vercel → project **unretire** → **Settings** → **Deployment Protection**.
+- [ ] **1.2** Find **Protection Bypass for Automation** → turn it **ON** → generate the secret.
+- [ ] **1.3** Copy that secret into Vercel → **Settings** → **Environment Variables** → **Add New**:
+      Name `VERCEL_AUTOMATION_BYPASS_SECRET`, tick **Preview** only, Type **Secret**.
+      *(Do not paste it in chat. I only ever refer to it by name.)*
+- [ ] **1.4** Tell me **"bypass is on"**, plus the **pull request number** (top of the PR page, e.g. `#43`).
+- [ ] **1.5** After I record the Preview evidence, re-run the Codex review, then **merge the PR yourself**.
 
-**3. ~~Does the `Website-Development-System/` folder stay in the repo?~~** ✅ **ANSWERED 2026-08-25 — NO**
-- Your decision: keep the general system out; commit only what we ingested and actually use here.
-- Done in commit `7024375` — all 57 files untracked and gitignored. The folder is still on your disk; delete
-  it whenever you like, since you have the master copy elsewhere.
-- What *is* committed: `docs/`, `.claude/skills/`, `CLAUDE.md`, `AGENTS.md`, `README.md`, `.env.example`.
-- This closes the reviewer's second blocking finding. D-12 recorded as **Resolved — NO**.
-
-**4. Review + merge the Stage 1 PR** *(after item 3)*
-- ⚠ **The reviews ran out of order last time.** The correct order is: **per-PR review first → you merge →
-  then the stage-gate review** on what was merged. The stage gate has already come back **NOT APPROVED**
-  for exactly this reason, plus item 3 above. Nothing is wrong with the work itself.
-- I'll give you the PR link and the per-PR review brief. Run that review, merge only on **Approve**, and
-  then run the stage-gate review on the merged result.
+> **Why 1.1–1.3:** your Preview site currently shows a Vercel login screen, so no robot — and no reviewer —
+> can open it. This switch keeps Preview private from the public but lets our automated tests in.
 
 ---
 
-## 🔷 STAGE 2 — Readiness Setup ("100% ready on clone")
+## PART 2 — Supabase login links · about 10 minutes · FIXES A LIVE BUG
 
-⚠ **Read this first.** Right now the **Preview** site (the private copy used for testing) is pointed at
-your **real, live database** and has no test-mode payments at all. That means any test we run would create
-real accounts and touch real customer data — and no payment could be tested. Items 5–8 fix that, **in this
-order**. Nothing may be tested until they're done. The reasoning is in `docs/ENVIRONMENT-PARITY.md`.
+*Why: right now the "confirm your email" and "reset your password" links you send real customers point at
+`localhost:3000` — a page that only exists on a developer's laptop. Nobody can reset a password today.*
 
-**Never paste a value into chat.** Everything below is copy-from-one-dashboard, paste-into-another.
+### 2A — Production project (`unretire-prod`)
 
----
+- [ ] **2.1** Supabase → project **unretire-prod** → **Authentication** → **URL Configuration**.
+- [ ] **2.2** Set **Site URL** to exactly `https://www.unretireproject.com` → **Save changes**.
+- [ ] **2.3** Under **Redirect URLs** click **Add URL** for each of these, one at a time:
+  - `https://www.unretireproject.com/**`
+  - `https://unretireproject.com/**`
+  - `https://*-86400-s-projects.vercel.app/**`
 
-**5. Point the Preview site at the TEST database** *(15 minutes — the most important item on this page)*
+### 2B — Test project (`unretire-test`)
 
-You'll get the values from Supabase and paste them into Vercel. Three names, same routine each time.
+- [ ] **2.4** Supabase → project **unretire-test** → **Authentication** → **URL Configuration**.
+- [ ] **2.5** Set **Site URL** to `http://localhost:3000` → **Save changes**.
+- [ ] **2.6** Add these **Redirect URLs**:
+  - `http://localhost:3000/**`
+  - `https://*-86400-s-projects.vercel.app/**`
 
-*Where the values live:* Supabase → project **`unretire-test`** → **Project Settings** → **API** (or
-**API Keys**). That page has the Project URL, the publishable/anon key, and the secret/service-role key.
-
-*Where they go:* Vercel → your project → **Settings** → **Environment Variables**.
-
-For **each** of these three names — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
-`SUPABASE_SECRET_KEY`:
-
-1. Find the existing entry → **Edit** → **untick Preview**, leave **Production** ticked → **Save**.
-   *(This leaves your live site exactly as it is. Don't change the value.)*
-2. **Add New** → type the same name → paste the matching value from **`unretire-test`** → tick
-   **Preview only** → **Save**.
-
-⚠ All three Preview values must come from the **same** project (`unretire-test`). Mixing one from test with
-two from production breaks logins in a way that's hard to spot.
-
-Tell me when it's done and I'll redeploy and verify it from the deployment itself.
+> Password reset will still be broken after this — it *also* points at an old web address that no longer
+> exists. I fix that half in the code (Stage 3). **Both** are needed. This half is yours.
 
 ---
 
-**6. Add test-mode Stripe to Preview** *(20 minutes — do this AFTER item 5, not before)*
+## PART 3 — Separate Preview from Production · about 20 minutes · ORDER MATTERS
 
-Order matters: doing this first would switch on the "grant access" path while Preview is still connected to
-the live database.
+*Why: today your Preview site is wired to your **real** database. Any test would create real users and real
+purchase records in live data. This section moves Preview onto the test database.*
 
-*In Stripe:* flip the **Test mode** toggle (top-right) **ON**. Everything below is created inside test mode
-and is completely separate from your live products — no real money can move.
+> ### Do 3A completely before starting 3B.
+> If you add Stripe test keys while Preview is still on the real database, test payments would write
+> **real access rights** into your live customer data.
 
-- **Products** → create *(Un)Retire Course* with a **one-time** price of **$99 USD** → copy its **price ID**.
-- **Products** → create *(Un)Retire Premium* with a **recurring, yearly** price of **$199 USD** → copy its
-  **price ID**. *(It must be recurring — a one-time price will fail here.)*
-- **Developers → API keys** → copy the **test** secret key.
-- **Developers → Webhooks → Add endpoint** → I'll send you the exact Preview address to paste → select
-  these two events only: `checkout.session.completed` and `customer.subscription.deleted` → copy the
-  endpoint's **signing secret**.
+### 3A — Point Preview at the test database
 
-*In Vercel* → **Settings** → **Environment Variables** → **Add New** for each, ticked **Preview only**.
-**Do not touch the four Production entries** that already exist.
+First open Supabase → **unretire-test** → **Settings** → **API Keys** and keep that tab open.
 
-| Name | Paste |
+Then, in Vercel → **Settings** → **Environment Variables**, do these two steps for **each** of the three
+names below:
+
+- [ ] **3.1** Click the existing variable → **Environments** → **untick Preview** (leave Production ticked) → **Save**.
+- [ ] **3.2** Click **Add New** → type the **same name**, spelled identically → paste the **unretire-test**
+      value → tick **Preview** only → set the Type from the table → **Save**.
+- [ ] **3.3** Repeat 3.1 and 3.2 for all three.
+
+| Name | Type |
 |---|---|
-| `STRIPE_SECRET_KEY` | the test secret key |
-| `STRIPE_PRICE_COURSE` | the $99 one-time price ID |
-| `STRIPE_PRICE_PREMIUM` | the $199/year recurring price ID |
-| `STRIPE_WEBHOOK_SECRET` | the endpoint signing secret |
+| `NEXT_PUBLIC_SUPABASE_URL` | **Config** |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **Config** |
+| `SUPABASE_SECRET_KEY` | **Secret** |
 
-Also worth doing while you're in test mode: if you have a 100%-off coupon or promo code live, create the
-same one in test mode — promo codes don't carry across, and that's a path we need to test.
+> **Keep the names exactly the same.** The code looks for those precise spellings. Picture one labelled box
+> whose contents differ depending on which room it sits in — Vercel's Preview/Production tickboxes *are* the
+> separation. Renaming anything to "…_TEST" would break the site.
 
----
+> **About Vercel's red warning:** the two `NEXT_PUBLIC_…` values are meant to be public (a web address and a
+> restricted key), so set them to **Config**. That is exactly what the warning is asking for, and it is safe.
+> `SUPABASE_SECRET_KEY` stays **Secret**.
 
-**7. Set the site address** *(2 minutes — decision D-13)*
+### 3B — Give Preview its own Stripe test setup
 
-Vercel → **Settings** → **Environment Variables** → **Add New**:
-- Name: `NEXT_PUBLIC_SITE_URL`
-- Value: your live domain, written in full (e.g. `https://www.yourdomain.com`)
-- Tick **Production only**. Leave Preview blank — the Preview site works its own address out.
+Everything here happens in the **Sandbox** account. It cannot affect live.
 
-If the domain isn't decided yet (that's decision D-2), just tell me **"not live yet"** and we set it at
-launch instead.
+- [ ] **3.4** Stripe → switch to **Sandbox** → **Product catalog** → **UnRetire — Course (Test)** →
+      copy its **price ID** (starts with `price_`).
+- [ ] **3.5** Same for **UnRetire — Premium (Test)** → copy its price ID.
+- [ ] **3.6** Sandbox → **Developers** → **API keys** → copy the **Secret key** (`sk_test_…`).
+- [ ] **3.7** Sandbox → **Developers** → **Webhooks** → **Add destination**:
+  - URL: `https://unretire-git-claude-r1-system-retrofit-86400-s-projects.vercel.app/api/stripe/webhook`
+  - Events: `checkout.session.completed` and `customer.subscription.deleted`
+  - Save, then copy the **Signing secret** (`whsec_…`).
+- [ ] **3.8** In Vercel add these four, **all ticked Preview only**, all Type **Secret**:
 
-*Why it matters, briefly:* without it, when someone shares a link to your site on LinkedIn, WhatsApp or
-Facebook, the preview card is built against `localhost` and comes out wrong. **Payments and logins are not
-affected** — those work out the address from the visitor's request.
+| Name | Value comes from |
+|---|---|
+| `STRIPE_SECRET_KEY` | step 3.6 |
+| `STRIPE_PRICE_COURSE` | step 3.4 |
+| `STRIPE_PRICE_PREMIUM` | step 3.5 |
+| `STRIPE_WEBHOOK_SECRET` | step 3.7 |
 
----
-
-**8. Optional tidy-up: the Formspree address** *(2 minutes)*
-
-Nothing breaks without this — the forms already work — but it keeps the record honest.
-- Vercel → **Add New** → name `NEXT_PUBLIC_FORMSPREE_ENDPOINT` → value: the Formspree endpoint your contact
-  form already uses (I'll send it — it isn't a secret) → tick **Production and Preview**.
-- Add the same line to your local `.env.local` file. It's the one name your own check reported missing.
-
----
-
-**9. Authenticate the MCP servers** *(3 minutes, browser — after I wire them)*
-- I run the connect commands, then you run `claude /mcp` in a terminal and click through the browser login
-  for each server, choosing the org that owns the project.
-- **Keep "manual approval of tool calls" ON.** Don't disable it.
-- ✅ Production read-only access already approved by you on 2026-08-25 (decision D-11), and I now have both
-  project refs, so there's nothing further to decide here.
+- [ ] **3.9** Tell me when 3A and 3B are done. I then **prove** the separation before we test anything:
+      a signup on Preview must appear in `unretire-test` and **not** in `unretire-prod`.
 
 ---
 
-**10. Create test users** *(5 minutes — for the robot tester)*
-- In the **test** Supabase project (`unretire-test`) **only** → Authentication → Add user. Create two, with
-  obviously fake emails:
-  - `member@example.test` — will be given course + premium access
-  - `visitor@example.test` — no access (this proves the locks actually lock)
-- Send me the **emails only**. Never send passwords in chat — put them in Vercel/GitHub when I tell you where.
+## PART 4 — Small fixes · about 5 minutes
+
+- [ ] **4.1** Vercel → **Add New** → `NEXT_PUBLIC_SITE_URL` = `https://www.unretireproject.com` →
+      tick **Production only** → Type **Config**. Leave Preview unticked; each Preview has its own address.
+      *Why: link previews on WhatsApp and LinkedIn currently point at localhost.*
+- [ ] **4.2** Answer one question: is `half-a-life.vercel.app` still needed? Your live Stripe still sends
+      real payment events to it and it is still running. **Do not delete anything yet** — just tell me, and
+      I will check whether removing it is safe.
 
 ---
 
-**11. Confirm two facts** *(one line each)*
-- Your **Vercel project name**.
-- Your **production domain** (decision D-2) — or "not live yet".
+## PART 5 — Later, when we reach testing
+
+Nothing to do now. When we get there I will walk you through creating two fake test users in
+`unretire-test`, connecting the Supabase MCP tools, setting up Sentry error alerts, and approving the
+feature list before any test is written.
 
 ---
 
-**12. Sentry** *(5 minutes — error alerts)* — ⏸ **DEFERRED by owner to Stage S2.4** (do it when we implement
-error tracking, not before)
-- Create a free account at sentry.io → **Create Project** → platform **Next.js** → name it `unretire`
-- Copy the **DSN** and send it to me (a DSN is safe to share — it's an inbox address, it unlocks nothing).
-- After I ship the PR: Vercel → project → Settings → Environment Variables → add the DSN under the name I
-  give you, for **Production and Preview**.
-- Sentry → Alerts → new rule: *when a new issue appears in Production → email me immediately.*
-- Confirm you received the test alert email I trigger.
+## What I need back from you
 
----
+1. "Bypass is on" + the **pull request number**
+2. Confirmation when **Part 2** is done
+3. Confirmation when **Part 3A** is done, then again when **3B** is done
+4. Your answer on `half-a-life.vercel.app`
 
-## 🔷 STAGE 3 — Critical Fixes
+**Never paste a secret key into chat.** Values go into the Vercel or Supabase screens only; names are fine.
+If a secret is ever exposed, **rotate it at the provider first**, then tell me.
 
-**13. Authorize the cleanup deletions** *(decision — one line)*
-- These are dead files I'd like to delete: the stray root-level `page.tsx` (a leftover page Next.js never
-  loads), the committed `unretire 21-august-2026.zip` (6.3 MB), and the unused `NewsletterForm.tsx`.
-- Reply *"approved"* and I'll remove them in Stage 3.2.
-
----
-
-## 🔷 STAGE 4 — Improvements
-
-**14. Legal pages** *(your footer links to `/privacy` and `/terms` — both 404 today)*
-- Send me the approved privacy policy and terms copy, or say "use a standard template and I'll review".
-
-**15. Email deliverability** *(needed before launch)*
-- Add **SPF, DKIM and DMARC** DNS records for your sending domain (your email provider gives you the exact
-  values). I'll verify with an external-address inbox test.
-
-**16. Content decisions**
-- Home page says "Thirty-one lessons", the course page says "forty-eight" — the code has **48**. Confirm 48.
-- Book page testimonials still say *"Reader name, former executive"* — send real attributions or I'll remove them.
-- Community page claims *"340+ Members, 18 Countries"* — confirm or I'll remove the numbers.
-- ~~The **"Guest Preview until 31 August"** banner~~ ✅ **DECIDED 2026-08-25:** let it expire as originally
-  set up — it is date-bound by design, no code change needed (D-10 resolved, Known issue 12 closed).
-
----
-
-## 🔷 STAGE 5 — Launch Gate
-
-**17. Approve the feature list** *(your most important 10 minutes)*
-- I'll generate `docs/FEATURE-LIST.md` — one plain-English line per thing the site does.
-- **Everything on that list gets tested. Nothing off it does.** Read it and approve in writing.
-
-**18. Approve the daily morning check** — I'll propose 5–7 safe tests to run against the live site each
-morning; you approve the selection, add two secrets in GitHub, and confirm one test alert email arrives.
-
-**19. Sign the launch approval** — `docs/LAUNCH-CHECKLIST.md` Phase 1, and do the one real test purchase on
-the live site by hand (robots never touch production money). This one real purchase is not optional: a
-passing test suite proves the site works, but only a live purchase proves your **live** payment keys,
-webhook and domain are wired correctly.
-
----
-
-## Rules that never change
-
-- **You are the only one who merges.** Claude Code never merges, never pushes to `master`.
-- **Never paste a secret into chat.** Values go into the Vercel or GitHub dashboard only. Names are fine.
-- **Tell me after any env-var change** so I can redeploy — Vercel does not apply new values to deployments
-  that already exist, so a change without a redeploy looks like it did nothing.
-- If a key is ever exposed: **rotate it at the provider first**, then tell me.
+*Your live publishable key `pk_live_…` appeared in a screenshot. That one is designed to be public and ships
+in every visitor's browser, so no action is needed. Your secret keys stayed masked.*
