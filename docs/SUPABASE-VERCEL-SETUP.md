@@ -5,7 +5,7 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > Connecting a coding agent to Supabase via **MCP**? Read `SUPABASE-MCP-SAFETY.md` first — non-production only by default; production MCP stays disconnected unless a recorded read-only exception is approved.
 
 
-> ## (Un)Retire project values — added 2026-08-25 (Sprint S1.1)
+> ## (Un)Retire project values — added 2026-08-25 (Sprint S1.1) · **reconciled 2026-08-25**
 >
 > This file is the SOP guide copied verbatim; its `[BRACKETS]` are the generic slots. For this project they resolve to:
 >
@@ -14,13 +14,31 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > | `[HOSTING_PROVIDER]` | Vercel — **both Parts A and B apply to this project** |
 > | `[DATABASE_PROVIDER]` / `[AUTH_PROVIDER]` | Supabase (Postgres + Supabase Auth) |
 > | `[REPO_NAME]` | `86400websites/unretire` (default branch `master` — see Open decision D-1) |
-> | `[VERCEL_PROJECT]` | ⚠ Owner to confirm the Vercel project name |
-> | `[DOMAIN]` | ⚠ TBC — Open decision D-2 |
-> | `[SUPABASE_PROJECT]` | ⚠ Owner to confirm. A **non-production** project is required before the Launch Gate (S2.3) — Open decision D-8 |
+> | `[VERCEL_PROJECT]` | ~~⚠ Owner to confirm the Vercel project name~~ → **`unretire`**, in the Vercel scope `86400-s-projects`. Production deploys from `master`; Preview URLs follow `https://unretire-git-<branch>-86400-s-projects.vercel.app` |
+> | `[DOMAIN]` | ~~⚠ TBC — Open decision D-2~~ → **D-2 resolved: `unretireproject.com`** (apex; `www` also registered). ⚠ **Not yet live** — the domain is added in Vercel but DNS is still parked at GoDaddy, so the application is currently served at **`https://unretire.vercel.app`**. Read `[DOMAIN]` in Part A as that host until the DNS cutover (Known issue 27) |
+> | `[SUPABASE_PROJECT]` | ~~⚠ Owner to confirm. A **non-production** project is required before the Launch Gate~~ → **D-8 resolved: both projects exist.** PROD `unretire-prod` · ref `hcjivvlwxltyiycfbttc` · eu-west-1. TEST `unretire-test` · ref `dtdadtggahjsrmevwvbu` · ap-south-1 (free tier — it auto-pauses when idle). Refs are public identifiers and safe to record |
+>
+> **B6 wiring status — done 2026-08-25.** Vercel **Preview** now points at the **TEST** project and
+> **Production** at the **PROD** project: the three Supabase entries are split per environment, and the four
+> Stripe entries in Preview hold **sandbox-account** values. The B6 verification step below (sign up on a
+> Preview, confirm the user appears in TEST and not PROD) is **not yet performed** — it is proof **P2** in
+> `docs/ENVIRONMENT-PARITY.md` §8, owned by Sprint S2.5. Treat the wiring as *configured*, not *verified*.
+>
+> **B3 auth URL status — half done 2026-08-25.** `unretire-prod` now has **Site URL `https://unretire.vercel.app`**
+> and a redirect allow-list of `http://localhost:3000/**`, `https://www.unretireproject.com/**`,
+> `https://unretireproject.com/**`, `https://unretire.vercel.app/**`, `https://*-86400-s-projects.vercel.app/**`
+> — replacing an empty list and a `http://localhost:3000` Site URL that had been breaking every production
+> confirmation and password-reset email. Two stale third-party hosts were removed at the same time.
+> **`unretire-test` has not been configured yet.** Two caveats before this is called finished: the last two
+> production entries are broader than B3's "no broad wildcards" rule and are retained knowingly for now, and
+> **a correct allow-list here does not make the application's own redirect handling safe** — see
+> `docs/ENVIRONMENT-PARITY.md` §5.3b.
 >
 > Retrofit note: this site is already deployed, so Part A is a **reconciliation** checklist (confirm what is
 > already configured) rather than a from-scratch setup. Values are set by the owner in the provider
-> dashboards — never in this or any committed file.
+> dashboards — never in this or any committed file. The per-variable state, and every proof still outstanding,
+> live in `docs/ENVIRONMENT-PARITY.md`; that file is the source of truth for this project's environments and
+> this block only points at it.
 
 
 ## Part A — Only if using Vercel

@@ -2,8 +2,22 @@
 
 **Status:** authoritative for environment isolation and Preview↔Production parity on (Un)Retire.
 **Written:** 2026-08-25 · **Applies from:** Sprint **S2.2** (isolation) / **S2.3** (harness) / **S2.5** (parity verification) through **S5.1** (Launch Gate) and beyond.
+**Last reconciled:** 2026-08-25, Sprint **S1.1**, after the owner's dashboard configuration pass and the
+Codex independent review (Blocking finding 6). §§ *Confirmed facts*, 1, 2A, 2B, 3, 4, 5.3, 5.3a, 5.3b, 6, 7,
+8 and 9 were rewritten from *"nothing is split yet"* to the **current post-configuration state** — *configured*,
+which is a weaker word than *verified* and is used deliberately throughout. Superseded descriptions are struck
+through and dated, never deleted.
 **Audience:** the owner first, then any agent or engineer who touches an environment variable, a Supabase
 project, or the test suite.
+
+> ### The one thing to understand before reading further
+>
+> **Isolation is now configured. It is not yet proven.** On 2026-08-25 the owner split the Supabase and
+> Stripe variables, added the four sandbox Stripe entries to Preview, set `NEXT_PUBLIC_SITE_URL` in
+> Production, configured the production Supabase Site URL and redirect allow-list, provisioned the
+> automation bypass secret, and retyped the public variables as Config. Every one of those is a **dashboard
+> assertion**. Not a single §8 proof has been run. A configured split and a *demonstrated* split are
+> different claims, and only the second one is allowed to gate a test run — Sprint **S2.5** owns the proof.
 
 This file answers one question, which the owner asked in these words:
 
@@ -41,19 +55,30 @@ These were read off the owner's dashboards and probed directly. Do not re-derive
 
 | Fact | Value |
 |---|---|
-| Production domain | `https://www.unretireproject.com` (apex `unretireproject.com` also registered) |
+| **Production origin — what actually serves the app today** | **`https://unretire.vercel.app`** — verified HTTP 200 on 2026-08-25. **Read every "the production URL" in this file as this host** until DNS moves. |
+| Production domain (intended, not yet live) | ~~`https://www.unretireproject.com` (apex `unretireproject.com` also registered)~~ — registered and added in Vercel, but **DNS is still parked at GoDaddy**, so neither host serves the site. Target state, not current state (Known issue 27). |
 | Vercel scope / team slug | `86400-s-projects` |
 | Vercel project | `unretire` (Production deploys from `master`) |
 | Preview URL pattern | `https://unretire-git-<branch-with-dashes>-86400-s-projects.vercel.app` |
 | Supabase preview wildcard for allow-lists | `https://*-86400-s-projects.vercel.app/**` |
 | Supabase TEST | `unretire-test` · ref `dtdadtggahjsrmevwvbu` · ap-south-1 |
 | Supabase PROD | `unretire-prod` · ref `hcjivvlwxltyiycfbttc` · eu-west-1 |
+| **Supabase PROD auth URL configuration** | **Configured 2026-08-25** (was: Site URL `http://localhost:3000`, empty allow-list). Site URL **`https://unretire.vercel.app`**; redirect allow-list `http://localhost:3000/**`, `https://www.unretireproject.com/**`, `https://unretireproject.com/**`, `https://unretire.vercel.app/**`, `https://*-86400-s-projects.vercel.app/**`. See §5.3a for what is now correct and what is still hygiene debt. |
 | Stripe LIVE account | `acct_1S8bOcF3LxwumsBI` — **shared with other projects** (The Singapore Way, others) |
 | Stripe SANDBOX account | `acct_1TsJbSFWySZWCfsj` — a separate account; cannot affect live |
 | Live prices | UnRetire — Course $99 one-time · UnRetire — Premium $199 **per year** — both correct |
 | Sandbox prices | UnRetire — Course (Test) $99 · UnRetire — Premium (Test) $199/yr — already exist |
-| Live webhook (ours) | `brilliant-splendor` → `https://www.unretireproject.com/api/stripe/webhook`, Active, 0% errors |
-| Preview protection | **ON** — Previews require Vercel login until Protection Bypass for Automation is enabled (Known issue 25) |
+| Live webhook (ours) | `brilliant-splendor` → ~~`https://www.unretireproject.com/api/stripe/webhook`~~ **`https://unretire.vercel.app/api/stripe/webhook`** — repointed 2026-08-25 (Known issue 29 resolved). API version **`2026-07-29.dahlia`**, Active. Probed 2026-08-25: an unsigned POST returns 400 `Missing signature`, a bogus-signature POST returns 400 `Invalid signature` — **which proves `STRIPE_WEBHOOK_SECRET` is set in Production**, and proves nothing about `STRIPE_SECRET_KEY` (Known issue 36). |
+| Legacy live webhook — **do not delete yet** | `charming-dream` → `https://half-a-life.vercel.app/api/stripe/webhook`, still **Active** on the shared live account (Known issue 26). |
+| Sandbox webhook (ours) | `captivating-triumph` → `https://unretire-git-staging-86400-s-projects.vercel.app/api/stripe/webhook`, API version **`2026-06-24.dahlia`** (matches the SDK pin; the live endpoint does not — Known issue 31, severity Low). ⚠ `staging` exists on GitHub **at the same commit as `master`**, so Vercel has never built it and that URL returns **404** — the sandbox endpoint currently has nowhere to deliver (Known issue 32). |
+| Preview protection | **ON**, and **Protection Bypass for Automation is now provisioned** — `VERCEL_AUTOMATION_BYPASS_SECRET` exists in the Preview scope (2026-08-25). A human browser still meets the Vercel login page; the remaining unknown is **whether the Playwright config actually uses the bypass**, which is Sprint **S2.3** (Known issue 25, reworded 2026-08-25 — it no longer "blocks all automated testing"). |
+
+### Vercel environment scopes, as verified 2026-08-25 (names and scopes only — never values)
+
+| Scope | What it now holds |
+|---|---|
+| **Preview** | 3 Supabase entries pointing at the **TEST** project · 4 Stripe entries pointing at the **SANDBOX** account · `VERCEL_AUTOMATION_BYPASS_SECRET` · 2 Mailchimp entries. `NEXT_PUBLIC_SITE_URL` is **deliberately absent** (§2A row 10); `NEXT_PUBLIC_FORMSPREE_ENDPOINT` is absent and still open (§3 Gap 4). |
+| **Production** | All 10 entries in **live** mode. The three `NEXT_PUBLIC_*` variables are typed **Config**; everything else is typed **Secret** (Known issue 24 resolved). |
 
 **Other projects share the live Stripe account.** Never modify the `the-singapore-way` or `upbeat-splendor`
 webhook destinations, the `The Singapore Way (PDF)` product, or the `pkprobe` products. Every Stripe change
@@ -88,7 +113,7 @@ managed, item by item.
 | Isolation wants **Stripe test mode**; fidelity wants the same prices, intervals, currency and events. | Mirror the *shape* exactly — same amounts, same currency, one-time vs yearly recurring, the same two webhook events. Accept that ids, keys and signing secrets differ **by necessity**, and close that gap with one real live purchase at launch. (§6 C1) |
 | Isolation wants a **separate email audience**; fidelity wants the same fields and the same automated journeys. | Mirror the field names and tag names exactly and assert them. Accept that the automated journeys are **not** exercised — verify those once, manually, with the owner's own address. (§6 C8) |
 | Isolation wants Preview **locked behind a password**; fidelity wants Production's **open, unauthenticated** request path. | Use Vercel's sanctioned automation bypass on Preview (per `docs/testing-setup/SETUP-CHECKLIST.md` Part 3) and separately assert that Production has no protection — so both request paths get exercised. (§6 C3) |
-| Isolation wants Preview to **never touch production data**; fidelity wants Preview to run **exactly the same code**. | Same code, different environment **values**. That is only achievable if Vercel's Preview scope holds different values from Production. **Today it does not — and that single change is what unlocks everything else.** (§3 Gap 1, §4) |
+| Isolation wants Preview to **never touch production data**; fidelity wants Preview to run **exactly the same code**. | Same code, different environment **values**. That is only achievable if Vercel's Preview scope holds different values from Production. ~~**Today it does not — and that single change is what unlocks everything else.**~~ **Done 2026-08-25:** Preview now holds the `unretire-test` Supabase values and the sandbox Stripe values. What remains is *proof* — the split is configured in a dashboard, not yet demonstrated by a request (§3 Gap 1, §4, §8 P1/P2/P4). |
 
 **The one-line summary for the owner:** we make the *data and the money* different, we make *everything else*
 provably the same, and where "provably the same" is impossible we write down exactly what is left uncovered
@@ -117,7 +142,7 @@ rewrites, redirects, or headers. Names and public/server classification match `d
 | 7 | `STRIPE_PRICE_PREMIUM` | Server-only | **test-mode** price id — recurring yearly, $199 USD | **test-mode** price id — recurring yearly, $199 USD | **live-mode** price id — recurring yearly, $199 USD |
 | 8 | `MAILCHIMP_API_KEY` | Server-only | Mailchimp API key (may be the same account as Production) | same key is acceptable — *provided row 9 differs* | Mailchimp API key |
 | 9 | `MAILCHIMP_LIST_ID` | Server-only | **test audience** id | **test audience** id | **live audience** id |
-| 10 | `NEXT_PUBLIC_SITE_URL` | Public | `http://localhost:3000` | deliberately **unset** — every PR gets a unique Preview URL, so any fixed value would be wrong for most deployments. Checkout and auth derive the origin from request headers, so they stay correct; the only consequence is that Preview `metadataBase` falls back to localhost, which is harmless because Preview OG tags are never shared | `https://unretireproject.com` — **D-2 resolved 2026-08-25**. Set this Production-scoped only, then redeploy. It is also the value that goes into the `unretire-prod` Supabase **Site URL** and redirect allow-list (§5.3a) |
+| 10 | `NEXT_PUBLIC_SITE_URL` | Public | `http://localhost:3000` | deliberately **unset** — every PR gets a unique Preview URL, so any fixed value would be wrong for most deployments. Checkout and auth derive the origin from request headers, so they stay correct; the only consequence is that Preview `metadataBase` falls back to localhost, which is harmless because Preview OG tags are never shared | **Set 2026-08-25, Production-scoped only, typed Config.** Its value is the origin that actually serves the site — `https://unretire.vercel.app` (⚠ currently stored **with a trailing slash**, Known issue 35). It changes to `https://unretireproject.com` when DNS moves off GoDaddy (D-2 / Known issue 27), and it must then be changed in **three** places together: this variable, the `unretire-prod` Supabase **Site URL**, and the live Stripe webhook destination |
 | 11 | `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | Public | a Formspree endpoint (ideally a throwaway form) | a Formspree endpoint (ideally a throwaway form) | the real Formspree endpoint |
 
 Two pairing rules that break things quietly when ignored:
@@ -128,50 +153,80 @@ Two pairing rules that break things quietly when ignored:
 - **Row 7 must be a recurring price and row 6 must be a one-time price.** The code opens a subscription
   session for Premium and a payment session for the Course; the wrong price type errors at session creation.
 
-### 2B — Sharing verdict, and today's actual Vercel state
+### 2B — Sharing verdict, today's verified state, and what changed on 2026-08-25
 
 *"Shared" means one Vercel entry whose scope covers both Production and Preview, so both read the same value.*
 
-| # | Name | May Preview and Production share one value? | What sharing actually causes | **Today in Vercel** | Gap |
-|---|---|---|---|---|---|
-| 1 | `NEXT_PUBLIC_SUPABASE_URL` | **NO — catastrophic** | Every Preview deployment, and every future robot test run, reads **and writes** the production database: real accounts, real sessions, real password changes, real entitlements. | **Production AND Preview (shared)** | 🔴 **OPEN** |
-| 2 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **NO — catastrophic** | Same as row 1. A *mismatch* with row 1 instead breaks login and signup across the whole site with "invalid API key". | **Production AND Preview (shared)** | 🔴 **OPEN** |
-| 3 | `SUPABASE_SECRET_KEY` | **NO — catastrophic** | This key ignores every database security policy. Shared, any Preview deployment that receives a payment event can grant or revoke **production** access with no guard at all. | **Production AND Preview (shared)** | 🔴 **OPEN** |
-| 4 | `STRIPE_SECRET_KEY` | **NO — catastrophic in one direction** | A **live** key in Preview turns every automated "purchase" into a real card charge and a real recurring subscription against a real customer record. (A test key in Production fails closed instead: nobody can pay. Bad, but it does not move money.) | **Production ONLY** — absent from Preview | 🟠 Preview cannot test payments at all |
-| 5 | `STRIPE_WEBHOOK_SECRET` | **NO — unsafe, fails closed** | A test-mode secret in Production makes every live payment's confirmation fail: **customers pay and never receive access**, and the only symptom is a red delivery list in the Stripe dashboard that nobody is watching. | **Production ONLY** — absent from Preview | 🟠 the Preview webhook rejects everything |
-| 6 | `STRIPE_PRICE_COURSE` | **NO — unsafe** | Test and live price ids look identical (both `price_…`, no visible marker). Crossed, checkout fails with the generic "Could not start checkout" 500 — indistinguishable from a Stripe outage. | **Production ONLY** — absent from Preview | 🟠 |
-| 7 | `STRIPE_PRICE_PREMIUM` | **NO — unsafe** | Same as row 6. | **Production ONLY** — absent from Preview | 🟠 |
-| 8 | `MAILCHIMP_API_KEY` | **Conditionally yes** — safe only while row 9 differs | The key selects the account and its data centre; the audience id selects who actually gets emailed. Sharing the key alone is harmless. | **Production AND Preview (shared)** | 🟡 acceptable once row 9 is split |
-| 9 | `MAILCHIMP_LIST_ID` | **NO — unsafe** | Every Preview form submission and every robot email-capture test writes a **real subscriber** into the live audience and fires the real automated sequence — real emails to fake addresses. Pollutes the list, harms sender reputation, and inflates the contact-count billing tier. | **Production AND Preview (shared)** | 🔴 **OPEN** |
-| 10 | `NEXT_PUBLIC_SITE_URL` | **NO — sharing is itself the defect** | One string cannot be correct for two hostnames. Shared, Preview pages advertise the production address to search engines and social networks. | **NOT SET IN ANY ENVIRONMENT** | 🟡 see §3 Gap 3 |
-| 11 | `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | **Yes — safe** | All three forms already post to the same endpoint in code, so there is nothing to isolate. Preferably point Preview at a throwaway form so the owner's inbox stays clean. | **NOT SET IN ANY ENVIRONMENT** | 🟢 low |
+The **"Today in Vercel"** column is the verified state after the owner's 2026-08-25 configuration pass. The
+**"Superseded"** column keeps the state this document was originally written against, so the history — and the
+reason each control exists — survives. Nothing is deleted.
 
-**Read the "Today" column as one sentence:** *everything that should be split is shared, and everything that
-should exist in Preview is missing.* Preview currently has full read and write access to the production
-database, and no ability to test a payment.
+| # | Name | May Preview and Production share one value? | What sharing actually causes | **Today in Vercel (verified 2026-08-25)** | ~~Superseded — resolved 2026-08-25~~ | Status |
+|---|---|---|---|---|---|---|
+| 1 | `NEXT_PUBLIC_SUPABASE_URL` | **NO — catastrophic** | Every Preview deployment, and every future robot test run, reads **and writes** the production database: real accounts, real sessions, real password changes, real entitlements. | **Split.** Production = `unretire-prod` URL · Preview = `unretire-test` URL | ~~Production AND Preview (shared)~~ | ✅ **RESOLVED (configured)** — proof pending, §8 P1/P2 |
+| 2 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **NO — catastrophic** | Same as row 1. A *mismatch* with row 1 instead breaks login and signup across the whole site with "invalid API key". | **Split.** Production = PROD publishable key · Preview = TEST publishable key | ~~Production AND Preview (shared)~~ | ✅ **RESOLVED (configured)** — proof pending |
+| 3 | `SUPABASE_SECRET_KEY` | **NO — catastrophic** | This key ignores every database security policy. Shared, any Preview deployment that receives a payment event can grant or revoke **production** access with no guard at all. | **Split.** Production = PROD secret · Preview = TEST secret | ~~Production AND Preview (shared)~~ | ✅ **RESOLVED (configured)** — proof pending |
+| 4 | `STRIPE_SECRET_KEY` | **NO — catastrophic in one direction** | A **live** key in Preview turns every automated "purchase" into a real card charge and a real recurring subscription against a real customer record. (A test key in Production fails closed instead: nobody can pay. Bad, but it does not move money.) | **Split.** Production = live-mode key · Preview = **sandbox account** key | ~~Production ONLY — absent from Preview~~ | ✅ **RESOLVED (configured)** — proof pending, §8 P4 |
+| 5 | `STRIPE_WEBHOOK_SECRET` | **NO — unsafe, fails closed** | A test-mode secret in Production makes every live payment's confirmation fail: **customers pay and never receive access**, and the only symptom is a red delivery list in the Stripe dashboard that nobody is watching. | **Split.** Production = `brilliant-splendor`'s secret (proved present by the 400 `Invalid signature` probe) · Preview = `captivating-triumph`'s secret | ~~Production ONLY — absent from Preview~~ | 🟠 **Configured but undeliverable** — the sandbox endpoint targets a `staging` Preview Vercel has never built (404, Known issue 32). Nothing can reach the Preview webhook until that lands |
+| 6 | `STRIPE_PRICE_COURSE` | **NO — unsafe** | Test and live price ids look identical (both `price_…`, no visible marker). Crossed, checkout fails with the generic "Could not start checkout" 500 — indistinguishable from a Stripe outage. | **Split.** Production = live one-time $99 · Preview = sandbox one-time $99 | ~~Production ONLY — absent from Preview~~ | ✅ **RESOLVED (configured)** |
+| 7 | `STRIPE_PRICE_PREMIUM` | **NO — unsafe** | Same as row 6. | **Split.** Production = live yearly $199 · Preview = sandbox yearly $199 | ~~Production ONLY — absent from Preview~~ | ✅ **RESOLVED (configured)** |
+| 8 | `MAILCHIMP_API_KEY` | **Conditionally yes** — safe only while row 9 differs | The key selects the account and its data centre; the audience id selects who actually gets emailed. Sharing the key alone is harmless. | Present in **both** scopes | *(unchanged)* | 🟡 acceptable **only while row 9 genuinely differs** — which is not yet evidenced |
+| 9 | `MAILCHIMP_LIST_ID` | **NO — unsafe** | Every Preview form submission and every robot email-capture test writes a **real subscriber** into the live audience and fires the real automated sequence — real emails to fake addresses. Pollutes the list, harms sender reputation, and inflates the contact-count billing tier. | A **Preview-scoped entry now exists** alongside the Production one | ~~Production AND Preview (shared)~~ | 🟡 **PARTIAL — do not record this as done.** A names-and-scopes listing cannot show *which audience id* the Preview entry holds. Until §8 **P7** is recorded PASS, "the test audience is separate" is an assumption, not a fact |
+| 10 | `NEXT_PUBLIC_SITE_URL` | **NO — sharing is itself the defect** | One string cannot be correct for two hostnames. Shared, Preview pages advertise the production address to search engines and social networks. | **Production: set** to the live origin `https://unretire.vercel.app/` (⚠ trailing slash, Known issue 35). **Preview: intentionally unset** — see §2A row 10 | ~~NOT SET IN ANY ENVIRONMENT~~ | ✅ **RESOLVED 2026-08-25** (Known issue 19) — one-character trailing-slash fix outstanding |
+| 11 | `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | **Yes — safe** | All three forms already post to the same endpoint in code, so there is nothing to isolate. Preferably point Preview at a throwaway form so the owner's inbox stays clean. | **NOT SET IN ANY ENVIRONMENT** | *(unchanged)* | 🟢 **STILL OPEN** — low (Known issue 20, §3 Gap 4) |
 
-> **Documentation drift — now reconciled (2026-08-25).** `docs/PROJECT-STATUS.md` §9 and
-> `docs/TECH-ARCHITECTURE.md` §6 both previously listed the four Stripe variables as "Production / Preview"
-> and the two unset variables as set. **Both tables have since been corrected against the table above**, and
-> `docs/TECH-ARCHITECTURE.md` §6 now states *current state vs intended* per row. Separately,
-> `docs/TECH-ARCHITECTURE.md` §4's line *"Local, Preview, and Production do not share writable production
-> data — Unverified"* is now recorded as **verified FALSE**: they do share it. The table above remains the
-> single source of truth; re-verify it against the live Vercel dashboard after Sprint S2.2 lands.
+**A twelfth name now exists in the Preview scope: `VERCEL_AUTOMATION_BYPASS_SECRET`.** It is deliberately not
+a row above, because the eleven-variable matrix is the set read by `src/` — this one is consumed by Vercel's
+own edge and by the test harness, never by application code. Its presence is what reduces Known issue 25 from
+"blocks all automated testing" to "the harness must be wired to it" (Sprint S2.3).
+
+**Read the "Today" column as one sentence:** *everything that should be split now is split, one thing
+(Mailchimp's audience) is split in form but unproven in substance, and nothing has yet been demonstrated by a
+request.* The old one-sentence reading — ~~*everything that should be split is shared, and everything that
+should exist in Preview is missing*~~ — was true until 2026-08-25 and is kept here only as history.
+
+> **Documentation drift — reconciled twice (2026-08-25).**
+> **Round 1:** `docs/PROJECT-STATUS.md` §9 and `docs/TECH-ARCHITECTURE.md` §6 previously listed the four
+> Stripe variables as "Production / Preview" and the two unset variables as set; both were corrected against
+> this table, and `docs/TECH-ARCHITECTURE.md` §6 now states *current state vs intended* per row.
+> **Round 2 (this pass):** the tables corrected in round 1 described the **pre-split** dashboards and are
+> themselves now stale. Known issues **17, 18, 19 and 24** are marked **RESOLVED 2026-08-25** for the same
+> reason. `docs/TECH-ARCHITECTURE.md` §4's line *"Local, Preview, and Production do not share writable
+> production data"* — recorded in round 1 as **verified FALSE** — becomes **verified TRUE by configuration,
+> unverified by test**, and may not be flipped to a clean pass until §8 P1 and P2 are recorded.
+> This table remains the single source of truth; re-verify it against the live Vercel dashboard after any
+> environment change.
 
 ---
 
-## 3. Today's gaps
+## 3. The four gaps — status after the 2026-08-25 configuration pass
 
-Four findings, each with its severity, the concrete failure it causes, and the fix.
+Four findings, each with its severity, the concrete failure it caused, and where it now stands. **Three of the
+four are closed at the configuration level; none is closed at the proof level; one is untouched.**
 
-### Gap 1 — 🔴 CRITICAL · Preview reads *and writes* the production database
+| Gap | Was | Now |
+|---|---|---|
+| **1** — Preview reads *and writes* production | 🔴 CRITICAL | ✅ **Configured 2026-08-25** — Preview points at `unretire-test`. Unproven until §8 P1 + P2 |
+| **2** — Stripe absent from Preview | 🟠 CRITICAL for testing | ✅ **Configured 2026-08-25** — four sandbox entries added. Blocked in practice by Known issue 32 (`staging` has no deployment) |
+| **3** — `NEXT_PUBLIC_SITE_URL` unset | 🟡 MEDIUM | ✅ **Set in Production 2026-08-25.** Trailing-slash fix outstanding (Known issue 35) |
+| **4** — `NEXT_PUBLIC_FORMSPREE_ENDPOINT` unset | 🟢 LOW | 🟢 **Still open** — unchanged (Known issue 20) |
 
-**What is true today.** The three Supabase variables each exist as a single Vercel entry scoped to both
-Production and Preview, so both environments receive the same value: the `unretire-prod` project
-(ref `hcjivvlwxltyiycfbttc`). The test project `unretire-test` (ref `dtdadtggahjsrmevwvbu`) exists — Open
-decision **D-8** was resolved on 2026-08-25 — but **no deployment points at it**. It is currently unused.
+### Gap 1 — ~~🔴 CRITICAL~~ ✅ RESOLVED (configured) 2026-08-25 · Preview reads *and writes* the production database
 
-**What this causes right now, before any test suite exists.** Every one of these writes lands in production:
+> **Current state.** The three Supabase entries are split: Production holds the `unretire-prod` values, Preview
+> holds the `unretire-test` (ref `dtdadtggahjsrmevwvbu`) values. Open decision **D-8** is resolved and the test
+> project is now in use rather than idle. **Not yet proven:** no Preview deployment has been observed
+> resolving to the test ref, and no signup has been observed landing in TEST and *not* in PROD. Those are §8
+> **P1** and **P2**, owned by Sprint **S2.5**. Until they are recorded, the paragraphs below describe a risk
+> that is *believed* closed, not one that is *known* closed.
+
+**~~What is true today~~ — what was true until 2026-08-25 (kept as history).** The three Supabase variables each
+existed as a single Vercel entry scoped to both Production and Preview, so both environments received the same
+value: the `unretire-prod` project (ref `hcjivvlwxltyiycfbttc`). The test project existed but **no deployment
+pointed at it**.
+
+**What that caused, before any test suite existed.** Every one of these writes landed in production — and this
+list is the reason the split is not optional:
 
 | Production data touched from a Preview | How |
 |---|---|
@@ -187,40 +242,58 @@ automated journeys, via the email-capture endpoint) and the **live Formspree inb
 forms — see Gap 4 and §6 C9). There is no Supabase Storage usage anywhere, so there is nothing to isolate
 there today.
 
-**The trap in that last table row — this is the most important sentence in the document.** The first thing
-anyone must do to enable payment testing on Preview is add `STRIPE_WEBHOOK_SECRET` to Preview. If the
-Supabase variables are not split *in the same sitting*, that single change immediately switches on a code
-path that writes **real entitlements into the production database** from test-mode payments.
-**Split Supabase first. Always.**
+**The trap in that last table row — this is still the most important sentence in the document, and it was
+navigated correctly.** The first thing anyone must do to enable payment testing on Preview is add
+`STRIPE_WEBHOOK_SECRET` to Preview. Had the Supabase variables not been split *in the same sitting*, that
+single change would immediately have switched on a code path writing **real entitlements into the production
+database** from test-mode payments. On 2026-08-25 both changes were made together, in the right order.
+**Split Supabase first. Always** — this ordering rule stays in force for every future environment, because it
+is a property of the code, not of one afternoon's dashboard work.
 
-**The fix.** §4 steps 1–3, in that order. This is the change that makes every other change safe.
+**The fix.** §4 steps 1–3, in that order — done 2026-08-25, proof outstanding.
 
-### Gap 2 — 🟠 CRITICAL for testing · Stripe is entirely absent from Preview
+### Gap 2 — ~~🟠 CRITICAL for testing~~ ✅ RESOLVED (configured) 2026-08-25 · Stripe is entirely absent from Preview
 
-**What is true today.** All four Stripe variables are scoped **Production only**. The Stripe client reads its
-key lazily and deliberately — the file's own comment says this is so Preview *builds* do not fail — so the
-site compiles and serves normally on Preview. But at runtime:
+> **Current state.** All four Stripe variables now exist in the Preview scope holding **sandbox account**
+> (`acct_1TsJbSFWySZWCfsj`) values, and a sandbox webhook destination `captivating-triumph` exists.
+> ⚠ **One thing still blocks an actual test payment:** that destination points at
+> `https://unretire-git-staging-86400-s-projects.vercel.app`, and because `staging` sits at the same commit as
+> `master` Vercel has never built it — the URL returns **404**. Stripe has nowhere to deliver. Land one commit
+> on `staging` and the path opens (Known issue **32**, Sprint S2.2).
+
+**~~What is true today~~ — what was true until 2026-08-25 (kept as history).** All four Stripe variables were
+scoped **Production only**. The Stripe client reads its key lazily and deliberately — the file's own comment
+says this is so Preview *builds* do not fail — so the site compiled and served normally on Preview. But at
+runtime:
 
 - **Checkout** fails with a 500 and the honest message "Could not start checkout" (or a `?checkout=error`
   return to the product page from the signed-in path).
 - **The webhook** has no signing secret, so `/api/stripe/webhook` rejects every request with 400 before
   anything else runs.
 
-**What it causes.** **No payment path can be tested on Preview today at all** — not purchase, not access
-granting, not cancellation. The entire primary conversion is untested and, in the current wiring, untestable.
+**What it caused.** **No payment path could be tested on Preview at all** — not purchase, not access granting,
+not cancellation. Checkout session creation is now possible on Preview; **webhook delivery is not**, until
+Known issue 32 is cleared. So the primary conversion remains untested end to end today, for a different and
+smaller reason than before.
 
 **One diagnostic trap worth knowing before it costs an hour.** In the webhook, the missing-key error is
 raised *inside* the signature-verification block, so a missing `STRIPE_SECRET_KEY` is reported to the
 operator as **"Invalid signature"**. The message names the wrong cause. Check the key before chasing the
 signature.
 
-**The fix.** §4 steps 4–7: create the test-mode Stripe objects, then add all four variables scoped to Preview
-only — **after** Gap 1 is closed.
+**The fix.** §4 steps 4–7 — done 2026-08-25, plus the one residual: land a commit on `staging` so the sandbox
+endpoint has a target (Known issue 32).
 
-### Gap 3 — 🟡 MEDIUM · `NEXT_PUBLIC_SITE_URL` is not set in any environment
+### Gap 3 — ~~🟡 MEDIUM~~ ✅ RESOLVED (Production) 2026-08-25 · `NEXT_PUBLIC_SITE_URL` is not set in any environment
+
+> **Current state.** Set in **Production** to the live origin, typed **Config**, deliberately left **unset in
+> Preview** (§2A row 10). Known issue **19** is closed. Two small things remain: the stored value carries a
+> **trailing slash** (Known issue 35 — harmless for `metadataBase`, but it would produce a double slash in the
+> header-less fallback paths in `src/app/api/checkout/route.ts` and `src/app/auth/actions.ts`), and the value
+> must change again when DNS moves to the custom domain.
 
 **Be precise about this one — it is routinely overstated.** The variable is read in three places, and only
-one of them is actually broken, because the other two prefer the real request headers:
+one of them was ever actually broken, because the other two prefer the real request headers:
 
 | Where it is read | What happens with the variable unset | Verdict |
 |---|---|---|
@@ -228,18 +301,19 @@ one of them is actually broken, because the other two prefer the real request he
 | Auth server actions (`src/app/auth/actions.ts:19-26`) | Derives the origin from `x-forwarded-host` / `host` **first**. Confirmation and password-reset links point at the right deployment — a Preview signup's email returns to that Preview. | ✅ **No impact** |
 | Page metadata (`src/app/layout.tsx:40`, `metadataBase`) | **This variable only**, falling back to `http://localhost:3000`. There is no header fallback at this site. | 🟡 **Real defect** |
 
-**So the concrete failure is:** Production currently publishes canonical URLs and social-sharing (Open Graph)
-URLs that resolve against `http://localhost:3000`. That harms search indexing and makes shared links render
-the wrong preview.
+**So the concrete failure was:** Production published canonical URLs and social-sharing (Open Graph) URLs that
+resolved against `http://localhost:3000`. That harms search indexing and makes shared links render the wrong
+preview. **Fixed in the dashboard on 2026-08-25** — but a public value is compiled into the build, so it is
+only fixed in deployments built *after* that change (§6 C11). Assert it in the served page, not the dashboard.
 
-**It is not a payment defect, not an auth defect, and it does not send anyone to localhost during checkout.**
+**It was not a payment defect, not an auth defect, and it did not send anyone to localhost during checkout.**
 Any summary claiming otherwise is wrong, and this distinction should survive every retelling.
 
-**The fix.** §4 step 8: set it Production only; leave Preview unset (see §2A row 10 for why a fixed Preview value would be wrong).
-once confirmed — then redeploy, because public values are baked in at build time (`docs/ENV-VARS-SAFETY.md`,
-change procedure step 3).
+**The fix.** §4 step 8: set it Production only; leave Preview unset (see §2A row 10 for why a fixed Preview
+value would be wrong) — then redeploy, because public values are baked in at build time
+(`docs/ENV-VARS-SAFETY.md`, change procedure step 3). **Done 2026-08-25.**
 
-### Gap 4 — 🟢 LOW · `NEXT_PUBLIC_FORMSPREE_ENDPOINT` is not set anywhere
+### Gap 4 — 🟢 LOW · `NEXT_PUBLIC_FORMSPREE_ENDPOINT` is not set anywhere — **still open**
 
 **What is true today.** Unset in Vercel, and missing from the owner's local env file (all ten other names are
 present there — confirmed by a names-only check; no agent opened the file). Only the enterprise discovery
@@ -256,7 +330,26 @@ isolated from the owner's real inbox without a code change.** Recorded as an acc
 
 ---
 
-## 4. The isolation plan — owner checklist
+## 4. The isolation plan — owner checklist · **COMPLETED 2026-08-25, with three residuals**
+
+> ### Status of this section
+>
+> The owner ran this checklist on **2026-08-25**. Steps 1–8 and 10 are done; step 9 was skipped by choice;
+> step 11 — *the proofs* — is **not** done. The checkboxes below are ticked against **dashboard state**, which
+> is the weaker of the two kinds of evidence this document recognises.
+>
+> **The three residuals, named so they cannot be lost:**
+>
+> 1. **`staging` has no Vercel deployment** — the branch exists at the same commit as `master`, so Vercel never
+>    built it and the sandbox Stripe endpoint has a 404 for a target. No Preview payment can complete until one
+>    commit lands there. **Known issue 32**, Sprint S2.2.
+> 2. **Isolation is configured but not proven by test.** Every claim in §2B rests on reading a dashboard. The
+>    §8 proofs are the only thing that converts that into knowledge, and **none has been run** — Sprint
+>    **S2.5** owns them. Do not let "the split is done" and "the split is verified" be spoken as one sentence.
+> 3. **The Mailchimp audience split is unproven in substance** (§2B row 9). An entry exists in the Preview
+>    scope; which audience it addresses cannot be read from a names-only listing. §8 **P7**.
+>
+> Anything below marked `[x]` may be re-opened by a failing proof. A proof outranks a checkbox.
 
 **Who does what.** Every step below is done by the **owner**, in the Vercel, Stripe, Supabase and Mailchimp
 dashboards. Agents never handle or echo a value — `docs/ENV-VARS-SAFETY.md` and
@@ -273,82 +366,119 @@ Preview. Mark every server-only entry **Sensitive**.
 
 ### Phase A — Isolate the database (closes Gap 1)
 
-- [ ] **Step 1 — Narrow the three existing Supabase entries to Production only.**
+- [x] **Step 1 — Narrow the three existing Supabase entries to Production only.** ✅ **Done 2026-08-25.**
       For `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`:
       edit each existing entry so its scope is **Production only**. Leave the values untouched — they are
       already the `unretire-prod` values and stay that way.
-- [ ] **Step 2 — Add three new Preview-scoped entries with the same names**, holding the **`unretire-test`**
+- [x] **Step 2 — Add three new Preview-scoped entries with the same names**, holding the **`unretire-test`**
       (ref `dtdadtggahjsrmevwvbu`) values: project URL, publishable key, and secret key. All three must come
       from that one project — a mixed pair produces "invalid API key" failures that the webhook currently
-      answers with a success code.
+      answers with a success code. ✅ **Done 2026-08-25** — three Supabase entries confirmed in the Preview
+      scope.
 - [ ] **Step 3 — Redeploy the Preview and prove the switch landed.** Run the §8 Proof 1 check. Do not proceed
       until a Preview deployment demonstrably resolves to the test project ref.
+      🔶 **STILL OPEN — this is residual 2.** The variables are in place; nothing has confirmed a running
+      Preview reads them. Sprint **S2.5**.
 
 ### Phase B — Isolate the money (closes Gap 2)
 
-Stripe **test mode lives inside the same Stripe account**, toggled by the dashboard switch. Objects never
-sync between the two modes — everything below must be created fresh in test mode.
+~~Stripe **test mode lives inside the same Stripe account**, toggled by the dashboard switch.~~
+**Corrected 2026-08-25:** this project uses a **separate Stripe sandbox account** (`acct_1TsJbSFWySZWCfsj`),
+not the test-mode toggle of the shared live account (`acct_1S8bOcF3LxwumsBI`). That is the stronger choice —
+the live account is shared with other projects, so a separate account removes any possibility of a test object
+touching live data. Objects never sync between accounts; everything below was created fresh in the sandbox.
 
-- [ ] **Step 4 — Create the test-mode objects in Stripe (test mode ON):**
-  - [ ] Product **"(Un)Retire Course"** with a **one-time** price of **$99 USD**. Must be one-time — the code
+- [x] **Step 4 — Create the test-mode objects in Stripe** (in the **sandbox account**): ✅ **Done 2026-08-25.**
+  - [x] Product **"(Un)Retire Course"** with a **one-time** price of **$99 USD**. Must be one-time — the code
         opens a payment session for this product.
-  - [ ] Product **"(Un)Retire Premium"** with a **recurring, yearly** price of **$199 USD/year**. Must be
+  - [x] Product **"(Un)Retire Premium"** with a **recurring, yearly** price of **$199 USD/year**. Must be
         recurring — the code opens a subscription session, and a one-time price errors at session creation.
-  - [ ] A **test-mode secret API key**.
-  - [ ] A **test-mode webhook endpoint** pointing at the Preview **branch alias**
+  - [x] A **test-mode secret API key**.
+  - [x] A **test-mode webhook endpoint** pointing at the Preview **branch alias**
         (`[PREVIEW_URL]/api/stripe/webhook` — use the stable branch alias, never a one-off deployment URL;
         see §6 C2). Subscribe it to exactly two events: **`checkout.session.completed`** and
         **`customer.subscription.deleted`** — the only two the handler acts on. If Preview protection stays
         on, append the automation-bypass query parameter (§6 C3), because Stripe cannot send custom headers.
-  - [ ] **Recommended:** a test-mode **promotion code / coupon** mirroring any live one. Promotion codes are
+        ✅ Created as `captivating-triumph` → `https://unretire-git-staging-86400-s-projects.vercel.app/api/stripe/webhook`,
+        API version `2026-06-24.dahlia`. ⚠ **Target does not exist yet — 404** (Known issue 32, residual 1).
+        Two things still to confirm on this endpoint once the target is live: that the bypass is appended as a
+        **query parameter** (§6 C3), and that both event types are subscribed.
+  - [ ] **Recommended:** a test-mode **promotion code / coupon** mirroring the live one. Promotion codes are
         mode-specific objects, and without one the $0-subscription path (100% off, no card collected) is
-        never exercised.
-  - [ ] Copy the endpoint's **signing secret** — it is different from the live one and from the local CLI one.
-- [ ] **Step 5 — Add four new Preview-scoped entries** (only after Phase A is verified):
+        never exercised. 🔶 **Not confirmed created.** A 100%-off **live** coupon exists for the launch payment
+        test (Known issue 33); the sandbox mirror has not been evidenced. It matters more than it looks —
+        see §6 **C14**, because the $0 path is the one the owner intends to use for real.
+  - [x] Copy the endpoint's **signing secret** — it is different from the live one and from the local CLI one.
+- [x] **Step 5 — Add four new Preview-scoped entries** (only after Phase A is verified):
       `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_COURSE`, `STRIPE_PRICE_PREMIUM` — all with
-      the test-mode values from step 4. **Do not touch the existing Production entries.**
+      the sandbox values from step 4. **Do not touch the existing Production entries.**
+      ✅ **Done 2026-08-25** — four Stripe entries confirmed in the Preview scope, Production untouched.
 
 ### Phase C — Isolate the email audience
 
-- [ ] **Step 6 — Create a Mailchimp test audience** and add `MAILCHIMP_LIST_ID` as a **Preview-scoped** entry
+- [x] **Step 6 — Create a Mailchimp test audience** and add `MAILCHIMP_LIST_ID` as a **Preview-scoped** entry
       holding the test audience id; narrow the existing entry to **Production only**.
       Mirror the live audience's **merge fields** and **tag names** exactly — the field list to match is in
       §5.4, and a mismatch silently drops assessment data (§7 risk 8).
-- [ ] **Step 7 — `MAILCHIMP_API_KEY` may stay shared** while the test audience lives in the same Mailchimp
+      🟡 **Partially evidenced 2026-08-25.** Two Mailchimp entries exist in the Preview scope. **Unproven:**
+      that the Preview `MAILCHIMP_LIST_ID` addresses a *different* audience, and that the test audience's
+      merge fields and tags match §5.4. Both are settled by §8 **P7** plus the §5.4 diff — residual 3.
+- [x] **Step 7 — `MAILCHIMP_API_KEY` may stay shared** while the test audience lives in the same Mailchimp
       account (the key selects the account and data centre; the audience id selects the recipients). Split it
-      too if a separate account is used.
+      too if a separate account is used. ✅ Present in both scopes — which is safe **only** while step 6 is
+      genuinely true.
 
 ### Phase D — Close the URL and form gaps
 
-- [ ] **Step 8 — Add `NEXT_PUBLIC_SITE_URL` for the first time**, per environment: **Preview** = the branch
-      alias URL; **Production** = `https://unretireproject.com` (D-2, resolved 2026-08-25 — add it at launch per `docs/LAUNCH-CHECKLIST.md` Phase 2,
-      which already carries the "update the site-URL env var in Production, then redeploy" line).
+- [x] **Step 8 — Add `NEXT_PUBLIC_SITE_URL` for the first time.** ✅ **Done 2026-08-25 — Production only.**
+      ~~**Preview** = the branch alias URL~~ — **corrected:** Preview is deliberately **left unset**, because a
+      single fixed value cannot be right for per-PR Preview hostnames and the code prefers request headers
+      anyway (§2A row 10). **Production** = the origin that actually serves the site,
+      `https://unretire.vercel.app` — ~~`https://unretireproject.com`~~, which is the target only once DNS moves
+      off GoDaddy (D-2 / Known issue 27). `docs/LAUNCH-CHECKLIST.md` Phase 2 already carries the "update the
+      site-URL env var in Production, then redeploy" line; that line now describes a **change** of value, not a
+      first setting. ⚠ Remove the stored trailing slash (Known issue 35).
 - [ ] **Step 9 — Optional: add `NEXT_PUBLIC_FORMSPREE_ENDPOINT`** in both scopes — a throwaway form for
       Preview, the real endpoint for Production. Note the ceiling in §6 C9: two of the three forms are
-      hardcoded and cannot be isolated this way.
+      hardcoded and cannot be isolated this way. 🟢 **Not done — deliberately deferred**, zero functional
+      impact (Known issue 20, §3 Gap 4).
+- [x] **Step 9a — Enable Protection Bypass for Automation** and store its secret as
+      `VERCEL_AUTOMATION_BYPASS_SECRET` in the **Preview** scope. ✅ **Done 2026-08-25.** Deployment Protection
+      itself stays **on**, which is correct. The remaining unknown is whether the Playwright configuration
+      actually presents the bypass — Sprint **S2.3** (Known issue 25, reworded).
 
 ### Phase E — Make it real
 
-- [ ] **Step 10 — Redeploy both environments.** Environment changes do not reach deployments that already
+- [x] **Step 10 — Redeploy both environments.** Environment changes do not reach deployments that already
       exist, and public (`NEXT_PUBLIC_*`) values are compiled into the build. This is
       `docs/ENV-VARS-SAFETY.md` change-procedure step 3 and `docs/SUPABASE-VERCEL-SETUP.md` A2, and it is the
       single most commonly skipped step in this whole document.
+      ✅ Production verified serving at `https://unretire.vercel.app` on 2026-08-25. **Preview redeploy is not
+      independently evidenced** — which is exactly what §8 P1 exists to catch, so treat step 3 as the gate.
 - [ ] **Step 11 — Run every proof in §8 and record the results.** No test suite runs before §8 is green.
+      🔴 **NOT DONE — zero of thirteen proofs recorded.** This is residual 2 and the single most important open
+      item in this document. Sprint **S2.5**.
 
 ### After Phase E — the end state, in one table
 
-| Scope | Database | Money | Email | Inbox |
-|---|---|---|---|---|
-| **Local** | `unretire-test` | Stripe test mode + local CLI listener | test audience | shared Formspree (accepted) |
-| **Preview** | `unretire-test` | Stripe test mode | test audience | shared Formspree (accepted) |
-| **Production** | `unretire-prod` | Stripe live mode | live audience | real Formspree |
+**Configured 2026-08-25.** The "proven by" column is what turns each cell from a claim into a fact; every one
+of them is still outstanding.
+
+| Scope | Database | Money | Email | Inbox | Proven by |
+|---|---|---|---|---|---|
+| **Local** | `unretire-test` | Stripe sandbox + local CLI listener | test audience | shared Formspree (accepted) | developer's own run |
+| **Preview** | `unretire-test` ✅ configured | Stripe **sandbox** ✅ configured — delivery blocked by Known issue 32 | test audience 🟡 unproven | shared Formspree (accepted) | §8 P1, P2, P4, P5, P7 |
+| **Production** | `unretire-prod` | Stripe live mode | live audience | real Formspree | §8 P10, P13 + the launch smoke (§7) |
 
 ---
 
 ## 5. The fidelity plan
 
-Isolation is now done. This section is the other half: making `unretire-test` a true structural twin of
-`unretire-prod`, and keeping it one.
+Isolation is now **configured** (§4). This section is the other half: making `unretire-test` a true structural
+twin of `unretire-prod`, and keeping it one. Note the ordering trap — the test project now *receives* Preview
+traffic, but nothing below has been done to it yet, so it is currently an isolated database of **unknown
+shape**. Isolation without fidelity is the failure mode described in §1: a suite that passes against a
+sandbox and proves nothing about production.
 
 ### 5.1 Capture the production schema before building anything
 
@@ -404,7 +534,7 @@ depends on:
 
 | Setting | Why it must match, and what differs if it does not |
 |---|---|
-| **Site URL** and the **redirect allow-list** | Test = the Preview branch alias plus the Vercel Preview wildcard plus localhost; Production = `https://unretireproject.com` (D-2, resolved 2026-08-25). If a redirect target is not on the list, Supabase **silently falls back to the Site URL**, and confirmation and reset links land on the wrong host — a failure that looks like a broken app rather than a config gap. This is `docs/SUPABASE-VERCEL-SETUP.md` B3, applied per project. ⚠ **Currently unconfigured in both projects and actively breaking Production — the concrete entries and the owner click-path are in §5.3a; Known issue 23 / decision D-14.** |
+| **Site URL** and the **redirect allow-list** | Test = the Preview branch alias plus the Vercel Preview wildcard plus localhost; Production = the origin that actually serves the site, **`https://unretire.vercel.app`** (changing to `https://unretireproject.com` when DNS moves — D-2 / Known issue 27). If a redirect target is not on the list, Supabase **silently falls back to the Site URL**, and confirmation and reset links land on the wrong host — a failure that looks like a broken app rather than a config gap. This is `docs/SUPABASE-VERCEL-SETUP.md` B3, applied per project. ~~⚠ **Currently unconfigured in both projects and actively breaking Production**~~ → ✅ **`unretire-prod` CONFIGURED 2026-08-25** (Site URL + five allow-list entries; Known issue 23's configuration half is closed). 🔶 **`unretire-test` still unevidenced.** Concrete entries and click-path in §5.3a; **and read §5.3b — a correct allow-list here does not make the app's own `next` handling safe.** |
 | **"Confirm email" ON/OFF** | **The single most behaviour-changing toggle in the project.** With it OFF, signup returns a live session and goes straight to checkout. With it ON, signup returns "please confirm your email" and no purchase starts. A suite built against the wrong setting exercises a flow production does not have. |
 | **Enumeration protection** | Determines which of two code branches handles a duplicate-email signup. Both branches exist; only one is live per setting. |
 | **Minimum password length** and **leaked-password protection** | A fixture password that passes in test can be rejected in production. |
@@ -415,10 +545,33 @@ depends on:
 
 ### 5.3a Auth URL configuration — the Site URL and the redirect allow-list
 
-> ⚠ **This subsection documents a live production defect, not a future task.** Verified 2026-08-25 against
+> ✅ **RESOLVED for `unretire-prod` on 2026-08-25 — this subsection is now the record of how, plus what is
+> still outstanding.**
+>
+> ~~⚠ **This subsection documents a live production defect, not a future task.** Verified 2026-08-25 against
 > the owner's Supabase **URL Configuration** screen for `unretire-prod`: **Site URL = `http://localhost:3000`**
-> and **Redirect URLs = none** ("No Redirect URLs"). Tracked as **Known issue 23 (Blocker)** and decision
-> **D-14** in `docs/PROJECT-STATUS.md`. Owner fixes it in Sprint **S2.2**.
+> and **Redirect URLs = none** ("No Redirect URLs").~~ *(the state this subsection was written against —
+> kept because it is the reason every rule below exists)*
+>
+> **Verified state now, `unretire-prod`:**
+> **Site URL** `https://unretire.vercel.app` · **Redirect URLs** `http://localhost:3000/**`,
+> `https://www.unretireproject.com/**`, `https://unretireproject.com/**`, `https://unretire.vercel.app/**`,
+> `https://*-86400-s-projects.vercel.app/**`.
+> Production auth email links now resolve to a host that exists. **Known issue 23's configuration half is
+> closed**; the two legacy hosts that used to sit on this list (`half-a-life.vercel.app/**` and the old
+> `*-86400websites.vercel.app/**` scope) are **gone — Known issue 28 is RESOLVED**.
+>
+> **Three things are still outstanding, and none of them is small:**
+> 1. **`unretire-test` URL configuration is unevidenced.** Until it is set, Preview auth links fall back to
+>    whatever that project's Site URL happens to be, and §8 **P3** cannot pass.
+> 2. **Two entries on the production list contradict the "Must NOT contain" rule below** — `localhost:3000/**`
+>    and the Preview wildcard `*-86400-s-projects.vercel.app/**`. Every allow-listed host can receive an auth
+>    redirect carrying a session token, so a Preview deployment can currently be handed a **production**
+>    session. This is deliberate for now (it is what keeps local development and Preview auth working while the
+>    test project is unconfigured) and it is **lower severity than the legacy hosts were** — both are hosts this
+>    project controls — but it is real, dated, and must be tightened once `unretire-test` carries Preview auth
+>    and DNS has moved. Logged as **hygiene follow-up**, not as done.
+> 3. **Password reset is still broken end to end** for the second, independent reason below (Known issue 2).
 
 **Why this belongs in a document about environment parity.** The Site URL and the redirect allow-list are
 **per-Supabase-project dashboard settings**. They are not environment variables, Vercel does not know they
@@ -441,20 +594,35 @@ actually configured on this project, and what is wrong with it today.**
    from the real `x-forwarded-host` / `host` request headers, so signup
    (`src/app/auth/actions.ts:110` — `emailRedirectTo: ${origin}/auth/confirm`) and password reset
    (`:185` — `redirectTo: ${origin}/auth/confirm?next=…`) hand Supabase the origin of the deployment the user
-   is genuinely on: `https://unretireproject.com` in Production, that deployment's own URL on a Preview.
-   **The application code is correct. It is not the thing that is broken.**
+   is genuinely on: `https://unretire.vercel.app` in Production today, that deployment's own URL on a Preview.
+   **The application code is correct *about the origin*. It is not what caused the outage described here.**
+   ⚠ That is a narrower statement than this document used to make — the same code path's handling of the
+   `next` parameter **is** defective, independently. See **§5.3b**.
 2. **Supabase checks that requested URL against the project's redirect allow-list.**
 3. **If it does not match, Supabase silently substitutes the Site URL.** No error is returned to the app, no
    entry appears in any log, and the user simply receives an email pointing somewhere else.
 
-**Therefore, today:** the requested target never matches (the list is empty), so every production auth email
-link is rewritten to `http://localhost:3000` — a machine that does not exist for the recipient. A new
-customer cannot confirm their email address; an existing member cannot reset their password.
+**Therefore, until 2026-08-25:** the requested target never matched (the list was empty), so every production
+auth email link was rewritten to `http://localhost:3000` — a machine that does not exist for the recipient. A
+new customer could not confirm their email address; an existing member could not reset their password.
+**Since the allow-list was configured, the requested target matches and links resolve to the real host.**
 
-✅ **This is not an open-redirect vulnerability, and it must not be described as one.**
-`src/app/auth/confirm/route.ts:20-21` accepts the `next` parameter only when it starts with `/`, and
-otherwise forces `/account` — so the redirect target is constrained to same-origin relative paths. The
-security control is present and correct. What is missing is configuration.
+> ### ⚠ CORRECTION 2026-08-25 — the paragraph this replaces was wrong
+>
+> ~~✅ **This is not an open-redirect vulnerability, and it must not be described as one.**~~
+> ~~`src/app/auth/confirm/route.ts:20-21` accepts the `next` parameter only when it starts with `/`, and~~
+> ~~otherwise forces `/account` — so the redirect target is constrained to same-origin relative paths. The~~
+> ~~security control is present and correct. What is missing is configuration.~~
+>
+> **That claim is false and is retracted.** It was reproduced and disproved during the 2026-08-25 independent
+> review. `startsWith("/")` does **not** constrain a target to a same-origin relative path: it also admits
+> **protocol-relative** URLs. `new URL("//evil.example", request.url)` resolves to `https://evil.example/`,
+> and `/\evil.example` escapes the origin too. **This is an open redirect.** It is tracked as its own defect
+> (**Known issue 38**) and explained in **§5.3b**.
+>
+> The correction is left visible rather than deleted because the wrong sentence was repeated into
+> `docs/PROJECT-STATUS.md` (Known issue 23) and `docs/TECH-ARCHITECTURE.md`, and anyone who read it there
+> needs to encounter the retraction, not a silent edit.
 
 ⚠ **Password reset is broken twice over, for two independent reasons.** Even once the allow-list is
 configured, `src/app/auth/actions.ts:185` still sends `next=/unretire/reset-password` — a stale pre-refactor
@@ -468,11 +636,14 @@ isolation, exactly as it is for the variables in §2.
 
 | | **`unretire-prod`** (ref `hcjivvlwxltyiycfbttc`) | **`unretire-test`** (ref `dtdadtggahjsrmevwvbu`) |
 |---|---|---|
-| **Site URL** | `https://unretireproject.com` | the stable Vercel **branch alias** for Preview — `[PREVIEW_BRANCH_ALIAS_URL]` (never a one-off per-deployment URL; see §6 C2) |
-| **Redirect URLs** | `https://unretireproject.com/**` | `http://localhost:3000/**` |
+| **Site URL — target** | `https://unretireproject.com` *once DNS moves*; **`https://unretire.vercel.app`** until then | the stable Vercel **branch alias** for Preview — `[PREVIEW_BRANCH_ALIAS_URL]` (never a one-off per-deployment URL; see §6 C2) |
+| **Site URL — actual, 2026-08-25** | ✅ **`https://unretire.vercel.app`** — correct for today | 🔶 **not evidenced** |
+| **Redirect URLs — target** | `https://unretireproject.com/**` | `http://localhost:3000/**` |
 | | *(add `https://www.unretireproject.com/**` **only if** the `www` host actually serves the app rather than redirecting to the apex)* | `[PREVIEW_BRANCH_ALIAS_URL]/**` |
 | | | `https://[VERCEL_PROJECT_NAME]-*.vercel.app/**` — **the Vercel preview wildcard**, and the entry that makes per-PR Previews work at all |
-| **Must NOT contain** | `localhost`, any `*.vercel.app` wildcard, any Preview host | `https://unretireproject.com` — a Preview must never be able to bounce a user into Production |
+| **Redirect URLs — actual, 2026-08-25** | ✅ `https://unretire.vercel.app/**`, `https://unretireproject.com/**`, `https://www.unretireproject.com/**` — the live host plus both future hosts, all correct. ⚠ **plus** `http://localhost:3000/**` and `https://*-86400-s-projects.vercel.app/**`, which the row below says must not be here — see outstanding item 2 in the banner above | 🔶 **not evidenced** |
+| **Must NOT contain** | `localhost`, any `*.vercel.app` wildcard, any Preview host — **currently violated by two entries, knowingly and temporarily.** Every allow-listed host can be handed a session token, so each extra entry is real attack surface: tighten once `unretire-test` carries Preview auth and DNS has moved | `https://unretireproject.com` — a Preview must never be able to bounce a user into Production |
+| **No longer present** ✅ | ~~`https://half-a-life.vercel.app/**`~~ and ~~`https://*-86400websites.vercel.app/**`~~ — both removed; **Known issue 28 RESOLVED 2026-08-25** | — |
 
 **Reading `[VERCEL_PROJECT_NAME]`:** it is the first segment of any existing Preview URL — the part before
 the first `-` in `something-git-branch-team.vercel.app`. Vercel mints a new hostname for **every** push
@@ -510,6 +681,44 @@ Do the whole list for `unretire-prod` first, then repeat it for `unretire-test`.
 
 *Nothing on this screen is a secret. Project URLs and refs are public identifiers, so it is safe to
 screenshot this page. Never screenshot the **API Keys** page.*
+
+**Status of this click-path, 2026-08-25:** completed for **`unretire-prod`** (that is how the entries recorded
+above got there). **Not yet completed for `unretire-test`** — steps 1–9 still need one pass on that project
+before §8 P3 or P13 can be recorded.
+
+### 5.3b Auth redirect safety — the allow-list is not the whole control
+
+> **One sentence:** *the identity provider's allow-list is now correct, and the application's own redirect
+> handling is not — those are two different controls, and the first does not compensate for the second.*
+
+This note exists because §5.3a is easy to misread as "auth redirects are now safe." They are not, and the
+distinction is worth being precise about, because the two controls guard different doors:
+
+| Control | Where it lives | Guards | Status |
+|---|---|---|---|
+| **The Supabase redirect allow-list** | `unretire-prod` dashboard (§5.3a) | Where **Supabase** is willing to send a user *after authenticating them* — i.e. which host receives the emailed confirmation or reset link, and with it a session | ✅ Configured 2026-08-25 (with the hygiene caveat above) |
+| **The app's own `next` handling** | `src/app/auth/confirm/route.ts` | Where **the application** sends the user *after it has consumed that link*, using a value taken straight from the query string | 🔴 **Defective — Known issue 38** |
+
+**Why the first cannot cover for the second.** Supabase's allow-list is consulted once, when the link is
+generated, and it only constrains the **host of the link itself**. Once the user clicks that link and lands on
+an allow-listed host, the app takes over and performs its own redirect based on the `next` query parameter.
+Supabase has no visibility into that second hop and no ability to constrain it. An attacker does not need to
+get a hostile host onto the allow-list — they only need a legitimate, allow-listed link that carries a hostile
+`next`.
+
+**The defect, stated exactly.** The guard accepts any `next` beginning with `/`. That check does not mean
+"relative path": `//evil.example` and `/\evil.example` both begin with `/`, and both resolve against the
+deployment's origin to an **external** host — reproduced independently on 2026-08-25. A user who clicks a
+genuine (Un)Retire confirmation link can be delivered to an attacker's page, having just authenticated, with
+this site's domain as the referrer. That is an open redirect, and it is the standard shape of a
+credential-phishing chain.
+
+**What this section deliberately does *not* do:** propose the fix. That is a code change, it belongs to the
+fix-and-improve sprint that precedes testing activation, and Known issue **38** carries it. What matters here,
+in an environment-parity document, is that **this defect is environment-independent** — it is identical in
+Local, Preview and Production, so no amount of environment splitting affects it, no §8 proof detects it, and a
+fully green Preview suite would say nothing about it whatsoever. It is exactly the class of problem that a
+parity document is prone to hiding, which is why it is written down here.
 
 ### 5.4 Mailchimp field parity
 
@@ -562,12 +771,12 @@ Honest list. Each gap is permanent, and each has a compensating check that cover
 
 | # | Irreducible gap | Why it cannot be closed | Compensating check |
 |---|---|---|---|
-| **C1** | **Stripe test mode vs live mode** | Separate object namespaces, separate keys, separate signing secrets. Test cards never reach a bank; live mode has 3-D Secure, fraud rules, and real declines. | Run both products through full test-mode checkout **including a decline card and a 3-D Secure card**. Then, before launch, **one real live purchase** with a real card (a $1 price or a 100%-off code), refunded afterwards — and confirm in the **live** Stripe dashboard that the endpoint logged a success, and that the access record actually appeared in `unretire-prod`. |
+| **C1** | **Stripe sandbox vs live account** | Separate accounts, separate object namespaces, separate keys, separate signing secrets. Test cards never reach a bank; live mode has 3-D Secure, fraud rules, and real declines. | Run both products through full sandbox checkout **including a decline card and a 3-D Secure card**. Then, before launch, **one real live purchase**, refunded afterwards — and confirm in the **live** Stripe dashboard that the endpoint logged a success, and that the access record actually appeared in `unretire-prod`. ⚠ **Read C14 before choosing how to pay for that live purchase** — a 100%-off code makes this check far weaker than it looks. |
 | **C2** | **The Preview web address changes on every push** | Each deployment gets a unique URL; a Stripe endpoint pinned to one dies on the next push. | Point the test-mode endpoint at the **stable branch alias**, not a deployment URL. Add a preflight step asserting the endpoint URL matches the deployment under test. And always assert **the access record exists**, never merely that the browser redirected — only the record proves the confirmation arrived. |
-| **C3** | **Preview sits behind Vercel's deployment password; Production does not** | Stripe's webhooks cannot send custom headers, so a protected Preview answers Stripe with a login page. | Enable **Protection Bypass for Automation** (`docs/testing-setup/SETUP-CHECKLIST.md` Part 3) and append the bypass as a **query parameter** on the webhook URL — verify in the dashboard, since a header-only bypass would force the local-CLI route instead. Prove it with an unauthenticated request that succeeds. Separately assert Production has **no** protection, so the open request path is covered too. |
+| **C3** | **Preview sits behind Vercel's deployment password; Production does not** | Stripe's webhooks cannot send custom headers, so a protected Preview answers Stripe with a login page. | Enable **Protection Bypass for Automation** (`docs/testing-setup/SETUP-CHECKLIST.md` Part 3) and append the bypass as a **query parameter** on the webhook URL — verify in the dashboard, since a header-only bypass would force the local-CLI route instead. Prove it with an unauthenticated request that succeeds. Separately assert Production has **no** protection, so the open request path is covered too. **Status 2026-08-25:** protection remains **on** and the bypass secret **is provisioned** in the Preview scope; still unconfirmed are (a) whether the Playwright config presents it (S2.3) and (b) whether the sandbox webhook URL carries it as a query parameter. Known issue 25, reworded — it no longer blocks all automated testing. |
 | **C4** | **Different regions** — test is in ap-south-1 (Mumbai), production in eu-west-1 (Ireland) | Fixed at project creation; cannot be changed. | **Correctness-neutral; timing only.** Test is further from the app's server region, so tests run *slower* than production — the conservative direction. Record the typical round-trip in both. Treat any test that only passes after a timeout is lengthened as a **defect, not a tuning problem**. Data-residency note: keep only synthetic personal data in the Mumbai project. |
 | **C5** | **Free tier vs Pro tier** | `unretire-test` is on the free tier: it auto-pauses after about a week idle, has smaller compute and fewer connections, no point-in-time recovery, and tighter auth-email limits. | A **preflight health check** that pings the test project and fails loudly with "the test project is paused" rather than letting database errors masquerade as app bugs. Never load-test against it. |
-| **C6** | **Domain and cookie behaviour** | Preview runs on a `vercel.app` subdomain; Production runs on `https://unretireproject.com` (D-2, resolved 2026-08-25). Cookie scope and secure-cookie prefixes behave differently. | After the domain is fixed, re-run the full auth smoke **on Production itself** — sign in, sign out, session survives a refresh, password reset. `docs/LAUNCH-CHECKLIST.md` Phase 2 already carries the "add the new domain to the auth provider's redirect allow-list" line; keep it. |
+| **C6** | **Domain and cookie behaviour** | Preview runs on a `vercel.app` subdomain; Production is *intended* to run on `https://unretireproject.com` (D-2 resolved) but today runs on `https://unretire.vercel.app` (Known issue 27). Cookie scope and secure-cookie prefixes behave differently — and note that while both environments sit on `vercel.app`, this gap is **temporarily invisible**: it reappears the day DNS moves, which is the worst possible timing. | After the domain is fixed, re-run the full auth smoke **on Production itself** — sign in, sign out, session survives a refresh, password reset. `docs/LAUNCH-CHECKLIST.md` Phase 2 already carries the "add the new domain to the auth provider's redirect allow-list" line; keep it. |
 | **C7** | **Email deliverability** | The test project's built-in mailer is a rate-limited sandbox with poor deliverability. Inbox placement cannot be proven from Preview. | (i) Match production's confirm-email setting so the suite exercises the right flow; (ii) obtain reset tokens through the admin API rather than an inbox; (iii) at launch, one manual real-inbox reset to both a Gmail and an Outlook address, **checking the spam folder** — which is the same discipline `docs/LAUNCH-CHECKLIST.md` Phase 3 already requires for form delivery. |
 | **C8** | **Mailchimp has no test mode** | Only audience separation is possible, and a test audience cannot carry identical automated journeys unless they are rebuilt — and firing real journeys is exactly what isolation avoids. | The suite asserts the **contract**: the endpoint reports success and the contact appears in the **test** audience with the right tag and fields. Separately **diff the field and tag lists** between the two audiences (§5.4). Verify the live journeys once, manually, with the owner's own address. |
 | **C9** | **Two of the three Formspree forms are hardcoded** | The contact and community forms have no environment indirection, so Preview submissions reach the owner's real inbox. | **Accepted, known non-isolation**, with the owner's sign-off. Mitigate by tagging test submissions with an obvious marker (for example a `[PREVIEW TEST]` prefix) so the owner can filter them; or make the endpoint environment-driven in a later sprint. |
@@ -575,6 +784,9 @@ Honest list. Each gap is permanent, and each has a compensating check that cover
 | **C11** | **Public values are compiled into the build** | Preview and Production are separate builds with separately baked values. A dashboard change does **not** reach a deployment that already exists. | After changing any `NEXT_PUBLIC_*` value, **redeploy**, then assert the value **in the served page** (for example, read the rendered canonical/Open Graph tag) rather than trusting the dashboard. |
 | **C12** | **Data volume and shape** | Production accumulates real users; test starts empty. Query behaviour and "row already exists" edge cases differ. | Seed the §5.5 fixtures, and keep a periodic read-only production sanity query through the approved Profile B connection after launch. |
 | **C13** | **Runtime version drift** | Should be identical, but project settings can drift apart. | Pin the runtime version at the project level and confirm both environments report the same build image. |
+| **C14** | **A $0 / 100%-off checkout is not a payment, and it is the only payment this project plans to make** | This is the largest and least obvious hole in the whole plan, so state it in full. A checkout completed with a 100%-off promotion code **does** exercise: session creation, the redirect to Stripe, `checkout.session.completed`, webhook signature verification, the metadata round-trip, the entitlement write, and the return to the site. It **does not** exercise **any** of: a real charge, card entry and tokenisation, 3-D Secure / SCA, issuer declines, authorisation and capture, currency and tax handling, receipts, refunds, disputes, or payout. And for **Premium** it is worse than for the Course: `src/lib/stripe/checkout.ts` sets `payment_method_collection: "if_required"`, so a $0 subscription completes **with no payment method attached at all** (Known issue 34) — meaning the subscription that exists afterwards is one that **cannot renew**, and the renewal path is therefore not merely untested but not even represented. | Treat "the coupon test passed" as proof of **wiring**, never of **payments**. Then, separately: (i) run the **sandbox** decline and 3-D Secure cards, which is where card behaviour can be exercised for free; (ii) make the live pre-launch purchase at a **real non-zero amount** — a temporary $1 price, paid with a real card and refunded — because only a non-zero charge touches the parts listed above; (iii) delete any $0 test subscription rather than leaving it to fail at renewal (Known issue 34); (iv) accept that **renewal itself can never be observed before launch** and cover it with the C15 account checks plus a calendared first-renewal watch. Compounded by **Known issue 39** — the code has no handling for failed renewals — so nothing would surface the failure anyway. |
+| **C15** | **Stripe *account-level* readiness cannot be verified from this repository, from a test suite, or from any environment split** | Everything in §2 is about which credentials an environment holds. None of it says whether the **live account** is actually able to take and keep money. These are properties of the Stripe account and its onboarding state, they live behind the dashboard, and they are invisible to every test that can be written here — a checkout can succeed while payouts are frozen. The live account is also **shared with other projects**, so its state can be changed by work that has nothing to do with (Un)Retire. | A manual, dated, pre-launch dashboard check by the **owner**, recorded like a proof: **`charges_enabled` = true**; **`payouts_enabled` = true**; **`requirements.currently_due` is empty** (anything listed here is a deadline that will disable the account when it passes, and Stripe emails about it are easy to miss); a **bank account / payout destination is attached and verified**, with the payout schedule and currency as intended; and business/tax details complete. Re-check after any Stripe account change, and once more on launch day. Repeat the same check on the **sandbox** account only insofar as it affects test behaviour. |
+| **C16** | **The live webhook endpoint's own configuration is not covered by any variable** | `STRIPE_WEBHOOK_SECRET` being present proves a secret exists — it says nothing about the endpoint's **URL**, its **subscribed events**, or its **API version**. All three have already been wrong on this project: the URL pointed at a parked domain (Known issue 29), a wrong-mode duplicate existed (issue 30), and the live and sandbox endpoints still run different API versions (issue 31, Low). A legacy endpoint on the shared account is also still Active (issue 26). | Read the live endpoint's URL, event list and API version off the dashboard as part of the launch check, and again after any Stripe change. Assert **both** `checkout.session.completed` and `customer.subscription.deleted` are subscribed — a missing second event loses cancellations silently, which is the same failure shape as issue 39. |
 
 ---
 
@@ -582,9 +794,36 @@ Honest list. Each gap is permanent, and each has a compensating check that cover
 
 The owner's core fear, ranked by likelihood × damage. Every entry has a mitigation.
 
+> ### First, the harder version of that fear: **a payment test can PASS while the payment silently failed**
+>
+> Added 2026-08-25 after the independent review. Everything else in this section assumes a failure shows up as
+> *something*. Three defects, stacked, mean it need not — a test can go green, a browser can show a success
+> page, and Stripe can show "Delivered", while the customer has no access:
+>
+> 1. **Known issue 22 — the webhook returns HTTP 200 after a failed database write.** Neither Supabase write in
+>    `src/app/api/stripe/webhook/route.ts` inspects the returned error, and nothing calls `.throwOnError()`, so
+>    a failed entitlement write still ends in a 200. Stripe records the event as **Delivered and never
+>    retries**. There is no alert, no log entry, and no second chance. This is the root of the whole class.
+> 2. **Known issue 45 — the success banner is rendered from the URL, not from the data.**
+>    `src/app/account/page.tsx` shows "Payment successful" whenever `?checkout=success` is present in the query
+>    string, with no check that an entitlement row exists. Stripe always sends the customer to that URL after
+>    checkout. So the page **cannot** display anything but success, whatever happened in the database — and any
+>    test that asserts "the success message appeared" is asserting that Stripe performed a redirect.
+> 3. **Known issue 39 — no failed-renewal handling.** Access is granted on `checkout.session.completed` and
+>    revoked only on `customer.subscription.deleted`. `invoice.payment_failed`, `invoice.paid`, `past_due` and
+>    `unpaid` are not handled, so a Premium member whose renewal fails keeps access indefinitely. Nothing to
+>    test, because nothing is implemented.
+>
+> **What this means for how tests are written, and it is not optional:** the only trustworthy assertion for a
+> payment is **the entitlement row in the database**, plus the gated content actually rendering for that user.
+> A redirect, an HTTP 200, a Stripe "Delivered", and an on-screen success message are — on this codebase,
+> today — all compatible with total failure. §8 **P5** is written this way for exactly this reason; keep it
+> that way. All three are code defects, deliberately **not** fixed in this sprint; they belong to the
+> fix-and-improve stage that precedes testing activation.
+
 | Rank | The way a green suite still ships a broken Production | Mitigation |
 |---|---|---|
-| **1** | **The access-record table differs between test and production, and the suite cannot see it.** Production's definition has no committed SQL. If the real table lacks the exact unique constraint, the payment confirmation fails in production while a correctly built test table sails through. Made far worse by the fact that the webhook currently **does not read the database error** — a failed write is answered with a success code, so **Stripe never retries and nothing anywhere records the failure**. The customer pays and gets nothing. | Capture the production definition read-only, **commit it**, build test from the committed file (§5.1), and add a prod-vs-test schema and policy diff to the launch checklist. Separately: fix the swallowed error so a failed write returns a failure and Stripe retries — its own sprint (S4.3 / a bug-fix branch), not this document. |
+| **1** | **The access-record table differs between test and production, and the suite cannot see it.** Production's definition has no committed SQL. If the real table lacks the exact unique constraint, the payment confirmation fails in production while a correctly built test table sails through. Made far worse by the fact that the webhook currently **does not read the database error** — a failed write is answered with a success code, so **Stripe never retries and nothing anywhere records the failure**. The customer pays and gets nothing. | Capture the production definition read-only, **commit it**, build test from the committed file (§5.1), and add a prod-vs-test schema and policy diff to the launch checklist. Separately: fix the swallowed error so a failed write returns a failure and Stripe retries — **Known issue 22**, a code fix owned by the fix-and-improve stage, not by this document. |
 | **2** | **Auth settings differ — above all "Confirm email".** A suite built against confirm-email-OFF proves nothing about a production with it ON: signup would return "check your inbox" and no purchase would ever start. | The written parity table in §5.3, evidenced from both dashboards, plus one test asserting that observed post-signup behaviour matches the documented production setting. |
 | **3** | **The live-mode Stripe wiring is never actually exercised.** A wrong live key, a missing live endpoint, a live endpoint missing the cancellation event, or a stale live signing secret all leave a green test run completely untouched. | The C1 live smoke purchase, plus a dashboard check that the **live** endpoint carries **both** event types and logged a success, plus confirming the live access record landed. |
 | **4** | **The known broken paths hide behind shallow assertions.** Known issues 1 and 2 fail *identically* in both environments — so they are not a parity problem, but they are invisible unless the tests assert the right things. The post-payment landing page and the password-reset destination are stale `/unretire/*` paths that 404, and the book download always fails on a stale file path. | The suite must assert the **final landing page loads and shows the success message**, and that the book download returns an actual PDF — not that the browser reached Stripe. A test that stops at "redirected to Stripe" goes green while production is broken. Fixed in **S3.1**, before the Launch Gate run. |
@@ -595,28 +834,45 @@ The owner's core fear, ranked by likelihood × damage. Every entry has a mitigat
 | **9** | **Abuse controls (not built yet) behave differently.** Production will run a real bot check; Preview will use always-pass test keys. | Manual negative test on production plus a server-side test of the verification-failure path (§6 C10). |
 | **10** | **The free-tier test project pauses, or hits its email limit mid-run.** Produces **red** tests that look like app bugs — a false alarm, which is the safe direction, but it burns hours. | The C5 preflight health check with an explicit, unmistakable error message. |
 | **11** | **Region latency tempts someone to lengthen a timeout.** Low risk, conservative direction. | Record typical round-trips; never lengthen a timeout to make a test pass (§6 C4). |
-| **12** | **Subscription lifecycle is only half-implemented — a real gap, not a test gap.** The webhook handles only "checkout completed" and "subscription deleted". There is no handling of a failed renewal payment or a subscription going past-due, so **a Premium member whose card fails keeps access indefinitely** until Stripe deletes the subscription outright. No test can surface a case the code does not implement. | A product decision, not a testing one. Record it and decide before launch whether to handle subscription-updated and failed-payment events. Belongs in `docs/POST-LAUNCH-BACKLOG.md` or a pre-launch sprint. |
+| **12** | **Subscription lifecycle is only half-implemented — a real gap, not a test gap.** The webhook handles only "checkout completed" and "subscription deleted". There is no handling of `invoice.payment_failed`, `invoice.paid`, a subscription moving to `past_due`/`unpaid`, or a delayed-payment outcome — so **a Premium member whose card fails keeps access indefinitely** until Stripe deletes the subscription outright. No test can surface a case the code does not implement. | **Known issue 39.** A product decision as much as a code one: decide before launch whether to handle the renewal and failed-payment events. Compounded by C14 — the $0 test subscription has no payment method, so even a manual renewal cannot be observed pre-launch. Until it is implemented, the only detection is the owner reading Stripe's own subscription list. |
+| **13** | **The suite asserts the success *page*, not the entitlement — so it passes when the payment silently failed.** See the callout at the top of this section. The webhook answers 200 after a failed write (**issue 22**), and `/account` prints "Payment successful" from the query string alone (**issue 45**), so every visible signal a test can reach is compatible with the customer having no access. This outranks every other row here: it does not merely let a production bug through, it makes the test **actively misleading**. | Assert the **database row** and the **gated content rendering**, never the redirect or the banner (§8 P5). Treat a payment test that does not read the database as no test at all. |
+| **14** | **The pre-launch "real purchase" is a $0 coupon, so it proves the wiring and none of the money.** No charge, no card, no 3-D Secure, no capture, no payout — and for Premium, `payment_method_collection: "if_required"` means no payment method is collected at all, so the resulting subscription cannot renew (issue 34). Green everywhere; the first real customer is still the first real charge. | §6 **C14** in full: sandbox decline + 3-D Secure cards, and one **non-zero** live purchase (temporary $1 price, real card, refunded) before launch. Delete the $0 subscription afterwards. |
+| **15** | **The live Stripe account cannot take or keep money, and nothing in the repo can tell.** `charges_enabled` false, `payouts_enabled` false, an unmet `requirements.currently_due` deadline, or no verified bank account — each is invisible to every environment variable, every test, and every code review. The account is shared with other projects, so its state can change without anyone touching this repo. | §6 **C15**: a dated manual dashboard check by the owner before launch and after any Stripe account change. Record it beside the §8 proofs, because it has the same weight as one. |
+| **16** | **The live webhook endpoint drifts — wrong URL, missing event, different API version.** Already happened three times on this project (issues 29, 30, 31); a legacy endpoint on the shared account is still Active (issue 26). A Preview suite cannot see any of it. | §6 **C16**: read the live endpoint's URL, subscribed events and API version off the dashboard at launch and after every Stripe change. |
 
 ### The honest residual risk
 
 State it in these words, because pretending it is zero is how launches go wrong.
 
 **A green Preview suite proves the application logic and the wiring of the test-mode dependencies. It cannot
-prove:** the live Stripe credentials, the live webhook endpoint, the production domain, real card-issuer
-behaviour (3-D Secure, declines, fraud rules), real email deliverability and spam placement, real bot
-traffic, or production data volume.
+prove:** the live Stripe credentials, the live webhook endpoint's URL / events / API version, **the live
+Stripe account's ability to charge and pay out** (`charges_enabled`, `payouts_enabled`,
+`requirements.currently_due`, a verified bank account — §6 C15), the production domain, real card-issuer
+behaviour (3-D Secure, declines, fraud rules), **anything about a real charge if the test purchase was a $0
+coupon** (§6 C14), **subscription renewal** — which is unimplemented as well as untested (issue 39), real email
+deliverability and spam placement, real bot traffic, or production data volume.
+
+**And one thing it cannot prove even about Preview**, which is the uncomfortable one: while issues 22 and 45
+stand, a green payment test does not prove the payment worked *there* either. Fix those before trusting any
+payment result from any environment.
 
 **What covers the residual, and nothing else does:**
 
 1. **The Production smoke test** on the real domain, same day — `docs/LAUNCH-CHECKLIST.md` Phase 3. It
    already requires a real external-address submission delivered to an inbox, the full sitemap over HTTPS,
    the canonical/Open Graph URLs showing the new domain, and live-domain sign-up / sign-in / reset.
-2. **One real manual purchase on the live site** — a live card, a $1 price or a 100%-off code, refunded
-   afterwards; confirmed by a success in the **live** Stripe dashboard **and** the access record appearing in
-   `unretire-prod` **and** the member actually reaching the content. This is the C1 compensating check.
+2. **One real manual purchase on the live site** — a live card at a **non-zero** amount (a temporary $1 price),
+   refunded afterwards; confirmed by a success in the **live** Stripe dashboard **and** the access record
+   appearing in `unretire-prod` **and** the member actually reaching the content. This is the C1 compensating
+   check. ⚠ **A 100%-off code does not substitute for this** — it skips the card, 3-D Secure, capture and
+   payout entirely, and for Premium collects no payment method at all (§6 C14). Use a coupon only as an
+   *additional* wiring check, never as the money check.
    ⚠ **`docs/LAUNCH-CHECKLIST.md` Phase 3 does not yet carry this line** — it covers forms, not payments.
    Adding it is required bookkeeping (§9).
-3. **The daily morning check** after launch — the 5–7 most critical tests re-run against the live site every
+3. **The §6 C15 account-readiness check**, dated and recorded — `charges_enabled`, `payouts_enabled`, an empty
+   `requirements.currently_due`, and a verified payout destination. A perfect purchase test on an account that
+   cannot pay out is a business failure that no engineering check catches.
+4. **The daily morning check** after launch — the 5–7 most critical tests re-run against the live site every
    morning, emailing the owner only on failure, per `docs/testing-setup/TESTING-GUIDE.md` §5 and Sprint S5.2.
    Silence means green. This is what catches the payment path that quietly stops working three weeks after
    launch.
@@ -635,21 +891,28 @@ that confirmation is actually performed on this project.
 
 Record the results in the PR that ships the wiring, or in `docs/PROJECT-STATUS.md`.
 
+> **Recording status, 2026-08-25: nothing here is PASS.** The configuration those proofs test now exists (§4),
+> which is a different claim. **P13** is half-recorded (`unretire-prod` yes, `unretire-test` no); **P12**'s
+> scope half is recorded; every other proof is unrun. Two are currently blocked rather than merely pending —
+> **P3** needs `unretire-test`'s URL Configuration, and **P4/P5/P6** need a built `staging` deployment (Known
+> issue 32). Sprint **S2.5** owns closing this table. Until then, no statement anywhere in this project may
+> describe environment isolation as *verified* — only as *configured*.
+
 | # | Proof | How to run it | PASS looks like | FAIL means |
 |---|---|---|---|---|
 | **P1** | **The Preview deployment resolves to the test project** | On the deployed Preview `[PREVIEW_URL]`, inspect the served page for the Supabase project reference (it is a public value and appears in the deployment's own configuration listing). Compare against both refs. | The reference is **`dtdadtggahjsrmevwvbu`** (`unretire-test`). | It still shows `hcjivvlwxltyiycfbttc` — Phase A did not take effect, most likely because the Preview was not redeployed. Stop. |
 | **P2** | **A test signup lands in TEST and is absent from PROD** | Sign up on `[PREVIEW_URL]` with an obviously-fake address. Then look in **both** Supabase dashboards. | The new user exists in `unretire-test` and **does not exist** in `unretire-prod`. | Preview is still writing to production. Stop everything and re-check P1. This is the definitive test — `docs/SUPABASE-VERCEL-SETUP.md` B6 already names it as the wiring verification. |
-| **P3** | **Preview auth emails return to the Preview** | From the P2 signup (or a password reset), inspect the link in the email. | The link's host is the Preview origin — **not** `unretireproject.com` and **not** `localhost`. | The `unretire-test` redirect allow-list is missing the Vercel preview wildcard, so Supabase silently fell back to that project's Site URL (§5.3a). **This proof fails today by construction** — the allow-list is empty in both projects. |
+| **P3** | **Preview auth emails return to the Preview** | From the P2 signup (or a password reset), inspect the link in the email. | The link's host is the Preview origin — **not** the production origin and **not** `localhost`. | The `unretire-test` redirect allow-list is missing the Vercel preview wildcard, so Supabase silently fell back to that project's Site URL (§5.3a). ~~**This proof fails today by construction** — the allow-list is empty in both projects.~~ **Updated 2026-08-25:** `unretire-prod` is now configured, but **`unretire-test` is still unevidenced**, so this proof remains expected-to-fail until that project's URL Configuration is done (§5.3a click-path, second pass). |
 | **P4** | **A Preview payment appears only in Stripe TEST mode** | Complete a checkout on `[PREVIEW_URL]` with the standard test card. Check the Stripe dashboard in **both** modes. | The payment appears under **test mode** and **nothing** appears in live mode. | A live key reached Preview. Stop immediately — this is a real-money leak, and `docs/ENV-VARS-SAFETY.md`'s leak procedure applies (rotate first). |
-| **P5** | **The payment actually granted access — in the test database** | After P4, check `unretire-test` for the access record, and load the gated content as that fixture user. | The record exists with status active, and the gated page opens. | The webhook did not deliver or the write failed. Check the Stripe endpoint's delivery log; remember the "invalid signature" message can actually mean a missing key (§3 Gap 2), and that a database write error is currently answered with a success code (§7 risk 1) — so a green delivery log does **not** prove the write. |
-| **P6** | **The webhook endpoint is reachable through Preview protection** | Send an unauthenticated request to the Preview webhook URL, including the bypass query parameter. | It is handled by the application (a signature rejection is fine — it proves the request reached the app), **not** answered with a login page. | The bypass is header-only or missing (§6 C3). |
+| **P5** | **The payment actually granted access — in the test database** ⚠ **the single most important proof in this table** | After P4, check `unretire-test` for the access record, and load the gated content as that fixture user. **Read the database. Do not accept the redirect, the HTTP 200, Stripe's "Delivered", or the "Payment successful" banner** — with Known issues 22 and 45 open, all four are printed regardless of whether the write succeeded (§7 callout). | The record exists with status `active`, **and** the gated page opens for that user. | The webhook did not deliver, or the write failed and was silently swallowed. Check the Stripe endpoint's delivery log; remember the "invalid signature" message can actually mean a missing key (§3 Gap 2 / Known issue 36), and that a database write error is currently answered with a success code (§7 risk 1, Known issue 22) — so a green delivery log does **not** prove the write. Today, delivery is additionally impossible until Known issue 32 is cleared. |
+| **P6** | **The webhook endpoint is reachable through Preview protection** | Send an unauthenticated request to the Preview webhook URL, including the bypass query parameter. | It is handled by the application (a signature rejection is fine — it proves the request reached the app), **not** answered with a login page. | The bypass is header-only or missing (§6 C3). **2026-08-25:** the bypass secret now exists in the Preview scope, so this proof has become runnable — but it needs a built `staging` deployment first (Known issue 32), and it must be run against the **query-parameter** form, because that is the only form Stripe can use. |
 | **P7** | **A Preview email capture lands in the TEST audience only** | Submit an email-capture form on `[PREVIEW_URL]`. Check both Mailchimp audiences. | The contact appears in the **test** audience with the right tag; the live audience is unchanged. | `MAILCHIMP_LIST_ID` was not split. |
 | **P8** | **The two databases match structurally** | Diff `unretire-test` against `unretire-prod`: table definitions, constraints, indexes, RLS enabled state, and the full policy list on both tables. | No differences on the items listed in §5.1 and §5.2. | The suite is testing a different shape from the one that ships — §7 risk 1. Reconcile before running anything. |
 | **P9** | **The auth-settings parity table is filled and evidenced** | Walk §5.3's table in both dashboards and record each pair. | Every row matches, or a difference is recorded with an explicit reason and a compensating check. | Unknown behaviour differences — §7 risk 2. |
 | **P10** | **Production has no deployment protection and Preview does** | Request the production URL without any bypass. | Production serves the page directly; Preview does not. | Both request paths are not being covered (§6 C3). |
 | **P11** | **The test project is awake** | Preflight ping of `unretire-test` before every suite run. | Responds normally. | Free-tier auto-pause (§6 C5) — resume it and re-run, rather than debugging phantom app errors. |
-| **P12** | **No live-keyed value is present in Preview** | Review the Preview scope's variable list in Vercel — **names and scopes only, never values**. | All eleven names present; the Supabase, Stripe and audience entries are Preview-scoped and distinct from Production. | Stop and report — an explicit blocker per `docs/testing-setup/SETUP-CHECKLIST.md` Part 2. |
-| **P13** | **Both Supabase projects have a real Site URL and a correct redirect allow-list** — the settings §5.3a covers, which no environment variable can substitute for | Open **Authentication → URL Configuration** in each project and read the Site URL and the full Redirect URLs list back against the §5.3a table. Then confirm a **production** password-reset email link resolves to `https://unretireproject.com/auth/confirm?next=…` and not to localhost. | `unretire-prod`: Site URL `https://unretireproject.com`, allow-list contains the apex `/**` entry and **no** localhost or `*.vercel.app` entry. `unretire-test`: Site URL is the Preview branch alias, allow-list contains localhost, the branch alias, and the `*.vercel.app` preview wildcard, and **not** the production domain. | **Known issue 23 is still open.** Auth email links are being silently rewritten to whatever the Site URL happens to be. Production is broken for real users; a Preview suite would meanwhile chase auth failures that are configuration, not code. Fix before anything else in §8 is worth recording. |
+| **P12** | **No live-keyed value is present in Preview** | Review the Preview scope's variable list in Vercel — **names and scopes only, never values**. | The Supabase, Stripe and audience entries are Preview-scoped and distinct from Production; `NEXT_PUBLIC_SITE_URL` is absent by design and `NEXT_PUBLIC_FORMSPREE_ENDPOINT` is absent pending Gap 4. **Partially recorded 2026-08-25** — the scopes match (§2B), but a names-only listing cannot show that the Preview *values* are the test ones, which is what P1, P4 and P7 exist to demonstrate. | Stop and report — an explicit blocker per `docs/testing-setup/SETUP-CHECKLIST.md` Part 2. |
+| **P13** | **Both Supabase projects have a real Site URL and a correct redirect allow-list** — the settings §5.3a covers, which no environment variable can substitute for | Open **Authentication → URL Configuration** in each project and read the Site URL and the full Redirect URLs list back against the §5.3a table. Then confirm a **production** password-reset email link resolves to `https://unretire.vercel.app/auth/confirm?next=…` (the live origin; the custom domain once DNS moves) and not to localhost. | `unretire-prod`: Site URL is the live origin, allow-list contains it plus both future custom-domain entries. `unretire-test`: Site URL is the Preview branch alias, allow-list contains localhost, the branch alias, and the `*.vercel.app` preview wildcard, and **not** the production domain. | ~~**Known issue 23 is still open.**~~ **Half-recorded 2026-08-25:** `unretire-prod` **PASSES** on Site URL and on the removal of the legacy hosts (Known issue 28 resolved), with a noted exception — `localhost:3000/**` and the Preview wildcard are still on the production list, knowingly (§5.3a, outstanding item 2). **`unretire-test` is NOT recorded** and this proof cannot be closed until it is. ⚠ Passing P13 does **not** make auth redirects safe — the app's own `next` handling is separately defective (Known issue 38, §5.3b). |
 
 **Re-run P1, P2, P4 and P8 after any environment change and after any migration.** They are cheap, and they
 are the only things standing between a test run and production data.
@@ -671,15 +934,22 @@ This file is documentation only; it changes no configuration by itself. The foll
 |---|---|---|---|
 | 1 | ~~Correct the env-var table in `docs/PROJECT-STATUS.md` §9 — the four Stripe rows are **Production only**, and `NEXT_PUBLIC_SITE_URL` / `NEXT_PUBLIC_FORMSPREE_ENDPOINT` are **not set anywhere**~~ | agent, in the sprint that owns that file | **DONE 2026-08-25** — `docs/PROJECT-STATUS.md` §9 now carries the corrected scopes plus a note on the Vercel Secret-vs-Config type (Known issue 24) |
 | 2 | ~~Correct the same rows in `docs/TECH-ARCHITECTURE.md` §6, and flip §4's *"Local, Preview, and Production do not share writable production data — Unverified"* to **verified false, remediation tracked here**~~ | agent, same sprint | **DONE 2026-08-25** — `docs/TECH-ARCHITECTURE.md` §6 now states *current state vs intended* per row, §4's checkbox reads verified FALSE, and §1 carries the resolved production domain |
-| 3 | Add the **live manual purchase** line to the post-launch smoke test — the checklist currently verifies forms, not payments | agent, launch sprint | `docs/LAUNCH-CHECKLIST.md` Phase 3 |
-| 4 | Run the §4 owner checklist in the dashboards | **owner** | Vercel / Stripe / Supabase / Mailchimp |
+| 3 | Add the **live manual purchase** line to the post-launch smoke test — the checklist currently verifies forms, not payments. Write it as a **non-zero** charge (temporary $1 price, real card, refunded); a 100%-off code does not satisfy it (§6 C14) | agent, launch sprint | `docs/LAUNCH-CHECKLIST.md` Phase 3 |
+| 4 | ~~Run the §4 owner checklist in the dashboards~~ | **owner** | ✅ **DONE 2026-08-25** — Supabase split, four sandbox Stripe entries added to Preview, Mailchimp entries added to Preview, `NEXT_PUBLIC_SITE_URL` set in Production, automation bypass provisioned, public variables retyped Config. **Three residuals remain, listed at the top of §4**: `staging` has no deployment (issue 32), the Mailchimp audience split is unproven (P7), and **no §8 proof has been run** (S2.5) |
 | 5 | Capture and commit the production `entitlements` definition, then build the test project from it | agent + owner approval | Sprint **S4.3** |
 | 6 | Record the §8 proof results with dates | agent | the wiring PR, or `docs/PROJECT-STATUS.md` |
-| 7 | Decide whether to handle failed-renewal / subscription-updated events before launch (§7 risk 12) | **owner** | new decision entry, or `docs/POST-LAUNCH-BACKLOG.md` |
+| 7 | Decide whether to handle failed-renewal / subscription-updated events before launch (§7 risk 12) — **Known issue 39**; note that a Premium member whose renewal fails keeps access today | **owner** | new decision entry, or `docs/POST-LAUNCH-BACKLOG.md` |
 | 8 | Record the Formspree non-isolation (§6 C9) as accepted, with the owner's sign-off | **owner** | `docs/PROJECT-STATUS.md` open decisions |
-| 9 | **Configure Site URL + the redirect allow-list in BOTH Supabase projects** (§5.3a) — the production project is currently sending every auth email link to `http://localhost:3000`. **This is the only item in this table that is fixing a live production defect.** | **owner** | Supabase dashboard → Authentication → URL Configuration. Tracked as Known issue 23 / decision **D-14**; proven by §8 **P3** and **P13** |
-| 10 | Change the Vercel variable **Type** of `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from **Secret** to **Config** — both are public by design, which is what Vercel's red prefix warning is asking about. Leave `SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and `MAILCHIMP_API_KEY` as **Secret** | **owner** | Vercel → Settings → Environment Variables. Known issue 24 |
-| 11 | Set `NEXT_PUBLIC_SITE_URL` in **Production** to `https://unretireproject.com` now that D-2 is resolved, then redeploy; leave Preview unset (§2A row 10) | **owner** | Vercel. Closes Known issue 19 and the Production half of D-13 |
+| 9 | ~~**Configure Site URL + the redirect allow-list in BOTH Supabase projects** (§5.3a) — the production project is currently sending every auth email link to `http://localhost:3000`.~~ | **owner** | 🟡 **HALF DONE 2026-08-25.** `unretire-prod` configured — Site URL `https://unretire.vercel.app` plus a five-entry allow-list; the live production defect is fixed and the two legacy hosts are gone (Known issue 28 resolved). **`unretire-test` is still to do**, so §8 **P3** cannot pass. ⚠ Known issue 23's *configuration* half is closed; its embedded claim that the app's `next` handling is "not an open redirect" is **wrong and retracted** — see §5.3b and Known issue 38 |
+| 10 | ~~Change the Vercel variable **Type** of `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from **Secret** to **Config**~~ | **owner** | ✅ **DONE 2026-08-25** — all three `NEXT_PUBLIC_*` variables in Production are typed **Config**; `SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and `MAILCHIMP_API_KEY` remain **Secret**, as required. Known issue 24 resolved |
+| 11 | ~~Set `NEXT_PUBLIC_SITE_URL` in **Production**, then redeploy; leave Preview unset (§2A row 10)~~ | **owner** | ✅ **DONE 2026-08-25** — set to the live origin (not the custom domain, which is still parked). Closes Known issue 19 and the Production half of D-13. **Two follow-ups:** remove the trailing slash (Known issue 35), and change the value when DNS moves |
+| 12 | **Land one commit on `staging`** so Vercel builds its branch alias and the sandbox Stripe webhook has a target — until then no Preview payment can complete | **owner / agent** | GitHub. Known issue **32**; unblocks §8 P4, P5, P6 |
+| 13 | **Configure `unretire-test`'s Site URL + redirect allow-list** (the second pass of the §5.3a click-path) | **owner** | Supabase dashboard. Unblocks §8 **P3** |
+| 14 | **Run the §8 proofs and record each with a date** — the one thing that converts "configured" into "verified" | agent + owner | Sprint **S2.5**. Nothing in the Launch Gate may start before this |
+| 15 | **Prove the Mailchimp audience split** (§8 P7) and diff the test audience's merge fields and tags against live (§5.4) | agent + owner | Mailchimp. §2B row 9 stays PARTIAL until then |
+| 16 | **Record the §6 C15 Stripe account-readiness check** — `charges_enabled`, `payouts_enabled`, empty `requirements.currently_due`, verified payout destination | **owner** | Stripe dashboard, before launch and after any account change |
+| 17 | **Tighten the production redirect allow-list** — remove `http://localhost:3000/**` and the Preview wildcard once `unretire-test` carries Preview auth and DNS has moved (§5.3a outstanding item 2) | **owner** | Supabase dashboard. Hygiene follow-up to Known issue 28 |
+| 18 | **Correct the retracted open-redirect claim wherever it was repeated** — `docs/PROJECT-STATUS.md` Known issue 23 and `docs/TECH-ARCHITECTURE.md` both state the app's `next` handling is safe; it is not (§5.3b, Known issue 38) | agent, in the sprints owning those files | Visible correction, not a silent edit |
 
 **Reference for this document's own delivery:** branch `[BRANCH]`, PR `#[PR_NUMBER]` (`[PR_URL]`), head
 `[HEAD_SHA]`, Preview `[PREVIEW_URL]`, reviewed `[DATE]`.
