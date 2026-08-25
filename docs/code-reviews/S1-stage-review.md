@@ -11,13 +11,19 @@
 > `R1`–`R7` **plan** elsewhere is stale (see focus item 8).
 
 > **Reviewed head — read this first.** The **substantive** head of Stage 1 is
-> `f01f139475a03b3f5277d6148b70c6f82a77fb30` — every file the stage delivers is in it. The branch tip may
+> `b6594b593d0e1980986d8bfb54411aa42ebb3ebb` — every file the stage delivers is in it. The branch tip may
 > sit one or more commits later; those later commits touch **only this review record** (pinning SHAs,
 > appending the returned verdict). Per `docs/WORKFLOW.md`, a commit that only appends the review record does
 > not invalidate the reviewed range. So: review `0983ad55…..f01f1394…`, and treat any commit after
-> `f01f139` as in-scope only to confirm it changed nothing but this file (`git diff f01f139..HEAD --name-only`
+> `b6594b5` as in-scope only to confirm it changed nothing but this file (`git diff f01f139..HEAD --name-only`
 > must list `docs/code-reviews/S1-stage-review.md` and nothing else — if it lists anything else, that is a
 > Blocking target mismatch: stop and report it).
+
+> **Scope note (added 2026-08-25):** after the initial docs-pack commit the branch also carries two
+> substantive commits, both in scope and both documentation/config only: `acc0a2a` completes the
+> `env.example` → `.env.example` rename and adds the `!.env.example` whitelist to `.gitignore`
+> (git records it as `R100` — a byte-identical rename); `b6594b5` records owner decisions D-8, D-10
+> and D-11 in the trackers. Both are inside the pinned range below.
 
 > **Status: READY TO SEND.** Branch pushed 2026-08-25. Fill `[PR_NUMBER]`/`[PR_URL]` and the Preview
 > result once the PR is opened and its Vercel Preview is tested, then hand this file to Codex.
@@ -36,8 +42,8 @@ range; inspect enough surrounding context to validate them without starting an u
 - PR: #[PR_NUMBER] — [PR_URL]  *(to fill when opened)*
 - Branch: claude/r1-system-retrofit (context only — created on owner authorization; old ID retained deliberately)
 - Merge-base SHA: 0983ad557218666b63cb5b6d3db9152041865bb9
-- Reviewed head SHA: f01f139475a03b3f5277d6148b70c6f82a77fb30
-- Immutable range: 0983ad557218666b63cb5b6d3db9152041865bb9..f01f139475a03b3f5277d6148b70c6f82a77fb30
+- Reviewed head SHA: b6594b593d0e1980986d8bfb54411aa42ebb3ebb
+- Immutable range: 0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb
 - Sprint record: docs/sprint-prompts/R1-system-retrofit.md
 - Expected changed paths: `CLAUDE.md`, `AGENTS.md`, `env.example` (created); `README.md` (modified);
   `docs/**` (47 files on disk as of 2026-08-25); `.claude/skills/**` (5 files).
@@ -216,7 +222,7 @@ Any one of these is **STAGE NOT APPROVED**, regardless of how much else is right
 
 Begin with:
 
-- Confirmed range: 0983ad557218666b63cb5b6d3db9152041865bb9..f01f139475a03b3f5277d6148b70c6f82a77fb30
+- Confirmed range: 0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb
 - Scope match: [YES / NO — explanation]
 - Files/context inspected: [LIST]
 - Commands/evidence checked: [RESULTS_AND_SKIPS]
@@ -240,7 +246,7 @@ one of:
 **Verdict: STAGE APPROVED** — [ONE_LINE_REASON].
 **Verdict: STAGE NOT APPROVED** — [ONE_LINE_REASON].
 
-Reviewed range: 0983ad557218666b63cb5b6d3db9152041865bb9..f01f139475a03b3f5277d6148b70c6f82a77fb30 · Stage S1 — System Integration · Reviewed by [REVIEWER] on [DATE].
+Reviewed range: 0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb · Stage S1 — System Integration · Reviewed by [REVIEWER] on [DATE].
 
 STAGE NOT APPROVED blocks the merge and Stage 2 does not open until the findings are fixed and a new head is
 reviewed. The owner or builder appends this returned record to
