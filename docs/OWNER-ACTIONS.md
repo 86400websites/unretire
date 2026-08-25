@@ -160,6 +160,30 @@ webhook pointed at it would break. The fix is a permanent branch that always has
 
 ---
 
+## PART 4B — 🚀 THE DAY YOUR DOMAIN GOES LIVE
+
+Save this. When DNS is done and `https://www.unretireproject.com` shows your site (not the GoDaddy page),
+do exactly these five, in this order. **You do not touch any secret — every value here is a public address.**
+
+- [ ] **L1** Vercel → Environment Variables → `NEXT_PUBLIC_SITE_URL` (Production) →
+      change to `https://www.unretireproject.com`
+- [ ] **L2** Supabase → **unretire-prod** → Authentication → URL Configuration →
+      **Site URL** → change to `https://www.unretireproject.com` → Save
+      *(Leave the redirect list alone — `unretire.vercel.app/**` stays as a useful fallback.)*
+- [ ] **L3** Stripe → **live mode** → Webhooks → **brilliant-splendor** → Update details →
+      Endpoint URL → `https://www.unretireproject.com/api/stripe/webhook` → Save
+      *(Signing secret is preserved, so no Vercel change is needed — same as last time.)*
+- [ ] **L4** Vercel → Deployments → newest **Production** deployment → **Redeploy**
+- [ ] **L5** Tell me. I verify the domain, the webhook endpoint and the login links end to end.
+
+> **That's the whole list.** Your instinct was right — it is the Supabase URL and the Stripe webhook, plus
+> the site-URL variable and a redeploy. Nothing else moves.
+>
+> **Nothing here touches the Sandbox setup.** Test webhooks keep pointing at the `staging` address forever;
+> that is the entire reason we used a permanent branch.
+
+---
+
 ## PART 5 — Later, when we reach testing
 
 Nothing to do now. When we get there I will walk you through creating two fake test users in
