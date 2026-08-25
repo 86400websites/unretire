@@ -13,10 +13,10 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 
 | Thing | State |
 |---|---|
-| Live site `www.unretireproject.com` | Live and serving |
+| Live site | Served at **`https://unretire.vercel.app`** — working. The custom domain is NOT connected yet (Part 4). |
 | Live Stripe product **UnRetire — Course** | $99 USD, one-time — correct |
 | Live Stripe product **UnRetire — Premium** | $199 USD, **per year** — correct |
-| Live webhook `brilliant-splendor` to `www.unretireproject.com/api/stripe/webhook` | Active, 0% errors |
+| Live webhook `brilliant-splendor` | ⚠ **Points at a dead address — fix in Part 1A below.** |
 | Sandbox products **Course (Test)** $99 and **Premium (Test)** $199/yr | Already exist |
 | GitHub branch protection on `master` | Done |
 | `.env.example` and the 5 Claude skills in the repo | Done — every clone gets them |
@@ -31,119 +31,132 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 
 ---
 
-## PART 1 — DO NOW, to finish Stage 1 · about 10 minutes
+## PART 1A — 🔴 DO THIS FIRST · 2 minutes · live payments are affected
 
-*Why: the reviewer cannot approve the pull request until it can actually see the Preview site working.*
+I traced where your live Stripe webhook actually lands. It is configured to
+`https://www.unretireproject.com/api/stripe/webhook`, but that address is not connected to your site yet —
+a request there gets redirected once and then hits a **GoDaddy "page not found"**.
 
-- [ ] **1.1** Vercel → project **unretire** → **Settings** → **Deployment Protection**.
-- [ ] **1.2** Find **Protection Bypass for Automation** → turn it **ON** → generate the secret.
-- [ ] **1.3** Copy that secret into Vercel → **Settings** → **Environment Variables** → **Add New**:
-      Name `VERCEL_AUTOMATION_BYPASS_SECRET`, tick **Preview** only, Type **Secret**.
-      *(Do not paste it in chat. I only ever refer to it by name.)*
-- [ ] **1.4** Tell me **"bypass is on"**, plus the **pull request number** (top of the PR page, e.g. `#43`).
-- [ ] **1.5** After I record the Preview evidence, re-run the Codex review, then **merge the PR yourself**.
+**What that means:** if a real customer pays today, Stripe cannot tell your site about it, so the customer
+is charged and **does not get access**. (Checkout itself works fine — it is only the "tell the site" step
+that is broken.)
 
-> **Why 1.1–1.3:** your Preview site currently shows a Vercel login screen, so no robot — and no reviewer —
-> can open it. This switch keeps Preview private from the public but lets our automated tests in.
+- [ ] **1A.1** Stripe → **live mode** (not Sandbox) → **Developers** → **Webhooks** → click
+      **brilliant-splendor** → **Update details** → change the URL to exactly:
+      `https://unretire.vercel.app/api/stripe/webhook` → Save.
 
----
+> **Why this is safe:** editing the address keeps the same signing secret, so nothing in Vercel needs to
+> change. You are touching one field on one destination. No other project is affected.
 
-## PART 2 — Supabase login links · about 10 minutes · FIXES A LIVE BUG
+> ⚠ **Do not delete the `charming-dream` destination** (the half-a-life one) yet. It is still reachable and
+> may be the only thing currently granting access to anyone who has paid. We remove it *after* 1A.1 is
+> verified working.
 
-*Why: right now the "confirm your email" and "reset your password" links you send real customers point at
-`localhost:3000` — a page that only exists on a developer's laptop. Nobody can reset a password today.*
-
-### 2A — Production project (`unretire-prod`)
-
-- [ ] **2.1** Supabase → project **unretire-prod** → **Authentication** → **URL Configuration**.
-- [ ] **2.2** Set **Site URL** to exactly `https://www.unretireproject.com` → **Save changes**.
-- [ ] **2.3** Under **Redirect URLs** click **Add URL** for each of these, one at a time:
-  - `https://www.unretireproject.com/**`
-  - `https://unretireproject.com/**`
-  - `https://*-86400-s-projects.vercel.app/**`
-
-### 2B — Test project (`unretire-test`)
-
-- [ ] **2.4** Supabase → project **unretire-test** → **Authentication** → **URL Configuration**.
-- [ ] **2.5** Set **Site URL** to `http://localhost:3000` → **Save changes**.
-- [ ] **2.6** Add these **Redirect URLs**:
-  - `http://localhost:3000/**`
-  - `https://*-86400-s-projects.vercel.app/**`
-
-> Password reset will still be broken after this — it *also* points at an old web address that no longer
-> exists. I fix that half in the code (Stage 3). **Both** are needed. This half is yours.
+- [ ] **1A.2** Tell me when done — I will verify the endpoint responds correctly, and we can check Stripe's
+      recent events together to see whether anyone paid without getting access.
 
 ---
 
-## PART 3 — Separate Preview from Production · about 20 minutes · ORDER MATTERS
+## PART 1 — Stage 1 · ALMOST DONE
 
-*Why: today your Preview site is wired to your **real** database. Any test would create real users and real
-purchase records in live data. This section moves Preview onto the test database.*
+- [x] **1.1–1.3** Protection Bypass enabled ✓
+- [x] **1.4** PR is **#1** — https://github.com/86400websites/unretire/pull/1 ✓ (I looked it up, no need to send it)
+- [ ] **1.5** Re-run the Codex review with the prompt I give you, then **merge PR #1 yourself**.
 
-> ### Do 3A completely before starting 3B.
-> If you add Stripe test keys while Preview is still on the real database, test payments would write
-> **real access rights** into your live customer data.
+---
 
-### 3A — Point Preview at the test database
+## PART 2 — Supabase login links · REVIEWED
 
-First open Supabase → **unretire-test** → **Settings** → **API Keys** and keep that tab open.
+### 2A — Production (`unretire-prod`) — two entries to REMOVE
 
-Then, in Vercel → **Settings** → **Environment Variables**, do these two steps for **each** of the three
-names below:
+Site URL `https://www.unretireproject.com` ✓ and 7 redirect URLs. Five are right. Two should go:
 
-- [ ] **3.1** Click the existing variable → **Environments** → **untick Preview** (leave Production ticked) → **Save**.
-- [ ] **3.2** Click **Add New** → type the **same name**, spelled identically → paste the **unretire-test**
-      value → tick **Preview** only → set the Type from the table → **Save**.
-- [ ] **3.3** Repeat 3.1 and 3.2 for all three.
+- [ ] **2.7** Delete `https://half-a-life.vercel.app/**` — I checked it: that address serves a **different
+      website** ("Half a Life"), which you confirmed is now a separate repo. Any address on this list is
+      allowed to receive a login token, so leaving someone else's site on it is a needless risk.
+- [ ] **2.8** Delete `https://*-86400websites.vercel.app/**` — an old Vercel account name. Yours is now
+      `86400-s-projects`, which is already on the list. *(If you still use that older account for this
+      project, tell me and we keep it.)*
 
-| Name | Type |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | **Config** |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **Config** |
-| `SUPABASE_SECRET_KEY` | **Secret** |
+- [ ] **2.9** ⚠ Change **Site URL** to `https://unretire.vercel.app` for now. Your custom domain is not
+      live yet (see Part 4) — it currently shows a GoDaddy "Launching Soon" page. We switch Site URL to
+      the real domain on the day DNS goes live. **Keep all the unretireproject.com entries in the redirect
+      list** — they cost nothing and will be needed.
 
-> **Keep the names exactly the same.** The code looks for those precise spellings. Picture one labelled box
-> whose contents differ depending on which room it sits in — Vercel's Preview/Production tickboxes *are* the
-> separation. Renaming anything to "…_TEST" would break the site.
+> ✓ Keep these five: `www.unretireproject.com/**`, `unretireproject.com/**`,
+> `*-86400-s-projects.vercel.app/**`, `unretire.vercel.app/**`, `localhost:3000/**`
 
-> **About Vercel's red warning:** the two `NEXT_PUBLIC_…` values are meant to be public (a web address and a
-> restricted key), so set them to **Config**. That is exactly what the warning is asking for, and it is safe.
-> `SUPABASE_SECRET_KEY` stays **Secret**.
+### 2B — Test (`unretire-test`) — ✅ perfect, nothing to do
 
-### 3B — Give Preview its own Stripe test setup
+Site URL `http://localhost:3000` with `localhost:3000/**` and `*-86400-s-projects.vercel.app/**`.
+Exactly right — minimal and correct.
 
-Everything here happens in the **Sandbox** account. It cannot affect live.
+---
 
-- [ ] **3.4** Stripe → switch to **Sandbox** → **Product catalog** → **UnRetire — Course (Test)** →
-      copy its **price ID** (starts with `price_`).
-- [ ] **3.5** Same for **UnRetire — Premium (Test)** → copy its price ID.
-- [ ] **3.6** Sandbox → **Developers** → **API keys** → copy the **Secret key** (`sk_test_…`).
-- [ ] **3.7** Sandbox → **Developers** → **Webhooks** → **Add destination**:
-  - URL: `https://unretire-git-claude-r1-system-retrofit-86400-s-projects.vercel.app/api/stripe/webhook`
-  - Events: `checkout.session.completed` and `customer.subscription.deleted`
-  - Save, then copy the **Signing secret** (`whsec_…`).
-- [ ] **3.8** In Vercel add these four, **all ticked Preview only**, all Type **Secret**:
+## PART 3 — Preview separation
+
+### 3A — Please confirm two things
+
+I cannot check this from outside (the Preview is password-protected, and this particular setting never
+reaches the public page), so I need you to verify:
+
+- [ ] **3.10** In Vercel → Environment Variables, use the **All Environments** dropdown → pick **Preview**.
+      Confirm `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY`
+      all appear. Then switch it to **Production** and confirm they appear there too. Send me a screenshot
+      of each.
+- [ ] **3.11** ⚠ Change the two `NEXT_PUBLIC_…` ones from **Secret** to **Config**. You saved them as
+      Secret, which makes them permanently unreadable — so neither of us can ever check they hold the right
+      value. Delete each and re-add with Type **Config**. *(They are a web address and a restricted key —
+      both are meant to be public. This is exactly what Vercel's red warning is telling you.)*
+- [ ] **3.12** After any variable change, Vercel → **Deployments** → find the newest Preview → **Redeploy**.
+      Environment values are baked in at build time; without a redeploy nothing actually changes.
+
+### 3B — Stripe test setup · your webhook question answered
+
+**You were right to worry.** A Preview address contains the branch name, so it changes every sprint and any
+webhook pointed at it would break. The fix is a permanent branch that always has the same address:
+
+- [ ] **3.13** GitHub → **Branches** → **New branch** → name it `staging`, from `master`.
+      That gives you one address that never changes:
+      `https://unretire-git-staging-86400-s-projects.vercel.app`
+- [ ] **3.14** Sandbox → **Developers** → **Webhooks** → **Add destination**:
+  - Destination type: **Webhook endpoint**
+  - URL: `https://unretire-git-staging-86400-s-projects.vercel.app/api/stripe/webhook`
+  - API version: leave as shown (`2026-06-24.dahlia` matches our code)
+  - Events: **Selected events** → tick `checkout.session.completed` and `customer.subscription.deleted`
+  - Save → copy the **Signing secret** (`whsec_…`)
+
+> **Set this up once and it works forever.** All future testing runs against the `staging` branch, so the
+> webhook address never changes again — whatever sprint or branch we happen to be on.
+
+- [ ] **3.15** ✅ **Yes — you only add the Preview ones.** Your four Stripe variables are already scoped
+      **Production only**, which is correct. Do not touch them. Just **Add New** these four, each ticked
+      **Preview only**, Type **Secret**:
 
 | Name | Value comes from |
 |---|---|
-| `STRIPE_SECRET_KEY` | step 3.6 |
-| `STRIPE_PRICE_COURSE` | step 3.4 |
-| `STRIPE_PRICE_PREMIUM` | step 3.5 |
-| `STRIPE_WEBHOOK_SECRET` | step 3.7 |
-
-- [ ] **3.9** Tell me when 3A and 3B are done. I then **prove** the separation before we test anything:
-      a signup on Preview must appear in `unretire-test` and **not** in `unretire-prod`.
+| `STRIPE_SECRET_KEY` | Sandbox → Developers → API keys → Secret key (`sk_test_…`) |
+| `STRIPE_PRICE_COURSE` | Sandbox → **UnRetire — Course (Test)** → price ID |
+| `STRIPE_PRICE_PREMIUM` | Sandbox → **UnRetire — Premium (Test)** → price ID |
+| `STRIPE_WEBHOOK_SECRET` | step 3.14 |
 
 ---
 
-## PART 4 — Small fixes · about 5 minutes
+## PART 4 — Domain
 
-- [ ] **4.1** Vercel → **Add New** → `NEXT_PUBLIC_SITE_URL` = `https://www.unretireproject.com` →
-      tick **Production only** → Type **Config**. Leave Preview unticked; each Preview has its own address.
-      *Why: link previews on WhatsApp and LinkedIn currently point at localhost.*
-- [ ] **4.2** Answer one question: is `half-a-life.vercel.app` still needed? Your live Stripe still sends
-      real payment events to it and it is still running. **Do not delete anything yet** — just tell me, and
-      I will check whether removing it is safe.
+- [ ] **4.3** ⚠ **Your domain is not live yet.** I checked both `unretireproject.com` and
+      `www.unretireproject.com` — both return a **GoDaddy "Launching Soon" parking page**, not your site.
+      Adding it in Vercel is only half the job; the **DNS records at GoDaddy must point to Vercel**.
+      Vercel → **Settings** → **Domains** → click your domain → it shows the exact records to create.
+      Copy those into GoDaddy → DNS. Then tell me and I will verify it end to end.
+- [ ] **4.4** Until DNS is done, set `NEXT_PUBLIC_SITE_URL` to `https://unretire.vercel.app`
+      (Production, Type **Config**). Right now it points at the parking page. We switch it on launch day.
+
+> **Your real live site today is `https://unretire.vercel.app`.** That is what customers reach, and it is
+> working fine. Nothing is broken — the pretty address just is not connected yet.
+
+- [x] **4.2** `half-a-life.vercel.app` — answered: separate repo now. I will handle removing its leftover
+      live Stripe webhook carefully in a later sprint; **do not delete anything there yourself yet.**
 
 ---
 
