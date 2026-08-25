@@ -1,8 +1,38 @@
 # Codex Stage Review Brief — S1 — System Integration
 
+## ⛔ STATUS: BLOCKED — THIS IS A **POST-MERGE** ARTIFACT. DO NOT RUN IT YET.
+
+**Current verdict on record: STAGE NOT APPROVED** (Codex, 2026-08-25) — 2 Blocking findings. See
+**§ Review rounds → Round 1** at the end of this file for the full record. History here is **appended,
+never erased**; a later round does not delete an earlier one.
+
+The stage gate is the **last** gate in the chain, not the first. `docs/WORKFLOW.md` §5–§7 orders it:
+
+```
+branch → local checks → PR → tested Preview → per-PR Codex review → APPROVE → owner merges → THEN this stage gate
+```
+
+**This file must NOT be dispatched to a reviewer until all four are true:**
+
+| # | Precondition | Where it is satisfied | State |
+|---|---|---|---|
+| (a) | The **per-PR review** returns **APPROVE** at the current head | `docs/code-reviews/S1.1-system-retrofit-review.md` | ❌ not yet run |
+| (b) | The **deployed Preview has been tested at that same head** | Preview URL + result recorded in the per-PR brief | ❌ no PR/Preview yet |
+| (c) | The **owner has merged** the PR into `master` | owner action; only the owner merges | ❌ not merged |
+| (d) | The range below is **re-pinned to the merged `master` range** | this file, "Review target" | ❌ still pinned to the pre-merge branch |
+
+**Every SHA in the "Review target" section below is the pre-merge *branch* range and is therefore STALE.**
+It is retained only as the historical record of what was originally (and wrongly) pinned. Before dispatch,
+re-pin the immutable range to the merged `master` range — the pre-merge `master` tip
+(`0983ad557218666b63cb5b6d3db9152041865bb9` unless `master` has moved) `..` the merge commit on `master` —
+and confirm it with `git log --oneline master` and `git diff <base>..<merge> --name-only`.
+
+Running this stage gate against an unmerged branch is exactly what Codex flagged as **Blocking Finding 1**
+on 2026-08-25. Do not repeat it.
+
 > **Stage 1 of the owner-approved 5-stage plan (2026-08-25): S1 System Integration → S2 Readiness Setup →
 > S3 Critical Fixes → S4 Improvement Plan → S5 Launch Gate.** Each stage ends with this independent Codex
-> review before anything merges.
+> review — which runs on the **merged `master` range**, after the per-PR review and the owner's merge.
 >
 > **ID note:** this stage was built and recorded under the earlier ID **R1** ("system retrofit"), which the
 > 5-stage plan **supersedes**. The old artifacts keep their `r1` names on purpose, for traceability:
@@ -10,26 +40,30 @@
 > `R1` and `S1.1` as the same work. A surviving `R1` name in *those two places* is correct; a surviving
 > `R1`–`R7` **plan** elsewhere is stale (see focus item 8).
 
-> **Reviewed head — read this first.** The **substantive** head of Stage 1 is
-> `b6594b593d0e1980986d8bfb54411aa42ebb3ebb` — every file the stage delivers is in it. The branch tip may
-> sit one or more commits later; those later commits touch **only this review record** (pinning SHAs,
-> appending the returned verdict). Per `docs/WORKFLOW.md`, a commit that only appends the review record does
-> not invalidate the reviewed range. So: review `0983ad55…..f01f1394…`, and treat any commit after
-> `b6594b5` as in-scope only to confirm it changed nothing but this file (`git diff f01f139..HEAD --name-only`
-> must list `docs/code-reviews/S1-stage-review.md` and nothing else — if it lists anything else, that is a
-> Blocking target mismatch: stop and report it).
+> **Historical head note — superseded by (d) above, kept for the record.** The **substantive** head of the
+> branch as first recorded was `b6594b593d0e1980986d8bfb54411aa42ebb3ebb`, on the assumption that any later
+> commit touched **only this review record**. That assumption no longer holds: as of 2026-08-25 the branch
+> tip is `702437557f133ad31cfe7791faec8feb75bb2aba`, and `git diff b6594b5..HEAD --name-only` lists
+> `.gitignore` and 57 deletions under `Website-Development-System/**` as well as this file — commit
+> `7024375`, which implements the **D-12 = NO** outcome. That is substantive work, so `b6594b5` is **not**
+> the head of anything reviewable. Head pinning for the *branch* is now handled by the per-PR brief; head
+> pinning for *this* file is handled by precondition (d) — the merged `master` range.
 
-> **Scope note (added 2026-08-25):** after the initial docs-pack commit the branch also carries two
-> substantive commits, both in scope and both documentation/config only: `acc0a2a` completes the
-> `env.example` → `.env.example` rename and adds the `!.env.example` whitelist to `.gitignore`
-> (git records it as `R100` — a byte-identical rename); `b6594b5` records owner decisions D-8, D-10
-> and D-11 in the trackers. Both are inside the pinned range below.
+> **Scope note (added 2026-08-25):** beyond the initial docs-pack commit `f01f139` the branch carries
+> `acc0a2a` (completes the `env.example` → `.env.example` rename and adds the `!.env.example` whitelist to
+> `.gitignore`; git records it as `R100`, a byte-identical rename), `b6594b5` (records owner decisions D-8,
+> D-10 and D-11 in the trackers), and `7024375` (implements D-12 = NO: gitignores and untracks
+> `Website-Development-System/`). All are documentation/config only and all will be inside the merged
+> `master` range once (c) is done.
 
-> **Status: READY TO SEND.** Branch pushed 2026-08-25. Fill `[PR_NUMBER]`/`[PR_URL]` and the Preview
-> result once the PR is opened and its Vercel Preview is tested, then hand this file to Codex.
+> **Scope note on D-12 — remediation of Blocking Finding 2.** This brief must never assume D-12. Whether
+> `Website-Development-System/**` belongs in the reviewed scope is decided by the owner's recorded D-12
+> outcome, verified in `docs/PROJECT-STATUS.md` at review time — **not** by what happens to be in the diff.
+> If the tree and the tracker disagree, that mismatch is itself the finding. See the per-PR brief's focus
+> item 8, which now owns this check at the PR gate.
 
-> This brief is saved at `docs/code-reviews/S1-stage-review.md`. Append the reviewer's returned
-> record below; the reviewer does not edit the repository.
+> This brief is saved at `docs/code-reviews/S1-stage-review.md`. Append each reviewer's returned
+> record under **§ Review rounds** at the end; the reviewer does not edit the repository.
 
 You are the independent, findings-only reviewer for this PR. AGENTS.md governs this review. Do not edit,
 stage, commit, push, merge, install dependencies, or run migrations. Review issues introduced by the pinned
@@ -254,3 +288,79 @@ reviewed. The owner or builder appends this returned record to
 approval and requires updated checks, a refreshed Preview, and independent review of the new immutable head.
 A commit that only appends this review record may be exempt when its documentation-only scope and reviewed
 head are recorded.
+
+---
+
+# Review rounds
+
+*Appended newest last. **History is appended, never erased** — a superseded round stays on the record with
+its findings intact, so a later session can see what was wrong and how it was fixed.*
+
+## Round 1 — 2026-08-25 — Codex
+
+**Verdict: STAGE NOT APPROVED** — the stage gate was dispatched out of sequence, and its declared scope
+includes owner-gated content whose owner decision is still recorded Open.
+
+Reviewed range as submitted: `0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb`
+(pre-merge branch range — part of what the review rejected).
+
+Both findings are assessed as **correct**. Recorded here verbatim in substance:
+
+### Finding 1 — Blocking — review sequence
+
+- **Severity:** Blocking
+- **Location:** `docs/code-reviews/S1-stage-review.md` (whole file) — workflow, not code
+- **Issue:** The stage gate was run at the wrong point in the chain. `docs/WORKFLOW.md` orders it
+  branch → local checks → PR → tested Preview → **per-PR Codex review → APPROVE → owner merges** → and
+  *then* the stage-gate review runs against the merged `master` range. What was produced instead was a
+  stage brief for an **unmerged branch**, with **no per-PR review** and **no Preview evidence**. `master`
+  still points at the merge-base `0983ad55…`.
+- **Failure scenario:** A stage verdict issued on an unmerged branch certifies a range that `master` never
+  contained. If the branch is then rebased, amended, or partly merged, the "approved" range and the shipped
+  range differ, and the per-PR gate — the one that catches PR-level defects and confirms a tested Preview —
+  is skipped entirely. Nothing in the record would show it was skipped.
+- **Remediation (in progress, 2026-08-25):**
+  1. The missing per-PR brief has been written at **`docs/code-reviews/S1.1-system-retrofit-review.md`**,
+     filled from the canonical `docs/templates/CODEX-REVIEW-PROMPT-TEMPLATE.md`. It is the gate that runs
+     first, and it carries the head-pinning proof step, the Preview requirement, and the
+     documentation-sprint focus list.
+  2. This file has been re-headed as an unmistakably **post-merge** artifact, with the four preconditions
+     (a) per-PR APPROVE at the current head, (b) tested Preview at that head, (c) owner merge, (d) range
+     re-pinned to the merged `master` range — all four now stated at the top and all four currently unmet.
+  3. Its pre-merge SHAs are explicitly marked stale and retained only as the historical record.
+- **Confidence:** high
+
+### Finding 2 — Blocking — scope includes an undecided owner gate
+
+- **Severity:** Blocking
+- **Location:** `docs/code-reviews/S1-stage-review.md` → "Review target" → Expected changed paths; and
+  `docs/PROJECT-STATUS.md` → open decisions, **D-12** (D-7 superseded)
+- **Issue:** The immutable range adds all **57 `Website-Development-System/**` files** while decision
+  **D-12** ("commit the SOP folder?") is still recorded **Open** in `docs/PROJECT-STATUS.md`. The declared
+  scope therefore includes owner-gated content with no recorded owner decision.
+- **Failure scenario:** A reviewer approves a range containing 57 files the owner never agreed to commit.
+  The folder lands on `master` by review inertia rather than by decision, and the tracker still says the
+  question is open — so a later session cannot tell whether the commit was authorized or accidental.
+- **Remediation (in progress, 2026-08-25):**
+  1. D-12 has been put to the owner as an explicit **yes / no**. Nothing in the review record assumes an
+     outcome; the per-PR brief is authored for **both**.
+  2. The per-PR brief's **focus item 8** now owns this check at the PR gate: it defines the acceptable end
+     state for D-12 = YES (folder tracked **and** tracker records Resolved YES) and for D-12 = NO (folder
+     untracked/gitignored **and** tracker records Resolved NO), and names the unacceptable middle state.
+  3. **The unacceptable middle state is what the repo is in right now.** Commit `7024375` applies
+     **D-12 = NO** — `Website-Development-System/` is gitignored and untracked — while
+     `docs/PROJECT-STATUS.md` records D-12 as **Resolved — NO** (see §8) and D-7 as *"Open —
+     wording superseded by D-12"*. Tree and tracker disagree. The tracker must record D-12 (and D-7) as
+     **Resolved**, with the outcome, the owner, and the date, before either gate can pass. This is a
+     documentation-only fix and is **not yet done**.
+- **Confidence:** high
+
+**Round 1 outcome:** merge blocked; Stage 2 does not open. Both findings must be fixed and a new head
+reviewed — first at the per-PR gate, then here on the merged `master` range.
+
+Reviewed range: `0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb` ·
+Stage S1 — System Integration · Reviewed by Codex on 2026-08-25.
+
+## Round 2 — [DATE] — [REVIEWER]
+
+*Not yet run.* Blocked on preconditions (a)–(d) in the status block at the top of this file.
