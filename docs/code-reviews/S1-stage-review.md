@@ -10,10 +10,8 @@
 > `R1` and `S1.1` as the same work. A surviving `R1` name in *those two places* is correct; a surviving
 > `R1`–`R7` **plan** elsewhere is stale (see focus item 8).
 
-> **Status: PREPARED — not yet ready to send.** S1 is uncommitted, so no PR, merge-base, or head SHA exists
-> yet. The owner authorizes the branch + commit, the PR is opened, the Preview is tested, and then the four
-> bracketed SHA/PR/Preview fields below are filled and this brief is handed to Codex.
-> Everything else is filled and accurate as of 2026-08-25.
+> **Status: READY TO SEND.** Branch pushed 2026-08-25. Fill `[PR_NUMBER]`/`[PR_URL]` and the Preview
+> result once the PR is opened and its Vercel Preview is tested, then hand this file to Codex.
 
 > This brief is saved at `docs/code-reviews/S1-stage-review.md`. Append the reviewer's returned
 > record below; the reviewer does not edit the repository.
@@ -28,9 +26,9 @@ range; inspect enough surrounding context to validate them without starting an u
 - Stage: **S1 — System Integration** (sub-sprint S1.1; formerly R1)
 - PR: #[PR_NUMBER] — [PR_URL]  *(to fill when opened)*
 - Branch: claude/r1-system-retrofit (context only — created on owner authorization; old ID retained deliberately)
-- Merge-base SHA: [MERGE_BASE_SHA]
-- Reviewed head SHA: [HEAD_SHA]
-- Immutable range: [MERGE_BASE_SHA]..[HEAD_SHA]
+- Merge-base SHA: 0983ad557218666b63cb5b6d3db9152041865bb9
+- Reviewed head SHA: f01f139475a03b3f5277d6148b70c6f82a77fb30
+- Immutable range: 0983ad557218666b63cb5b6d3db9152041865bb9..f01f139475a03b3f5277d6148b70c6f82a77fb30
 - Sprint record: docs/sprint-prompts/R1-system-retrofit.md
 - Expected changed paths: `CLAUDE.md`, `AGENTS.md`, `env.example` (created); `README.md` (modified);
   `docs/**` (47 files on disk as of 2026-08-25); `.claude/skills/**` (5 files).
@@ -209,7 +207,7 @@ Any one of these is **STAGE NOT APPROVED**, regardless of how much else is right
 
 Begin with:
 
-- Confirmed range: [MERGE_BASE_SHA]..[HEAD_SHA]
+- Confirmed range: 0983ad557218666b63cb5b6d3db9152041865bb9..f01f139475a03b3f5277d6148b70c6f82a77fb30
 - Scope match: [YES / NO — explanation]
 - Files/context inspected: [LIST]
 - Commands/evidence checked: [RESULTS_AND_SKIPS]
@@ -233,7 +231,7 @@ one of:
 **Verdict: STAGE APPROVED** — [ONE_LINE_REASON].
 **Verdict: STAGE NOT APPROVED** — [ONE_LINE_REASON].
 
-Reviewed range: [MERGE_BASE_SHA]..[HEAD_SHA] · Stage S1 — System Integration · Reviewed by [REVIEWER] on [DATE].
+Reviewed range: 0983ad557218666b63cb5b6d3db9152041865bb9..f01f139475a03b3f5277d6148b70c6f82a77fb30 · Stage S1 — System Integration · Reviewed by [REVIEWER] on [DATE].
 
 STAGE NOT APPROVED blocks the merge and Stage 2 does not open until the findings are fixed and a new head is
 reviewed. The owner or builder appends this returned record to
