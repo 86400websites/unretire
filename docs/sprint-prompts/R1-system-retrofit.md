@@ -1,4 +1,4 @@
-# Sprint R1 — System Retrofit (Website-Development-System adoption)
+# Sprint S1.1 (formerly R1) — System Integration (Website-Development-System adoption)
 
 > **Stage:** this sprint is **S1.1**, the whole of **Stage 1 — System Integration** in the owner-approved
 > 5-stage plan (S1 System Integration → S2 Readiness Setup → S3 Critical Fixes → S4 Improvement Plan →
@@ -6,7 +6,7 @@
 > is retained in this filename and in the branch `claude/r1-system-retrofit` for traceability; the full
 > old→new ID map is in `docs/PROJECT-STATUS.md` §2. Everything below is the record as written on the day.
 
-> Permanent sprint record. Created 2026-08-25. Status: **Ready for Review** (uncommitted — owner authorization pending).
+> Permanent sprint record. Created 2026-08-25 · **closed 2026-08-25**. Status: **Ready for Review — awaiting owner merge of PR #1.** Branch `claude/r1-system-retrofit`: 18 commits, 59 files, +6783/−22.
 > Template: `docs/templates/CLAUDE-SPRINT-PROMPT-TEMPLATE.md`. This record is retrospective: R1 was executed
 > directly from the owner's instruction ("integrate our website development system in our repo end to end"),
 > which is the Setup Gate itself — the gate that normally *creates* the sprint machinery, so no filled prompt
@@ -82,36 +82,105 @@ Verification of the retrofit itself (run in-session):
 - Facts: prices, 10 modules, 48 lessons (4+6+5+5+5+5+5+4+4+5), 6 book editions verified against code.
 - Consistency: command strings, sprint IDs, and decisions agree across ROADMAP and PROJECT-STATUS. *(Verified on the day under the then-current R1–R7 / D-1…D-10 plan; superseded 2026-08-25 by the S1–S5 plan with D-11 and D-12 added — re-verified against the new IDs before commit.)*
 
-## 6. Deviations from the standard gate
+## 6. Independent review — Codex, round 1 (2026-08-25)
+
+Range `0983ad557218666b63cb5b6d3db9152041865bb9..d594ffd30e77ffa097ecc2787c9257aa7f35b320`.
+Full returned record: `docs/code-reviews/S1.1-system-retrofit-review.md`.
+
+**PART 1 VERDICT: REQUEST CHANGES · PAYMENT PATH: NOT SAFE**
+
+The reviewer independently confirmed this sprint's central claim — the range changes **no** application code,
+config, manifest or lockfile, and contains **zero** `Website-Development-System/**` paths — and reproduced the
+single lint error at the merge-base, proving it pre-existing. It then found 13 issues.
+
+### Disposition, per the owner's instruction (2026-08-25)
+
+> *"We don't want to fix/improve in this sprint — we already have the improvement and fixing stage before we
+> activate testing. Let's just document everything and ensure our system is aligned. In this one my goal was
+> to add the system and ensure we are ready — we have all the keys, variables and so on."*
+
+| Codex finding | Kind | Disposition |
+|---|---|---|
+| 1 — webhook returns 200 after a failed entitlement write | Code | Already issue **22** → **S3.1** |
+| 2 — paid course content in the client bundle + public worksheet PDFs | Code | New issue **37** → **S4.3** |
+| 3 — open redirect via protocol-relative `next` | Code | New issue **38** → **S4.4** |
+| 4 — this sprint's review brief pinned an empty range | **Docs** | **Fixed in S1** |
+| 5 — TECH-ARCHITECTURE asserted four security properties the code lacks | **Docs** | **Fixed in S1** |
+| 6 — environment records described the superseded dashboard state | **Docs** | **Fixed in S1** |
+| 7–13 — lifecycle events, idempotency, shared-account webhook scoping, unvalidated origins, stale paths, book-download errors, Mailchimp leakage | Code | Issues **39–44** (plus existing **1**, **2**) → S3/S4 |
+| extra — success banner rendered from the query string alone | Code | New issue **45** → **S3.1** |
+
+Findings 4–6 were fixed inside this sprint because they are defects in the S1 deliverable itself: the docs
+pack *is* what S1 ships, so a governing document that misstates reality is a defect in the deliverable, not
+scope creep. Every code defect was left untouched.
+
+The reviewer also verified that six previously recorded issues (**17, 18, 19, 23, 24, 28**) had been resolved
+by the owner's configuration work during the sprint, that **25** needed rewording, and that **31**'s severity
+was inflated. All were corrected by strikethrough, never deleted.
+
+## 7. Owner decisions taken during the sprint
+
+| ID | Decision |
+|---|---|
+| D-2 | Production domain = `https://www.unretireproject.com`. ⚠ DNS still parked at GoDaddy, so the live origin is `https://unretire.vercel.app` (issue 27) |
+| D-8 | Test Supabase project confirmed: `unretire-test` / `dtdadtggahjsrmevwvbu` |
+| D-10 | Guest Preview banner expires on its own date as originally intended — no change |
+| D-11 | Supabase MCP **Profile B approved** — production read-only, features `database,debugging,docs`, removal at handover, manual tool-call approval stays on. Prod ref `hcjivvlwxltyiycfbttc` |
+| D-12 | **NO** — the generic `Website-Development-System/` folder is not committed; only the ingested artifacts are. Implemented in `7024375`, independently verified by Codex |
+| issue 33 | **ACCEPTED RISK** — `allow_promotion_codes: true` stays, because the coupon is how the live payment path gets validated without spending real money. Compensating controls: capped redemptions, short expiry, non-guessable code, deactivate immediately after the test. Revisit before public launch |
+
+## 8. Configuration provisioned during the sprint
+
+This was the owner's actual goal for S1 — "ensure we are ready, we have all the keys and variables".
+Owner-completed, externally verified where possible:
+
+- Vercel **Preview** now holds test-project Supabase values and sandbox Stripe values in **separate entries**
+  from Production — Preview no longer reads or writes the production database.
+- Vercel **Production** holds all ten live-mode values; the three `NEXT_PUBLIC_*` typed `Config`, the rest `Secret`.
+- `VERCEL_AUTOMATION_BYPASS_SECRET` provisioned (Preview) so automated tests can reach protected Previews.
+- Supabase **prod** and **test** auth URL configuration set, with the stale `half-a-life` and `86400websites`
+  hosts removed from the production allow-list.
+- Live Stripe webhook `brilliant-splendor` repointed from the parked domain to
+  `https://unretire.vercel.app/api/stripe/webhook`. **This fixed a live defect:** it had been returning
+  301 → 404, so live payments could not grant access at all.
+- Mis-created live-mode destination `engaging-voyage` deleted; sandbox `captivating-triumph` created against a
+  permanent `staging` branch URL so the test webhook address never changes between sprints.
+- `.env.example` renamed and whitelisted in `.gitignore` — the blanket `.env*` rule had hidden it from git.
+
+## 9. Deviations from the standard gate
 
 | # | Deviation | Why |
 |---|---|---|
-| 1 | No filled prompt existed before work | R1 *is* the gate that creates the prompt machinery. Retrospective record. |
-| 2 | `env.example`, not `.env.example` | Agent tooling blocks writing `.env*` paths. Owner renames it and adds `!.env.example` to `.gitignore` in R2. |
-| 3 | Branch protection not enabled | Owner action; `gh` CLI is not installed on this machine, so it is done via the GitHub web UI (R2). |
-| 4 | Work done on `master` working tree, uncommitted | Commit/push default to NO. Branch `claude/r1-system-retrofit` is created when the owner authorizes. |
-| 5 | Predevelopment files 1, 2, 4 partly `⚠ OWNER INPUT REQUIRED` | Strategy/research/inspiration history is not recoverable from the shipped site. Decision D-6. |
-| 6 | Stage 0/1 superseded by sprints R1–R7 | The site is already built; a greenfield Stage 0 would misdescribe reality. |
+| 1 | No filled prompt existed before work | S1 *is* the gate that creates the prompt machinery. Retrospective record. |
+| 2 | Review sequence initially run out of order | The stage-gate brief was issued before the per-PR review and before merge. Codex caught it; corrected by writing the per-PR brief and marking the stage brief post-merge only. |
+| 3 | A regex re-pin of the review brief clobbered the merge-base | Produced an empty review range. Codex caught it. Lesson: never regex-replace SHAs inside a review record. |
+| 4 | An earlier assessment wrongly cleared `auth/confirm` of open redirect | Stated twice before Codex disproved it; independently re-verified (`//evil.example` → `https://evil.example/`) and corrected everywhere it appeared. |
+| 5 | Branch protection enabled via GitHub Rulesets, not classic branch rules | `gh` CLI is not installed; Rulesets is the modern equivalent. |
+| 6 | Predevelopment backfill created then withdrawn | Owner instruction: the project is already at development stage. SOP originals remain outside the repo. |
+| 7 | Stage 0/1 superseded by sprints S1–S5 | The site is already built; a greenfield Stage 0 would misdescribe reality. |
 
-## 7. Follow-ups
+## 10. Follow-ups
 
-Owner: rename `env.example` → `.env.example`; protect `master`; resolve the open decisions in
-`docs/PROJECT-STATUS.md` §8.
-Next sprint: **R2 — Code Check CI** (plan it with `/sprint-prompt`).
+**Before S1 can close:** re-run the per-PR Codex review against the corrected head; owner merges PR #1.
 
-## 8. Git status
+**Immediately after merge:** merge `master` into `staging` so Vercel builds it — until then the sandbox Stripe
+webhook has nowhere to deliver and no payment test can run (issue 32, blocker 6).
 
-Branch: `master` (working tree, uncommitted). Commit: **NO** — not authorized. Push: **NO** — not authorized.
-Suggested message once authorized:
+| Sprint | Carries |
+|---|---|
+| S2.1 | Code Check CI, scripts, Prettier, `packageManager` pin, the pre-existing lint error (16) |
+| S2.2 | Supabase MCP wiring; investigate the legacy `charming-dream` webhook (26) |
+| S2.3 | Playwright harness; confirm it actually sends the bypass secret (25) |
+| S2.5 | **Prove** isolation by test; split the Mailchimp list; align Stripe API versions (31) |
+| S3.1 | Issues **22**, 1, 2, **43**, **45** — the money-losing and 404 defects |
+| S4.3 | Issues **37**, **39**, **40**, 21 |
+| S4.4 | Issues **38**, **41**, **42**, 14 |
+| S4.5 | Issues 5, 3, **44**, content fixes 8 and 9 |
 
-```
-Sprint S1.1 (formerly R1): adopt Website-Development-System
+**The payment path is NOT SAFE to take real money** until 22, 37, 38, 39 and 40 close. Recorded in
+`docs/PROJECT-STATUS.md` §5 and in the Launch-blocking set at the end of §10.
 
-Install the SOP into the repo: governing docs filled and verified against the
-code, 5 Claude Code skills, testing + error-tracking modules, content freeze
-records, an owner-action checklist, and state trackers recording 16 known
-issues and 12 open decisions under the owner-approved 5-stage plan (S1-S5).
+## 11. Git status
 
-Documentation and tooling only - no app code, config, or dependency changed.
-Predevelopment backfill was withdrawn on owner instruction (D-6).
-```
+Branch `claude/r1-system-retrofit` → PR **#1**. 18 commits, 59 files changed (+6783 / −22).
+Commit: **YES** (owner-authorized). Push: **YES** (owner-authorized). Merge: **owner only — not yet done.**
