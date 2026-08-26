@@ -11,7 +11,7 @@ Fill this table first. Every row must end up owned by the client.
 |---|---|---|---|
 | GitHub — 86400websites/unretire | | Maher Kaddoura | Transfer repo / add client as owner, downgrade yourself |
 | Hosting — Vercel / TBC — filled at handoff | | Maher Kaddoura | Provider transfer/invite flow |
-| Domain registrar — TBC (Open decision D-2) | | Maher Kaddoura | Registrar's own transfer flow (domain = client property) |
+| Domain registrar — GoDaddy, domain `unretireproject.com` (D-2 resolved 2026-08-25) | | Maher Kaddoura | Registrar's own transfer flow (domain = client property) |
 | Database/auth — Supabase | | Maher Kaddoura | Transfer org/project ownership; delete row if none |
 | Email provider (transactional/forms) | | Maher Kaddoura | Invite client as admin, remove yourself |
 | Analytics / error tracking (if used) | | Maher Kaddoura | Transfer property ownership |

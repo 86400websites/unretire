@@ -1,6 +1,6 @@
 # Launch Checklist
 
-Three phases that take (Un)Retire from "feature-complete" to "live on TBC (Open decision D-2) and verified".
+Three phases that take (Un)Retire from "feature-complete" to "live on `https://unretireproject.com` (D-2 resolved 2026-08-25) and verified".
 Launch is a checklist, not an event — nothing goes live on a feeling.
 
 ---
@@ -60,7 +60,7 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
 
 ## Phase 2 — LAUNCH DAY
 
-- [ ] Connect `TBC (Open decision D-2)` to `TBC` on `Vercel`; add only the provider-specified DNS records.
+- [ ] Connect `unretireproject.com` (registrar: GoDaddy, where DNS is parked today — Known issue 27) to `Vercel`; add only the provider-specified DNS records.
 - [ ] Email-based conversions: add the sending domain's **SPF, DKIM, and DMARC** DNS records alongside the host records.
 - [ ] Wait for DNS to propagate and SSL to issue — the padlock must be valid before you announce anything.
 - [ ] Decide www vs apex as canonical; configure the other to 301-redirect to it.
@@ -68,14 +68,15 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
       (env changes do not take effect without a redeploy).
 - [ ] If auth is in use: add the new domain to the auth provider's redirect allow-list —
       KEEP the old domain listed for a grace period so existing email links still resolve.
-- [ ] Verify security headers on the LIVE domain response (`curl -I https://TBC (Open decision D-2)`) —
-      config reading is not deployed reality.
+- [ ] Verify security headers on the LIVE domain response (`curl -I https://unretireproject.com`) —
+      config reading is not deployed reality. ⚠ Requires Known issue 46 (no headers configured yet) to be
+      closed first — S4.5.
 
 ---
 
 ## Phase 3 — POST-LAUNCH SMOKE TEST (on the real domain, same day)
 
-- [ ] Every page loads over https on TBC (Open decision D-2) — click through the full sitemap.
+- [ ] Every page loads over https on `https://unretireproject.com` — click through the full sitemap.
 - [ ] Primary conversion flow end-to-end as a real visitor: form validates, submits, confirmation shows.
 - [ ] Forms actually deliver: send a REAL test submission from an **external** address and confirm it arrives **in the inbox (not spam)** AND that the **second capture path** also recorded it.
 - [ ] Mobile pass on a real phone: home, conversion page, one deep page.
@@ -83,7 +84,7 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
 - [ ] Relaunch only: spot-check the **301/410 redirect map** on the live domain — the top old URLs land on their new destinations, never a bare 404.
 - [ ] Search console: property added, ownership verified, sitemap submitted.
 - [ ] No accidental `noindex` anywhere — check the live HTML head and response headers.
-- [ ] Auth (if in use): sign up / sign in / reset on the live domain; email links land on TBC (Open decision D-2).
+- [ ] Auth (if in use): sign up / sign in / reset on the live domain; email links land on `https://unretireproject.com`.
 
 ### The 48-hour watch
 - [ ] Monitor errors (host logs / error tracker) and form deliveries for 48 hours.

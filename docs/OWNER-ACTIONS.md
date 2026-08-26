@@ -57,11 +57,21 @@ that is broken.)
 
 ---
 
-## PART 1 — Stage 1 · ALMOST DONE
+## PART 1 — Stage 1 · MERGED — stage gate in remediation (updated 2026-08-26)
 
 - [x] **1.1–1.3** Protection Bypass enabled ✓
 - [x] **1.4** PR is **#1** — https://github.com/86400websites/unretire/pull/1 ✓ (I looked it up, no need to send it)
-- [ ] **1.5** Re-run the Codex review with the prompt I give you, then **merge PR #1 yourself**.
+- [x] **1.5** ~~Re-run the Codex review with the prompt I give you, then **merge PR #1 yourself**.~~ Done 2026-08-26 — the per-PR review reached **APPROVE at round 9** and you merged PR #1 (merge commit `1309e01`) ✓
+- [ ] **1.6** The stage gate (Round 3, 2026-08-26) returned **STAGE NOT APPROVED** — 8 documentation
+      findings, all being fixed by sprint **S1.2** (branch `claude/s1.2-stage-remediation`, docs only).
+      Your actions, in order:
+      (a) when the S1.2 PR is open and its Preview built, dispatch the per-PR review brief
+      `docs/code-reviews/S1.2-stage-remediation-review.md`;
+      (b) **merge the S1.2 PR** on APPROVE;
+      (c) dispatch stage-gate **Round 4** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
+      Round 4 stub (same merge-base, new head = the S1.2 merge commit).
+      **S2.1 starts only after Round 4 returns STAGE APPROVED** (then you also protect `master` in the
+      GitHub web UI during S2.1).
 
 ---
 

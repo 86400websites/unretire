@@ -2,7 +2,7 @@
 
 Website for Maher Kaddoura (author) — a standalone marketing + membership website for the (Un)Retire book, course, and premium membership, a retirement-life-design product built on the "5 Mindsets × 7 Practices" framework, serving people approaching or in retirement.
 Primary goal: Sell the (Un)Retire book, course, and Premium membership; capture emails. Primary conversion: paid enrollment via Stripe Checkout — course purchase ($99 one-time) or Premium subscription ($199/yr).
-Live at: `TBC (Open decision D-2)` (production deploys from `master`).
+Live at: production domain **`https://unretireproject.com`** (D-2 resolved 2026-08-25) — ⚠ DNS is still parked at the registrar (Known issue 27), so the application currently serves at **`https://unretire.vercel.app`** (production deploys from `master`).
 
 ## Stack
 
@@ -30,7 +30,7 @@ pnpm build               # production build
 
 ## Environment variables
 
-- The authorized owner creates `.env.local` from the committed example file outside the AI workflow. The example file is currently named `env.example` (pending owner rename to `.env.example`).
+- The authorized owner creates `.env.local` from the committed **`.env.example`** outside the AI workflow (the rename from `env.example` completed during S1; `.gitignore` whitelists it via `!.env.example`).
 - The live env file is gitignored — never open, print, copy, edit, or commit it. The example file carries names + safe placeholders only.
 - Deployed values live in Vercel's secret/environment settings, scoped per environment.
 - Full rules (public vs server-only, redeploy-after-change): `docs/ENV-VARS-SAFETY.md`.

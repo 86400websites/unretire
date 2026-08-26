@@ -18,6 +18,13 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > | `[DOMAIN]` | ~~⚠ TBC — Open decision D-2~~ → **D-2 resolved: `unretireproject.com`** (apex; `www` also registered). ⚠ **Not yet live** — the domain is added in Vercel but DNS is still parked at GoDaddy, so the application is currently served at **`https://unretire.vercel.app`**. Read `[DOMAIN]` in Part A as that host until the DNS cutover (Known issue 27) |
 > | `[SUPABASE_PROJECT]` | ~~⚠ Owner to confirm. A **non-production** project is required before the Launch Gate~~ → **D-8 resolved: both projects exist.** PROD `unretire-prod` · ref `hcjivvlwxltyiycfbttc` · eu-west-1. TEST `unretire-test` · ref `dtdadtggahjsrmevwvbu` · ap-south-1 (free tier — it auto-pauses when idle). Refs are public identifiers and safe to record |
 >
+> **Branch-name override — added 2026-08-26 (stage-gate Round 3, Finding 7).** The generic SOP body below
+> says **`main`** in its Part A3 deployment-flow steps ("merges to `main` deploy Production"; "Protect
+> `main` on GitHub"). This repository's default branch is **`master`** — read **every bare `main` in the
+> body below as `master`** until Open decision D-1 (the optional rename) is resolved. The body itself stays
+> byte-identical to the SOP source on purpose; this override governs. Concretely: Production deploys from
+> `master`, and the branch the owner protects in Sprint S2.1 is `master`.
+>
 > **B6 wiring status — done 2026-08-25.** Vercel **Preview** now points at the **TEST** project and
 > **Production** at the **PROD** project: the three Supabase entries are split per environment, and the four
 > Stripe entries in Preview hold **sandbox-account** values. The B6 verification step below (sign up on a
