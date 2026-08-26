@@ -196,7 +196,7 @@ every later stage is built from these files. Weight the review accordingly:
    `cmp docs/<f> Website-Development-System/development/<f>` for each.
    **The two deliberate exceptions are `docs/SUPABASE-MCP-SAFETY.md` and `docs/SUPABASE-VERCEL-SETUP.md`.**
    Each gained a **prepended "(Un)Retire project values" block** that resolves the SOP's generic
-   `[BRACKETS]` for this project (and records that Supabase MCP is **not** connected — Profile A). This is
+   `[BRACKETS]` for this project (and records that Supabase MCP is **not** connected; Profile B — production read-only — was approved by the owner on 2026-08-25 under D-11 and is wired in S2.2). This is
    intended, not drift. Verify that in each of those two files the diff is **additive at the top only** and
    the SOP body below the block is unchanged, and that the prepended block contains **no live value** —
    project refs, domains, and the Vercel project are all "⚠ Owner to confirm" placeholders, which is correct.

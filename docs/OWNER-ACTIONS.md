@@ -16,7 +16,7 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 | Live site | Served at **`https://unretire.vercel.app`** — working. The custom domain is NOT connected yet (Part 4). |
 | Live Stripe product **UnRetire — Course** | $99 USD, one-time — correct |
 | Live Stripe product **UnRetire — Premium** | $199 USD, **per year** — correct |
-| Live webhook `brilliant-splendor` | ⚠ **Points at a dead address — fix in Part 1A below.** |
+| Live webhook `brilliant-splendor` | ✅ Repointed to `https://unretire.vercel.app/api/stripe/webhook` on 2026-08-25 — verified receiving |
 | Sandbox products **Course (Test)** $99 and **Premium (Test)** $199/yr | Already exist |
 | GitHub branch protection on `master` | Done |
 | `.env.example` and the 5 Claude skills in the repo | Done — every clone gets them |
@@ -41,7 +41,7 @@ a request there gets redirected once and then hits a **GoDaddy "page not found"*
 is charged and **does not get access**. (Checkout itself works fine — it is only the "tell the site" step
 that is broken.)
 
-- [ ] **1A.1** Stripe → **live mode** (not Sandbox) → **Developers** → **Webhooks** → click
+- [x] **1A.1** Stripe → **live mode** (not Sandbox) → **Developers** → **Webhooks** → click
       **brilliant-splendor** → **Update details** → change the URL to exactly:
       `https://unretire.vercel.app/api/stripe/webhook` → Save.
 
@@ -52,7 +52,7 @@ that is broken.)
 > may be the only thing currently granting access to anyone who has paid. We remove it *after* 1A.1 is
 > verified working.
 
-- [ ] **1A.2** Tell me when done — I will verify the endpoint responds correctly, and we can check Stripe's
+- [x] **1A.2** Tell me when done — I will verify the endpoint responds correctly, and we can check Stripe's
       recent events together to see whether anyone paid without getting access.
 
 ---
@@ -71,14 +71,14 @@ that is broken.)
 
 Site URL `https://www.unretireproject.com` ✓ and 7 redirect URLs. Five are right. Two should go:
 
-- [ ] **2.7** Delete `https://half-a-life.vercel.app/**` — I checked it: that address serves a **different
+- [x] **2.7** Delete `https://half-a-life.vercel.app/**` — I checked it: that address serves a **different
       website** ("Half a Life"), which you confirmed is now a separate repo. Any address on this list is
       allowed to receive a login token, so leaving someone else's site on it is a needless risk.
-- [ ] **2.8** Delete `https://*-86400websites.vercel.app/**` — an old Vercel account name. Yours is now
+- [x] **2.8** Delete `https://*-86400websites.vercel.app/**` — an old Vercel account name. Yours is now
       `86400-s-projects`, which is already on the list. *(If you still use that older account for this
       project, tell me and we keep it.)*
 
-- [ ] **2.9** ⚠ Change **Site URL** to `https://unretire.vercel.app` for now. Your custom domain is not
+- [x] **2.9** ⚠ Change **Site URL** to `https://unretire.vercel.app` for now. Your custom domain is not
       live yet (see Part 4) — it currently shows a GoDaddy "Launching Soon" page. We switch Site URL to
       the real domain on the day DNS goes live. **Keep all the unretireproject.com entries in the redirect
       list** — they cost nothing and will be needed.
@@ -100,15 +100,15 @@ Exactly right — minimal and correct.
 I cannot check this from outside (the Preview is password-protected, and this particular setting never
 reaches the public page), so I need you to verify:
 
-- [ ] **3.10** In Vercel → Environment Variables, use the **All Environments** dropdown → pick **Preview**.
+- [x] **3.10** In Vercel → Environment Variables, use the **All Environments** dropdown → pick **Preview**.
       Confirm `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY`
       all appear. Then switch it to **Production** and confirm they appear there too. Send me a screenshot
       of each.
-- [ ] **3.11** ⚠ Change the two `NEXT_PUBLIC_…` ones from **Secret** to **Config**. You saved them as
+- [x] **3.11** ⚠ Change the two `NEXT_PUBLIC_…` ones from **Secret** to **Config**. You saved them as
       Secret, which makes them permanently unreadable — so neither of us can ever check they hold the right
       value. Delete each and re-add with Type **Config**. *(They are a web address and a restricted key —
       both are meant to be public. This is exactly what Vercel's red warning is telling you.)*
-- [ ] **3.12** After any variable change, Vercel → **Deployments** → find the newest Preview → **Redeploy**.
+- [x] **3.12** After any variable change, Vercel → **Deployments** → find the newest Preview → **Redeploy**.
       Environment values are baked in at build time; without a redeploy nothing actually changes.
 
 ### 3B — Stripe test setup · your webhook question answered
@@ -116,10 +116,10 @@ reaches the public page), so I need you to verify:
 **You were right to worry.** A Preview address contains the branch name, so it changes every sprint and any
 webhook pointed at it would break. The fix is a permanent branch that always has the same address:
 
-- [ ] **3.13** GitHub → **Branches** → **New branch** → name it `staging`, from `master`.
+- [x] **3.13** GitHub → **Branches** → **New branch** → name it `staging`, from `master`.
       That gives you one address that never changes:
       `https://unretire-git-staging-86400-s-projects.vercel.app`
-- [ ] **3.14** Sandbox → **Developers** → **Webhooks** → **Add destination**:
+- [x] **3.14** Sandbox → **Developers** → **Webhooks** → **Add destination**:
   - Destination type: **Webhook endpoint**
   - URL: `https://unretire-git-staging-86400-s-projects.vercel.app/api/stripe/webhook`
   - API version: leave as shown (`2026-06-24.dahlia` matches our code)
@@ -129,7 +129,7 @@ webhook pointed at it would break. The fix is a permanent branch that always has
 > **Set this up once and it works forever.** All future testing runs against the `staging` branch, so the
 > webhook address never changes again — whatever sprint or branch we happen to be on.
 
-- [ ] **3.15** ✅ **Yes — you only add the Preview ones.** Your four Stripe variables are already scoped
+- [x] **3.15** ✅ **Yes — you only add the Preview ones.** Your four Stripe variables are already scoped
       **Production only**, which is correct. Do not touch them. Just **Add New** these four, each ticked
       **Preview only**, Type **Secret**:
 
@@ -149,7 +149,7 @@ webhook pointed at it would break. The fix is a permanent branch that always has
       Adding it in Vercel is only half the job; the **DNS records at GoDaddy must point to Vercel**.
       Vercel → **Settings** → **Domains** → click your domain → it shows the exact records to create.
       Copy those into GoDaddy → DNS. Then tell me and I will verify it end to end.
-- [ ] **4.4** Until DNS is done, set `NEXT_PUBLIC_SITE_URL` to `https://unretire.vercel.app`
+- [x] **4.4** Until DNS is done, set `NEXT_PUBLIC_SITE_URL` to `https://unretire.vercel.app`
       (Production, Type **Config**). Right now it points at the parking page. We switch it on launch day.
 
 > **Your real live site today is `https://unretire.vercel.app`.** That is what customers reach, and it is
