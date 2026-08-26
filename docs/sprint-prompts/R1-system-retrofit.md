@@ -82,10 +82,40 @@ Verification of the retrofit itself (run in-session):
 - Facts: prices, 10 modules, 48 lessons (4+6+5+5+5+5+5+4+4+5), 6 book editions verified against code.
 - Consistency: command strings, sprint IDs, and decisions agree across ROADMAP and PROJECT-STATUS. *(Verified on the day under the then-current R1–R7 / D-1…D-10 plan; superseded 2026-08-25 by the S1–S5 plan with D-11 and D-12 added — re-verified against the new IDs before commit.)*
 
-## 6. Independent review — Codex, round 1 (2026-08-25)
+## 6. Independent review — Codex (4 rounds, 2026-08-25 → 2026-08-26)
 
-Range `0983ad557218666b63cb5b6d3db9152041865bb9..d594ffd30e77ffa097ecc2787c9257aa7f35b320`.
-Full returned record: `docs/code-reviews/S1.1-system-retrofit-review.md`.
+Range `0983ad557218666b63cb5b6d3db9152041865bb9..d594ffd30e77ffa097ecc2787c9257aa7f35b320` (round 1).
+Full returned records for every round: `docs/code-reviews/S1.1-system-retrofit-review.md`.
+
+| Round | Range | Verdict | Findings | Outcome |
+|---|---|---|---|---|
+| 1 | `0983ad5..d594ffd` | REQUEST CHANGES · PAYMENT PATH: NOT SAFE | 13 (3 Blocking code, 7 should-fix code, 3 Blocking docs) | Code defects deferred to S3/S4 by owner instruction; docs defects fixed |
+| 2 | `0983ad5..965afc4` | REQUEST CHANGES | 4, all documentation | 3 fixed; `.env.example` left as owner action |
+| 3 | `0983ad5..627099a` | REQUEST CHANGES | 5, all documentation | 4 fixed; `.env.example` still owner action |
+| 4 | `0983ad5..85602f9` | REQUEST CHANGES | 3, all documentation | 2 fixed; `.env.example` still owner action |
+
+**Every round confirmed the sprint's central claim independently:** the range changes no application code,
+config, manifest or lockfile, contains zero `Website-Development-System/**` paths, and the single lint error
+reproduces at the merge-base. No round found a defect in the shipped configuration or in the deferred-issue
+disposition — all four found defects in the **documentation**, which is precisely what this sprint ships.
+
+**What the later rounds caught, and why it mattered:**
+
+- **Round 3 finding 3** — `docs/ROADMAP.md` still carried the original wrong claim that the auth callback
+  "is **not** an open-redirect vulnerability — do not report it as one." Left in place, that line would have
+  instructed a future auth sprint to ignore a live vulnerability (issue 38).
+- **Round 4 finding 2** — the issue 37–45 assignments added in round 3 landed in the table's **"Explicitly
+  out of scope"** column, so the roadmap formally *excluded* the defects from the sprints that own them. A
+  sprint prompt generated from it would have skipped the paid-content leak, the open redirect and the
+  payment-lifecycle gap.
+- **Rounds 2–4 finding on TEST Supabase** — the same class of contradiction survived three passes because it
+  was being fixed by pattern-matching rather than by reading each cited line. Fixed properly in round 4.
+
+**Lesson recorded for future sprints:** never regex-replace SHAs inside a review record (it silently
+overwrote the merge-base, producing an empty range), and never verify a table edit by confirming the text
+appears in the line — re-parse the row and check the column count.
+
+### Round 1 detail
 
 **PART 1 VERDICT: REQUEST CHANGES · PAYMENT PATH: NOT SAFE**
 
@@ -182,5 +212,5 @@ webhook has nowhere to deliver and no payment test can run (issue 32, blocker 6)
 
 ## 11. Git status
 
-Branch `claude/r1-system-retrofit` → PR **#1**. 18 commits, 59 files changed (+6783 / −22).
+Branch `claude/r1-system-retrofit` → PR **#1**. Substantive head `80df2bc`; tip `8db8f8b` (review record only).
 Commit: **YES** (owner-authorized). Push: **YES** (owner-authorized). Merge: **owner only — not yet done.**
