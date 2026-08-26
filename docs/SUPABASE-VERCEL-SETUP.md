@@ -23,7 +23,8 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > `main` on GitHub"). This repository's default branch is **`master`** — read **every bare `main` in the
 > body below as `master`** until Open decision D-1 (the optional rename) is resolved. The body itself stays
 > byte-identical to the SOP source on purpose; this override governs. Concretely: Production deploys from
-> `master`, and the branch the owner protects in Sprint S2.1 is `master`.
+> `master`; the `master` PR-before-merge protection rule is **already enabled** (owner-confirmed
+> 2026-08-26), and the required "Code Check" status the owner adds in Sprint S2.1 targets `master`.
 >
 > **B6 wiring status — done 2026-08-25.** Vercel **Preview** now points at the **TEST** project and
 > **Production** at the **PROD** project: the three Supabase entries are split per environment, and the four

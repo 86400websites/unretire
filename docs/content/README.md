@@ -10,7 +10,7 @@ This is a **retrofit**: the site was already built and shipped into guest previe
 the Website-Development-System was adopted. There is no separately-approved launch copy
 deck. Per the system's own retrofit rule (`Website-Development-System/development/templates/sprint-prompt.md`:
 "the **shipped site is the approved baseline** for any copy already live";
-`templates/close.md`: "the shipped site is the approved source for live copy"):
+`Website-Development-System/development/templates/close.md` — the external SOP source, ingested in-repo as `.claude/skills/close/SKILL.md`: "the shipped site is the approved source for live copy"):
 
 > **The SHIPPED SITE is the approved copy baseline.** What the live pages say today is
 > the approved copy, exactly as it appears in the code — with the specific exceptions
