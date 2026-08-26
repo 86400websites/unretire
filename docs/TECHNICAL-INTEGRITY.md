@@ -67,7 +67,7 @@ The contract behind it: `package.json` defines the scripts `typecheck` (`tsc --n
 *Retrofit note: the workflow file and package.json scripts land in Sprint S2.1 — see docs/ROADMAP.md.*
 
 - [ ] **Claude Code (one normal PR):** strict `tsconfig`, ESLint + Prettier configs, the five scripts above, and the workflow file. No behavior changes ride along.
-- [ ] **You (2 minutes, once):** GitHub → the repo → **Settings → Branches → Add branch protection rule** → branch name `master` → tick **"Require a pull request before merging"** and **"Require status checks to pass before merging"** → search and select **"Code Check"** → save.
+- [ ] **You (2 minutes, once):** GitHub → the repo → **Settings → Branches → Add branch protection rule** → branch name `master` → tick **"Require a pull request before merging"** and **"Require status checks to pass before merging"** → search and select **"Code Check"** → save. *(Retrofit note 2026-08-26: the "Require a pull request" half is already enabled on this repo — owner-confirmed; what S2.1 adds is the required "Code Check" status, then the watch-one-PR verification below.)*
 - [ ] **You + Claude Code (verify once):** watch one PR — the "Code Check" appears and goes ✅, and GitHub's merge button stays locked until it does. An unverified gate is the same as no gate.
 
 ## Day to day

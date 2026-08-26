@@ -13,8 +13,10 @@ listed; the three content images and their alt text are.
 
 ## 1. Guest Preview banner
 
-> **Note:** date-sensitive — the preview ends 31 August 2026 and what happens then is
-> Open decision **D-10**. Do not treat the date as locked copy.
+> **Note:** date-sensitive — the preview ends 31 August 2026. ~~what happens then is Open
+> decision **D-10**~~ **D-10 RESOLVED 2026-08-25**: the banner expires on its own date as
+> originally designed — no code change (Known issue 12 closed). Do not treat the date as
+> locked copy. *(Synchronized 2026-08-26, stage-gate Round 4 Finding 5.)*
 
 **Welcome to the (Un)Retire Exclusive Guest Preview**
 

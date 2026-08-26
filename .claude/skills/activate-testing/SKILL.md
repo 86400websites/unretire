@@ -16,7 +16,7 @@ Read, don't restate — these bind every phase:
 - `docs/SECURITY-CHECKLIST.md` §5 — the abuse controls the suite must verify.
 - `docs/SUPABASE-MCP-SAFETY.md` and `docs/ENV-VARS-SAFETY.md` — non-production rules; names only, never values.
 - `docs/QA-CHECKLIST.md` and `docs/WORKFLOW.md` — the sprint loop that fixes what this gate finds.
-- The filled predevelopment deliverables — the promised scope, for cross-checking.
+- The promised-scope sources, for cross-checking. *(This project has no predevelopment pack — dropped, D-6 withdrawn. The equivalent approved sources are `docs/TECH-ARCHITECTURE.md` (routes, access rules, data), `docs/DESIGN.md` (design intent) and `docs/content/` (approved copy + locked facts); the code is the primary source of truth. Corrected 2026-08-26, stage-gate Round 4 Finding 3.)*
 
 ## Phases
 
@@ -29,10 +29,10 @@ Execute `docs/testing-setup/SETUP-CHECKLIST.md` exactly. One PR through the norm
 Scan the **actual codebase end to end** — the code is the source of truth, because docs may have missed features:
 
 1. Enumerate every page/route (including dynamic routes), every form, every API/server endpoint, every auth flow and role boundary, every database table and access policy, every email trigger, every payment path, every third-party integration, and every scheduled job.
-2. Read the predevelopment feature/scope/copy docs and cross-check both ways:
+2. Read the promised-scope sources (`docs/TECH-ARCHITECTURE.md`, `docs/DESIGN.md`, `docs/content/` — no predevelopment pack exists, D-6 withdrawn) and cross-check both ways:
    - **Promised but missing in code** → report to the owner immediately as a pre-test finding.
    - **Built but undocumented** → include on the list, marked `(found in code, not in docs)`.
-3. Fill `docs/FEATURE-LIST.md` from `templates/FEATURE-LIST-TEMPLATE.md`: one plain-English line per feature with a stable ID. Always include the template's standard baseline lines (every page renders error-free, denied-state per protected boundary, abuse controls, 404, mobile, links).
+3. Fill `docs/FEATURE-LIST.md` from `docs/testing-setup/templates/FEATURE-LIST-TEMPLATE.md`: one plain-English line per feature with a stable ID. Always include the template's standard baseline lines (every page renders error-free, denied-state per protected boundary, abuse controls, 404, mobile, links).
 4. **STOP. Present the list to the owner for approval.** Do not write a single test before written approval. After approval, any change to the list goes back to the owner — never silently edit an approved line.
 
 ### Phase 2 — WRITE TESTS (one per approved line)
@@ -47,7 +47,7 @@ Scan the **actual codebase end to end** — the code is the source of truth, bec
 ### Phase 3 — RUN (full) → REPORT
 - Target the **deployed Preview** of the release candidate (`PLAYWRIGHT_BASE_URL`), test-mode keys, bypass header if configured. Record the URL and head SHA.
 - Run the **full suite**. Artifacts (screenshots, traces) go to a gitignored `qa-evidence/` folder — never committed.
-- Fill `docs/test-reports/[YYYY-MM-DD]-test-report.md` from `templates/TEST-REPORT-TEMPLATE.md`: one row per feature, PASS/FAIL, every failure explained **in plain words a non-technical owner understands**, with severity (Blocker / High / Medium / Low per the template's definitions) and a suggested fix.
+- Fill `docs/test-reports/[YYYY-MM-DD]-test-report.md` from `docs/testing-setup/templates/TEST-REPORT-TEMPLATE.md`: one row per feature, PASS/FAIL, every failure explained **in plain words a non-technical owner understands**, with severity (Blocker / High / Medium / Low per the template's definitions) and a suggested fix.
 
 ### Phase 4 — FIX LOOP → VERDICT
 - Failures become a fix sprint via `docs/templates/BUG-FIX-PROMPT-TEMPLATE.md` (or a sprint via `/sprint-prompt`) through the normal workflow. This skill reports and verifies; the fix itself belongs to the sprint loop.
@@ -57,7 +57,7 @@ Scan the **actual codebase end to end** — the code is the source of truth, bec
 
 ### Phase 5 — MORNING CHECK (after GO)
 - Propose the 5–7 most critical, **safe-to-repeat** specs (pages render clean, login with the dedicated test account, member access allowed / visitor denied, conversion page behaves). Nothing that creates real data — no purchases, no emails to real inboxes, no signups. Tag approved specs `@morning`.
-- Enable `.github/workflows/morning-check.yml` per `templates/MORNING-CHECK-TEMPLATE.md` (daily cron against the production URL, notify on failure only). **The morning check is read-only + test-account-login against production; every other run in this skill targets Preview.** Confirm with the owner that the failure-notification email is verified.
+- Enable `.github/workflows/morning-check.yml` per `docs/testing-setup/templates/MORNING-CHECK-TEMPLATE.md` (daily cron against the production URL, notify on failure only). **The morning check is read-only + test-account-login against production; every other run in this skill targets Preview.** Confirm with the owner that the failure-notification email is verified.
 
 ## Later re-runs
 

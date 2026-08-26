@@ -48,5 +48,8 @@ them without an owner decision, and do not lock them.
 
 4. **Guest Preview banner is date-sensitive: "until 31 August".**
    The home-page banner (`src/app/page.tsx`, top of page) says "This private preview is
-   available to selected guests until 31 August." — it expires 31 August 2026 and what
-   happens then is Open decision D-10 (Known issue 12).
+   available to selected guests until 31 August." — it expires 31 August 2026.
+   ~~what happens then is Open decision D-10 (Known issue 12)~~ **D-10 was RESOLVED
+   2026-08-25** (owner: the banner expires on its own date as originally designed — no code
+   change; Known issue 12 closed on that basis). The date stays flagged, not locked; this
+   note was synchronized 2026-08-26 (stage-gate Round 4, Finding 5).

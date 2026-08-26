@@ -49,7 +49,7 @@ A fix is not done until a test exists that **reproduces this exact bug** — fai
 
 ## Close the loop — always with the human
 
-1. Draft the user message from `templates/USER-UPDATE-TEMPLATE.md` (acknowledge / fixed / payment-helper — whichever fits). **The owner sends it; you never contact users directly.** Sentry's user context tells you exactly who was affected — draft for exactly those people, no one else.
+1. Draft the user message from `docs/error-tracking/templates/USER-UPDATE-TEMPLATE.md` (acknowledge / fixed / payment-helper — whichever fits). **The owner sends it; you never contact users directly.** Sentry's user context tells you exactly who was affected — draft for exactly those people, no one else.
 2. Complete the incident row: cause, severity, fix PR, regression test ID, **user informed ✓** (or "n/a — caught before any user was affected", recorded). **Status may become Closed only when both the regression-test and user-informed fields are filled.**
 
 ## Never

@@ -47,7 +47,7 @@ Run top to bottom. For each item give **PASS / FAIL / N/A** + the evidence (comm
 - If either is stale, quote the exact edit needed and **offer to make it on the task branch**.
 
 ### 4. Copy & design — only if UI / strings changed
-- Any new or changed user-facing string is verbatim from the **approved baseline** (the filled predevelopment deliverables and the copy files named by the task; the shipped site is the approved source for live copy). New strings (errors, labels, empty states) follow the brand-voice rules in `docs/DESIGN.md`.
+- Any new or changed user-facing string is verbatim from the **approved baseline** (the in-repo content freeze — `docs/content/page-copy/*.md` + `docs/content/locked-facts.md` — and the copy files named by the task; the shipped site is the approved source for live copy; no predevelopment pack exists, D-6 withdrawn). New strings (errors, labels, empty states) follow the brand-voice rules in `docs/DESIGN.md`.
 - Design values come from `docs/DESIGN.md` tokens — no inline hex or ad-hoc spacing. Locked shell chrome (the approved shell variants in `docs/DESIGN.md` / `docs/TECH-ARCHITECTURE.md`) is unchanged; no per-page chrome variant was invented.
 - Any locked facts/numbers the site states are unchanged and identical wherever they appear.
 
