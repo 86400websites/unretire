@@ -68,16 +68,26 @@ that is broken.)
       ~~(a) dispatch the S1.2 per-PR review; (b) merge the S1.2 PR on APPROVE; (c) dispatch stage-gate
       Round 4~~ — **all three done 2026-08-26**: S1.2 per-PR APPROVE (round 2) → PR #2 merged (`4c3d52e`)
       → Round 4 dispatched and returned **STAGE NOT APPROVED** (5 cumulative findings).
-- [ ] **1.7** (added 2026-08-26) The Round-4 findings are being fixed by sprint **S1.3**
-      (`claude/s1.3-stage-remediation-2`). Your actions, in order:
-      (a) when the S1.3 PR is open and its Preview built, dispatch the per-PR review brief
-      `docs/code-reviews/S1.3-stage-remediation-2-review.md`;
-      (b) **merge the S1.3 PR** on APPROVE;
-      (c) dispatch stage-gate **Round 5** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
-      Round 5 stub (same merge-base, new head = the S1.3 merge commit).
-      **S2.1 starts only after Round 5 returns STAGE APPROVED** (during S2.1 you add the required
-      **"Code Check"** status to the existing `master` protection rule — the PR-before-merge half is
-      already enabled, confirmed 2026-08-26).
+- [x] **1.7** ~~(added 2026-08-26) The Round-4 findings are being fixed by sprint S1.3…~~ **Done
+      2026-08-26**: S1.3 per-PR APPROVE (round 2) → PR #3 merged (`ae78679`) → stage-gate **Round 5**
+      dispatched and returned **STAGE NOT APPROVED** (1 Blocking + 2 Should-fix; 7 of 8 exit criteria
+      VERIFIED).
+- [ ] **1.8** (added 2026-08-26) The Round-5 findings are being fixed by sprint **S1.4**
+      (`claude/s1.4-stage-remediation-3`). Your actions, in order:
+      (a) when the S1.4 PR is open and its Preview built, dispatch the per-PR review brief
+      `docs/code-reviews/S1.4-stage-remediation-3-review.md`;
+      (b) **merge the S1.4 PR** on APPROVE;
+      (c) dispatch stage-gate **Round 6** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
+      Round 6 stub. **S2.1 starts only after Round 6 returns STAGE APPROVED.**
+      *(Original 1.7 text, preserved struck for the record:)* ~~The Round-4 findings are being fixed by
+      sprint **S1.3** (`claude/s1.3-stage-remediation-2`). Your actions, in order: (a) when the S1.3 PR is
+      open and its Preview built, dispatch the per-PR review brief
+      `docs/code-reviews/S1.3-stage-remediation-2-review.md`; (b) merge the S1.3 PR on APPROVE; (c)
+      dispatch stage-gate Round 5 — `docs/code-reviews/S1-stage-review.md`, re-pinned per its Round 5 stub
+      (same merge-base, new head = the S1.3 merge commit). S2.1 starts only after Round 5 returns STAGE
+      APPROVED~~ (the standing reminder stays true: during S2.1 you add the required **"Code Check"**
+      status to the existing `master` protection rule — the PR-before-merge half is already enabled,
+      confirmed 2026-08-26).
 
 ---
 

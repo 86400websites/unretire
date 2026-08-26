@@ -195,8 +195,10 @@ everything that should exist in Preview is missing*~~ (pre-2026-08-25) — are k
 > **Round 2 (this pass):** the tables corrected in round 1 described the **pre-split** dashboards and are
 > themselves now stale. Known issues **17, 18, 19 and 24** are marked **RESOLVED 2026-08-25** for the same
 > reason. `docs/TECH-ARCHITECTURE.md` §4's line *"Local, Preview, and Production do not share writable
-> production data"* — recorded in round 1 as **verified FALSE** — becomes **verified TRUE by configuration,
-> unverified by test**, and may not be flipped to a clean pass until §8 P1 and P2 are recorded.
+> production data"* — recorded in round 1 as **verified FALSE** — becomes **verified TRUE by configuration
+> for the Supabase and Stripe dependencies only, unverified by test**, and may not be flipped to a clean
+> pass until §8 P1 and P2 are recorded. *(Precision added 2026-08-26, Round 5 Finding 1: the Mailchimp
+> audience is excluded from even the configuration claim — it remains one shared entry, §2B row 9.)*
 > This table remains the single source of truth; re-verify it against the live Vercel dashboard after any
 > environment change.
 
