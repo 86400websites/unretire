@@ -414,33 +414,56 @@ Both findings are assessed as **correct**. Recorded here verbatim in substance:
   contained. If the branch is then rebased, amended, or partly merged, the "approved" range and the shipped
   range differ, and the per-PR gate — the one that catches PR-level defects and confirms a tested Preview —
   is skipped entirely. Nothing in the record would show it was skipped.
-- **Remediation (completed across 2026-08-25/26):** the per-PR brief was written at
-  `docs/code-reviews/S1.1-system-retrofit-review.md` and run to **APPROVE at round 9**; this file was
-  re-headed as a post-merge artifact with four explicit preconditions; the pre-merge SHAs were marked stale;
-  the preconditions were satisfied and this brief re-pinned to the merged range on 2026-08-26.
+- **Remediation (in progress, 2026-08-25):**
+  1. The missing per-PR brief has been written at **`docs/code-reviews/S1.1-system-retrofit-review.md`**,
+     filled from the canonical `docs/templates/CODEX-REVIEW-PROMPT-TEMPLATE.md`. It is the gate that runs
+     first, and it carries the head-pinning proof step, the Preview requirement, and the
+     documentation-sprint focus list.
+  2. This file has been re-headed as an unmistakably **post-merge** artifact, with the four preconditions
+     (a) per-PR APPROVE at the current head, (b) tested Preview at that head, (c) owner merge, (d) range
+     re-pinned to the merged `master` range — all four now stated at the top and all four currently unmet.
+  3. Its pre-merge SHAs are explicitly marked stale and retained only as the historical record.
 - **Confidence:** high
 
 ### Finding 2 — Blocking — scope includes an undecided owner gate
 
 - **Severity:** Blocking
-- **Location:** `docs/code-reviews/S1-stage-review.md` → Review target → Expected changed paths; and
+- **Location:** `docs/code-reviews/S1-stage-review.md` → "Review target" → Expected changed paths; and
   `docs/PROJECT-STATUS.md` → open decisions, **D-12** (D-7 superseded)
-- **Issue:** The immutable range added all **57 `Website-Development-System/**` files** while decision
-  **D-12** ("commit the SOP folder?") was still recorded **Open**. The declared scope therefore included
-  owner-gated content with no recorded owner decision.
+- **Issue:** The immutable range adds all **57 `Website-Development-System/**` files** while decision
+  **D-12** ("commit the SOP folder?") is still recorded **Open** in `docs/PROJECT-STATUS.md`. The declared
+  scope therefore includes owner-gated content with no recorded owner decision.
 - **Failure scenario:** A reviewer approves a range containing 57 files the owner never agreed to commit.
   The folder lands on `master` by review inertia rather than by decision, and the tracker still says the
   question is open — so a later session cannot tell whether the commit was authorized or accidental.
-- **Remediation (completed 2026-08-25):** D-12 resolved **NO** by the owner; commit `7024375` untracked and
-  gitignored all 57 files; the per-PR review verified the range contains zero `Website-Development-System/**`
-  paths; tracker and tree agree.
+- **Remediation (in progress, 2026-08-25):**
+  1. D-12 has been put to the owner as an explicit **yes / no**. Nothing in the review record assumes an
+     outcome; the per-PR brief is authored for **both**.
+  2. The per-PR brief's **focus item 8** now owns this check at the PR gate: it defines the acceptable end
+     state for D-12 = YES (folder tracked **and** tracker records Resolved YES) and for D-12 = NO (folder
+     untracked/gitignored **and** tracker records Resolved NO), and names the unacceptable middle state.
+  3. **The unacceptable middle state is what the repo is in right now.** Commit `7024375` applies
+     **D-12 = NO** — `Website-Development-System/` is gitignored and untracked — while
+     `docs/PROJECT-STATUS.md` records D-12 as **Resolved — NO** (see §8) and D-7 as *"Open —
+     wording superseded by D-12"*. Tree and tracker disagree. The tracker must record D-12 (and D-7) as
+     **Resolved**, with the outcome, the owner, and the date, before either gate can pass. This is a
+     documentation-only fix and is **not yet done**.
 - **Confidence:** high
 
-**Round 1 outcome:** merge blocked; Stage 2 does not open. Both findings fixed and re-reviewed — first at
-the per-PR gate (rounds 1–9), then here on the merged `master` range.
+**Round 1 outcome:** merge blocked; Stage 2 does not open. Both findings must be fixed and a new head
+reviewed — first at the per-PR gate, then here on the merged `master` range.
 
 Reviewed range: `0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb` ·
 Stage S1 — System Integration · Reviewed by Codex on 2026-08-25.
+
+*Addendum — added 2026-08-26, deliberately outside the filed record above (S1.2 per-PR review Round 1,
+Finding 1: a filed round stays as written on its day).* Both remediations were subsequently completed: the
+per-PR review ran to **APPROVE at round 9** (head `39f698d`); D-12 was resolved **NO** and implemented in
+`7024375`, independently verified (zero `Website-Development-System/**` paths in the range); the four
+preconditions were satisfied and this brief was re-pinned to the merged range on 2026-08-26. An earlier
+S1.2 commit (`5143797`) had edited the filed Round-1 text itself to state these outcomes — that edit
+violated append-only history and is reverted here: the Round-1 text above is restored **verbatim** from
+`1309e01`.
 
 ## Round 2 — 2026-08-26 — Codex
 
