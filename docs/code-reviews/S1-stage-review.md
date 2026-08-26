@@ -1,293 +1,388 @@
-# Codex Stage Review Brief — S1 — System Integration
+# Codex Stage-Gate Review Brief — S1 — System Integration
 
-## ⛔ STATUS: BLOCKED — THIS IS A **POST-MERGE** ARTIFACT. DO NOT RUN IT YET.
+> Save the filled brief at docs/code-reviews/S1-stage-review.md before review.
+> Append the reviewer's returned record; the reviewer does not edit the repository.
 
-**Current verdict on record: STAGE NOT APPROVED** (Codex, 2026-08-25) — 2 Blocking findings. See
-**§ Review rounds → Round 1** at the end of this file for the full record. History here is **appended,
-never erased**; a later round does not delete an earlier one.
+## ✅ STATUS: DISPATCH-READY (2026-08-26) — all four preconditions are now met
 
-The stage gate is the **last** gate in the chain, not the first. `docs/WORKFLOW.md` §5–§7 orders it:
+This version supersedes the pre-merge "BLOCKED — DO NOT RUN" version of this file (that version, pinned to
+the obsolete branch head `b6594b5`, is preserved in git history — see the merged branch — and its refusal
+rationale is preserved as **Round 1** and **Round 2** under § Review rounds below; history is appended,
+never erased).
 
-```
-branch → local checks → PR → tested Preview → per-PR Codex review → APPROVE → owner merges → THEN this stage gate
-```
-
-**This file must NOT be dispatched to a reviewer until all four are true:**
-
-| # | Precondition | Where it is satisfied | State |
+| # | Precondition | Evidence | State |
 |---|---|---|---|
-| (a) | The **per-PR review** returns **APPROVE** at the current head | `docs/code-reviews/S1.1-system-retrofit-review.md` | ❌ not yet run |
-| (b) | The **deployed Preview has been tested at that same head** | Preview URL + result recorded in the per-PR brief | ❌ no PR/Preview yet |
-| (c) | The **owner has merged** the PR into `master` | owner action; only the owner merges | ❌ not merged |
-| (d) | The range below is **re-pinned to the merged `master` range** | this file, "Review target" | ❌ still pinned to the pre-merge branch |
+| (a) | Per-PR review returns **APPROVE** at the current head | `docs/code-reviews/S1.1-system-retrofit-review.md` § Review rounds → **Round 9 — 2026-08-26 — APPROVE**, range `0983ad5…..39f698d…`. The two commits after `39f698d` (`ff1dae7`, `543d26e`) append review-round records only — the exemption for record-append commits, with scope and reviewed head documented inside Round 9 itself | ✅ |
+| (b) | Deployed Preview tested at that head | Per-PR record line ~115: `https://unretire-git-claude-r1-system-retrofit-86400-s-projects.vercel.app` — built and serving at the pinned head (HTTP 200 behind Vercel Deployment Protection), owner-confirmed rendering; limits stated in that record | ✅ |
+| (c) | Owner merged the PR into `master` | PR #1 merged 2026-08-26 as merge commit `1309e01ebf225293effb9e641df4aae654563d8a`, now the tip of `origin/master` | ✅ |
+| (d) | Range re-pinned to the merged `master` range | This brief's §1 below pins `0983ad557218666b63cb5b6d3db9152041865bb9..1309e01ebf225293effb9e641df4aae654563d8a` | ✅ |
 
-**Every SHA in the "Review target" section below is the pre-merge *branch* range and is therefore STALE.**
-It is retained only as the historical record of what was originally (and wrongly) pinned. Before dispatch,
-re-pin the immutable range to the merged `master` range — the pre-merge `master` tip
-(`0983ad557218666b63cb5b6d3db9152041865bb9` unless `master` has moved) `..` the merge commit on `master` —
-and confirm it with `git log --oneline master` and `git diff <base>..<merge> --name-only`.
+This is the **stage gate**. It runs once, at the end of a stage, over every PR the stage contains.
+It **complements and never replaces** the per-PR review (docs/templates/CODEX-REVIEW-PROMPT-TEMPLATE.md).
+Same policy (AGENTS.md), same severities (**Blocking** / **Should-fix**), same finding format, one verdict —
+but the unit under review is the **whole stage as a coherent result**, not a diff.
 
-Running this stage gate against an unmerged branch is exactly what Codex flagged as **Blocking Finding 1**
-on 2026-08-25. Do not repeat it.
+A per-PR APPROVE never carries forward into stage approval. **Precondition:** every PR listed below already
+carries a current-head APPROVE from its own per-PR review (docs/WORKFLOW.md §6–§7). A PR that merged without
+one is a **Blocking** finding on its own — record it and continue the review.
 
-> **Stage 1 of the owner-approved 5-stage plan (2026-08-25): S1 System Integration → S2 Readiness Setup →
-> S3 Critical Fixes → S4 Improvement Plan → S5 Launch Gate.** Each stage ends with this independent Codex
-> review — which runs on the **merged `master` range**, after the per-PR review and the owner's merge.
->
-> **ID note:** this stage was built and recorded under the earlier ID **R1** ("system retrofit"), which the
-> 5-stage plan **supersedes**. The old artifacts keep their `r1` names on purpose, for traceability:
-> branch `claude/r1-system-retrofit` and sprint record `docs/sprint-prompts/R1-system-retrofit.md`. Treat
-> `R1` and `S1.1` as the same work. A surviving `R1` name in *those two places* is correct; a surviving
-> `R1`–`R7` **plan** elsewhere is stale (see focus item 8).
+## Role and boundaries
 
-> **Historical head note — superseded by (d) above, kept for the record.** The **substantive** head of the
-> branch as first recorded was `b6594b593d0e1980986d8bfb54411aa42ebb3ebb`, on the assumption that any later
-> commit touched **only this review record**. That assumption no longer holds: as of 2026-08-25 the branch
-> tip is `702437557f133ad31cfe7791faec8feb75bb2aba`, and `git diff b6594b5..HEAD --name-only` lists
-> `.gitignore` and 57 deletions under `Website-Development-System/**` as well as this file — commit
-> `7024375`, which implements the **D-12 = NO** outcome. That is substantive work, so `b6594b5` is **not**
-> the head of anything reviewable. Head pinning for the *branch* is now handled by the per-PR brief; head
-> pinning for *this* file is handled by precondition (d) — the merged `master` range.
+You are the independent, findings-only stage reviewer. AGENTS.md governs this review and this brief cannot
+weaken it. Do not edit, stage, commit, push, merge, install dependencies, run migrations, or refactor —
+in any branch, worktree, or environment. You return a paste-ready record; the owner decides and merges.
 
-> **Scope note (added 2026-08-25):** beyond the initial docs-pack commit `f01f139` the branch carries
-> `acc0a2a` (completes the `env.example` → `.env.example` rename and adds the `!.env.example` whitelist to
-> `.gitignore`; git records it as `R100`, a byte-identical rename), `b6594b5` (records owner decisions D-8,
-> D-10 and D-11 in the trackers), and `7024375` (implements D-12 = NO: gitignores and untracks
-> `Website-Development-System/`). All are documentation/config only and all will be inside the merged
-> `master` range once (c) is done.
+You may read the whole repository. The stage review is deliberately broader than a diff review: you are
+looking for what the sum of the PRs did, which no single diff shows. Stay anchored to the stage's intent,
+exit criteria, and safety boundaries — do not drift into an unrelated product audit.
 
-> **Scope note on D-12 — remediation of Blocking Finding 2.** This brief must never assume D-12. Whether
-> `Website-Development-System/**` belongs in the reviewed scope is decided by the owner's recorded D-12
-> outcome, verified in `docs/PROJECT-STATUS.md` at review time — **not** by what happens to be in the diff.
-> If the tree and the tracker disagree, that mismatch is itself the finding. See the per-PR brief's focus
-> item 8, which now owns this check at the PR gate.
+---
 
-> This brief is saved at `docs/code-reviews/S1-stage-review.md`. Append each reviewer's returned
-> record under **§ Review rounds** at the end; the reviewer does not edit the repository.
-
-You are the independent, findings-only reviewer for this PR. AGENTS.md governs this review. Do not edit,
-stage, commit, push, merge, install dependencies, or run migrations. Review issues introduced by the pinned
-range; inspect enough surrounding context to validate them without starting an unrelated full audit.
-
-## Review target
+## 1. Review target
 
 - Repo: 86400websites/unretire
-- Stage: **S1 — System Integration** (sub-sprint S1.1; formerly R1)
-- PR: #[PR_NUMBER] — [PR_URL]  *(to fill when opened)*
-- Branch: claude/r1-system-retrofit (context only — created on owner authorization; old ID retained deliberately)
-- Merge-base SHA: 0983ad557218666b63cb5b6d3db9152041865bb9
-- Reviewed head SHA: b6594b593d0e1980986d8bfb54411aa42ebb3ebb
-- Immutable range: 0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb
-- Sprint record: docs/sprint-prompts/R1-system-retrofit.md
-- Expected changed paths: `CLAUDE.md`, `AGENTS.md`, `env.example` (created); `README.md` (modified);
-  `docs/**` (47 files on disk as of 2026-08-25); `.claude/skills/**` (5 files).
-  **No file under `src/`, no `package.json`, no config, no lockfile, no `.github/**`.**
-  `Website-Development-System/**` moves untracked→tracked **only** if the owner resolves D-12 (which
-  supersedes the D-7 wording) as YES.
+- Stage: **S1 — System Integration** (single sub-sprint S1.1; formerly R1)
+- Stage merge-base SHA (parent of the stage's first merge): `0983ad557218666b63cb5b6d3db9152041865bb9`
+- Stage head SHA (master after the stage's final merge): `1309e01ebf225293effb9e641df4aae654563d8a`
+- Immutable stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..1309e01ebf225293effb9e641df4aae654563d8a`
+- Default branch: master
+- Stage closed on: 2026-08-26 (PR #1 merged)
 
-First confirm both SHAs and the actual changed-file list. Stop and report a target mismatch before reviewing
-if the range, head, PR, or scope does not agree. If the `docs/**` count differs from 44, reconcile it against
-the sprint record's file list before treating it as a finding — files were withdrawn late in the stage (see
-"Withdrawn mid-stage" below).
+### PRs in this stage
 
-## Read for context
+| # | PR | Sprint ID | Branch | Merged head SHA | Sprint record | Per-PR review record | Per-PR verdict |
+|---|---|---|---|---|---|---|---|
+| 1 | #1 — https://github.com/86400websites/unretire/pull/1 | S1.1 (formerly R1) | claude/r1-system-retrofit | `543d26e` (branch tip; substantive head `39f698d` + two review-record-only appends `ff1dae7`, `543d26e`, documented in Round 9) | docs/sprint-prompts/R1-system-retrofit.md | docs/code-reviews/S1.1-system-retrofit-review.md | **APPROVE** (Round 9, 2026-08-26, at `39f698d`) |
 
-- AGENTS.md.
-- The sprint record above.
-- docs/PROJECT-STATUS.md and docs/ROADMAP.md — the two live trackers.
-- `docs/TECH-ARCHITECTURE.md` and `docs/DESIGN.md` — the two docs asserting the most code-verifiable facts.
-- `docs/PROJECT-STATUS.md` §6 checks, §8 open decisions (D-1…D-12), §10 known issues (16 rows).
-- The SOP sources under `Website-Development-System/development/` — to confirm the copied files were not
-  silently altered (see focus item 4 for the two intentional exceptions).
+### Confirm the target before reviewing
 
-## Stage intent
+- [ ] Both stage SHAs resolve, and `1309e01…` is the current tip of master.
+- [ ] The commits in the range are exactly PR #1's branch commits plus the merge commit `1309e01` (the
+      range contains ~40 commits, all from `claude/r1-system-retrofit`) — **no extra merge, no direct push
+      to master, no force-push** slipped into the range.
+- [ ] The changed-file list for the whole range matches the declared scope: **59 paths, +7056/−22 — all
+      under `docs/`, `.claude/skills/`, or root documentation (`CLAUDE.md`, `AGENTS.md`, `README.md`,
+      `.env.example`, `.gitignore`). Zero `src/` paths; no `package.json`, lockfile, `next.config.*`,
+      `tsconfig.json`, or PostCSS/Tailwind config.** (Builder-verified 2026-08-26; re-verify.)
+- [ ] The listed per-PR review record exists and its reviewed head relates to the merged head exactly as
+      the table above states (substantive head + record-only appends).
 
-- Goal and exit condition: install the Website-Development-System into an **already-built** site — governing
-  docs filled with code-verified facts, the five Claude Code skills, the testing + error-tracking modules,
-  content-freeze records, and live trackers naming every known issue and open decision. Exit: the repo is
-  self-contained and governed — every later change can travel branch → checks → PR → Preview → review →
+**Working-tree note (not part of the range):** two untracked files exist in the local working tree —
+`docs/sprint-prompts/S2.1-code-check-ci.md` and `docs/code-reviews/S2.1-code-check-ci-review.md`. They are
+the planned records for the **next** sprint (S2.1), deliberately prepared before its branch exists. They are
+not in the reviewed range and must not be treated as scope drift.
+
+Stop and report a target mismatch before reviewing if any of these disagree.
+
+---
+
+## 2. Read for context
+
+- AGENTS.md (canonical reviewer policy) and CLAUDE.md (builder rules and stack lock).
+- docs/WORKFLOW.md (delivery chain, §7 merge rule), docs/ROADMAP.md (S1 row + the **Universal sprint exit
+  gate**), docs/PROJECT-STATUS.md (§1–§3 state, §6 checks, §7–§8 decisions, §10 known issues, §11 update rules).
+- docs/TECH-ARCHITECTURE.md, docs/SECURITY-CHECKLIST.md, docs/TECHNICAL-INTEGRITY.md.
+- The sprint record and per-PR review record listed in §1 (the per-PR record's nine rounds are the
+  audit trail of how this stage reached APPROVE).
+- Stage-specific: docs/content/locked-facts.md, docs/content/page-copy/home.md, docs/DESIGN.md,
+  docs/SUPABASE-MCP-SAFETY.md, docs/SUPABASE-VERCEL-SETUP.md, docs/ENVIRONMENT-PARITY.md,
+  the five `.claude/skills/*/SKILL.md`, docs/testing-setup/**, docs/error-tracking/**.
+
+---
+
+## 3. Stage intent and exit criteria
+
+- Stage goal, in one paragraph: install the Website-Development-System into an **already-built** site —
+  governing docs filled with code-verified facts, the five Claude Code skills, the testing + error-tracking
+  modules, content-freeze records, and live trackers naming every known issue and open decision. Exit: the
+  repo is self-contained and governed — every later change travels branch → checks → PR → Preview → review →
   merge. **Documentation and tooling only; no runtime behavior may change.**
-- Intentionally out of scope, with the stage that owns each: CI workflow file (**S2.1** — needs scripts that
-  do not exist yet); the pre-existing lint error at `src/app/premium/page.tsx:182` (**S2.1**, Known issue 16);
-  `.mcp.json` / agent tooling (**S2.2**); Playwright harness (**S2.3**); Sentry (**S2.4**); the two
-  live-breakage bug groups (**S3.1**, Known issues 1–2); hygiene deletions (**S3.2**); mobile/a11y, design
-  consolidation, Supabase/RLS, auth hardening (**S4.1–S4.4**); abuse controls + legal pages + email
-  deliverability (**S4.5**); the test suite and launch (**S5**).
-- Owner-authorized exceptions: None. Two forced deviations are recorded in the sprint record: (a) the env
-  example is committed as `env.example` because agent tooling blocks writing `.env*` paths — the owner
-  renames it to `.env.example` and whitelists it with `!.env.example` in `.gitignore` during S2.1;
-  (b) branch protection is a GitHub web-UI owner action because `gh` CLI is not installed on this machine.
-- **Withdrawn mid-stage — `docs/predevelopment/`.** ~10 files were created under `docs/predevelopment/` as a
-  backfilled predevelopment record, then **withdrawn on owner instruction on 2026-08-25**: the project is
-  already at the development stage, so the predevelopment worksheets do not apply, and predevelopment is
-  dropped from the plan entirely. The SOP originals remain in `Website-Development-System/predevelopment/`
-  for future greenfield projects. Open decision **D-6** (predevelopment owner inputs) is struck through and
-  marked WITHDRAWN. The facts those files would have carried live where they are actually used: sitemap →
-  `docs/TECH-ARCHITECTURE.md` §3, design system → `docs/DESIGN.md`, copy/facts → `docs/content/`, feature
-  list → generated later by `/activate-testing`. **The reviewer must confirm the withdrawal is clean** — see
-  focus item 3.
-- Hosting/Preview state: [PREVIEW_URL_AND_TEST_RESULT_FOR_HEAD_SHA]  *(no PR yet; a docs-only change still
-  gets a Preview so the reviewer can confirm the site is unchanged)*
+- Intentionally out of scope, with the stage that owns each: CI workflow + scripts + the pre-existing lint
+  error at `src/app/premium/page.tsx:182` (**S2.1**, Known issues 10/16); `.mcp.json` / agent tooling,
+  MAILCHIMP_LIST_ID split, `staging` build (**S2.2**); Playwright harness (**S2.3**); Sentry (**S2.4**);
+  parity proofs (**S2.5**); the live-breakage fixes (**S3.1**, Known issues 1–2, 22, 43, 45); hygiene
+  deletions (**S3.2**); audits + hardening (**S4.1–S4.4**, Known issues 37–42); abuse controls, legal pages,
+  deliverability (**S4.5**, Known issue 44); suite and launch (**S5**). The ten code defects found by the
+  per-PR review are **deliberately deferred by explicit owner instruction** — S1 documents, it does not fix;
+  each is recorded in PROJECT-STATUS §10 with file, line, mechanism, and fixing sprint.
+- Owner-authorized exceptions: the `env.example` → `.env.example` rename plus `!.env.example` whitelist
+  landed **in-branch** (commit `acc0a2a`) once tooling allowed it — the earlier recorded deviation is
+  historical. Branch protection remains a GitHub web-UI owner action (gh CLI absent), owed at S2.1.
+- **Withdrawn mid-stage — `docs/predevelopment/`:** ~10 files were created, then withdrawn on owner
+  instruction 2026-08-25 (project already at development stage; D-6 WITHDRAWN). The reviewer must confirm
+  the withdrawal is clean — no dangling project-specific reference survives (see §6 focus item 3).
+- Hosting/Preview state at `1309e01`: Preview evidence per §1 precondition (b). **Production at the stage
+  head (probed 2026-08-26, read-only):** `https://unretire.vercel.app` HTTP 200; `/api/stripe/webhook`
+  returns `Missing signature` unsigned and `Invalid signature` on a bogus signature; `og:url` resolves
+  `https://unretire.vercel.app` — the docs-only merge changed no runtime behavior.
 - Database/migration state: N/A — no migration, no schema change, no database access in this stage.
+- The next stage is **S2 — Readiness Setup** (first sprint S2.1 — Code Check CI), and it depends on this
+  stage delivering: (1) accurate live trackers (PROJECT-STATUS + ROADMAP); (2) docs/TECHNICAL-INTEGRITY.md
+  as the CI spec; (3) Known issues 10/16/20 recorded with S2.1 ownership; (4) a tracked, placeholder-only
+  `.env.example`; (5) the five skills loadable; (6) the sprint-record + review-brief conventions S2.1's
+  prepared records follow.
 
-## Checks and evidence
+### Exit criteria — from docs/ROADMAP.md S1.1 row; reviewer completes the last two columns
 
-- Typecheck: `pnpm exec tsc --noEmit` — **PASS** (exit 0) on the S1 working tree, 2026-08-25
-- Lint: `pnpm lint` — **FAIL: 1 error**, `src/app/premium/page.tsx:182` `@next/next/no-html-link-for-pages`.
-  **Pre-existing and outside this stage's changed files** (S1 touches no `src/`). Verify it reproduces on
-  the merge-base before treating it as introduced. Logged as Known issue 16, scoped to S2.1.
-- Tests: N/A — no automated suite exists yet. Auth + payments make an e2e suite REQUIRED before launch per
-  `docs/TECH-ARCHITECTURE.md`; the harness arrives in S2.3 and the suite in S5.1 → `/activate-testing`.
-- Production build: `pnpm build` — **PASS** (exit 0, 18.9s; 35 route entries, 58 static pages) on the S1
-  working tree, 2026-08-25
-- Install: `pnpm install --frozen-lockfile` — PASS (dependencies were not previously installed on this
-  machine). The lockfile was not modified.
-- Current CI evidence for HEAD_SHA: None — no CI exists yet; the Code Check workflow is S2.1.
-- Current tested Preview evidence for HEAD_SHA: [RESULT_OR_LINK]  *(to fill after the PR is opened)*
+| # | Exit criterion | Claimed evidence | How the reviewer verified it | VERIFIED / NOT VERIFIED / UNVERIFIABLE |
+|---|---|---|---|---|
+| 1 | Docs pack exists with no critical placeholder unfilled | Builder sweep 2026-08-26 at `1309e01`: ~260 bracketed-token hits across docs/**, CLAUDE.md, AGENTS.md — every one in a sanctioned class (verbatim template skeletons; per-use slots; SOP copies with prepended project-values blocks; review-brief owner-supplied values explicitly marked pending; quoted/struck historical text). Three minor items disclosed below | | |
+| 2 | All 5 skills load by name | `.claude/skills/{activate-testing,browser-qa,close,handle-error,sprint-prompt}/SKILL.md` — all five tracked at `1309e01`, non-empty (5–13 KB), frontmatter name matches directory, all listed loadable | | |
+| 3 | Content freeze files match on-disk code (flagged items listed, not locked) | Builder spot-check 2026-08-26: $99 one-time and $199/yr match code at `src/app/learn/course/page.tsx`, `src/app/premium/page.tsx`, `src/lib/stripe/checkout.ts:13-19` (modes payment/subscription); home hero copy verbatim vs `src/app/page.tsx:87-97,146-149`; courseData = 10 modules / 48 lessons (4+6+5+5+5+5+5+4+4+5); the 31-vs-48 inconsistency is FLAGGED in locked-facts (Flagged item 1) and home.md, not locked; placeholder testimonials / "340+ Members" / date-bound banner all flagged and present as described | | |
+| 4 | Trackers live | docs/PROJECT-STATUS.md (264 lines: §1–§11, 45 known issues, launch-blocking set) and docs/ROADMAP.md (S1–S5 with acceptance criteria) at `1309e01`; honest status: lint recorded as FAIL with the known error | | |
+| 5 | Owner reviewed and authorized the commit | Blocker #1 cleared in PROJECT-STATUS §5 (branch committed and pushed on owner authorization); PR #1 opened and **merged by the owner** 2026-08-26 (`1309e01`) | | |
+| 6 | The S1 stage-gate Codex review returns STAGE APPROVED | **This review** — the criterion this dispatch exists to satisfy | | |
 
-Run commands only with the existing environment. Do not install or change anything to make a check pass.
-State every command not run and why.
+**A stage with any row that is NOT VERIFIED or UNVERIFIABLE cannot be approved.**
 
-## Hunt list
+### Known minor items, disclosed by the builder (2026-08-26) for the reviewer's judgment
 
-1. Correctness: exit criteria work in realistic success, empty, loading, and failure states that apply.
-2. Authorization: gated routes/data paths, if any, authorize server-side before protected reads; admin paths
-   verify role.
-3. Secrets/env: no live env values, credentials, tokens, private keys, or server-only values exposed. A
-   placeholder-only example file is acceptable only when it contains names/placeholders, not live values.
-4. Data safety: no unintended anonymous path or silent data loss; database changes, if any, match the selected
-   migration, rollback, and access-policy rules.
-5. Input safety: untrusted values are validated before redirects, URLs, raw HTML, queries, or other sinks.
-6. Build/deploy: imports, generated artifacts, routing/rendering mode, config, lockfiles, and hosting behavior
-   have no unintended change.
-7. Scope/content: actual paths match the stage; approved copy/design/facts were not silently changed.
-8. Regressions: the change does not weaken an existing guard or break a neighboring workflow.
+1. `docs/ENVIRONMENT-PARITY.md:956-957` — the doc's own delivery footer (`branch [BRANCH], PR #[PR_NUMBER]…`)
+   is still bracketed although PR #1's values now exist. Visibly unfilled (not presented as done); the values
+   are owner-supplied by rule. Owner may fill it on the next authorized docs branch.
+2. `docs/code-reviews/S1.1-system-retrofit-review.md:540-543` — a trailing "Round 1 — *Not yet run*" stub
+   survives below the nine filed rounds; cosmetic contradiction, no factual claim.
+3. `docs/SUPABASE-MCP-SAFETY.md:12` — the prod project ref row still reads "Owner to confirm" although the
+   ref is recorded under resolved D-8/D-11 elsewhere; conservative rather than wrong (prod stays disconnected
+   from MCP until S2.2).
+4. `docs/content/locked-facts.md` cites the book-page testimonials at "lines 40-45"; they sit at 41-44.
+   Content identical; line-number drift only.
 
-Do not open a live-value env file from the worktree. Never echo a suspected secret value. Identify only
-its file, line, and type and recommend rotation.
-Report serious, evidence-backed issues only; no style nits.
+---
 
-## Stage-specific focus (S1 — a documentation stage)
+## 4. Evidence
 
-This stage's risk is **not** runtime breakage; it is a governing docs pack that *misdescribes the system it
-governs*. A doc that states a wrong command, a wrong route, or a wrong access rule is a defect here, because
-every later stage is built from these files. Weight the review accordingly:
+### Commands (run with the existing environment only)
 
-1. **Fact accuracy.** Spot-check `docs/TECH-ARCHITECTURE.md` (stack versions, routes + access levels, data
-   stores, auth/authz matrix, env-var classes) and `docs/DESIGN.md` (tokens, fonts, components) against the
-   actual code. Flag anything asserted that the code does not support.
-2. **No runtime change.** Confirm the diff touches no `src/`, `package.json`, lockfile, or config — the
-   claim "documentation only" must hold literally.
-3. **Predevelopment withdrawal is clean.** `docs/predevelopment/` must not exist on the reviewed head, and
-   **no dangling reference to it may survive anywhere in the docs pack** — no `docs/predevelopment/...`
-   path, no tracker row or sprint scope line still promising a "predevelopment backfill", no open decision
-   still demanding predevelopment inputs (D-6 must read WITHDRAWN, not Open). Generic SOP prose that
-   *describes* predevelopment as a concept is fine where it is verbatim SOP text (e.g. the copied
-   `docs/templates/NEW-WEBSITE-SETUP-CHECKLIST.md`, `docs/testing-setup/**`, and the five skills, which are
-   written for the whole system, not this project); what must not survive is a **project-specific claim that
-   this repo has, needs, or will get predevelopment files**. `grep -rn "predevelopment" docs/ .claude/
-   CLAUDE.md AGENTS.md README.md` and judge each hit against that line. At the time this brief was written
-   the tracker renumbering was still in flight and `docs/ROADMAP.md` still listed "predevelopment backfill"
-   in the S1 scope row — confirm it does not survive on the reviewed head.
-4. **Copy fidelity — 23 byte-identical, 2 intentionally not.** 25 files were copied from
-   `Website-Development-System/development/`. **23 must be byte-identical** to their sources:
-   `docs/SECURITY-CHECKLIST.md`, `docs/BROWSER-TOOLS.md`, all 10 `docs/templates/*.md`, all 6
-   `docs/testing-setup/**`, and all 5 `docs/error-tracking/**`. `cmp` is sufficient:
-   `cmp docs/<f> Website-Development-System/development/<f>` for each.
-   **The two deliberate exceptions are `docs/SUPABASE-MCP-SAFETY.md` and `docs/SUPABASE-VERCEL-SETUP.md`.**
-   Each gained a **prepended "(Un)Retire project values" block** that resolves the SOP's generic
-   `[BRACKETS]` for this project (and records that Supabase MCP is **not** connected; Profile B — production read-only — was approved by the owner on 2026-08-25 under D-11 and is wired in S2.2). This is
-   intended, not drift. Verify that in each of those two files the diff is **additive at the top only** and
-   the SOP body below the block is unchanged, and that the prepended block contains **no live value** —
-   project refs, domains, and the Vercel project are all "⚠ Owner to confirm" placeholders, which is correct.
-   Also confirm `Website-Development-System/` itself is unmodified as a read-only SOP source.
-5. **Safety boundaries intact.** The filled `CLAUDE.md`, `AGENTS.md`, and the five `.claude/skills/*/SKILL.md`
-   must not have weakened any rule of their source template — especially Commit/Push default-NO, the
-   never-open-live-env rule, server-side authorization before protected reads, owner-only merge, and the
-   findings-only (no-edit) reviewer role.
-6. **Secret hygiene.** `env.example` must contain names + unmistakably fake placeholders only (11 names,
-   matching the 11 `process.env.*` names in `src/`). Confirm no real value, and that no doc pastes a live
-   value. Env names are documented in `docs/TECH-ARCHITECTURE.md` §6 and `docs/PROJECT-STATUS.md` §9 —
-   names only.
-7. **Honest status.** `docs/PROJECT-STATUS.md` must not overstate completion: the lint failure is recorded
-   as a failure, no check is claimed that was not run, no Preview result is claimed (none exists yet), and
-   the 16 known issues + open decisions D-1…D-12 (D-6 withdrawn) are present and consistent with
-   `docs/ROADMAP.md`.
-8. **Stage numbering is consistent.** The docs pack was authored under the old R1–R7 sprint plan, which the
-   owner replaced on 2026-08-25 with the 5-stage plan **S1–S5**. On the reviewed head, `PROJECT-STATUS.md`,
-   `ROADMAP.md`, and every cross-reference should speak in S-IDs (with the supersession explicitly recorded).
-   The only correct surviving `r1`/`R1` names are the branch `claude/r1-system-retrofit` and the sprint
-   record filename. Flag any *plan* reference that still routes later work to a sprint ID that no longer
-   exists — especially "fix in R3" / "R7" style pointers in known issues and open decisions.
-9. **Default branch.** This repo's default branch is `master`, not `main`. Every reference should say
-   `master` (or explicitly discuss the D-1 rename). A bare `main` instruction would send later work to a
-   branch that does not exist.
-10. **Cross-reference integrity.** Every `docs/` and `src/` path cited in the filled docs should resolve.
-    Three expected-future/conditional exceptions are known and acceptable: `docs/FEATURE-LIST.md` (produced
-    by `/activate-testing`), `docs/INCIDENT-LOG.md` (produced by `/handle-error`), and `docs/THREAT-MODEL.md`
-    (conditional text inside the verbatim `close` skill). Anything else that does not resolve is a finding.
+- Typecheck: `pnpm exec tsc --noEmit`
+- Lint: `pnpm lint`
+- Format check: N/A — no `format:check` script exists yet (arrives in S2.1)
+- Tests: N/A — no automated suite yet (harness S2.3, suite S5.1)
+- Production build: `pnpm build`
+- Stage-specific: `git diff --name-only 0983ad5..1309e01`; the byte-identity `cmp` checks in §6 item 4
 
-## What would make this stage a failure
+Do not install, upgrade, change a lockfile, apply a migration, or alter source/config to make a check pass.
+State every command you did not run and why.
 
-Any one of these is **STAGE NOT APPROVED**, regardless of how much else is right. This is the bar:
+### Per-PR evidence in this stage
 
-1. **A doc that misstates a command, a route, or an access rule.** A wrong `pnpm` command, a route listed at
-   the wrong path or the wrong access level, a gate described as protected that is public (or vice versa),
-   or a wrong env-var class (public vs server-only). Every later stage is built from these files, so a wrong
-   fact here propagates into code.
-2. **A weakened safety boundary** in `CLAUDE.md`, `AGENTS.md`, or any of the five `.claude/skills/*/SKILL.md`
-   relative to its SOP source — Commit/Push defaulting to anything but NO, a softened never-open-live-env
-   rule, dropped server-side authorization language, self-merge or reviewer-edits permitted, or a removed
-   fail-closed requirement.
-3. **A real value in `env.example`** (or in any doc): a key, token, secret, connection string, project ref,
-   or private URL. Report file, line, and type only — never the value — and recommend rotation.
-4. **Any `src/`, `package.json`, lockfile, or config change** sneaking into a stage declared documentation
-   only. The scope claim must hold literally, not approximately.
-5. **`docs/PROJECT-STATUS.md` overstating done-ness**: a check marked PASS that failed or was not run, a
-   Preview result claimed without one, a known issue silently dropped, a sprint marked further along than
-   the working tree supports, or an open decision recorded as resolved without an owner decision.
-6. **A surviving dangling `docs/predevelopment/` reference** that tells a future session to read, fill, or
-   wait on files that were withdrawn and do not exist.
-7. **Unexplained drift in a copied SOP file** — any of the 23 that should be byte-identical differing, or a
-   change inside the SOP body of the two Supabase docs (as opposed to their prepended project-values block),
-   or any modification to `Website-Development-System/` itself.
+| PR | CI ("Code Check") at merged head | Deployed Preview tested at merged head | QA evidence |
+|---|---|---|---|
+| #1 | N/A — no CI exists yet; the Code Check workflow is S2.1's deliverable (honest gap, not a lapse) | `https://unretire-git-claude-r1-system-retrofit-86400-s-projects.vercel.app` · built and serving at the pinned head; owner-confirmed rendering (per-PR record, with Deployment Protection limits stated) | N/A — docs-only change; QA-CHECKLIST Part 2 applies to UI sprints |
 
-## Returned record
+### Evidence at the stage head
 
-Begin with:
+- Checks re-run at `1309e01` (builder, 2026-08-26, this machine): `git rev-parse HEAD` =
+  `1309e01ebf225293effb9e641df4aae654563d8a`; range file list = 59 paths, 0 under `src/`, no
+  dependency/config files; `pnpm exec tsc --noEmit` **exit 0, zero errors**; `pnpm lint` **exit 1 with
+  exactly one error** — `src/app/premium/page.tsx:182` `@next/next/no-html-link-for-pages` (pre-existing
+  Known issue 16, deferred to S2.1; reproduce it on the merge-base to confirm it is not introduced);
+  `pnpm build` **exit 0** (Turbopack, compiled 25.6s), **35 app route entries** (+ framework `/_not-found`),
+  **58/58 static pages**. Non-fatal pre-existing build warnings: middleware-to-proxy deprecation notice and
+  a Turbopack NFT trace warning via `next.config.ts` → the book-download route.
+- Production smoke at `1309e01` (2026-08-26, read-only probes): site HTTP 200; webhook signature validation
+  behaves correctly (`Missing signature` / `Invalid signature`); `og:url` correct; custom domain still
+  parked at GoDaddy (Known issue 27, expected).
 
-- Confirmed range: 0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb
+Per-PR green does **not** prove stage green: the per-PR review ran against the branch head, not the merged
+result. The builder's stage-head re-run above is claimed evidence — re-verify, do not inherit.
+
+---
+
+## 5. Stage-level hunt list
+
+These are the questions a per-PR review structurally cannot ask. Work them in order.
+
+1. **Did the stage actually achieve its exit criteria, or only appear to?** For every row in §3, find the
+   thing itself — the file, the config value, the route, the passing run — not the sentence that says it
+   exists. A checkbox, a PR description, or a status table is a claim, not evidence.
+
+2. **Cumulative drift across the range.** Read the combined range as one diff. This stage's forty-ish
+   commits include nine review-fix rounds — hunt for what only shows up in the sum: a rule stated one way in
+   an early commit and contradicted by a later round-fix; a tracker row corrected in one file and left stale
+   in its cross-reference; a struck-through claim that a later edit accidentally reinstated; an env-var name
+   spelled differently across docs; the Profile A/Profile B history (rounds 7–8) leaving any active text
+   that still says Profile A.
+
+3. **Tracker fidelity — is anything claimed as done that is not true in the code?** Walk
+   docs/PROJECT-STATUS.md §1, §2, §3, §6, §10 and docs/ROADMAP.md against the repository. A "PASS" that no
+   longer reproduces, a known issue marked closed whose defect is still present, a sprint marked complete
+   with unfinished scope — each is a finding. Confirm §11 was honoured: trackers updated in the same branch
+   as the work; resolved rows struck through with dates, never deleted. Note: the S1.1 board row reads
+   *Ready for Review* at the reviewed head — correct by the round-9 rule (the flip to *Done* rides a tiny
+   post-merge docs branch, not the reviewed branch).
+
+4. **Deferred-item ledger.** Collect every Should-fix and deliberately-deferred item from the per-PR rounds:
+   the ten code defects (Known issues 22, 37–45) deferred by owner instruction, each of which must have its
+   §10 row with file, line, mechanism, and fixing sprint; the minor items disclosed in §3 above. Any item
+   that silently disappeared between a review round and the trackers is a finding. Confirm **no Blocking
+   finding from any per-PR round was merged over** — every round-1-through-8 Blocking finding must show as
+   FIXED in the per-PR record with round 9 confirming none remain.
+
+5. **Safety boundaries — weakened anywhere across the stage?** Apply the AGENTS.md checklist and
+   docs/SECURITY-CHECKLIST.md to the whole range: §1 no secret, token, key, connection string, or private
+   URL anywhere (docs, skills, `.env.example` — placeholder-only); §2 env boundary intact (no server-only
+   name presented as public; classifications in TECH-ARCHITECTURE §6 / PROJECT-STATUS §9 correct);
+   §3 no gating language weakened in CLAUDE.md/AGENTS.md/skills relative to SOP sources (Commit/Push
+   default-NO, never-open-live-env, server-side authorization, owner-only merge, findings-only reviewer);
+   §4–§7 N/A for a docs-only range except as documentation claims — verify the docs do not assert a
+   protection the code lacks (the corrected open-redirect retraction, Known issue 38, is the precedent:
+   confirm no reinstated false safety claim anywhere).
+
+6. **Scope containment and stack lock.** Files outside the declared scope; any dependency or locked-layer
+   change (there must be none); approved copy or facts changed outside docs/content/; an unexplained
+   suppression directive. `Website-Development-System/**` must contribute **zero** paths to the range
+   (D-12 = NO, implemented in `7024375`) while the folder remains on disk, gitignored.
+
+7. **Half-built things.** A doc naming a script absent from package.json is acceptable **only** where it
+   names it as a future deliverable with its owning sprint (e.g. `pnpm typecheck` → S2.1) — flag any doc
+   that presents a nonexistent command, path, or file as currently available. Known accepted
+   future-references: docs/FEATURE-LIST.md (S5.1), docs/INCIDENT-LOG.md (post-launch),
+   docs/THREAT-MODEL.md (conditional in the close skill), docs/FIX-LOG.md (S3.1 onward, owner-decided
+   2026-08-26), qa-evidence/ (S2.3).
+
+8. **Reversibility.** docs/ROLLBACK.md describes a path that works from `1309e01`. Nothing destructive
+   shipped in this stage; confirm that claim against the range (deletions in the range are the withdrawn
+   predevelopment files and the D-12 untracking — both documentation-state, not data).
+
+9. **Is the repo genuinely ready for S2 (S2.1 first)?** Prove each §3 dependency present and usable now:
+   TECHNICAL-INTEGRITY.md carries the exact workflow YAML and five-script contract; Known issues 10/16/20
+   are recorded with S2.1 ownership; `.env.example` is tracked and `.gitignore` carries `.env*` +
+   `!.env.example` without un-ignoring anything live; prettier + prettier-plugin-tailwindcss already sit in
+   devDependencies (so S2.1 needs no dependency change); the trackers name S2.1 as next with its scope.
+
+Report serious, evidence-backed issues only. No style nits, no speculative rewrites, no critique of approved
+copy or design.
+
+---
+
+## 6. Per-stage focus block — S1 — System Integration · documentation fidelity
+
+This stage's risk is not runtime breakage; it is a governing docs pack that *misdescribes the system it
+governs*. Every later stage is built from these files.
+
+1. **Fact accuracy.** Spot-check docs/TECH-ARCHITECTURE.md (stack versions, routes + access levels, data
+   stores, auth matrix, env-var classes) and docs/DESIGN.md (tokens, fonts, components) against the code.
+   Confirm the round-5/6-corrected claims stayed corrected: course content is NOT entitlement-protected
+   (Known issue 37), the auth-confirm redirect IS an open redirect (Known issue 38), webhook failures do
+   NOT produce retries today (Known issue 22) — the architecture doc must state the true, broken behavior
+   with its fixing sprint, not the aspirational one.
+2. **No runtime change.** The diff must touch no `src/`, `package.json`, lockfile, or config — verify
+   against the range's file list (claimed: 59 paths, zero `src/`), not the claim.
+3. **Predevelopment withdrawal is clean.** `docs/predevelopment/` must not exist at `1309e01` and no
+   project-specific claim that this repo has, needs, or will get predevelopment files may survive
+   (`grep -rn "predevelopment" docs/ .claude/ CLAUDE.md AGENTS.md README.md`; generic SOP prose describing
+   the concept in verbatim copies is fine; D-6 must read WITHDRAWN).
+4. **Copy fidelity — 23 byte-identical, 2 intentionally not.** Of the 25 files copied from the SOP source,
+   23 must be byte-identical (docs/SECURITY-CHECKLIST.md, docs/BROWSER-TOOLS.md, all 10 docs/templates/*.md,
+   all 6 docs/testing-setup/**, all 5 docs/error-tracking/**). The two exceptions —
+   docs/SUPABASE-MCP-SAFETY.md and docs/SUPABASE-VERCEL-SETUP.md — each gained a prepended "(Un)Retire
+   project values" block only; the SOP body below must be unchanged, and the block must contain no live
+   value. `Website-Development-System/` itself (on disk, untracked) is the read-only comparison source;
+   the round-8 rule applies: its generic Profile A definition is not a finding, an *active project doc*
+   claiming Profile A is.
+5. **Safety-boundary language intact** in CLAUDE.md, AGENTS.md, and the five skills relative to their SOP
+   sources — Commit/Push default-NO, never-open-live-env, server-side authorization before protected reads,
+   owner-only merge, findings-only reviewer.
+6. **Secret hygiene.** `.env.example` must contain names + unmistakably fake placeholders only — per round 9:
+   12 unique assignments, zero duplicates, the 11 runtime names matching `src/` exactly (plus
+   `VERCEL_AUTOMATION_BYPASS_SECRET`). It must be the only tracked env-like file. The builder agent cannot
+   read `.env*` paths — **you can**; verify placeholder-only content directly.
+7. **Honest status.** PROJECT-STATUS must not overstate: the lint failure recorded as FAIL; no Preview or CI
+   result claimed that does not exist; the 45 known issues and decisions D-1…D-14 consistent with ROADMAP;
+   the launch-blocking set (§10) present and matched by the deferred-defect rows.
+8. **Stage numbering.** Plan references speak S-IDs; the only correct surviving `R1` names are the branch
+   and the sprint-record filename (the ID map in PROJECT-STATUS §2 governs).
+9. **Default branch.** Every instruction says `master` (or explicitly discusses D-1). A bare `main`
+   instruction would send later work to a branch that does not exist.
+10. **Cross-reference integrity.** Every cited `docs/` and `src/` path resolves, excepting the declared
+    future files listed in §5 item 7.
+
+### What would make this stage a failure
+
+Any one of these is **STAGE NOT APPROVED**, regardless of how much else is right: a doc that misstates a
+command, route, or access rule; a weakened safety boundary in CLAUDE.md/AGENTS.md/skills; a real value in
+`.env.example` or any doc; any `src/`/dependency/config change in the range; PROJECT-STATUS overstating
+done-ness; a surviving dangling predevelopment reference; unexplained drift in a copied SOP file; a
+reinstated false safety claim (the Known-issue-38 retraction is the canary).
+
+---
+
+## 7. Prove it, don't trust it
+
+1. Treat every claim — in a doc, tracker, PR description, sprint record, prior review round, this brief's
+   own "claimed evidence", or a commit message — as a **hypothesis** until verified against the repository
+   or an artifact.
+2. Order of proof: **(a)** the code/config itself; **(b)** a machine-produced artifact (build output, test
+   run, Preview response, dashboard state); **(c)** a human note. A human note alone is never proof of a
+   technical fact.
+3. Verify at the **stage head** `1309e01`, not at the commit that introduced the thing.
+4. Run the §4 commands if the environment allows. If a command cannot run, say why and rely on recorded
+   evidence **without claiming independent execution**.
+5. **An unverifiable claim is itself a finding** — Blocking if it underpins an exit criterion, a safety
+   boundary, or a next-stage dependency; Should-fix otherwise.
+6. Never accept "unchanged since last review" — check. Never accept a count or a "100%" without seeing what
+   produced it.
+7. Never open a live-value env file (`.env.local`); `.env.example` is a placeholder file and IS in scope.
+   Never echo a suspected secret — file, line, type only; recommend rotation.
+8. Record your blind spots in the **Not inspected** list. An approval that hides its gaps is worse than one
+   that names them.
+
+---
+
+## 8. Returned record
+
+Return this complete and paste-ready. Do not write it into the repository.
+
+**Header**
+
+- Stage reviewed: S1 — System Integration
+- Confirmed stage range: [CONFIRM: 0983ad557218666b63cb5b6d3db9152041865bb9..1309e01ebf225293effb9e641df4aae654563d8a]
+- PRs confirmed in range: [LIST — flag any commit not attributable to PR #1]
+- Per-PR review preconditions: [PR #1 carries a current-head APPROVE — YES / NO + explanation of the
+  record-append exemption applied]
 - Scope match: [YES / NO — explanation]
 - Files/context inspected: [LIST]
 - Commands/evidence checked: [RESULTS_AND_SKIPS]
+- **Not inspected:** [LIST — explicit blind spots]
 
-For each finding:
+**Exit-criteria verification** — reproduce the §3 table with the last two columns completed.
 
-### Finding [N]
-- **Severity:** Blocking / Should-fix
-- **Location:** [path/file.ext:line plus route/flow]
-- **Issue:** [One or two evidence-based sentences.]
-- **Failure scenario:** [Concrete input/state → wrong outcome.]
-- **Suggested fix:** [Specific minimal fix.]
-- **Confidence:** high / medium / low
+**Deferred-item reconciliation** — every deferred item from the per-PR rounds and where it is now recorded.
+State explicitly whether any Blocking finding was merged over.
 
-If there are no findings, state **No findings** and list the correctness, safety, build, and Preview paths
-verified. Do not return a bare approval.
+**Findings** — one block each, most severe first, in the standard format (Severity / Location / Introduced
+by / Issue / Failure scenario / Suggested fix / Confidence). If there are no findings, state **No findings**
+and list every exit criterion verified, the safety paths checked, the commands/evidence used, and the blind
+spots. Do not return a bare approval.
 
-End with the stage verdict in the form defined by `docs/templates/CODEX-STAGE-REVIEW-TEMPLATE.md` — exactly
-one of:
+**Next-stage readiness** — for S2 (S2.1 first), one line per dependency in §3: READY / NOT READY + why.
 
-**Verdict: STAGE APPROVED** — [ONE_LINE_REASON].
-**Verdict: STAGE NOT APPROVED** — [ONE_LINE_REASON].
+---
 
-Reviewed range: 0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb · Stage S1 — System Integration · Reviewed by [REVIEWER] on [DATE].
+## 9. Verdict
 
-STAGE NOT APPROVED blocks the merge and Stage 2 does not open until the findings are fixed and a new head is
-reviewed. The owner or builder appends this returned record to
-`docs/code-reviews/S1-stage-review.md`. Any substantive change after HEAD_SHA invalidates
-approval and requires updated checks, a refreshed Preview, and independent review of the new immutable head.
-A commit that only appends this review record may be exempt when its documentation-only scope and reviewed
-head are recorded.
+End with exactly one:
+
+**Verdict: [STAGE APPROVED / STAGE NOT APPROVED]** — [ONE_LINE_REASON].
+Stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..1309e01ebf225293effb9e641df4aae654563d8a` ·
+Reviewed by [REVIEWER] on [DATE].
+
+- **STAGE APPROVED** requires all of: no Blocking findings; every Should-fix given an explicit disposition;
+  every exit-criterion row marked VERIFIED; and every next-stage dependency marked READY.
+- **STAGE NOT APPROVED** whenever there is one or more Blocking finding, **or** any exit criterion is
+  NOT VERIFIED or UNVERIFIABLE, **or** any next-stage dependency is NOT READY.
+
+**Merge freeze.** While a stage is NOT APPROVED, the owner merges nothing further — the next stage does not
+open, and unrelated PRs wait. Remediation lands on a branch, goes through the normal chain, and the stage is
+re-reviewed at a **new** stage head. A commit that only appends this returned record may be exempt when its
+documentation-only scope and reviewed head are recorded.
+
+The owner or builder appends the returned record under § Review rounds below, then updates
+docs/PROJECT-STATUS.md and docs/ROADMAP.md to reflect the stage's real closing state.
+
+Next step → on STAGE APPROVED, open the first sprint of S2 (S2.1 — Code Check CI;
+prepared prompt: docs/sprint-prompts/S2.1-code-check-ci.md) via docs/WORKFLOW.md.
 
 ---
 
@@ -361,6 +456,112 @@ reviewed — first at the per-PR gate, then here on the merged `master` range.
 Reviewed range: `0983ad557218666b63cb5b6d3db9152041865bb9..b6594b593d0e1980986d8bfb54411aa42ebb3ebb` ·
 Stage S1 — System Integration · Reviewed by Codex on 2026-08-25.
 
-## Round 2 — [DATE] — [REVIEWER]
+*Addendum — added 2026-08-26, deliberately outside the filed record above (S1.2 per-PR review Round 1,
+Finding 1: a filed round stays as written on its day).* Both remediations were subsequently completed: the
+per-PR review ran to **APPROVE at round 9** (head `39f698d`); D-12 was resolved **NO** and implemented in
+`7024375`, independently verified (zero `Website-Development-System/**` paths in the range); the four
+preconditions were satisfied and this brief was re-pinned to the merged range on 2026-08-26. An earlier
+S1.2 commit (`5143797`) had edited the filed Round-1 text itself to state these outcomes — that edit
+violated append-only history and is reverted here: the Round-1 text above is restored **verbatim** from
+`1309e01`.
 
-*Not yet run.* Blocked on preconditions (a)–(d) in the status block at the top of this file.
+## Round 2 — 2026-08-26 — Codex
+
+**Verdict: STAGE NOT APPROVED** — the mandatory immutable target and stage evidence were not supplied, and
+the repository's existing S1 brief remained explicitly blocked and stale.
+
+The gate was dispatched with an **unfilled brief** (the raw template), while this file still carried the
+pre-merge "BLOCKED — DO NOT RUN" header pinned to obsolete head `b6594b5`. The reviewer correctly refused
+to infer the target: the repository-derived candidate range
+`0983ad557218666b63cb5b6d3db9152041865bb9..1309e01ebf225293effb9e641df4aae654563d8a` (PR #1 only) was
+reported as a candidate, not certified. Finding 1 (Blocking, high confidence): the owner or builder must
+fill this brief with the authoritative merged-master range, PR #1's merged head, current-head evidence,
+exit criteria, next-stage dependencies, and exact commands; supersede the stale blocked status; then
+dispatch the filled brief. Commands (typecheck/lint/build/stage-specific) were deliberately not run —
+mandatory target confirmation failed first. Exit criteria: UNVERIFIABLE. Next-stage readiness: NOT READY.
+
+**Round 2 outcome:** no review of the work occurred — this was a refusal of an invalid dispatch, exactly as
+the process requires. **Remediated 2026-08-26 by this version of the brief:** all four preconditions met
+and evidenced in the status block; range pinned; exit criteria filled with claimed evidence; checks re-run
+at the stage head; production/Preview evidence recorded.
+
+Stage range: UNCONFIRMED (candidate `0983ad5..1309e01`) · Reviewed by Codex on 2026-08-26.
+
+## Round 3 — 2026-08-26 — Codex
+
+**Verdict: STAGE NOT APPROVED** — critical security and operational claims are inaccurate, the live
+trackers do not represent the merged stage, and the review audit trail does not validly dispose of three
+Blocking findings.
+
+Stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..1309e01ebf225293effb9e641df4aae654563d8a` ·
+Reviewed by Codex on 2026-08-26.
+
+**Header (as returned):**
+
+- Confirmed stage range: `0983ad5…..1309e01…` — PR #1 only; 39 branch commits + merge commit; master,
+  origin/master and HEAD all at the declared stage head; no direct-to-master or extra merge.
+- Per-PR review preconditions: mechanically YES (Round 9 APPROVE at `39f698d`; `ff1dae7`/`543d26e`
+  record-only) — but see Finding 1.
+- Scope match: YES — 59 paths, +7056/−22; no src/, dependency, lockfile, or app/build config changes;
+  `Website-Development-System/**` contributes zero tracked paths.
+- Working-tree exclusions honoured: the modified stage brief and the two untracked S2.1 records were not
+  treated as stage scope.
+- Commands/evidence: range diff = 59 expected paths; `git diff --check` PASS; `tsc --noEmit` PASS;
+  `pnpm lint` FAIL only on the documented pre-existing error (byte-identical at base and head);
+  `pnpm build` PASS (58/58 static pages, expected routes; needed network access for Google Fonts);
+  all 23 required SOP copies byte-identical at the git-object level, both Supabase exceptions differ only
+  by their prefaces; `.env.example` = 12 unique placeholder-only assignments, sole tracked env-like file;
+  production root HTTP 200 with expected `og:url`; webhook probes rejected unsigned and bogus signatures.
+- Not inspected: authenticated rendering of the protected Preview; direct proof of the Preview deployment
+  SHA; GitHub branch-protection settings; Vercel/Supabase dashboard values; live database/RLS contents;
+  full browser/responsive pass; gitleaks unavailable (pattern/history scans used instead).
+
+**Exit-criteria verification (as returned):**
+
+| # | Exit criterion | Result |
+|---|---|---|
+| 1 | Docs pack, no critical placeholder unfilled | **NOT VERIFIED** — project-specific security invariants unfilled; active docs contain false/stale operational facts (Findings 2, 3, 5, 7) |
+| 2 | All 5 skills load by name | VERIFIED |
+| 3 | Content freeze matches on-disk code | VERIFIED |
+| 4 | Trackers live | **NOT VERIFIED** — trackers describe the pre-merge state; wrong stage-review sequence (Findings 4, 6) |
+| 5 | Owner reviewed and authorized the commit | VERIFIED |
+| 6 | Stage gate returns STAGE APPROVED | **NOT VERIFIED** — Blocking findings remain |
+
+**Deferred-item reconciliation (as returned):** the ten deferred code defects are present and correctly
+recorded in PROJECT-STATUS §10 with mechanisms and sprints (22→S3.1, 37→S4.3, 38→S4.4, 39–40→S4.3,
+41–42→S4.4, 43→S3.1, 44→S4.5, 45→S3.1); the stale-path observation maps to issues 1–2 (S3.1); the four
+builder-disclosed minor items are non-blocking. **Blocking reconciliation problem:** Round 1 of the per-PR
+review filed issues 22/37/38 as Blocking, they were deferred by owner instruction rather than fixed, and
+Round 9 approved — the append-only record never corrected the classification, so the record as written
+shows Blocking findings being merged over (Finding 1).
+
+**Findings (as returned, condensed to substance — full fidelity preserved in the remediation sprint record):**
+
+| # | Severity | Location | Issue |
+|---|---|---|---|
+| 1 | Blocking | `docs/code-reviews/S1.1-system-retrofit-review.md:484-490,531-535` + `docs/WORKFLOW.md:73,77-79` | Issues 22/37/38 filed as Blocking in Round 1, deferred unfixed by owner instruction, then Round 9 approved — the workflow rule allows deferring only Should-fix. Fix: append a correction reclassifying them as pre-existing, out-of-range product observations (retaining launch-blocker status in §10); the record must be corrected, not rewritten |
+| 2 | Blocking | `docs/TECH-ARCHITECTURE.md:222`; `next.config.ts:3-5`; `docs/SECURITY-CHECKLIST.md:51-52` | Architecture doc claims security headers are defined and verified on the deployed response. The config defines none; the live response lacks CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy — only HSTS present. Record as NOT MET + new known issue with owner and fixing sprint |
+| 3 | Blocking | `docs/SECURITY-CHECKLIST.md:66-73` | §9 project-specific invariants still contain the generic `[DATE]` examples. This project has paid/gated routes and a known entitlement defect — fill with dated concrete invariants, each MET/NOT MET with its issue and fixing sprint |
+| 4 | Blocking | `docs/PROJECT-STATUS.md:12-16,37,63,68,132`; `docs/OWNER-ACTIONS.md:60-64` | Trackers still say S1 active, PR #1 open, master at merge-base, review at (per-PR) round 3, owner still to merge; D-13 still Open despite the recorded configuration. Update on an authorized docs branch, preserving superseded state struck-through |
+| 5 | Blocking | `README.md:5,33`; `docs/PROJECT-STATUS.md:39,68`; `docs/ROADMAP.md:47` | Active onboarding/S2.1 scope still describe `env.example` as awaiting rename though `.env.example` is tracked with its whitelist; README presents the live origin as TBC. Normalize; make the S2.1 item verification-only |
+| 6 | Blocking | `docs/PROJECT-STATUS.md:32` | "Each stage ends with independent Codex review before anything merges" misstates the two gates. State them explicitly: per-PR review before each owner merge; stage gate after all stage PRs are merged, before the next stage opens |
+| 7 | Blocking | `docs/SUPABASE-VERCEL-SETUP.md:16-17,66-67` | The preface names `master` but the copied SOP body instructs merging to / protecting `main`, which does not exist here. Add an explicit project override: every bare `main` in the generic body means `master` until D-1 resolves |
+| 8 | Should-fix | `docs/TECH-ARCHITECTURE.md:129` vs `docs/ROADMAP.md:69` / `PROJECT-STATUS.md:188` | Middleware fail-open review assigned to S2.3 in the architecture doc but S4.4 in roadmap/ledger. Change to S4.4 |
+
+**Next-stage readiness (as returned):** trackers NOT READY (stale); record conventions NOT READY (sequence
+misstated; Blocking-disposition contradiction); TECHNICAL-INTEGRITY spec, issues 10/16/20 ownership,
+`.env.example`, five skills, Prettier deps all READY.
+
+**Round 3 outcome:** merge freeze holds — S2 does not open. Remediation is docs-only and lands on a branch
+through the normal chain (**S1.2 — stage remediation**, record: `docs/sprint-prompts/S1.2-stage-remediation.md`);
+the stage is then re-reviewed at the **new** stage head. Note for the re-run: fixing Finding 3 makes
+`docs/SECURITY-CHECKLIST.md` a **third intentional exception** to SOP byte-identity (§6 item 4 becomes
+22 byte-identical + 3 prefaced/filled exceptions) — its fill is mandated by the checklist's own §9
+instruction.
+
+## Round 4 — [DATE] — [REVIEWER]
+
+*Not yet run.* Dispatch after the S1.2 remediation PR merges. Before dispatch, update §1: keep the same
+stage merge-base `0983ad557218666b63cb5b6d3db9152041865bb9`, set the stage head to the S1.2 merge commit
+on `master`, add the S1.2 row to the PR table, and update §6 item 4 to the 22-byte-identical + 3-exception
+copy-fidelity ledger. Append the returned record here.

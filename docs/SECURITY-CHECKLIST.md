@@ -67,10 +67,23 @@ Why this matters: a form that "works" but silently loses submissions in producti
 
 **Blocking: never merge a PR with one of these unresolved.** Each project writes its own invariants here — the concrete access rules its architecture promises. Mirror them from the architecture doc so the two cannot drift, and date each one when it's set. Make them concrete and checkable, not abstract.
 
-Generic examples of the shape:
+**Project invariants — (Un)Retire** (set 2026-08-26; mirrored from `docs/TECH-ARCHITECTURE.md` §5 so the
+two cannot drift). Reading rule for a retrofit: an invariant marked **NOT MET** records a pre-existing gap
+found at system adoption — no PR may be merged that *widens* it or introduces a new violation, and each gap
+closes in its named fixing sprint. An invariant marked **MET** must remain met by every merge.
 
-- [ ] 🔴 Gated content is never readable by an anonymous or unapproved user through any path — UI, API, or database projection. *(set [DATE])*
-- [ ] 🔴 Private files are served only via short-lived server-issued signed URLs to authorized users; public files are explicitly enumerated. *(set [DATE])*
+- [ ] 🔴 **I1 — Server-side authorization before protected reads.** `/account`, `/api/checkout` and `/api/book-download` check the Supabase session and entitlements server-side; the database is owner-scoped by RLS (documented — `book_downloads` policies are in-repo at `src/app/account/_book/book_downloads.sql`; the `entitlements` RLS SQL is **not** yet in the repo, Known issue 21, captured in S4.3). *(set 2026-08-26 — **MET** for those paths; **NOT MET for course lesson content**, whose paid payload ships in the client bundle — Known issue 37, Sprint S4.3)*
+- [ ] 🔴 **I2 — Paid content is never obtainable anonymously through any path** — UI, API, static file, or client bundle. *(set 2026-08-26 — **NOT MET**: all 48 lessons' video IDs — and every worksheet path that exists, the four Module-1 worksheets — ship in the client JS, and those four worksheet PDFs are public files under `public/assets/unretire/course/` — Known issue 37, Sprint S4.3; denied-case tests owed in S5.1)*
+- [ ] 🔴 **I3 — Single entitlements writer.** `entitlements` is written only by `POST /api/stripe/webhook` after raw-body signature verification, via the service-role client; no other write path exists. *(set 2026-08-26 — **MET** in this codebase; failure-visibility caveat tracked as I4)*
+- [ ] 🔴 **I4 — A failed entitlement write returns non-2xx** so Stripe retries; a paying customer is never silently left without access. *(set 2026-08-26 — **NOT MET**: neither Supabase write result is inspected, so a failed write still returns HTTP 200 — Known issue 22, Sprint S3.1; compounded by the query-string success banner, Known issue 45, S3.1)*
+- [ ] 🔴 **I5 — Auth redirects are same-origin.** `next`-style parameters must reject protocol-relative (`//host`) and backslash (`/\host`) escapes; origins derived from request headers are checked against an allow-list. *(set 2026-08-26 — **NOT MET**: `src/app/auth/confirm/route.ts:19-21` is an open redirect — Known issue 38, Sprint S4.4; header-derived origins lack an allow-list — Known issue 42, S4.4. The Supabase-side redirect allow-lists were configured 2026-08-25; delivery proof P3 is owed by S2.5)*
+- [ ] 🔴 **I6 — Env boundary.** No server-only value (`SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `MAILCHIMP_API_KEY`, the two Stripe price IDs) sits behind a public prefix, in client code, or in any committed file. *(set 2026-08-26 — **MET**: verified by independent-review pattern scans over tree and history, and by client-bundle inspection, 2026-08-25/26)*
+- [ ] 🔴 **I7 — Public writes validated and abuse-controlled.** `/api/subscribe` et al. are schema-validated server-side and carry the §5 abuse controls, failing **CLOSED** in Production. *(set 2026-08-26; corrected the same day — S1.2 per-PR review Finding 2 — **NOT MET on both halves**: `src/app/api/subscribe/route.ts:29-31` checks only that `email` is a present, non-empty string — no schema, no email-format check — and `tag`/`mergeFields` pass through to Mailchimp unvalidated; abuse controls are absent entirely. Both halves: Known issue 5 (expanded 2026-08-26), Sprint S4.5, stack decision D-9. The Formspree contact/community/enterprise forms post directly from the browser to a third-party endpoint outside this handler's control — see Known issue 20.)*
+- [ ] 🔴 **I8 — Security headers.** The §6 header set is defined in framework config and verified on the deployed response. *(set 2026-08-26 — **NOT MET**: `next.config.ts` defines none; live response carries HSTS only — Known issue 46, Sprint S4.5)*
+
+*(This section was filled on 2026-08-26 — stage-gate Round 3, Finding 3 — which makes this file the third
+intentional exception to SOP-copy byte-identity, alongside the two Supabase docs: the fill is mandated by
+this section's own instruction above.)*
 
 ---
 
