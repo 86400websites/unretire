@@ -87,13 +87,14 @@ exit criteria, and safety boundaries — do not drift into an unrelated product 
 - [ ] Both listed per-PR review records exist and each reviewed head relates to its merged head exactly as
       the table above states (substantive head + record-only appends).
 
-**Working-tree note (not part of the range):** two untracked files exist in the local working tree —
-`docs/sprint-prompts/S2.1-code-check-ci.md` and `docs/code-reviews/S2.1-code-check-ci-review.md`. They are
-the planned records for the **next** sprint (S2.1), deliberately prepared before its branch exists. They are
-not in the reviewed range and must not be treated as scope drift. Additionally, at Round-4 dispatch time
-this brief itself carries an uncommitted working-tree modification — the Round-4 re-pin you are reading
-(SHAs, PR #2 row, ledger updates, Round-4 stub) — which rides the next authorized branch per
-`docs/PROJECT-STATUS.md` §11, exactly as the Round-3 fill did before it was committed via S1.2.
+**Working-tree note (updated at S1.3, 2026-08-26):** ~~two untracked files exist in the local working
+tree — the planned S2.1 records~~ — the two prepared S2.1 planning records
+(`docs/sprint-prompts/S2.1-code-check-ci.md`, `docs/code-reviews/S2.1-code-check-ci-review.md`) are now
+**committed on the S1.3 branch**: the Round-4 Finding-2 fix had to correct the S2.1 prompt's
+branch-protection wording, so both records ride that PR. The earlier pattern of this brief carrying
+uncommitted re-pin modifications between rounds continues: each re-pin rides the next authorized branch
+per `docs/PROJECT-STATUS.md` §11 (the Round-3 fill rode S1.2; the Round-4 fill + Round-4 record rode
+S1.3; the Round-5 re-pin will ride the S1.3→Round-5 dispatch state or the subsequent branch).
 
 Stop and report a target mismatch before reviewing if any of these disagree.
 
