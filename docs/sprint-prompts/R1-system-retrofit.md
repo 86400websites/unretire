@@ -70,7 +70,7 @@ Verification of the retrofit itself (run in-session):
   `docs/testing-setup/` + `docs/error-tracking/` files. The two exceptions are intentional:
   `docs/SUPABASE-VERCEL-SETUP.md` and `docs/SUPABASE-MCP-SAFETY.md` each gained a prepended
   "(Un)Retire project values" block resolving their generic `[BRACKETS]` (and recording that Supabase
-  MCP is **not** connected, Profile A). The SOP body below each block is unchanged.
+  MCP is **not** connected; D-11 approved Profile B — production read-only — on 2026-08-25, and the wiring is owned by S2.2). The SOP body below each block is unchanged.
 - SOP source integrity: `Website-Development-System/` shows as a single untracked dir, unmodified.
 - Skills: all five have valid frontmatter whose `name:` matches its folder; all five load (confirmed in-session).
 - Env names: 11 names in docs == 11 `process.env.*` names in `src/` — exact match, no extras.
