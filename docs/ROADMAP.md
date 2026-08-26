@@ -115,7 +115,7 @@ Database sprints additionally record migration classification (additive, reversi
 
 This order is the smallest safe path because each stage protects the ones after it.
 
-**Urgency note (2026-08-25):** several of the defects found while planning S1 and S2 are not latent risks but **live production faults today** — unconfigured Supabase auth redirect URLs (Known issue 23), the stale post-refactor paths (Known issue 2), the failing premium book download (Known issue 1), and the webhook that returns 200 on a failed entitlement write (Known issue 22) — which is why **S2.2 and S3.1 are the two most urgent sprints in this plan**.
+**Urgency note (2026-08-25):** several of the defects found while planning S1 and S2 are not latent risks but **live production faults today** — ~~unconfigured Supabase auth redirect URLs (Known issue 23 — **resolved by the owner 2026-08-25**)~~, the stale post-refactor paths (Known issue 2), the failing premium book download (Known issue 1), and the webhook that returns 200 on a failed entitlement write (Known issue 22) — which is why **S2.2 and S3.1 are the two most urgent sprints in this plan**.
 
 **S1 first — machinery before matter.** The governing docs, skills, content freeze, and trackers are installed before anything else, so every later change is made against recorded facts instead of memory, and so every later sprint has a record, a scope fence, and an exit gate to be judged by.
 

@@ -24,12 +24,13 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > Preview, confirm the user appears in TEST and not PROD) is **not yet performed** — it is proof **P2** in
 > `docs/ENVIRONMENT-PARITY.md` §8, owned by Sprint S2.5. Treat the wiring as *configured*, not *verified*.
 >
-> **B3 auth URL status — half done 2026-08-25.** `unretire-prod` now has **Site URL `https://unretire.vercel.app`**
+> **B3 auth URL status — configured 2026-08-25.** `unretire-prod` now has **Site URL `https://unretire.vercel.app`**
 > and a redirect allow-list of `http://localhost:3000/**`, `https://www.unretireproject.com/**`,
 > `https://unretireproject.com/**`, `https://unretire.vercel.app/**`, `https://*-86400-s-projects.vercel.app/**`
 > — replacing an empty list and a `http://localhost:3000` Site URL that had been breaking every production
 > confirmation and password-reset email. Two stale third-party hosts were removed at the same time.
-> **`unretire-test` has not been configured yet.** Two caveats before this is called finished: the last two
+> ~~**`unretire-test` has not been configured yet.**~~ **Both projects are now configured (2026-08-25):**
+> `unretire-test` **is configured** (verified 2026-08-25 from the owner's dashboard): Site URL `http://localhost:3000`, allow-list `http://localhost:3000/**` and `https://*-86400-s-projects.vercel.app/**`. Two caveats before this is called finished: the last two
 > production entries are broader than B3's "no broad wildcards" rule and are retained knowingly for now, and
 > **a correct allow-list here does not make the application's own redirect handling safe** — see
 > `docs/ENVIRONMENT-PARITY.md` §5.3b.
