@@ -1,3 +1,4 @@
+import Link from "next/link";
 import CheckoutButton from "./CheckoutButton";
 import { getAccess } from "@/lib/auth/entitlements";
 import BookDownloadModal from "./BookDownloadModal";
@@ -196,12 +197,12 @@ export default async function PremiumPage() {
           <p className="mt-6 text-[15px] text-white/80 leading-[1.6]">
             Cancel any time. If you cancel, you keep the course. Prefer just the
             course?{" "}
-            <a
+            <Link
               href="/learn/course"
               className="font-bold underline underline-offset-2 hover:text-white"
             >
               Get it for $99 →
-            </a>
+            </Link>
           </p>
         </div>
       </section>
