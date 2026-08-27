@@ -4,6 +4,13 @@ Every change to `(Un)Retire` follows:
 
 **branch → build → local checks → PR → Code Check (CI) + deployed Preview (Vercel or approved equivalent) → Codex review → merge → Production smoke test**
 
+> ⚠ **Status, 2026-08-27 (Sprint S1.6):** every step above is live **except the Code Check (CI)**, whose
+> workflow file does not exist yet — Sprint **S2.1** creates it (`docs/TECHNICAL-INTEGRITY.md` status
+> banner). Until then, read every "CI passes" box below as **"the local checks were run by hand and their
+> exact results recorded in the sprint record"**, and note that the Codex review — which *is* live — is the
+> gate that actually holds. `master`'s PR-before-merge protection is enabled; its required status check is
+> added in S2.1.
+
 `master` is protected and production-ready. GitHub is the source of truth.
 
 ## 1. Branch
@@ -48,7 +55,7 @@ Fix failures caused by the change. Report pre-existing failures with evidence.
 - [ ] Description states what, why, files/areas changed, exclusions, checks, screenshots where relevant, and rollback notes.
 - [ ] New/changed env variables are listed by **name only** and assigned to environments by the owner.
 - [ ] Data changes include migration files, access controls, classification, non-production evidence, and recovery limits.
-- [ ] CI passes with the locked package manager and secret scan.
+- [ ] CI passes with the locked package manager and secret scan. *(Until S2.1: run the local checks by hand and record their exact results — the CI that would enforce this does not exist yet.)*
 
 ## 5. Deployed Preview — before independent review
 
@@ -74,7 +81,7 @@ Blocking findings are fixed by the builder. After any substantive code, config, 
 
 ## 7. Merge
 
-Only the authorized human owner merges, after CI (the Code Check, `docs/TECHNICAL-INTEGRITY.md`), Preview, and current-head review all pass.
+Only the authorized human owner merges, after CI (the Code Check, `docs/TECHNICAL-INTEGRITY.md` — ⚠ **not live until S2.1**; until then the recorded hand-run local checks stand in its place), Preview, and current-head review all pass.
 
 The independent verdict is a **gate, not a suggestion.** The reviewer is "advisory" only in that it never *acts* — it does not merge, push, or edit. It does **not** mean the owner may merge over its findings: a **Blocking** finding is never merged; a **Should-fix** may be deferred only with a logged owner + reason (PROJECT-STATUS §8). "Done" is never reached with an unresolved Blocking finding.
 
@@ -111,7 +118,7 @@ The independent verdict is a **gate, not a suggestion.** The reviewer is "adviso
 
 - [ ] Acceptance criteria and allowed-path guard pass.
 - [ ] Local commands and relevant manual/accessibility/security checks pass.
-- [ ] CI and deployed Preview pass at the reviewed head SHA.
+- [ ] CI and deployed Preview pass at the reviewed head SHA. *(Until S2.1 there is no CI: the deployed Preview plus the recorded hand-run local checks at that head are what this box means.)*
 - [ ] Current-head independent verdict is Approve; no Blocking finding remains.
 - [ ] Required docs/status records are current.
 - [ ] Merge is complete and Production smoke test passes.

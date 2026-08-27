@@ -5,14 +5,23 @@
 **Last reconciled:** 2026-08-25, Sprint **S1.1**, after the owner's dashboard configuration pass and the
 Codex independent review (Blocking finding 6). §§ *Confirmed facts*, 1, 2A, 2B, 3, 4, 5.3, 5.3a, 5.3b, 6, 7,
 8 and 9 were rewritten from *"nothing is split yet"* to the **current post-configuration state** — *configured*,
-which is a weaker word than *verified* and is used deliberately throughout. Superseded descriptions are struck
+which is a weaker word than *verified* and is used deliberately throughout. ⚠ **Scope of the word
+"configured" (added 2026-08-27, Sprint S1.6):** it covers the **Supabase and Stripe** variables only. The
+**Mailchimp audience is not configured at all** — `MAILCHIMP_LIST_ID` is one shared Production-and-Preview
+entry and no test audience exists (§2B row 9; split = Sprint **S2.2**, proof = §8 **P7**). So overall
+isolation is **incomplete**, not merely unproven. Superseded descriptions are struck
 through and dated, never deleted.
 **Audience:** the owner first, then any agent or engineer who touches an environment variable, a Supabase
 project, or the test suite.
 
 > ### The one thing to understand before reading further
 >
-> **Isolation is now configured. It is not yet proven.** On 2026-08-25 the owner split the Supabase and
+> **The Supabase and Stripe halves of isolation are configured; they are not yet proven — and the
+> Mailchimp half is not configured at all.** *(Sharpened 2026-08-27, Sprint S1.6: the earlier one-liner
+> "Isolation is now configured. It is not yet proven." was true of Supabase/Stripe but wrongly covered
+> Mailchimp — `MAILCHIMP_LIST_ID` is one shared entry, no test audience exists; split = S2.2, proof = P7.
+> Until that split, **a Preview form submission writes a real subscriber into the live audience**, so no
+> Preview email-capture test may run.)* On 2026-08-25 the owner split the Supabase and
 > Stripe variables, added the four sandbox Stripe entries to Preview, set `NEXT_PUBLIC_SITE_URL` in
 > Production, configured the production Supabase Site URL and redirect allow-list, provisioned the
 > automation bypass secret, and retyped the public variables as Config. Every one of those is a **dashboard
@@ -335,12 +344,20 @@ isolated from the owner's real inbox without a code change.** Recorded as an acc
 
 ---
 
-## 4. The isolation plan — owner checklist · **COMPLETED 2026-08-25, with three residuals**
+## 4. The isolation plan — owner checklist · **PARTLY COMPLETE — the Supabase/Stripe *variable* steps done 2026-08-25; Mailchimp (Steps 6–7) NOT done; both proof steps (3 and 11) NOT done**
 
 > ### Status of this section
 >
-> The owner ran this checklist on **2026-08-25**. Steps 1–8 and 10 are done; step 9 was skipped by choice;
-> step 11 — *the proofs* — is **not** done. The checkboxes below are ticked against **dashboard state**, which
+> *(Heading and this block corrected 2026-08-27, Sprint S1.6 — stage-gate Round 6 class: the earlier
+> "**COMPLETED 2026-08-25, with three residuals**" heading and the "Steps 1–8 and 10 are done" line both
+> wrongly counted the Mailchimp steps as done.)*
+> The owner ran this checklist on **2026-08-25**. **Steps 1, 2, 4, 5, 8 and 10 are done** (Supabase
+> variable split, Stripe sandbox entries, site URL, auth URL configuration, variable typing, automation
+> bypass). **Step 3 is NOT done** — it is itself a proof step (redeploy the Preview and run §8 Proof 1),
+> still open as residual 2. **Steps 6–7 — the Mailchimp test audience and the Preview-scoped
+> `MAILCHIMP_LIST_ID` — are NOT done** (one shared entry; Sprint **S2.2**). Step 9 was skipped by choice;
+> **step 11 — the rest of the proofs — is not done either** (Sprint **S2.5**). So *both* proof steps in
+> this checklist, 3 and 11, remain open. The checkboxes below are ticked against **dashboard state**, which
 > is the weaker of the two kinds of evidence this document recognises.
 >
 > **The three residuals, named so they cannot be lost:**
@@ -348,7 +365,8 @@ isolated from the owner's real inbox without a code change.** Recorded as an acc
 > 1. **`staging` has no Vercel deployment** — the branch exists at the same commit as `master`, so Vercel never
 >    built it and the sandbox Stripe endpoint has a 404 for a target. No Preview payment can complete until one
 >    commit lands there. **Known issue 32**, Sprint S2.2.
-> 2. **Isolation is configured but not proven by test.** Every claim in §2B rests on reading a dashboard. The
+> 2. **The Supabase/Stripe halves are configured but not proven by test** *(bounded 2026-08-27, S1.6 — the
+>    Mailchimp half is not configured either; residual 3)*. Every claim in §2B rests on reading a dashboard. The
 >    §8 proofs are the only thing that converts that into knowledge, and **none has been run** — Sprint
 >    **S2.5** owns them. Do not let "the split is done" and "the split is verified" be spoken as one sentence.
 > 3. **The Mailchimp audience is not split** (§2B row 9 — corrected 2026-08-26, Round 4 Finding 1:
@@ -486,7 +504,8 @@ what turns each cell from a claim into a fact; every one of them is still outsta
 
 ## 5. The fidelity plan
 
-Isolation is now **configured** (§4). This section is the other half: making `unretire-test` a true structural
+The **Supabase and Stripe** halves of isolation are **configured** (§4) — the Mailchimp half is not, and no
+§8 proof has run *(bounded 2026-08-27, S1.6)*. This section is the other half: making `unretire-test` a true structural
 twin of `unretire-prod`, and keeping it one. Note the ordering trap — the test project now *receives* Preview
 traffic, but nothing below has been done to it yet, so it is currently an isolated database of **unknown
 shape**. Isolation without fidelity is the failure mode described in §1: a suite that passes against a

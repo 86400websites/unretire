@@ -26,6 +26,13 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > `master`; the `master` PR-before-merge protection rule is **already enabled** (owner-confirmed
 > 2026-08-26), and the required "Code Check" status the owner adds in Sprint S2.1 targets `master`.
 >
+> **CI half of the same override — added 2026-08-27 (Sprint S1.6).** Part A3's step says to protect the
+> branch with "**PR + CI green required**". For this project that is **two actions at two different
+> times**: the **PR** requirement is already enabled (above); the **CI** requirement cannot be added yet
+> because `.github/workflows/code-check.yml` does not exist — Sprint **S2.1** creates the workflow and
+> then adds "Code Check" as the required status, and verifies the merge button locks on red. Read A3 as
+> satisfied in halves until S2.1 records both.
+>
 > **B6 wiring status — done 2026-08-25.** Vercel **Preview** now points at the **TEST** project and
 > **Production** at the **PROD** project: the three Supabase entries are split per environment, and the four
 > Stripe entries in Preview hold **sandbox-account** values. The B6 verification step below (sign up on a

@@ -3,7 +3,32 @@
 > Save the filled brief at docs/code-reviews/S1-stage-review.md before review.
 > Append the reviewer's returned record; the reviewer does not edit the repository.
 
-## ⏳ STATUS: ROUND 6 RETURNED **STAGE NOT APPROVED** (2026-08-27) — S1.5 in progress; Round 7 next
+## ⏳ STATUS: ROUND 6 NOT APPROVED → S1.5 merged (APPROVED round 1) → **S1.6 truth pass in progress**; Round 7 next
+
+> ### ⚠ Two commits in the stage range did NOT go through the review chain — read before Round 7
+>
+> On **2026-08-27**, PRs **#6** (`c05d852`) and **#7** (`6c4416a`), authored by a teammate
+> (sozana-blidy, commit message "description"), were merged to `master` **without a per-PR Codex review
+> and without a review record**, and they change **`src/`** inside a stage declared documentation-only.
+> They are inside the stage range and the Round-7 reviewer will encounter them. Disclosed here rather
+> than discovered:
+>
+> | PR | Change | Assessment |
+> |---|---|---|
+> | #6 `c05d852` | Removes the fixed "← Half a Life" pill from `src/app/page.tsx`; replaces `unretire 21-august-2026.zip` with `unretire 25-august.zip` (rename **plus new bytes**, 6.3→6.2MB) | The pill pointed at **`href="/"` — this site's own root**, a pre-standalone leftover, so removing it is an improvement (an earlier draft of this block wrongly called it a cross-link to another project — corrected 2026-08-27). ⚠ **Identical references survive in shared chrome** (`UnRetireNav.tsx:250`, `UnRetireFooter.tsx:64,99`), so the pattern is not cleared site-wide. The archive swap leaves Known issue 7 open (still tracked junk) |
+> | #7 `6c4416a` | Removes the placeholder disclaimers from `src/app/book/page.tsx` and `src/app/stories/page.tsx` (the stories deletion also took the sentence "Each card links to a full profile.") | ⚠ **Makes Known issue 9 worse**: the four "Reader name" testimonials at `book/page.tsx:41-44` remain live with nothing stating they are placeholders — the byline token is still visible, the explicit disclaimer is not. Escalated to High; owner decision **D-15** |
+>
+> Also introduced: three trailing-whitespace-only lines (`page.tsx:74`, `book/page.tsx:213`,
+> `stories/page.tsx:107`), so **`git diff --check` reports three errors over any range including them** —
+> the Rounds 1–6 range (`0983ad5..f61082c`) still exits 0, so Round 7 is the first to see them — **new Known issue 47**, fix owned by S3.1. The governance question
+> (should teammate PRs go through the chain?) is owner decision **D-16**. S1.6 records all of this but
+> deliberately **does not touch `src/`**, keeping its own scope documentation-only.
+
+Round 6 (filed below) verified 7 of 9 exit criteria; its 3 findings were fixed by **S1.5**, which passed
+its per-PR review **on round 1** (head `b44c42c`) and merged as **PR #5** (`4c8228f`). That review also
+answered this brief's request for a **one-pass enumeration** of every remaining current-state mismatch —
+**22 items across four truths** — which sprint **S1.6** (`claude/s1.6-current-state-truth-pass`) closes as
+a single class. After the S1.6 PR merges on per-PR APPROVE, re-pin §1's stage head and dispatch **Round 7**.
 
 Round 6 (filed below) verified **7 of 9 exit criteria** and every per-PR precondition, and confirmed the
 range, scope, checks, SOP fidelity and secret hygiene at the head. Three pinpoint items remain — one
@@ -346,15 +371,20 @@ governs*. Every later stage is built from these files.
    project-specific claim that this repo has, needs, or will get predevelopment files may survive
    (`grep -rn "predevelopment" docs/ .claude/ CLAUDE.md AGENTS.md README.md`; generic SOP prose describing
    the concept in verbatim copies is fine; D-6 must read WITHDRAWN).
-4. **Copy fidelity — 22 byte-identical, 3 intentionally not** *(ledger updated at the Round-4 re-pin:
-   S1.2 made docs/SECURITY-CHECKLIST.md the third declared exception)*. Of the 25 files copied from the
-   SOP source, 22 must be byte-identical (docs/BROWSER-TOOLS.md, all 10 docs/templates/*.md, all 6
-   docs/testing-setup/**, all 5 docs/error-tracking/**). The three exceptions: docs/SUPABASE-MCP-SAFETY.md
-   and docs/SUPABASE-VERCEL-SETUP.md each carry a prepended "(Un)Retire project values" block (the latter
-   now including the 2026-08-26 `main`→`master` override) with the SOP body below unchanged; and
-   docs/SECURITY-CHECKLIST.md carries the §9 project-invariants fill **mandated by its own §9
-   instruction** (S1.2 Finding-3 fix) with the SOP body outside §9 unchanged. No exception block may
-   contain a live value. `Website-Development-System/` itself (on disk, untracked) is the read-only
+4. **Copy fidelity — 21 byte-identical, 4 intentionally not** *(ledger updated by sprint S1.6, ahead of the Round-7
+   re-pin: S1.6 makes docs/testing-setup/TESTING-GUIDE.md the fourth declared exception; previously 22 + 3 at the
+   Round-4 re-pin, when S1.2 made docs/SECURITY-CHECKLIST.md the third)*. Of the 25 files copied from the
+   SOP source, **21** must be byte-identical (docs/BROWSER-TOOLS.md, the **10 SOP-sourced** `docs/templates/*.md`
+   (the glob matches 11 — `CODEX-STAGE-REVIEW-TEMPLATE.md` is repo-original and outside the 25), the
+   **other 5** docs/testing-setup/** files, all 5 docs/error-tracking/**). The four exceptions, each a
+   **prepended block with the SOP body below it unchanged**: (a) docs/SUPABASE-MCP-SAFETY.md and
+   (b) docs/SUPABASE-VERCEL-SETUP.md carry "(Un)Retire project values" blocks (the latter including the
+   2026-08-26 `main`→`master` override and its 2026-08-27 CI half); (c) docs/SECURITY-CHECKLIST.md carries
+   the §9 project-invariants fill **mandated by its own §9 instruction** (S1.2 Finding-3 fix), SOP body
+   outside §9 unchanged; (d) docs/testing-setup/TESTING-GUIDE.md carries a dated project-state banner
+   recording that the Playwright harness, `tests/e2e/`, `docs/FEATURE-LIST.md` and the morning-check
+   workflow **do not exist until S2.3/S5.1/S5.2** (S1.6 Round-6-class fix), SOP body unchanged. No
+   exception block may contain a live value. `Website-Development-System/` itself (on disk, untracked) is the read-only
    comparison source; the round-8 rule applies: its generic Profile A definition is not a finding, an
    *active project doc* claiming Profile A is.
 5. **Safety-boundary language intact** in CLAUDE.md, AGENTS.md, and the five skills relative to their SOP
