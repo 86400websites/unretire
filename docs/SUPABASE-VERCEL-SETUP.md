@@ -25,7 +25,7 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > byte-identical to the SOP source on purpose; this override governs. Concretely: Production deploys from
 > `master`; the `master` PR-before-merge protection rule is **already enabled** (owner-confirmed
 > 2026-08-26), and the required "Code Check" status the owner adds ~~in Sprint S2.1~~ after Sprint S2.1 merges
-> (owner action, pending as of 2026-08-27 — see the CI half below) targets `master`.
+> (~~owner action, pending as of 2026-08-27~~ **done 2026-08-27** — see the CI half below) targets `master`.
 >
 > **CI half of the same override — added 2026-08-27 (Sprint S1.6).** Part A3's step says to protect the
 > branch with "**PR + CI green required**". For this project that is **two actions at two different
@@ -35,11 +35,11 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > satisfied in halves until S2.1 records both.~~ **Updated 2026-08-27 (Sprint S2.1, in progress — merged 2026-08-27 as PR #11 (`a68f210`)):**
 > `.github/workflows/code-check.yml` now **exists on `master` since the S2.1 merge (PR #11, 2026-08-27)** `claude/s2.1-code-check-ci`
 > (verbatim from `docs/TECHNICAL-INTEGRITY.md`; merged 2026-08-27 as PR #11 (`a68f210`)). The workflow is installed by S2.1 and
-> will **run** on every PR from its merge — but nothing **requires** it yet: adding "Code Check" as the
+> runs on every PR **and is required since 2026-08-27** — Part A3 is now satisfied in full. **Verified 2026-08-27 from the GitHub API, not from a screenshot:** `GET /repos/86400websites/unretire/rules/branches/master` returns `required_status_checks` with `checks: ['code-check']` and `strict_required_status_checks_policy: false`, alongside `pull_request`, `deletion` and `non_fast_forward`. The check also ran and concluded **success** on PR #12's head `5a567a5`. **Red can no longer reach `master`.** ~~will run on every PR from its merge — but nothing requires it yet: adding "Code Check" as the
 > required status on the existing `master` protection — a **Ruleset** named "Protect master": Settings → Rules → Rulesets (GitHub web UI; `gh` CLI not installed) — and
 > watching the merge button stay locked until the check passes remain the **owner's action after merge**,
 > pending. An unverified gate is the same as no gate. Read A3 as satisfied in halves until the owner
-> records the required status and the watched-lock verification.
+> records the required status and the watched-lock verification.~~
 >
 > **A4/A5 domain go-live status — 2026-08-27.** A4 is done: Vercel Production `NEXT_PUBLIC_SITE_URL` =
 > `https://www.unretireproject.com` (no trailing slash — Known issue 35 **resolved 2026-08-27**) and Production

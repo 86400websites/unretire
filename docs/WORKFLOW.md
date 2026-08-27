@@ -15,8 +15,8 @@ Every change to `(Un)Retire` follows:
 > **S2.1** (`.github/workflows/code-check.yml`, verbatim from `docs/TECHNICAL-INTEGRITY.md`) and runs on every
 > PR from S2.1's merge. The **required-status** half of `master`'s protection — adding "Code Check" as a
 > required status check to the existing protection (the **"Protect master" ruleset** — Settings → Rules → Rulesets) and watching the merge button stay locked
-> until the check passes — is an **owner action, pending**. Until that is recorded, a red PR can still be
-> merged by hand, so read every "CI passes" box below as **"satisfied by the green Code Check where it ran;
+> until the check passes — ~~is an **owner action, pending**. Until that is recorded, a red PR can still be
+> merged by hand, so read every "CI passes" box below as **"satisfied by the green Code Check where it ran;~~ **Done 2026-08-27 — the required status is enabled (`code-check`) and it passed on PR #12; red cannot reach `master`.** **Verified 2026-08-27 from the GitHub API, not from a screenshot:** `GET /repos/86400websites/unretire/rules/branches/master` returns `required_status_checks` with `checks: ['code-check']` and `strict_required_status_checks_policy: false`, alongside `pull_request`, `deletion` and `non_fast_forward`. The check also ran and concluded **success** on PR #12's head `5a567a5`. **Red can no longer reach `master`.**
 > where it did not run, the local checks were run by hand and their exact results recorded in the sprint
 > record"**. The Codex review — which *is* live — remains the gate that actually holds. `master`'s
 > PR-before-merge protection is enabled.

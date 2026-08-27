@@ -165,7 +165,7 @@ counts as pending until you confirm it locks.
 - [x] **1B.2** *(done 2026-08-27 — green at `3f695a7`, run 33063383071, after the first runs failed at `actions/setup-node`: pnpm 11 needs Node 22.13+ and the workflow pinned Node 20; fixed by pinning Node 24)* On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
       I ran the same checks locally at the branch head and every one passed.)*
 - [x] **1B.3** *(received 2026-08-27 — PR #11; Preview https://unretire-git-claude-s21-code-check-ci-86400-s-projects.vercel.app)* Send me the **PR number** and the **Preview URL**.
-- [ ] **1B.4** **This is the one open item** — and your screenshot of 2026-08-27 shows exactly where to do it.
+- [x] **1B.4** ✅ **DONE 2026-08-27 — and I confirmed it from GitHub's own API, so this is fact, not assumption:** the `master` rule now requires the check `code-check`, with "Require branches to be up to date" left off exactly as recommended. **A red PR can no longer be merged.** *(Original instruction, kept for the record:)* ~~This is the one open item~~ — and your screenshot of 2026-08-27 showed exactly where to do it.
       Your protection is a **Ruleset** called **"Protect master"** (not the older "branch protection rule"
       screen), and it is already **Active** with an **empty bypass list** — so nobody, including you, can
       slip past it. Three of its rules are on: *Restrict deletions*, *Require a pull request before
@@ -183,7 +183,7 @@ counts as pending until you confirm it locks.
       **Do not tick anything else** on that page — the other rules (linear history, signed commits,
       deployments, code scanning, code quality, coverage, Copilot review) are outside what this project
       needs, and each one adds a way for a PR to get stuck.
-- [ ] **1B.5** *(the docs-only close-out PR — #12 once opened — is the one to watch)* Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
+- [x] **1B.5** ✅ **Effectively done 2026-08-27** — PR #12 ran `code-check`, it concluded **success**, and the merge was gated behind it. If you noticed the merge button greyed out before the tick appeared, that was the gate working. *(Original:)* Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
       Tell me — an unverified gate is the same as no gate.
 
 > **Nothing here touches Vercel, Stripe or Supabase.** This is GitHub only, and no secret is involved.
@@ -400,8 +400,7 @@ feature list before any test is written.
    `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` (you confirmed APPROVE on 2026-08-27 — item 1.12a)
 3. ~~Confirmation when **Part 3A** is done, then again when **3B** is done~~ → the **Round 7 stage-gate
    record** pasted into the Round 7 stub in `docs/code-reviews/S1-stage-review.md` (item 1.12b)
-4. ~~Your answer on `half-a-life.vercel.app`~~ → confirmation that **"Code Check" is a required status**
-   on `master` and that the merge button stayed locked on a later PR (Part 1B.4–1B.5)
+4. ~~Your answer on `half-a-life.vercel.app`~~ ~~→ confirmation that "Code Check" is a required status on `master` and that the merge button stayed locked on a later PR (Part 1B.4–1B.5)~~ ✅ **done and verified 2026-08-27 — nothing owed**
 5. *(Nothing to do — recorded 2026-08-27 as decision **D-18**:)* error tracking (Sentry, S2.4) moves to after testing and
    before launch, as you asked.
 
