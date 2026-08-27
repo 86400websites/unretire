@@ -157,8 +157,9 @@ Sprint **S2.1** was built on branch `claude/s2.1-code-check-ci` and **merged on 
 Codex review approved it. It adds the automatic **"Code Check"** that runs on every pull request — typecheck, lint, formatting
 check, build and a dependency-vulnerability audit (plus unit tests, once they exist). The check now **runs** on
 every PR, but nothing **requires** it until you add it to the `master`
-protection rule — and only you can do that. Until then a red PR can still be merged by hand, so the gate
-counts as pending until you confirm it locks.
+protection rule — and only you can do that. ~~Until then a red PR can still be merged by hand, so the gate
+counts as pending until you confirm it locks.~~ **You did that on 2026-08-27: the `master` ruleset now requires
+the `code-check` status (I confirmed it from GitHub's own API), so a red PR cannot be merged. The gate is closed.**
 
 - [x] **1B.1** *(done 2026-08-27 — PR #11)* GitHub → **Pull requests** → **New pull request** → base `master`, compare
       `claude/s2.1-code-check-ci` → title suggestion: **"S2.1 — Code Check CI"** → Create.
@@ -358,10 +359,16 @@ do exactly these five, in this order. **You do not touch any secret — every va
       > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
       > public, so I did not recommend it — your call.)*
 
-- [x] **1C.2 — Sign in to the two database tools.** ✅ **Done 2026-08-27** — your terminal showed "Authentication successful" for both, `claude mcp list` shows both **Connected**, and I then ran the safety checks: the test database answered, a throw-away table was created and deleted there, and a write to the **live** database was **refused** ("cannot execute UPDATE in a read-only transaction") — the read-only guard works. ~~~~🔴 **READY NOW (2026-08-27) — this is the one thing S2.2 is waiting on.**~~ ~~`.mcp.json` now exists with both servers, and both report *"Pending approval"* until you approve the project and sign in. Until then I cannot run the test-database read or the refused-write check, and proof **P11** cannot run.~~ *(Superseded the same day, 2026-08-27 — you signed in, the checks ran, and proof **P11** passed.)* ~~⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet.~~ *(Both states above are history: you signed in on 2026-08-27 and the guardrail tests passed — nothing here is outstanding.)*~~ **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
-      `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
-      so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
-      Approve the project when Claude Code asks. No key, no token — browser sign-in only.
+- [x] **1C.2 — Sign in to the two database tools.** ✅ **Done 2026-08-27.** Your terminal showed "Authentication successful" for both servers, `claude mcp list` shows both **Connected**, and I then ran the
+      safety checks: the test database answered, a throw-away table was created and deleted there, and a write to
+      the **live** database was **refused** ("cannot execute UPDATE in a read-only transaction") — the read-only
+      guard works. **Nothing here is outstanding.**
+      > *How this item evolved, for the record: it was first written as "not yet possible" (my sequencing error —
+      > the servers do not exist until S2.2 creates `.mcp.json`), then as "ready now, S2.2 is waiting on it", and
+      > was completed the same day. The instructions were: run `claude` in the project folder, then `/mcp`, and
+      > sign in with your browser once **per server** — they live in **different Supabase organisations**, so
+      > `supabase-test` → org **"Test Databases"** and `supabase-prod-readonly` → org **"86400"**; approve the
+      > project when Claude Code asks. No key, no token — browser sign-in only.*
       > `supabase-prod-readonly` is **read-only by construction** — it cannot write to your live database even if
       > something tried. That is the exception you approved on 2026-08-25 (D-11).
 
@@ -376,23 +383,14 @@ do exactly these five, in this order. **You do not touch any secret — every va
 > ### ⚠ What one shared Mailchimp audience means, in writing
 > You chose to keep a single live audience (**D-22**), which I have recorded. The consequence is permanent: **any
 > form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
-> your real welcome emails. ~~To keep that harmless we agreed two rules: **(1)** every test signup uses *your own*
-> email with a plus-tag — so the automated mail lands in your inbox and the fake contacts are
-> findable and deletable in one search; **(2)**~~ ~~the launch test suite will not run automated email-capture tests
-> against a preview~~ ~~— **updated 2026-08-27 at your request: the robot tests WILL exercise your real automations.**
-> ~~That is safe *because* of rule (1): every address the robot signs up is your own inbox, so your welcome emails
-> actually arrive somewhere real and you can see them work. Four house rules come with it: the robot may **only**
-> use `you+ur-test-…` addresses — **never** invented ones like `test@example.com`, because those bounce and bounces
-> are what damage a sending domain; every test **deletes its own contact** afterwards; email tests run only in the
-> **full** suite, never in the daily morning check (a daily signup would be ~365 contacts and ~365 emails a year);
-> and where an automation sends over several days, the robot confirms the sign-up landed correctly and **you**
-> confirm the later emails in your inbox — no test can wait three days.~~
+> your real welcome emails.
 >
-> **Rewritten 2026-08-28 so the rules live in exactly one place.** The plain fact: one live Mailchimp audience serves
-> Production, Preview and local, so test submissions write real subscribers; you accepted that under **D-22**. The
-> house rules that keep it harmless are written out once, as **D-22 rules 1 and 2a–2e** in `docs/PROJECT-STATUS.md` §8
-> are written out once as **D-22 rules 1 and 2a–2e** in `docs/PROJECT-STATUS.md` §8 — that is the only copy, so the
-> numbered list that used to sit here is struck rather than kept in two places.
+> **The house rules that keep it harmless are written out once — as D-22 rules 1 and 2a–2e in**
+> **`docs/PROJECT-STATUS.md` §8.** That is the only copy on purpose: a rule restated in several places drifts out
+> of agreement with itself, which is exactly what an independent review caught here twice. In plain terms they
+> say that test signups use your own plus-tagged address and never an invented one, that each test cleans up
+> after itself, that email tests run only in the full suite and never in the daily morning check, and that no
+> test triggers a campaign send — but if those words and D-22 ever disagree, **D-22 wins**.
 
 ---
 
