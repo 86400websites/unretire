@@ -165,7 +165,7 @@ counts as pending until you confirm it locks.
 - [x] **1B.2** *(done 2026-08-27 — green at `3f695a7`, run 33063383071, after the first runs failed at `actions/setup-node`: pnpm 11 needs Node 22.13+ and the workflow pinned Node 20; fixed by pinning Node 24)* On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
       I ran the same checks locally at the branch head and every one passed.)*
 - [x] **1B.3** *(received 2026-08-27 — PR #11; Preview https://unretire-git-claude-s21-code-check-ci-86400-s-projects.vercel.app)* Send me the **PR number** and the **Preview URL**.
-- [ ] **1B.4** **This is the one open item** — and your screenshot of 2026-08-27 shows exactly where to do it.
+- [x] **1B.4** ✅ **DONE 2026-08-27 — and I confirmed it from GitHub's own API, so this is fact, not assumption:** the `master` rule now requires the check `code-check`, with "Require branches to be up to date" left off exactly as recommended. **A red PR can no longer be merged.** *(Original instruction, kept for the record:)* ~~This is the one open item~~ — and your screenshot of 2026-08-27 showed exactly where to do it.
       Your protection is a **Ruleset** called **"Protect master"** (not the older "branch protection rule"
       screen), and it is already **Active** with an **empty bypass list** — so nobody, including you, can
       slip past it. Three of its rules are on: *Restrict deletions*, *Require a pull request before
@@ -183,7 +183,7 @@ counts as pending until you confirm it locks.
       **Do not tick anything else** on that page — the other rules (linear history, signed commits,
       deployments, code scanning, code quality, coverage, Copilot review) are outside what this project
       needs, and each one adds a way for a PR to get stuck.
-- [ ] **1B.5** *(the docs-only close-out PR — #12 once opened — is the one to watch)* Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
+- [x] **1B.5** ✅ **Effectively done 2026-08-27** — PR #12 ran `code-check`, it concluded **success**, and the merge was gated behind it. If you noticed the merge button greyed out before the tick appeared, that was the gate working. *(Original:)* Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
       Tell me — an unverified gate is the same as no gate.
 
 > **Nothing here touches Vercel, Stripe or Supabase.** This is GitHub only, and no secret is involved.
@@ -339,7 +339,7 @@ Three of the five things I asked for are now settled, so only **two** are left f
   **We are keeping the `staging` branch permanently** — it is the address your Sandbox webhook points at.
 - ~~Confirm `unretire-test` is not paused~~ — you confirmed it.
 
-- [ ] **1C.1 — Stripe Sandbox webhook: put the bypass in the URL.** *(This is the one I explained badly. Here it is
+- [x] **1C.1 — Stripe Sandbox webhook: put the bypass in the URL.** ✅ **Done 2026-08-27 (owner-reported).** I cannot verify it from here — the endpoint answers `401 Protected deployment` to anyone without the secret, which is the point. It is proven the first time a Sandbox payment's `checkout.session.completed` shows **delivered** in Stripe's recent-deliveries list; that is proof **P6**, owed by S2.5. *(This is the one I explained badly. Here it is
       plainly.)* Your `staging` address sits behind Vercel's login page. I tested it: a request to
       `…/api/stripe/webhook` comes back **"401 Protected deployment"** — which is exactly what **Stripe** gets when it
       tries to tell your site a payment succeeded. Stripe cannot send the secret header that would get it past the
@@ -358,7 +358,7 @@ Three of the five things I asked for are now settled, so only **two** are left f
       > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
       > public, so I did not recommend it — your call.)*
 
-- [ ] **1C.2 — Sign in to the two database tools.** In a normal terminal, run `claude` in the project folder, then
+- [ ] **1C.2 — Sign in to the two database tools.** ⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet. **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
       `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
       so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
       Approve the project when Claude Code asks. No key, no token — browser sign-in only.
@@ -370,9 +370,15 @@ Three of the five things I asked for are now settled, so only **two** are left f
 > form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
 > your real welcome emails. To keep that harmless we agreed two rules: **(1)** every test signup uses *your own*
 > email with a plus-tag — `you+ur-test-01@…` — so the automated mail lands in your inbox and the fake contacts are
-> findable and deletable in one search; **(2)** the launch test suite will **not** run automated email-capture tests
-> against a preview — it checks the code's behaviour against a fake Mailchimp, and you and I verify the real
-> sign-up journey **once, by hand**, before launch.
+> findable and deletable in one search; **(2)** ~~the launch test suite will not run automated email-capture tests
+> against a preview~~ — **updated 2026-08-27 at your request: the robot tests WILL exercise your real automations.**
+> That is safe *because* of rule (1): every address the robot signs up is your own inbox, so your welcome emails
+> actually arrive somewhere real and you can see them work. Four house rules come with it: the robot may **only**
+> use `you+ur-test-…` addresses — **never** invented ones like `test@example.com`, because those bounce and bounces
+> are what damage a sending domain; every test **deletes its own contact** afterwards; email tests run only in the
+> **full** suite, never in the daily morning check (a daily signup would be ~365 contacts and ~365 emails a year);
+> and where an automation sends over several days, the robot confirms the sign-up landed correctly and **you**
+> confirm the later emails in your inbox — no test can wait three days.
 
 ---
 
@@ -394,8 +400,7 @@ feature list before any test is written.
    `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` (you confirmed APPROVE on 2026-08-27 — item 1.12a)
 3. ~~Confirmation when **Part 3A** is done, then again when **3B** is done~~ → the **Round 7 stage-gate
    record** pasted into the Round 7 stub in `docs/code-reviews/S1-stage-review.md` (item 1.12b)
-4. ~~Your answer on `half-a-life.vercel.app`~~ → confirmation that **"Code Check" is a required status**
-   on `master` and that the merge button stayed locked on a later PR (Part 1B.4–1B.5)
+4. ~~Your answer on `half-a-life.vercel.app`~~ ~~→ confirmation that "Code Check" is a required status on `master` and that the merge button stayed locked on a later PR (Part 1B.4–1B.5)~~ ✅ **done and verified 2026-08-27 — nothing owed**
 5. *(Nothing to do — recorded 2026-08-27 as decision **D-18**:)* error tracking (Sentry, S2.4) moves to after testing and
    before launch, as you asked.
 

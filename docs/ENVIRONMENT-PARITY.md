@@ -801,6 +801,26 @@ Launch Gate run. The committed SQL is the intent; the diff is the proof that bot
 
 ---
 
+### The `staging` branch — what it is, and its lifecycle *(added 2026-08-27, owner question)*
+
+`staging` is **not a feature branch and not a release branch.** It exists for exactly one reason: Vercel gives every
+branch a **stable alias** (`https://unretire-git-staging-86400-s-projects.vercel.app`), and the Stripe **Sandbox**
+webhook `captivating-triumph` needs an address that never changes. A per-PR Preview URL is different on every push
+(§6 **C2**), so it cannot be a webhook target. `staging` is that fixed address.
+
+| Question | Answer |
+|---|---|
+| Keep it? | **Yes — permanently.** Deleting it destroys the alias and the Sandbox webhook loses its target. |
+| Merge `staging` **into** `master`? | **Never.** It holds nothing `master` does not; it is a deployment target, not a source of work. Nothing is ever developed on it. |
+| Merge `master` **into** `staging`? | **Yes, periodically — always as a fast-forward**, so `staging` mirrors `master` exactly (`git push origin origin/master:staging`). Done 2026-08-27 (`0983ad5` → `a68f210`, 86 commits). |
+| When must it be refreshed? | Before **any** Sandbox payment test (S2.5, S5.1) and before **launch** — otherwise a payment test exercises stale code and proves nothing about what is live. Refresh it whenever `master` has moved and a test is about to run. |
+| Which environment values does it use? | Vercel treats every non-Production branch as **Preview**, so the `staging` deployment reads the **Preview** scope: the `unretire-test` Supabase project and Stripe **sandbox** keys/prices. That is the isolation working as designed. ⚠ It also reads the **shared** `MAILCHIMP_LIST_ID` — the live audience — which is the accepted risk recorded as **D-22**. |
+| Is it protected? | No, and it does not need to be. The `master` ruleset targets the **default branch only**, so `staging` takes a direct fast-forward push with no PR and no review. |
+| Does it need its own review chain? | No. It never contains unreviewed work — it only ever mirrors an already-merged `master`. |
+
+**Do not** point the **live** Stripe webhook at `staging`; that mistake existed once (destination `engaging-voyage`)
+and was deleted 2026-08-25 (Known issue 30). Live money goes to `https://www.unretireproject.com/api/stripe/webhook`.
+
 ## 6. What cannot be made identical
 
 Honest list. Each gap is permanent, and each has a compensating check that covers it another way.
@@ -987,7 +1007,7 @@ This file is documentation only; it changes no configuration by itself. The foll
 | ~~9~~ | ~~**Configure Site URL + the redirect allow-list in BOTH Supabase projects** (§5.3a) — the production project is currently sending every auth email link to `http://localhost:3000`.~~ | **owner** | ✅ **DONE 2026-08-25 — both projects configured.** `unretire-prod`: Site URL `https://unretire.vercel.app` *(moved to `https://www.unretireproject.com` on 2026-08-27, owner-reported — allow-list unchanged)*, five allow-listed origins (`localhost:3000/**`, `www.unretireproject.com/**`, `unretireproject.com/**`, `unretire.vercel.app/**`, `*-86400-s-projects.vercel.app/**`), two stale third-party hosts removed (Known issue 28 resolved). `unretire-test`: Site URL `http://localhost:3000`, allow-list `http://localhost:3000/**` and `https://*-86400-s-projects.vercel.app/**`. Only the behavioural proof **P3** (§8) remains unrun — owed by **S2.5**. ⚠ Known issue 23's *configuration* half is closed; its embedded \"not an open redirect\" claim is **wrong and retracted** — see §5.3b and Known issue 38 |
 | 10 | ~~Change the Vercel variable **Type** of `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from **Secret** to **Config**~~ | **owner** | ✅ **DONE 2026-08-25** — all three `NEXT_PUBLIC_*` variables in Production are typed **Config**; `SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and `MAILCHIMP_API_KEY` remain **Secret**, as required. Known issue 24 resolved |
 | 11 | ~~Set `NEXT_PUBLIC_SITE_URL` in **Production**, then redeploy; leave Preview unset (§2A row 10)~~ | **owner** | ✅ **DONE 2026-08-25** — set to the live origin (not the custom domain, which ~~is still parked~~ was still parked until 2026-08-27). Closes Known issue 19 and the Production half of D-13. **Two follow-ups:** ~~remove the trailing slash (Known issue 35), and change the value when DNS moves~~ — **both done 2026-08-27** (owner-reported, OWNER-ACTIONS Part 4B L1 + L4 redeploy): value now `https://www.unretireproject.com`, no trailing slash, confirmed by the served `og:url`; Known issues 27 and 35 RESOLVED |
-| 12 | **Land one commit on `staging`** so Vercel builds its branch alias and the sandbox Stripe webhook has a target — until then no Preview payment can complete | **owner / agent** | GitHub. Known issue **32**; unblocks §8 P4, P5, P6 |
+| ~~12~~ | ~~**Land one commit on `staging`** so Vercel builds its branch alias and the sandbox Stripe webhook has a target — until then no Preview payment can complete~~ **DONE 2026-08-27** — fast-forwarded `0983ad5` → `a68f210` under a one-time owner authorisation; the alias answers **302** (was 404). The endpoint still returns **401 `Protected deployment`** to an unauthenticated POST, so the Sandbox destination needs the bypass **query parameter** (§6 C3) — owner-reported done 2026-08-27, proven by P6. See the `staging` lifecycle table above §6 | **owner / agent** | GitHub. Known issue **32**; unblocks §8 P4, P5, P6 |
 | ~~13~~ | ~~**Configure `unretire-test`'s Site URL + redirect allow-list**~~ | **owner** | ✅ **DONE 2026-08-25.** Site URL `http://localhost:3000`; allow-list `http://localhost:3000/**`, `https://*-86400-s-projects.vercel.app/**`. §8 **P3** is unblocked but has not been run — that proof is owed by S2.5 |
 | 14 | **Run the §8 proofs and record each with a date** — the one thing that converts "configured" into "verified" | agent + owner | Sprint **S2.5**. Nothing in the Launch Gate may start before this |
 | 15 | **Prove the Mailchimp audience split** (§8 P7) and diff the test audience's merge fields and tags against live (§5.4) | agent + owner | Mailchimp. §2B row 9 stays **NOT SPLIT** until S2.2 performs the split, and unproven until P7 |
