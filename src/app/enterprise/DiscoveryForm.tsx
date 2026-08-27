@@ -13,11 +13,15 @@ import { useState } from "react";
  * wrong: it tells them the form is unavailable and gives them the address
  * to email instead, so a real lead is never silently dropped.
  */
-const ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "https://formspree.io/f/mgogyqey";
+const ENDPOINT =
+  process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ??
+  "https://formspree.io/f/mgogyqey";
 const CONTACT_EMAIL = "unretire86400@gmail.com";
 
 // A placeholder like ".../YOUR_FORM_ID" must not count as configured.
-const isConfigured = /^https:\/\/formspree\.io\/f\/[A-Za-z0-9]+$/.test(ENDPOINT);
+const isConfigured = /^https:\/\/formspree\.io\/f\/[A-Za-z0-9]+$/.test(
+  ENDPOINT,
+);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -25,7 +29,12 @@ type State = "idle" | "sending" | "done" | "invalid" | "failed";
 
 export default function DiscoveryForm() {
   const [state, setState] = useState<State>("idle");
-  const [form, setForm] = useState({ name: "", email: "", company: "", phone: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+  });
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -49,7 +58,10 @@ export default function DiscoveryForm() {
     try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({
           ...form,
           name,
@@ -83,22 +95,62 @@ export default function DiscoveryForm() {
     <div className="card p-7 sm:p-8">
       <div className="space-y-4">
         <div>
-          <label className={label} htmlFor="discovery-name">Name *</label>
-          <input id="discovery-name" className={field} value={form.name} onChange={set("name")} type="text" autoComplete="name" />
+          <label className={label} htmlFor="discovery-name">
+            Name *
+          </label>
+          <input
+            id="discovery-name"
+            className={field}
+            value={form.name}
+            onChange={set("name")}
+            type="text"
+            autoComplete="name"
+          />
         </div>
         <div>
-          <label className={label} htmlFor="discovery-email">Email address *</label>
-          <input id="discovery-email" className={field} value={form.email} onChange={set("email")} type="email" autoComplete="email" />
+          <label className={label} htmlFor="discovery-email">
+            Email address *
+          </label>
+          <input
+            id="discovery-email"
+            className={field}
+            value={form.email}
+            onChange={set("email")}
+            type="email"
+            autoComplete="email"
+          />
         </div>
         <div>
-          <label className={label} htmlFor="discovery-company">Company name</label>
-          <input id="discovery-company" className={field} value={form.company} onChange={set("company")} type="text" autoComplete="organization" />
+          <label className={label} htmlFor="discovery-company">
+            Company name
+          </label>
+          <input
+            id="discovery-company"
+            className={field}
+            value={form.company}
+            onChange={set("company")}
+            type="text"
+            autoComplete="organization"
+          />
         </div>
         <div>
-          <label className={label} htmlFor="discovery-phone">Contact phone number</label>
-          <input id="discovery-phone" className={field} value={form.phone} onChange={set("phone")} type="tel" autoComplete="tel" />
+          <label className={label} htmlFor="discovery-phone">
+            Contact phone number
+          </label>
+          <input
+            id="discovery-phone"
+            className={field}
+            value={form.phone}
+            onChange={set("phone")}
+            type="tel"
+            autoComplete="tel"
+          />
         </div>
-        <button onClick={submit} disabled={state === "sending"} className="btn btn-crimson w-full">
+        <button
+          onClick={submit}
+          disabled={state === "sending"}
+          className="btn btn-crimson w-full"
+        >
           {state === "sending" ? "Sending…" : "Book a Discovery Call →"}
         </button>
 
@@ -110,8 +162,12 @@ export default function DiscoveryForm() {
 
         {state === "failed" && (
           <p className="text-[13px] text-[#8B1A1A] leading-[1.5]" role="alert">
-            Sorry — we couldn&apos;t send that just now. Please email us directly at{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold">
+            Sorry — we couldn&apos;t send that just now. Please email us
+            directly at{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="underline font-semibold"
+            >
               {CONTACT_EMAIL}
             </a>{" "}
             and we&apos;ll pick it up from there.

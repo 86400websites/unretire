@@ -23,7 +23,8 @@ export default async function AccountPage({
         {checkout === "success" && (
           <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
             <p className="text-[15px] text-[#232F3F] leading-[1.6]">
-              <span className="font-bold">Payment successful.</span> Welcome — your access is ready below.
+              <span className="font-bold">Payment successful.</span> Welcome —
+              your access is ready below.
             </p>
           </div>
         )}
@@ -45,9 +46,13 @@ export default async function AccountPage({
           <div className="flex items-center gap-3 mb-3">
             <p className="eyebrow">Your access</p>
             {hasPremium ? (
-              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">Premium</span>
+              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">
+                Premium
+              </span>
             ) : hasCourse ? (
-              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">Course</span>
+              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">
+                Course
+              </span>
             ) : null}
           </div>
 
@@ -65,19 +70,26 @@ export default async function AccountPage({
           ) : (
             <>
               <p className="prose-body text-[15px] leading-[1.7] mb-6">
-                You don&apos;t have course access yet. Unlock the full course, or go Premium for the
-                course plus the book, workbook, and monthly letter.
+                You don&apos;t have course access yet. Unlock the full course,
+                or go Premium for the course plus the book, workbook, and
+                monthly letter.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/premium" className="btn btn-crimson">Explore Premium</Link>
-                <Link href="/learn/course" className="btn btn-outline">Buy the course</Link>
+                <Link href="/premium" className="btn btn-crimson">
+                  Explore Premium
+                </Link>
+                <Link href="/learn/course" className="btn btn-outline">
+                  Buy the course
+                </Link>
               </div>
             </>
           )}
         </div>
 
         <form action={logout}>
-          <button type="submit" className="btn btn-outline">Log out</button>
+          <button type="submit" className="btn btn-outline">
+            Log out
+          </button>
         </form>
       </div>
     </section>

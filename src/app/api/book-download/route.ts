@@ -12,11 +12,17 @@ export const runtime = "nodejs";
 // clean by a URL. Only this server route reads them.
 const MASTERS = {
   book: {
-    path: path.join(process.cwd(), "src/app/unretire/account/_book/unretire-book-master.pdf"),
+    path: path.join(
+      process.cwd(),
+      "src/app/unretire/account/_book/unretire-book-master.pdf",
+    ),
     label: "book",
   },
   workbook: {
-    path: path.join(process.cwd(), "src/app/unretire/account/_book/unretire-workbook-master.pdf"),
+    path: path.join(
+      process.cwd(),
+      "src/app/unretire/account/_book/unretire-workbook-master.pdf",
+    ),
     label: "workbook",
   },
 } as const;
@@ -37,7 +43,10 @@ export async function POST(request: NextRequest) {
   //    they hold a real 'premium' entitlement).
   const { userId, products } = await getAccess();
   if (!userId || !ownsProduct("premium", products)) {
-    return NextResponse.json({ error: "Premium access required." }, { status: 403 });
+    return NextResponse.json(
+      { error: "Premium access required." },
+      { status: 403 },
+    );
   }
 
   // 2. Get and validate the name + which document.
@@ -48,12 +57,16 @@ export async function POST(request: NextRequest) {
     name = cleanName(String(body?.name ?? ""));
     const t = String(body?.type ?? "book");
     if (t === "book" || t === "workbook") type = t;
-    else return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    else
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
   if (!name) {
-    return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Please enter your name." },
+      { status: 400 },
+    );
   }
 
   // 2b. One download per user per document. Check whether they've already
@@ -157,7 +170,10 @@ export async function POST(request: NextRequest) {
   // 5. Stream it back as a download.
   const prefix = type === "workbook" ? "UnRetire-Workbook" : "UnRetire";
   const safeFile =
-    prefix + "-" + name.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "") + ".pdf";
+    prefix +
+    "-" +
+    name.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "") +
+    ".pdf";
 
   return new NextResponse(Buffer.from(out), {
     status: 200,

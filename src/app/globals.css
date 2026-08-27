@@ -1,74 +1,84 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-body: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
-  --font-mono: var(--font-fira-code), 'Fira Code', monospace;
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-mono: var(--font-fira-code), "Fira Code", monospace;
 }
 
 @layer base {
   :root {
     /* ── Half a Life Dark Palette ── */
-    --page-bg:    #0D0D0D;
-    --bg-dark:    #111111;
-    --bg-card:    #1A1A1A;
-    --bg-light:   #F2EDE4;
+    --page-bg: #0d0d0d;
+    --bg-dark: #111111;
+    --bg-card: #1a1a1a;
+    --bg-light: #f2ede4;
 
-    --cream:      #F2EDE4;
-    --petal:      #EDE5D8;
-    --sand:       #D9CEBD;
-    --stone:      #9A9080;
+    --cream: #f2ede4;
+    --petal: #ede5d8;
+    --sand: #d9cebd;
+    --stone: #9a9080;
 
-    --crimson:    #8B1A1A;
-    --crimson-lt: #A82020;
-    --crimson-dk: #6B1010;
+    --crimson: #8b1a1a;
+    --crimson-lt: #a82020;
+    --crimson-dk: #6b1010;
 
-    --gold:       #C8975A;
-    --ink:        #0D0D0D;
-    --text:       #E8E2D8;
-    --muted:      #9A9080;
+    --gold: #c8975a;
+    --ink: #0d0d0d;
+    --text: #e8e2d8;
+    --muted: #9a9080;
 
     /* shadcn/ui tokens */
-    --background:         0 0% 5%;
-    --foreground:         30 20% 91%;
-    --card:               0 0% 10%;
-    --card-foreground:    30 20% 91%;
-    --popover:            0 0% 10%;
+    --background: 0 0% 5%;
+    --foreground: 30 20% 91%;
+    --card: 0 0% 10%;
+    --card-foreground: 30 20% 91%;
+    --popover: 0 0% 10%;
     --popover-foreground: 30 20% 91%;
-    --primary:            0 68% 31%;
+    --primary: 0 68% 31%;
     --primary-foreground: 30 20% 95%;
-    --secondary:          0 0% 14%;
+    --secondary: 0 0% 14%;
     --secondary-foreground: 30 20% 91%;
-    --muted-bg:           0 0% 14%;
-    --muted-fg:           30 10% 56%;
-    --accent:             0 68% 31%;
-    --accent-foreground:  30 20% 95%;
-    --border:             0 0% 18%;
-    --input:              0 0% 18%;
-    --ring:               0 68% 31%;
-    --radius:             10px;
+    --muted-bg: 0 0% 14%;
+    --muted-fg: 30 10% 56%;
+    --accent: 0 68% 31%;
+    --accent-foreground: 30 20% 95%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 68% 31%;
+    --radius: 10px;
 
     /* Layout */
     --topnav-h: 64px;
 
     /* Typography */
     --serif: var(--font-display);
-    --body:  var(--font-body);
-    --mono:  var(--font-mono);
+    --body: var(--font-body);
+    --mono: var(--font-mono);
 
     /* Motion */
-    --ease: cubic-bezier(.25,.46,.45,.94);
-    --ease-out: cubic-bezier(0,0,.2,1);
+    --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
     /* Shadows */
-    --shadow-sm: 0 2px 12px rgba(0,0,0,.25);
-    --shadow-md: 0 6px 28px rgba(0,0,0,.35);
-    --shadow-lg: 0 16px 56px rgba(0,0,0,.45), 0 4px 16px rgba(0,0,0,.25);
+    --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 6px 28px rgba(0, 0, 0, 0.35);
+    --shadow-lg:
+      0 16px 56px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
 
 body {
   font-family: var(--body);
@@ -79,20 +89,40 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a { text-decoration: none; color: inherit; }
-img { max-width: 100%; display: block; }
-button { cursor: pointer; font-family: var(--body); }
+a {
+  text-decoration: none;
+  color: inherit;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+button {
+  cursor: pointer;
+  font-family: var(--body);
+}
 
 /* Skip link */
 .skip-link {
-  position: fixed; top: -100px; left: 1rem; z-index: 99999;
-  padding: .75rem 1.5rem; background: var(--ink); color: var(--cream);
-  border-radius: var(--radius); font-size: .85rem; font-weight: 500;
-  transition: top .2s;
+  position: fixed;
+  top: -100px;
+  left: 1rem;
+  z-index: 99999;
+  padding: 0.75rem 1.5rem;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: top 0.2s;
 }
-.skip-link:focus { top: 1rem; }
+.skip-link:focus {
+  top: 1rem;
+}
 
-:focus { outline: none; }
+:focus {
+  outline: none;
+}
 :focus-visible {
   outline: 2.5px solid var(--crimson);
   outline-offset: 3px;

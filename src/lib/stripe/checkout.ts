@@ -36,7 +36,8 @@ export async function createCheckoutSession(opts: {
 }): Promise<string> {
   const config = PRODUCT_CONFIG[opts.product];
   const price = config.priceEnv();
-  if (!price) throw new Error(`Stripe price not configured for ${opts.product}`);
+  if (!price)
+    throw new Error(`Stripe price not configured for ${opts.product}`);
 
   const session = await getStripe().checkout.sessions.create({
     mode: config.mode,

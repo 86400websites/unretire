@@ -68,11 +68,16 @@ export default function UnRetireFooter() {
           {/* Link columns */}
           {columns.map((col) => (
             <div key={col.title} className="md:col-span-2">
-              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/35 mb-4">{col.title}</p>
+              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/35 mb-4">
+                {col.title}
+              </p>
               <ul className="space-y-3">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="text-[14px] text-white/55 hover:text-white transition-colors">
+                    <Link
+                      href={l.href}
+                      className="text-[14px] text-white/55 hover:text-white transition-colors"
+                    >
                       {l.label}
                     </Link>
                   </li>
@@ -87,8 +92,19 @@ export default function UnRetireFooter() {
             href="/"
             className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] uppercase text-white/55 hover:text-white transition-colors border border-white/15 rounded-full px-3.5 py-1.5"
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 11l9-8 9 8M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M3 11l9-8 9 8M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"
+              />
             </svg>
             Home
           </Link>
@@ -96,12 +112,20 @@ export default function UnRetireFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-7">
-          <p className="text-[12px] text-white/35">© 2026 (Un)Retire · Maher Kaddoura · Part of Half a Life</p>
+          <p className="text-[12px] text-white/35">
+            © 2026 (Un)Retire · Maher Kaddoura · Part of Half a Life
+          </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">
+            <Link
+              href="/privacy"
+              className="text-[12px] text-white/35 hover:text-white/70 transition-colors"
+            >
               Privacy
             </Link>
-            <Link href="/terms" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">
+            <Link
+              href="/terms"
+              className="text-[12px] text-white/35 hover:text-white/70 transition-colors"
+            >
               Terms
             </Link>
           </div>

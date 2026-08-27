@@ -37,9 +37,7 @@ export async function getAccess(): Promise<{
     .select("product")
     .eq("status", "active");
 
-  const products = error
-    ? []
-    : (data ?? []).map((r) => r.product as Product);
+  const products = error ? [] : (data ?? []).map((r) => r.product as Product);
 
   return { userId: user.id, email: user.email ?? null, products };
 }

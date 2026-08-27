@@ -39,24 +39,50 @@ function buildItems(m: Module): Item[] {
 }
 
 const LockIcon = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="5" y="11" width="14" height="9" rx="2" />
+    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
   </svg>
 );
 
 const PlayIcon = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
     <path d="M8 5v14l11-7z" />
   </svg>
 );
 
-export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: string; unlocked: boolean }) {
+export default function CoursePlayer({
+  initialSlug,
+  unlocked,
+}: {
+  initialSlug: string;
+  unlocked: boolean;
+}) {
   const allItems = useMemo(() => modules.flatMap(buildItems), []);
-  const initialModule = modules.find((m) => m.slug === initialSlug) ?? modules[0];
+  const initialModule =
+    modules.find((m) => m.slug === initialSlug) ?? modules[0];
   const firstKey = buildItems(initialModule)[0]?.key ?? allItems[0]?.key;
 
   const [activeKey, setActiveKey] = useState<string>(firstKey);
-  const [open, setOpen] = useState<Record<string, boolean>>({ [initialModule.slug]: true });
+  const [open, setOpen] = useState<Record<string, boolean>>({
+    [initialModule.slug]: true,
+  });
 
   const active = allItems.find((i) => i.key === activeKey) ?? allItems[0];
   const activeModule = modules.find((m) => m.slug === active.moduleSlug);
@@ -94,12 +120,22 @@ export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: s
                         {m.num}
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-[14px] text-[#232F3F] leading-snug">{m.title}</span>
-                        <span className="block text-[12px] text-[#9A9080] mt-0.5">{items.length} items</span>
+                        <span className="block text-[14px] text-[#232F3F] leading-snug">
+                          {m.title}
+                        </span>
+                        <span className="block text-[12px] text-[#9A9080] mt-0.5">
+                          {items.length} items
+                        </span>
                       </span>
                       <svg
-                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9080" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#9A9080"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         className={`flex-shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
                         aria-hidden="true"
                       >
@@ -120,12 +156,20 @@ export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: s
                                   isActive ? "bg-white" : "hover:bg-white/60"
                                 } ${unlocked ? "cursor-pointer" : "cursor-default"}`}
                               >
-                                <span className={isActive ? "text-[#D05D11]" : "text-[#9A9080]"}>
+                                <span
+                                  className={
+                                    isActive
+                                      ? "text-[#D05D11]"
+                                      : "text-[#9A9080]"
+                                  }
+                                >
                                   {unlocked ? <PlayIcon /> : <LockIcon />}
                                 </span>
                                 <span
                                   className={`flex-1 text-[13px] leading-snug ${
-                                    isActive ? "text-[#232F3F] font-semibold" : "text-[#4A443B]"
+                                    isActive
+                                      ? "text-[#232F3F] font-semibold"
+                                      : "text-[#4A443B]"
                                   }`}
                                 >
                                   {it.label}
@@ -163,18 +207,29 @@ export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: s
                 )}
 
                 <p className="eyebrow mt-6 mb-2">
-                  {activeModule ? `Module ${activeModule.num} · ${activeModule.title}` : "Course"}
+                  {activeModule
+                    ? `Module ${activeModule.num} · ${activeModule.title}`
+                    : "Course"}
                 </p>
-                <h1 className="text-2xl sm:text-3xl leading-snug mb-5">{active.label}</h1>
+                <h1 className="text-2xl sm:text-3xl leading-snug mb-5">
+                  {active.label}
+                </h1>
 
                 <div className="rounded-2xl border border-[#ECECEC] bg-[#FBF5F2] p-5 sm:p-8">
                   <p className="eyebrow mb-3">Resources</p>
                   {active.pdfUrl ? (
-                    <a href={active.pdfUrl} target="_blank" rel="noopener noreferrer" className="pill-link">
+                    <a
+                      href={active.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pill-link"
+                    >
                       Download the {active.pdfLabel} →
                     </a>
                   ) : (
-                    <p className="text-[14px] text-[#9A9080]">No downloadable resource for this lesson.</p>
+                    <p className="text-[14px] text-[#9A9080]">
+                      No downloadable resource for this lesson.
+                    </p>
                   )}
                 </div>
               </>
@@ -192,7 +247,9 @@ export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: s
                   </div>
                 )}
                 <p className="eyebrow mt-6 mb-2">Free preview</p>
-                <h1 className="text-2xl sm:text-3xl leading-snug mb-5">Course introduction</h1>
+                <h1 className="text-2xl sm:text-3xl leading-snug mb-5">
+                  Course introduction
+                </h1>
 
                 <div className="rounded-2xl border border-[#ECECEC] bg-[#FBF5F2] p-8 sm:p-10 text-center">
                   <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FAF3EE] text-[#D05D11] mb-5">
@@ -202,8 +259,9 @@ export default function CoursePlayer({ initialSlug, unlocked }: { initialSlug: s
                     The rest of the course unlocks with enrollment
                   </h2>
                   <p className="prose-body text-[15px] leading-[1.7] mb-8 max-w-[44ch] mx-auto">
-                    Enrollment opens soon. Get the free Starter Plan in the meantime — and you&apos;ll be
-                    first to know when the doors open.
+                    Enrollment opens soon. Get the free Starter Plan in the
+                    meantime — and you&apos;ll be first to know when the doors
+                    open.
                   </p>
                   <Link href="/start" className="btn btn-crimson">
                     Get the Free Starter Plan

@@ -4,12 +4,22 @@ Every change to `(Un)Retire` follows:
 
 **branch → build → local checks → PR → Code Check (CI) + deployed Preview (Vercel or approved equivalent) → Codex review → merge → Production smoke test**
 
-> ⚠ **Status, 2026-08-27 (Sprint S1.6):** every step above is live **except the Code Check (CI)**, whose
+> ~~⚠ **Status, 2026-08-27 (Sprint S1.6):** every step above is live **except the Code Check (CI)**, whose
 > workflow file does not exist yet — Sprint **S2.1** creates it (`docs/TECHNICAL-INTEGRITY.md` status
 > banner). Until then, read every "CI passes" box below as **"the local checks were run by hand and their
 > exact results recorded in the sprint record"**, and note that the Codex review — which *is* live — is the
 > gate that actually holds. `master`'s PR-before-merge protection is enabled; its required status check is
-> added in S2.1.
+> added in S2.1.~~
+>
+> ⚠ **Status, 2026-08-27 (Sprint S2.1, in progress — PR #11 open since 2026-08-27):** the **Code Check (CI)** workflow is installed by Sprint
+> **S2.1** (`.github/workflows/code-check.yml`, verbatim from `docs/TECHNICAL-INTEGRITY.md`) and runs on every
+> PR from S2.1's merge. The **required-status** half of `master`'s protection — adding "Code Check" as a
+> required status check to the existing branch-protection rule and watching the merge button stay locked
+> until the check passes — is an **owner action, pending**. Until that is recorded, a red PR can still be
+> merged by hand, so read every "CI passes" box below as **"satisfied by the green Code Check where it ran;
+> where it did not run, the local checks were run by hand and their exact results recorded in the sprint
+> record"**. The Codex review — which *is* live — remains the gate that actually holds. `master`'s
+> PR-before-merge protection is enabled.
 
 `master` is protected and production-ready. GitHub is the source of truth.
 
@@ -36,8 +46,9 @@ One feature or fix = one branch = one PR. A sprint too large for one reviewable 
 
 Run the commands recorded in `TECH-ARCHITECTURE.md`:
 
-- [ ] Typecheck: `pnpm exec tsc --noEmit`
+- [ ] Typecheck: ~~`pnpm exec tsc --noEmit`~~ `pnpm typecheck` (2026-08-27, S2.1 — `pnpm exec tsc --noEmit` remains equivalent; the script is canonical)
 - [ ] Lint: `pnpm lint`
+- [ ] Format: `pnpm format:check` (added 2026-08-27, S2.1)
 - [ ] Tests: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing).
 - [ ] Production build: `pnpm build`
 - [ ] Manual and accessibility checks required by the sprint pass on affected journeys.
@@ -55,7 +66,7 @@ Fix failures caused by the change. Report pre-existing failures with evidence.
 - [ ] Description states what, why, files/areas changed, exclusions, checks, screenshots where relevant, and rollback notes.
 - [ ] New/changed env variables are listed by **name only** and assigned to environments by the owner.
 - [ ] Data changes include migration files, access controls, classification, non-production evidence, and recovery limits.
-- [ ] CI passes with the locked package manager and secret scan. *(Until S2.1: run the local checks by hand and record their exact results — the CI that would enforce this does not exist yet.)*
+- [ ] CI (the Code Check: typecheck, lint, format:check, unit tests when present, build, critical-only audit) passes with the locked package manager ~~and secret scan~~ *(no CI secret scan is installed as of 2026-08-27 — the by-hand diff scan in §3 and `SECURITY-CHECKLIST.md` §1 is the live control)*. *(~~Until S2.1: run the local checks by hand and record their exact results — the CI that would enforce this does not exist yet.~~ 2026-08-27: the Code Check workflow is installed by S2.1 and runs on every PR from its merge; the required-status check on `master` is an owner action, pending — until it is recorded a red PR can still be merged by hand, so this box is satisfied by the green check where it ran; where it did not run, run the local checks by hand and record their exact results.)*
 
 ## 5. Deployed Preview — before independent review
 
@@ -81,7 +92,7 @@ Blocking findings are fixed by the builder. After any substantive code, config, 
 
 ## 7. Merge
 
-Only the authorized human owner merges, after CI (the Code Check, `docs/TECHNICAL-INTEGRITY.md` — ⚠ **not live until S2.1**; until then the recorded hand-run local checks stand in its place), Preview, and current-head review all pass.
+Only the authorized human owner merges, after CI (the Code Check, `docs/TECHNICAL-INTEGRITY.md` — ~~⚠ **not live until S2.1**; until then the recorded hand-run local checks stand in its place~~ 2026-08-27: installed by S2.1 and live on every PR from its merge; the required-status + watched-lock verification on `master` is an owner action, pending — until it is recorded a red PR can still be merged by hand, so the green check where it ran, or the recorded hand-run local checks where it did not, stand in its place), Preview, and current-head review all pass.
 
 The independent verdict is a **gate, not a suggestion.** The reviewer is "advisory" only in that it never *acts* — it does not merge, push, or edit. It does **not** mean the owner may merge over its findings: a **Blocking** finding is never merged; a **Should-fix** may be deferred only with a logged owner + reason (PROJECT-STATUS §8). "Done" is never reached with an unresolved Blocking finding.
 
@@ -118,7 +129,7 @@ The independent verdict is a **gate, not a suggestion.** The reviewer is "adviso
 
 - [ ] Acceptance criteria and allowed-path guard pass.
 - [ ] Local commands and relevant manual/accessibility/security checks pass.
-- [ ] CI and deployed Preview pass at the reviewed head SHA. *(Until S2.1 there is no CI: the deployed Preview plus the recorded hand-run local checks at that head are what this box means.)*
+- [ ] CI and deployed Preview pass at the reviewed head SHA. *(~~Until S2.1 there is no CI: the deployed Preview plus the recorded hand-run local checks at that head are what this box means.~~ 2026-08-27: the Code Check workflow is installed by S2.1 and runs on every PR from its merge, but its required-status check on `master` is an owner action, pending — until it is recorded a red PR can still be merged by hand, so this box means the deployed Preview plus the green Code Check at that head where it ran, or the recorded hand-run local checks at that head where it did not.)*
 - [ ] Current-head independent verdict is Approve; no Blocking finding remains.
 - [ ] Required docs/status records are current.
 - [ ] Merge is complete and Production smoke test passes.

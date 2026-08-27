@@ -7,7 +7,11 @@ export function generateStaticParams() {
   return modules.map((m) => ({ module: m.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ module: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ module: string }>;
+}) {
   const { module } = await params;
   const m = getModule(module);
   if (!m) return { title: "The (Un)Retire Course" };
@@ -17,7 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ module: s
   };
 }
 
-export default async function ModulePage({ params }: { params: Promise<{ module: string }> }) {
+export default async function ModulePage({
+  params,
+}: {
+  params: Promise<{ module: string }>;
+}) {
   const { module } = await params;
   const m = getModule(module);
   if (!m) notFound();

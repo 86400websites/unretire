@@ -88,7 +88,9 @@ async function continueByIntent(
 }
 
 export async function register(formData: FormData): Promise<AuthResult> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const password = String(formData.get("password") ?? "");
   const intent = readIntent(formData);
 
@@ -112,7 +114,10 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
   if (error) {
     const msg = error.message.toLowerCase();
-    if (msg.includes("already registered") || msg.includes("already been registered")) {
+    if (
+      msg.includes("already registered") ||
+      msg.includes("already been registered")
+    ) {
       return { exists: true };
     }
     return { error: error.message };
@@ -136,7 +141,12 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   revalidatePath("/", "layout");
-  return continueByIntent(supabase, intent, data.user.id, data.user.email ?? email);
+  return continueByIntent(
+    supabase,
+    intent,
+    data.user.id,
+    data.user.email ?? email,
+  );
 }
 
 export async function login(formData: FormData): Promise<AuthResult> {
@@ -155,7 +165,12 @@ export async function login(formData: FormData): Promise<AuthResult> {
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  return continueByIntent(supabase, intent, data.user.id, data.user.email ?? email);
+  return continueByIntent(
+    supabase,
+    intent,
+    data.user.id,
+    data.user.email ?? email,
+  );
 }
 
 export async function logout(): Promise<void> {
@@ -172,8 +187,12 @@ export async function logout(): Promise<void> {
  * Always returns a generic success message — we never reveal whether an
  * email is registered (enumeration protection).
  */
-export async function requestPasswordReset(formData: FormData): Promise<AuthResult> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+export async function requestPasswordReset(
+  formData: FormData,
+): Promise<AuthResult> {
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { error: "Please enter a valid email address." };
   }

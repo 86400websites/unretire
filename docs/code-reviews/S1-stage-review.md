@@ -819,6 +819,12 @@ the current gate state. Round 7 re-runs at the post-S1.5 head.
 
 ## Round 7 — [DATE] — [REVIEWER]
 
+> **State note (2026-08-27, appended by the S2.1 session — not the verdict record):** the owner reported in session
+> on 2026-08-27 that Round 7 **returned STAGE APPROVED**, and on that basis opened Stage 2 (Sprint S2.1). **The
+> reviewer's returned record is not yet filed below** — the owner appends it verbatim (confirmed range, exit-criteria
+> table, findings and dispositions, verdict line). Until it is filed, no reviewer name, verdict date, finding or
+> D-17 disposition is recorded anywhere in the repository; PROJECT-STATUS carries the same wording.
+
 *Dispatch-ready 2026-08-27 (sprint S1.8).* The re-pin is done: §1 pins
 `0983ad557218666b63cb5b6d3db9152041865bb9..87e89c61c8f303a4ef7d1057f50330dbe14c6ddd` with **all seven PRs**
 listed (#1–#5, #8, #9) and 75 commits; the two disclosures are in the status block at the top; the

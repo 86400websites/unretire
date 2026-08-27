@@ -44,8 +44,17 @@ export default function LoginForm({
       <input type="hidden" name="intent" value={intent} />
 
       <div>
-        <label className={label} htmlFor="email">Email address</label>
-        <input id="email" name="email" type="email" autoComplete="email" required className={field} />
+        <label className={label} htmlFor="email">
+          Email address
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          className={field}
+        />
       </div>
       <div>
         <PasswordField autoComplete="current-password" />
@@ -63,15 +72,24 @@ export default function LoginForm({
         <p className="text-[13px] text-[#8B1A1A] leading-[1.5]">{error}</p>
       )}
 
-      <button type="submit" disabled={pending} className="btn btn-crimson w-full">
+      <button
+        type="submit"
+        disabled={pending}
+        className="btn btn-crimson w-full"
+      >
         {pending
           ? "Logging in…"
-          : paid ? "Log in & continue to checkout" : "Log in"}
+          : paid
+            ? "Log in & continue to checkout"
+            : "Log in"}
       </button>
 
       <p className="text-[14px] text-[#666666] text-center pt-2">
         Don&apos;t have an account?{" "}
-        <Link href={signupHref} className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]">
+        <Link
+          href={signupHref}
+          className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]"
+        >
           Create one
         </Link>
       </p>

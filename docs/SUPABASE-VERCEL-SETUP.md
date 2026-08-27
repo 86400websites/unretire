@@ -5,7 +5,7 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > Connecting a coding agent to Supabase via **MCP**? Read `SUPABASE-MCP-SAFETY.md` first — non-production only by default; production MCP stays disconnected unless a recorded read-only exception is approved.
 
 
-> ## (Un)Retire project values — added 2026-08-25 (Sprint S1.1) · **reconciled 2026-08-25**
+> ## (Un)Retire project values — added 2026-08-25 (Sprint S1.1) · **reconciled 2026-08-25** · **updated 2026-08-27 (domain live; S2.1 CI workflow on branch)**
 >
 > This file is the SOP guide copied verbatim; its `[BRACKETS]` are the generic slots. For this project they resolve to:
 >
@@ -15,7 +15,7 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > | `[DATABASE_PROVIDER]` / `[AUTH_PROVIDER]` | Supabase (Postgres + Supabase Auth) |
 > | `[REPO_NAME]` | `86400websites/unretire` (default branch `master` — see Open decision D-1) |
 > | `[VERCEL_PROJECT]` | ~~⚠ Owner to confirm the Vercel project name~~ → **`unretire`**, in the Vercel scope `86400-s-projects`. Production deploys from `master`; Preview URLs follow `https://unretire-git-<branch>-86400-s-projects.vercel.app` |
-> | `[DOMAIN]` | ~~⚠ TBC — Open decision D-2~~ → **D-2 resolved: `unretireproject.com`** (apex; `www` also registered). ⚠ **Not yet live** — the domain is added in Vercel but DNS is still parked at GoDaddy, so the application is currently served at **`https://unretire.vercel.app`**. Read `[DOMAIN]` in Part A as that host until the DNS cutover (Known issue 27) |
+> | `[DOMAIN]` | ~~⚠ TBC — Open decision D-2~~ → **D-2 resolved: `unretireproject.com`** (apex; `www` also registered) — **amended 2026-08-27: canonical = `https://www.unretireproject.com`, the apex redirects to it**. ~~⚠ **Not yet live** — the domain is added in Vercel but DNS is still parked at GoDaddy, so the application is currently served at **`https://unretire.vercel.app`**. Read `[DOMAIN]` in Part A as that host until the DNS cutover (Known issue 27)~~ → **Live 2026-08-27.** Canonical production host is **`https://www.unretireproject.com`** (HTTP 200, served by Vercel); the apex `https://unretireproject.com` **308-redirects** to it. **D-2 amended 2026-08-27** (canonical = `www`, apex redirects — not reopened). `https://unretire.vercel.app` remains the Vercel default alias as a fallback only. Read `[DOMAIN]` in Part A as `www.unretireproject.com`. Known issue 27 (DNS parked) **resolved 2026-08-27**; the domain stays *registered* at GoDaddy — only DNS moved |
 > | `[SUPABASE_PROJECT]` | ~~⚠ Owner to confirm. A **non-production** project is required before the Launch Gate~~ → **D-8 resolved: both projects exist.** PROD `unretire-prod` · ref `hcjivvlwxltyiycfbttc` · eu-west-1. TEST `unretire-test` · ref `dtdadtggahjsrmevwvbu` · ap-south-1 (free tier — it auto-pauses when idle). Refs are public identifiers and safe to record |
 >
 > **Branch-name override — added 2026-08-26 (stage-gate Round 3, Finding 7).** The generic SOP body below
@@ -24,14 +24,28 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > body below as `master`** until Open decision D-1 (the optional rename) is resolved. The body itself stays
 > byte-identical to the SOP source on purpose; this override governs. Concretely: Production deploys from
 > `master`; the `master` PR-before-merge protection rule is **already enabled** (owner-confirmed
-> 2026-08-26), and the required "Code Check" status the owner adds in Sprint S2.1 targets `master`.
+> 2026-08-26), and the required "Code Check" status the owner adds ~~in Sprint S2.1~~ after Sprint S2.1 merges
+> (owner action, pending as of 2026-08-27 — see the CI half below) targets `master`.
 >
 > **CI half of the same override — added 2026-08-27 (Sprint S1.6).** Part A3's step says to protect the
 > branch with "**PR + CI green required**". For this project that is **two actions at two different
-> times**: the **PR** requirement is already enabled (above); the **CI** requirement cannot be added yet
+> times**: the **PR** requirement is already enabled (above); ~~the **CI** requirement cannot be added yet
 > because `.github/workflows/code-check.yml` does not exist — Sprint **S2.1** creates the workflow and
 > then adds "Code Check" as the required status, and verifies the merge button locks on red. Read A3 as
-> satisfied in halves until S2.1 records both.
+> satisfied in halves until S2.1 records both.~~ **Updated 2026-08-27 (Sprint S2.1, in progress — PR #11 open since 2026-08-27):**
+> `.github/workflows/code-check.yml` now **exists on the S2.1 branch** `claude/s2.1-code-check-ci`
+> (verbatim from `docs/TECHNICAL-INTEGRITY.md`; PR #11 open since 2026-08-27). The workflow is installed by S2.1 and
+> will **run** on every PR from its merge — but nothing **requires** it yet: adding "Code Check" as the
+> required status on the existing `master` protection rule (GitHub web UI; `gh` CLI not installed) and
+> watching the merge button stay locked until the check passes remain the **owner's action after merge**,
+> pending. An unverified gate is the same as no gate. Read A3 as satisfied in halves until the owner
+> records the required status and the watched-lock verification.
+>
+> **A4/A5 domain go-live status — 2026-08-27.** A4 is done: Vercel Production `NEXT_PUBLIC_SITE_URL` =
+> `https://www.unretireproject.com` (no trailing slash — Known issue 35 **resolved 2026-08-27**) and Production
+> was redeployed; the served page's `og:url` is exactly `https://www.unretireproject.com`, which is the evidence
+> the redeploy picked the value up. A5 is **not** yet satisfied: security headers on the live domain are still
+> **HSTS only** (`Strict-Transport-Security: max-age=63072000`) — Known issue 46 unchanged.
 >
 > **B6 wiring status — done 2026-08-25.** Vercel **Preview** now points at the **TEST** project and
 > **Production** at the **PROD** project: the three Supabase entries are split per environment, and the four
@@ -39,8 +53,10 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > Preview, confirm the user appears in TEST and not PROD) is **not yet performed** — it is proof **P2** in
 > `docs/ENVIRONMENT-PARITY.md` §8, owned by Sprint S2.5. Treat the wiring as *configured*, not *verified*.
 >
-> **B3 auth URL status — configured 2026-08-25.** `unretire-prod` now has **Site URL `https://unretire.vercel.app`**
-> and a redirect allow-list of `http://localhost:3000/**`, `https://www.unretireproject.com/**`,
+> **B3 auth URL status — configured 2026-08-25.** `unretire-prod` now has ~~**Site URL `https://unretire.vercel.app`**~~
+> **Site URL `https://www.unretireproject.com` (changed 2026-08-27 at the domain go-live, OWNER-ACTIONS Part 4B
+> L2, owner-reported; the auth-email landing proof on the new host — P3/P13, Known issue 23 — is still owed by
+> S2.5)** and a redirect allow-list — **unchanged on 2026-08-27** — of `http://localhost:3000/**`, `https://www.unretireproject.com/**`,
 > `https://unretireproject.com/**`, `https://unretire.vercel.app/**`, `https://*-86400-s-projects.vercel.app/**`
 > — replacing an empty list and a `http://localhost:3000` Site URL that had been breaking every production
 > confirmation and password-reset email. Two stale third-party hosts were removed at the same time.

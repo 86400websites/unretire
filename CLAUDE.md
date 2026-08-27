@@ -89,11 +89,12 @@ Treat traces of an earlier prototype or stack as historical.
 
 Run the exact commands defined by the repo and filled task prompt:
 
-1. Typecheck: pnpm exec tsc --noEmit (Sprint S2.1 adds a `pnpm typecheck` script; update docs in that PR)
+1. Typecheck: pnpm typecheck
 2. Lint: pnpm lint
-3. Tests: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing).
-4. Production build: pnpm build
-5. Task-specific and manual checks: [TASK_SPECIFIC_CHECKS]
+3. Format: pnpm format:check
+4. Tests: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing).
+5. Production build: pnpm build
+6. Task-specific and manual checks: [TASK_SPECIFIC_CHECKS]
 
 Do not guess a command or install/change dependencies to make a check run. Report checks that cannot run.
 Fix failures caused by the task; label verified pre-existing failures. Review the complete diff and git
