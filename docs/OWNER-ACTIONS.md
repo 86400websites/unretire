@@ -365,7 +365,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
       > `supabase-prod-readonly` is **read-only by construction** — it cannot write to your live database even if
       > something tried. That is the exception you approved on 2026-08-25 (D-11).
 
-- [ ] **1C.3 — One look at the preview site (2 minutes) — the last thing S2.2 needs from you.** I need to prove the
+- [x] **1C.3 — ~~One look at the preview site~~ WITHDRAWN 2026-08-27 — nothing to do.** My instruction was wrong: the database address sits inside the site's JavaScript, not in the page source, so you could not have seen it by viewing the source. I cannot see it from here either — the preview sends my browser to the Vercel login. This check moves to **S2.3**, where the test robot carries the proper key to get past that login. *(Original text, kept for the record:)* I need to prove the
       preview build talks to the **test** database, not the live one, and the preview sits behind Vercel's login so I
       cannot look myself. Open https://unretire-git-claude-s22-environment-isolation-86400-s-projects.vercel.app (sign in to Vercel
       if asked), then press **Ctrl+U** to view the page source and **Ctrl+F** for `supabase.co`. Tell me the word that
