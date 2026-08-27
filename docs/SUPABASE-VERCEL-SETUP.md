@@ -72,9 +72,12 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > `supabase-prod-readonly`, the **PROD** project `unretire-prod` with **`read_only=true`**. Both are limited to
 > feature groups `database,debugging,docs`, and the file carries **no credential, token, key or authorization
 > header** — URLs only. The production connection is the **Profile B exception approved as D-11 (2026-08-25)**;
-> the writable server is named `supabase-test`, not `supabase-dev` (**D-21**, 2026-08-27). ⚠ **Not yet
+> the writable server is named `supabase-test`, not `supabase-dev` (**D-21**, 2026-08-27). ~~⚠ **Not yet
 > connected:** both servers are **pending the owner's one-time project approval and per-server browser OAuth**,
-> an S2.2 step that has not been performed. Wiring detail: `docs/TECH-ARCHITECTURE.md` §10; governing rules:
+> an S2.2 step that has not been performed.~~ → **Connected 2026-08-27:** the owner approved the project and
+> completed browser OAuth for both; `claude mcp list` shows both ✔ Connected, and the `docs/SUPABASE-MCP-SAFETY.md`
+> §7 guardrail tests all passed the same day (reversible write on `supabase-test` created and cleaned up; write on
+> `supabase-prod-readonly` refused — `cannot execute UPDATE in a read-only transaction`). Wiring detail: `docs/TECH-ARCHITECTURE.md` §10; governing rules:
 > `docs/SUPABASE-MCP-SAFETY.md`.
 >
 > **Mailchimp is out of this profile's scope — noted 2026-08-27 (Sprint S2.2).** This file covers Vercel + Supabase

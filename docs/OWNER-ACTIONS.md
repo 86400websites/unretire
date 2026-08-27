@@ -18,7 +18,7 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 | Live Stripe product **UnRetire — Premium** | $199 USD, **per year** — correct |
 | Live webhook `brilliant-splendor` | ~~✅ Repointed to `https://unretire.vercel.app/api/stripe/webhook` on 2026-08-25 — verified receiving~~ ✅ Repointed to `https://www.unretireproject.com/api/stripe/webhook` on 2026-08-27 (Part 4B, L3) — verified 2026-08-27: I sent the endpoint a deliberately wrong signature and it answered "Invalid signature", which proves the route is live on the new address with the live secret in place |
 | Sandbox products **Course (Test)** $99 and **Premium (Test)** $199/yr | Already exist |
-| GitHub branch protection on `master` | Done — **PR-before-merge rule enabled (owner-confirmed 2026-08-26)**. ~~The required "Code Check" status is added in S2.1 once CI exists~~ The "Code Check" workflow is live on `master` since the S2.1 merge (PR #11, 2026-08-27) and ran green on that PR; making it a **required** status is **your** action — see Part 1B (confirmation pending) |
+| GitHub branch protection on `master` | Done — **PR-before-merge rule enabled (owner-confirmed 2026-08-26)**. ~~The required "Code Check" status is added in S2.1 once CI exists~~ The "Code Check" workflow is live on `master` since the S2.1 merge (PR #11, 2026-08-27) and ran green on that PR; ~~making it a **required** status is **your** action — see Part 1B (confirmation pending)~~ **— done 2026-08-27 and verified from GitHub's API: the rule requires the check `code-check`** |
 | `.env.example` and the 5 Claude skills in the repo | Done — every clone gets them |
 | Supabase test project `unretire-test` | Exists |
 
@@ -329,7 +329,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
 
 ## PART 1C — Stage 2 · S2.2 prep (added 2026-08-27)
 
-~~Three of the five things I asked for are now settled, so only **two** are left for you.~~ **Updated 2026-08-27: four of the five are settled — only **1C.2** (sign in to the two database tools) is left, and S2.2 is waiting on it.** Nothing here needs code.
+~~Three of the five things I asked for are now settled, so only **two** are left for you.~~ ~~**Updated 2026-08-27: four of the five are settled — only **1C.2** (sign in to the two database tools) is left, and S2.2 is waiting on it.**~~ **Updated 2026-08-28: all five are settled — you signed in to the two database tools on 2026-08-27 (1C.2) and the preview-site look (1C.3) was withdrawn because my instruction was wrong; that check moves to S2.3 and needs nothing from you. There is nothing left for you in S2.2.** Nothing here needs code.
 
 **Settled already — nothing to do:**
 - ~~Create a Mailchimp test audience~~ — **cancelled by your decision (D-22)**: one live audience, shared. See the
@@ -358,7 +358,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
       > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
       > public, so I did not recommend it — your call.)*
 
-- [x] **1C.2 — Sign in to the two database tools.** ✅ **Done 2026-08-27** — your terminal showed "Authentication successful" for both, `claude mcp list` shows both **Connected**, and I then ran the safety checks: the test database answered, a throw-away table was created and deleted there, and a write to the **live** database was **refused** ("cannot execute UPDATE in a read-only transaction") — the read-only guard works. ~~🔴 **READY NOW (2026-08-27) — this is the one thing S2.2 is waiting on.**~~ `.mcp.json` now exists with both servers, and both report *"Pending approval"* until you approve the project and sign in. Until then I cannot run the test-database read or the refused-write check, and proof **P11** cannot run. ~~⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet.~~ **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
+- [x] **1C.2 — Sign in to the two database tools.** ✅ **Done 2026-08-27** — your terminal showed "Authentication successful" for both, `claude mcp list` shows both **Connected**, and I then ran the safety checks: the test database answered, a throw-away table was created and deleted there, and a write to the **live** database was **refused** ("cannot execute UPDATE in a read-only transaction") — the read-only guard works. ~~🔴 **READY NOW (2026-08-27) — this is the one thing S2.2 is waiting on.**~~ ~~`.mcp.json` now exists with both servers, and both report *"Pending approval"* until you approve the project and sign in. Until then I cannot run the test-database read or the refused-write check, and proof **P11** cannot run.~~ *(Superseded the same day, 2026-08-27 — you signed in, the checks ran, and proof **P11** passed.)* ~~⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet.~~ **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
       `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
       so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
       Approve the project when Claude Code asks. No key, no token — browser sign-in only.
@@ -376,17 +376,23 @@ do exactly these five, in this order. **You do not touch any secret — every va
 > ### ⚠ What one shared Mailchimp audience means, in writing
 > You chose to keep a single live audience (**D-22**), which I have recorded. The consequence is permanent: **any
 > form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
-> your real welcome emails. To keep that harmless we agreed two rules: **(1)** every test signup uses *your own*
+> your real welcome emails. ~~To keep that harmless we agreed two rules: **(1)** every test signup uses *your own*
 > email with a plus-tag — `you+ur-test-01@…` — so the automated mail lands in your inbox and the fake contacts are
-> findable and deletable in one search; **(2)** ~~the launch test suite will not run automated email-capture tests
-> against a preview~~ — **updated 2026-08-27 at your request: the robot tests WILL exercise your real automations.**
+> findable and deletable in one search; **(2)**~~ ~~the launch test suite will not run automated email-capture tests
+> against a preview~~ ~~— **updated 2026-08-27 at your request: the robot tests WILL exercise your real automations.**
 > That is safe *because* of rule (1): every address the robot signs up is your own inbox, so your welcome emails
 > actually arrive somewhere real and you can see them work. Four house rules come with it: the robot may **only**
 > use `you+ur-test-…` addresses — **never** invented ones like `test@example.com`, because those bounce and bounces
 > are what damage a sending domain; every test **deletes its own contact** afterwards; email tests run only in the
 > **full** suite, never in the daily morning check (a daily signup would be ~365 contacts and ~365 emails a year);
 > and where an automation sends over several days, the robot confirms the sign-up landed correctly and **you**
-> confirm the later emails in your inbox — no test can wait three days.
+> confirm the later emails in your inbox — no test can wait three days.~~
+>
+> **Rewritten 2026-08-28 so the rules live in exactly one place.** The plain fact: one live Mailchimp audience serves
+> Production, Preview and local, so test submissions write real subscribers; you accepted that under **D-22**. The
+> house rules that keep it harmless (your own plus-tagged address only, clean-up, full-suite only, no campaign sends)
+> are written out once as **D-22 rules 1 and 2a–2e** in `docs/PROJECT-STATUS.md` §8 — that is the only copy, so the
+> numbered list that used to sit here is struck rather than kept in two places.
 
 ---
 
