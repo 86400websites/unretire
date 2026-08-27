@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     request.headers.get("origin") ??
     process.env.NEXT_PUBLIC_SITE_URL ??
     "http://localhost:3000";
-// Already own it (premium includes the course)? Skip Stripe — send them
+  // Already own it (premium includes the course)? Skip Stripe — send them
   // to the course instead of letting them pay twice.
   if (await hasAccess(body.product)) {
     return NextResponse.json({ url: `${origin}/unretire/learn/course` });

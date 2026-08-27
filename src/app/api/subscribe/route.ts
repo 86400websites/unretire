@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
           status_if_new: "subscribed",
           merge_fields,
         }),
-      }
+      },
     );
 
     const upsertData = await upsertRes.json();
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       console.error("Mailchimp upsert error:", upsertData);
       return NextResponse.json(
         { error: upsertData.detail || "Subscription failed" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
           method: "POST",
           headers,
           body: JSON.stringify({ tags: [{ name: tag, status: "active" }] }),
-        }
+        },
       );
       // Tags endpoint returns 204 on success. If it fails, the contact is
       // still saved — log it but don't fail the whole request.

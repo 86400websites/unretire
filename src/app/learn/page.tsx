@@ -4,7 +4,8 @@ import EmailCaptureBand from "../EmailCaptureBand";
 
 export const metadata = {
   title: "Learn",
-  description: "Three ways into the next chapter: the (Un)Retire course, the podcast, and short essays on living fully.",
+  description:
+    "Three ways into the next chapter: the (Un)Retire course, the podcast, and short essays on living fully.",
 };
 
 const formats = [
@@ -46,9 +47,11 @@ export default function LearnPage() {
           </h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
           <p className="lede max-w-[60ch] mx-auto">
-            The book gives you the framework. This is where you go deeper. A guided course to walk you
-            through it, honest conversations to keep you company, and short essays to read with your
-            morning coffee. Pick the format that fits how you like to learn — and how you like to live.
+            The book gives you the framework. This is where you go deeper. A
+            guided course to walk you through it, honest conversations to keep
+            you company, and short essays to read with your morning coffee. Pick
+            the format that fits how you like to learn — and how you like to
+            live.
           </p>
         </div>
       </section>
@@ -58,7 +61,11 @@ export default function LearnPage() {
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
             {formats.map((f) => (
-              <Link key={f.title} href={f.href} className="card card-hover overflow-hidden flex flex-col">
+              <Link
+                key={f.title}
+                href={f.href}
+                className="card card-hover overflow-hidden flex flex-col"
+              >
                 <div className="relative aspect-[4/3] bg-white border-b border-[#ECECEC]">
                   <Image
                     src={`/assets/unretire/images/learn/${f.img}.png`}
@@ -70,8 +77,12 @@ export default function LearnPage() {
                 </div>
                 <div className="p-7 flex flex-col flex-1">
                   <p className="eyebrow mb-3">{f.label}</p>
-                  <h2 className="text-[1.35rem] leading-snug mb-4">{f.title}</h2>
-                  <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">{f.desc}</p>
+                  <h2 className="text-[1.35rem] leading-snug mb-4">
+                    {f.title}
+                  </h2>
+                  <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">
+                    {f.desc}
+                  </p>
                   <span className="pill-link">{f.cta}</span>
                 </div>
               </Link>
@@ -89,9 +100,9 @@ export default function LearnPage() {
             You don&apos;t have to do all three.
           </p>
           <p className="prose-body text-[17px] leading-[1.85] mb-6">
-            Some people want the structure of a course. Some want a voice in their ear on a morning
-            walk. Some just want a short read that makes them think. There&apos;s no right order, and
-            no falling behind.
+            Some people want the structure of a course. Some want a voice in
+            their ear on a morning walk. Some just want a short read that makes
+            them think. There&apos;s no right order, and no falling behind.
           </p>
           <p className="text-[1.2rem] italic text-[#D05D11] leading-[1.6]">
             Start where you are. That&apos;s always been the whole idea.
@@ -105,12 +116,17 @@ export default function LearnPage() {
           <h2 className="text-3xl sm:text-4xl text-white leading-tight mb-3">
             The best chapter of your life hasn&apos;t been written yet.
           </h2>
-          <p className="text-white/70 text-[17px] italic leading-[1.6] mb-9">Pick a page and begin.</p>
+          <p className="text-white/70 text-[17px] italic leading-[1.6] mb-9">
+            Pick a page and begin.
+          </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/learn/course" className="btn btn-crimson">
               Start the Course
             </Link>
-            <Link href="/start" className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]">
+            <Link
+              href="/start"
+              className="btn bg-white text-[#232F3F] hover:bg-[#F5F5F5]"
+            >
               Get the Free Starter Plan
             </Link>
           </div>

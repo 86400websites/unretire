@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans, Fira_Code, Libre_Baskerville } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  DM_Sans,
+  Fira_Code,
+  Libre_Baskerville,
+} from "next/font/google";
 import UnRetireNav from "./UnRetireNav";
 import UnRetireFooter from "./UnRetireFooter";
 import { createClient } from "@/lib/supabase/server";
@@ -37,7 +42,9 @@ const libre = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: {
     default: "(Un)Retire — Reboot. Don't Mute.",
     template: "%s · (Un)Retire",
@@ -60,15 +67,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable} ${firaCode.variable}`}>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${dmSans.variable} ${firaCode.variable}`}
+    >
       <body>
-        <a href="#main-content" className="skip-link">Skip to main content</a>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <div className={`ur-site ${libre.variable}`}>
           <UnRetireNav userEmail={user?.email ?? null} />
           <main>{children}</main>
