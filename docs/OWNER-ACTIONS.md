@@ -94,7 +94,7 @@ that is broken.)
       with no independent review. Until S2.1's CI exists, that review is the *only* live gate. Tell me
       whether every contributor's PR goes through it (recommended) or whether small content edits get a
       recorded exception — and whether those two PRs should get a retroactive review record.~~
-- [ ] **1.11** (updated 2026-08-27) **Two stacked PRs, merged in order.** Your actions:
+- [x] **1.11** ~~(updated 2026-08-27) Two stacked PRs, merged in order.~~ **Done 2026-08-27:** S1.6 merged as PR #8 (`8062cbe`) — ⚠ before its review, which then ran post-merge and returned REQUEST CHANGES (**D-17**); S1.7 merged as PR #9 (`87e89c6`) after per-PR **APPROVE**. *(Original text, struck:)* ~~Your actions:
       (a) dispatch the S1.6 per-PR review brief `docs/code-reviews/S1.6-current-state-truth-pass-review.md`
       (PR open, head `692ed9d`) and **merge S1.6** on APPROVE;
       (b) dispatch the S1.7 per-PR review brief
@@ -103,7 +103,15 @@ that is broken.)
       (c) dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
       Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**
       *(The two teammate branches `feat/remove-life` and `feat/remove-2` were deleted from the remote at
-      your request — their commits remain in `master`'s history, so nothing is lost.)*
+      your request — their commits remain in `master`'s history, so nothing is lost.)*~~
+- [ ] **1.12** (added 2026-08-27) **The last two steps before Stage 2.**
+      (a) Dispatch the S1.8 per-PR review brief `docs/code-reviews/S1.8-state-sync-round7-repin-review.md`
+      and **merge S1.8** on APPROVE — it closes the last Should-fix and re-pins the stage brief.
+      (b) Dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, already pinned to
+      `0983ad5..87e89c6` and dispatch-ready. **Two things that round must disposition, both disclosed in
+      the brief:** the PR #8 merge-before-review deviation (**D-17** — you choose whether to accept it as a
+      recorded deviation with its compensating controls), and the reverted out-of-chain commits.
+      **S2.1 starts only after Round 7 returns STAGE APPROVED.**
   *(Superseded detail of items 1.7–1.9, preserved struck for the record — **not open actions**:)*
   ~~(added 2026-08-27, item 1.9) The Round-6 findings are being fixed by sprint **S1.5**
       (`claude/s1.5-stage-remediation-4`). Your actions, in order:
