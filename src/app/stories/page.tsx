@@ -104,7 +104,10 @@ export default function StoriesPage() {
             <p className="eyebrow mb-5">More Journeys</p>
             <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">People who unretired</h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
-             
+            <p className="text-[14px] text-[#888888] italic">
+              Each card links to a full profile. Placeholders below — swap in real, named stories as
+              they&apos;re gathered.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
