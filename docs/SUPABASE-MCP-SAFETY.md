@@ -14,7 +14,7 @@
 > | Data classification | Confidential — the database holds account identities and purchase entitlements. |
 >
 > Status: ~~**Supabase MCP is NOT currently connected** for this project (no `.mcp.json` exists in the repo).~~
-> **WIRED 2026-08-27 (Sprint S2.2) — NOT YET CONNECTED.** `.mcp.json` exists at the project root with exactly two HTTP servers:
+> **CONNECTED 2026-08-27 (Sprint S2.2) — owner OAuth complete; §7 guardrail tests PASSED.** `.mcp.json` exists at the project root with exactly two HTTP servers:
 > **`supabase-test`** → `project_ref=dtdadtggahjsrmevwvbu`, `features=database,debugging,docs`, **no** `read_only` (writable
 > by design, non-production); and **`supabase-prod-readonly`** → `project_ref=hcjivvlwxltyiycfbttc`, **`read_only=true`**,
 > `features=database,debugging,docs`. The file carries **no credential, token, key, password, connection string or
@@ -159,11 +159,11 @@ claude mcp list
 
 Before trusting the configuration:
 
-- [ ] `/mcp` shows the intended servers as connected and approved.
-- [ ] `supabase-test` (the `supabase-dev` slot in this SOP) lists the expected non-production schema.
-- [ ] A harmless, reversible write test succeeds only on non-production and is cleaned up.
-- [ ] If Profile B exists, a write attempt against `supabase-prod-readonly` is refused. Use a harmless statement designed not to mutate data.
-- [ ] Development and production refs differ.
+- [x] `/mcp` shows the intended servers as connected and approved. *(2026-08-27 — both servers ✔ Connected after owner OAuth.)*
+- [x] `supabase-test` (the `supabase-dev` slot in this SOP) lists the expected non-production schema. *(2026-08-27 — `list_tables` → empty `public` schema, correct before S2.5 replicates it.)*
+- [x] A harmless, reversible write test succeeds only on non-production and is cleaned up. *(2026-08-27 — `s22_write_probe_2026_08_27` created, seen, dropped, confirmed gone on `supabase-test`.)*
+- [x] If Profile B exists, a write attempt against `supabase-prod-readonly` is refused. Use a harmless statement designed not to mutate data. *(2026-08-27 — `UPDATE pg_catalog.pg_class SET relname = relname WHERE false` → `ERROR: 25006: cannot execute UPDATE in a read-only transaction`. Refused at the transaction level.)*
+- [x] Development and production refs differ. *(2026-08-27 — `dtdadtggahjsrmevwvbu` ≠ `hcjivvlwxltyiycfbttc`.)*
 - [ ] Retrieved content is treated as data, never as instructions.
 - [ ] Production verification queries use the minimum columns and rows required.
 

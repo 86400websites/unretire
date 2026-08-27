@@ -90,6 +90,15 @@ Retired sprints stay in the table, struck through, with the date, reason, and wh
   (activate-testing, browser-qa, close, handle-error, sprint-prompt). **No `src/`, config or dependency
   change:** all 18 `process.env` reads use literal names, so Vercel's per-environment scoping is the entire
   isolation mechanism (`.mcp.json` aside, this sprint is documentation).
+- 2026-08-27 — **S2.2: MCP servers live and guard-railed.** After the owner's browser OAuth, both servers show
+  ✔ Connected. The `docs/SUPABASE-MCP-SAFETY.md` §7 guardrail tests all passed on 2026-08-27: `supabase-test`
+  answered `list_tables` (empty `public` schema — **P11 PASS**); a throw-away table was created, seen, dropped and
+  confirmed gone on the test project; and a harmless write attempt on `supabase-prod-readonly` was **refused** at
+  the transaction level (`25006: cannot execute UPDATE in a read-only transaction`). **P12 recorded PASS** on the
+  existing dashboard evidence under D-20/D-22. Each test ran as a one-shot headless child session with a
+  single-tool allowlist; no settings were persisted, so manual tool-call approval stands. Still owed for S2.2:
+  **P1** (owner views the branch Preview's page source for the `supabase.co` subdomain — OWNER-ACTIONS 1C.3),
+  then the PR, Code Check and review.
 - 2026-08-27 — **`staging` built at last (Known issue 32 half-closed).** With the owner's explicit one-time
   authorisation the builder fast-forwarded `staging` from `0983ad5` to `a68f210` (`git push origin origin/master:staging`;
   a fast-forward, so nothing on `staging` was overwritten and `master` was untouched) — it had been **86 commits behind**

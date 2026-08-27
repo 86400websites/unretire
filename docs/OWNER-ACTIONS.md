@@ -358,13 +358,21 @@ do exactly these five, in this order. **You do not touch any secret — every va
       > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
       > public, so I did not recommend it — your call.)*
 
-- [ ] **1C.2 — Sign in to the two database tools.** 🔴 **READY NOW (2026-08-27) — this is the one thing S2.2 is waiting on.** `.mcp.json` now exists with both servers, and both report *"Pending approval"* until you approve the project and sign in. Until then I cannot run the test-database read or the refused-write check, and proof **P11** cannot run. ~~⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet.~~ **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
+- [x] **1C.2 — Sign in to the two database tools.** ✅ **Done 2026-08-27** — your terminal showed "Authentication successful" for both, `claude mcp list` shows both **Connected**, and I then ran the safety checks: the test database answered, a throw-away table was created and deleted there, and a write to the **live** database was **refused** ("cannot execute UPDATE in a read-only transaction") — the read-only guard works. ~~🔴 **READY NOW (2026-08-27) — this is the one thing S2.2 is waiting on.**~~ `.mcp.json` now exists with both servers, and both report *"Pending approval"* until you approve the project and sign in. Until then I cannot run the test-database read or the refused-write check, and proof **P11** cannot run. ~~⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet.~~ **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
       `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
       so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
       Approve the project when Claude Code asks. No key, no token — browser sign-in only.
       > `supabase-prod-readonly` is **read-only by construction** — it cannot write to your live database even if
       > something tried. That is the exception you approved on 2026-08-25 (D-11).
 
+- [ ] **1C.3 — One look at the preview site (2 minutes) — the last thing S2.2 needs from you.** I need to prove the
+      preview build talks to the **test** database, not the live one, and the preview sits behind Vercel's login so I
+      cannot look myself. Open https://unretire-git-claude-s22-environment-isolation-86400-s-projects.vercel.app (sign in to Vercel
+      if asked), then press **Ctrl+U** to view the page source and **Ctrl+F** for `supabase.co`. Tell me the word that
+      appears just before `.supabase.co` — it should be **`dtdadtggahjsrmevwvbu`** (the test project). If it says
+      `hcjivvlwxltyiycfbttc` instead, stop and tell me — that would mean the preview is pointed at production.
+      *(These are public identifiers, not secrets — fine to paste.)*
+
 > ### ⚠ What one shared Mailchimp audience means, in writing
 > You chose to keep a single live audience (**D-22**), which I have recorded. The consequence is permanent: **any
 > form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
