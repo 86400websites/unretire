@@ -7,7 +7,7 @@ Run the relevant sections before merging any risky change (auth, database, forms
 - [ ] 🔴 No secret (API key, token, password, connection string, private URL) is hardcoded anywhere in the code. — *Verify: search the repo for key-like strings and every provider name you use.*
 - [ ] 🔴 `.env.local` is gitignored and has never been committed. — *Verify: `git check-ignore .env.local` succeeds and `git log --all -- .env.local` returns nothing.*
 - [ ] `.env.example` contains variable NAMES and safe placeholders only — never a real value. — *Verify: open the file and read every line.*
-- [ ] Before every commit: run `git status` and confirm no env file or secret is staged. — *Verify: make it a ritual; CI secret scan (e.g. gitleaks over full history) backs it up.*
+- [ ] Before every commit: run `git status` and confirm no env file or secret is staged. — *Verify: make it a ritual; a CI secret scan (e.g. gitleaks over full history) would back it up — none is installed as of 2026-08-27 (the Code Check's six steps do not include one); the by-hand `git status` + diff scan is the live control.*
 - [ ] Secrets are referenced by env-var name only — never by value, even in comments, docs, PRs, or screenshots. — *Verify: read the PR diff and description.*
 
 **Never do this:** if a secret leaks, never try to scrub git history as the fix. **ROTATE FIRST** — the key is compromised the moment it was exposed. Then clean up, update all environments, and redeploy.

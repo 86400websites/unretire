@@ -11,11 +11,12 @@ env inlining, auth origins, and integrations all behave differently deployed.
 ## Part 1 — LOCAL (before opening the PR)
 
 ### Build health
-- [ ] Typecheck passes: `pnpm exec tsc --noEmit`.
+- [ ] Typecheck passes: ~~`pnpm exec tsc --noEmit`~~ `pnpm typecheck` (2026-08-27, S2.1 — `pnpm exec tsc --noEmit` remains equivalent; the script is canonical).
 - [ ] Lint passes: `pnpm lint`.
+- [ ] Format passes: `pnpm format:check` (added 2026-08-27, S2.1).
 - [ ] Tests pass: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing) (state the reason for N/A).
 - [ ] Production build passes: `pnpm build` — do not skip it because dev "looks fine".
-- [ ] These are the same checks the **Code Check** enforces on the PR (`docs/TECHNICAL-INTEGRITY.md`); a green Code Check on the current head satisfies the boxes above — and red never merges. ⚠ **Not live until Sprint S2.1** (the workflow file does not exist yet): until then, tick these boxes only from **hand-run** local checks whose exact results are recorded in the sprint record.
+- [ ] These are the same checks the **Code Check** enforces on the PR (`docs/TECHNICAL-INTEGRITY.md`); a green Code Check on the current head satisfies the boxes above — and red never merges. ~~⚠ **Not live until Sprint S2.1** (the workflow file does not exist yet): until then, tick these boxes only from **hand-run** local checks whose exact results are recorded in the sprint record.~~ **2026-08-27:** the workflow is installed by Sprint S2.1 and runs on every PR from its merge; the required-status check on `master` (the "red never merges" half) is an **owner action, pending** — until it is recorded a red PR can still be merged by hand, so tick these boxes from the green Code Check where it ran, and from **hand-run** local checks whose exact results are recorded in the sprint record where it did not.
 
 ### Automated tests (proportional to the change)
 - [ ] If the project has no automated suite, record the architecture-approved reason and the manual coverage used; do not silently skip behavior checks. **"No suite" is permitted only for a fully static site** — a project with auth, gated content, a database, or payments must have an automated suite (this is a blocking gate, not a preference).

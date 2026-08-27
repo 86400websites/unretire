@@ -13,12 +13,12 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 
 | Thing | State |
 |---|---|
-| Live site | Served at **`https://unretire.vercel.app`** — working. The custom domain is NOT connected yet (Part 4). |
+| Live site | ~~Served at **`https://unretire.vercel.app`** — working. The custom domain is NOT connected yet (Part 4).~~ **Served at `https://www.unretireproject.com` since 2026-08-27** — the custom domain is live. `https://unretireproject.com` (no www) redirects to it, and `https://unretire.vercel.app` still answers as a fallback. |
 | Live Stripe product **UnRetire — Course** | $99 USD, one-time — correct |
 | Live Stripe product **UnRetire — Premium** | $199 USD, **per year** — correct |
-| Live webhook `brilliant-splendor` | ✅ Repointed to `https://unretire.vercel.app/api/stripe/webhook` on 2026-08-25 — verified receiving |
+| Live webhook `brilliant-splendor` | ~~✅ Repointed to `https://unretire.vercel.app/api/stripe/webhook` on 2026-08-25 — verified receiving~~ ✅ Repointed to `https://www.unretireproject.com/api/stripe/webhook` on 2026-08-27 (Part 4B, L3) — verified 2026-08-27: I sent the endpoint a deliberately wrong signature and it answered "Invalid signature", which proves the route is live on the new address with the live secret in place |
 | Sandbox products **Course (Test)** $99 and **Premium (Test)** $199/yr | Already exist |
-| GitHub branch protection on `master` | Done — **PR-before-merge rule enabled (owner-confirmed 2026-08-26)**. The required "Code Check" status is added in S2.1 once CI exists |
+| GitHub branch protection on `master` | Done — **PR-before-merge rule enabled (owner-confirmed 2026-08-26)**. ~~The required "Code Check" status is added in S2.1 once CI exists~~ The "Code Check" workflow now exists on the S2.1 branch (2026-08-27); making it a **required** status is **your** action once the PR shows the check — see Part 1B |
 | `.env.example` and the 5 Claude skills in the repo | Done — every clone gets them |
 | Supabase test project `unretire-test` | Exists |
 
@@ -33,9 +33,12 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 
 ## PART 1A — 🔴 DO THIS FIRST · 2 minutes · live payments are affected
 
+> **Superseded 2026-08-27 (Part 4B, L3):** the endpoint is back on `https://www.unretireproject.com/api/stripe/webhook`,
+> which is live and verified. This section is kept for the record — nothing here is still to do.
+
 I traced where your live Stripe webhook actually lands. It is configured to
-`https://www.unretireproject.com/api/stripe/webhook`, but that address is not connected to your site yet —
-a request there gets redirected once and then hits a **GoDaddy "page not found"**.
+`https://www.unretireproject.com/api/stripe/webhook`, ~~but that address is not connected to your site yet —~~
+~~a request there gets redirected once and then hits a **GoDaddy "page not found"**~~ *(true on 2026-08-25; that address is live since 2026-08-27)*.
 
 **What that means:** if a real customer pays today, Stripe cannot tell your site about it, so the customer
 is charged and **does not get access**. (Checkout itself works fine — it is only the "tell the site" step
@@ -43,7 +46,8 @@ that is broken.)
 
 - [x] **1A.1** Stripe → **live mode** (not Sandbox) → **Developers** → **Webhooks** → click
       **brilliant-splendor** → **Update details** → change the URL to exactly:
-      `https://unretire.vercel.app/api/stripe/webhook` → Save.
+      ~~`https://unretire.vercel.app/api/stripe/webhook`~~ → Save. *(Done 2026-08-25; moved again to
+      `https://www.unretireproject.com/api/stripe/webhook` on 2026-08-27 — Part 4B, L3.)*
 
 > **Why this is safe:** editing the address keeps the same signing secret, so nothing in Vercel needs to
 > change. You are touching one field on one destination. No other project is affected.
@@ -57,7 +61,7 @@ that is broken.)
 
 ---
 
-## PART 1 — Stage 1 · MERGED — stage gate in remediation (updated 2026-08-26)
+## PART 1 — Stage 1 · MERGED — ~~stage gate in remediation (updated 2026-08-26)~~ stage gate STAGE APPROVED (owner-reported 2026-08-27; returned record pending filing)
 
 - [x] **1.1–1.3** Protection Bypass enabled ✓
 - [x] **1.4** PR is **#1** — https://github.com/86400websites/unretire/pull/1 ✓ (I looked it up, no need to send it)
@@ -104,14 +108,23 @@ that is broken.)
       Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**
       *(The two teammate branches `feat/remove-life` and `feat/remove-2` were deleted from the remote at
       your request — their commits remain in `master`'s history, so nothing is lost.)*~~
-- [ ] **1.12** (added 2026-08-27) **The last two steps before Stage 2.**
-      (a) Dispatch the S1.8 per-PR review brief `docs/code-reviews/S1.8-state-sync-round7-repin-review.md`
-      and **merge S1.8** on APPROVE — it closes the last Should-fix and re-pins the stage brief.
-      (b) Dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, already pinned to
+- [ ] **1.12** ~~(added 2026-08-27) **The last two steps before Stage 2.**~~ **(updated 2026-08-27) Both
+      steps are done — two review records still need to be pasted into the repo.**
+      (a) ~~Dispatch the S1.8 per-PR review brief `docs/code-reviews/S1.8-state-sync-round7-repin-review.md`
+      and **merge S1.8** on APPROVE — it closes the last Should-fix and re-pins the stage brief.~~
+      **Done 2026-08-27:** S1.8 merged as **PR #10** (`9d838da`). Its per-PR verdict is **not on file** —
+      the review file still holds only the unfilled brief. Please paste the returned review into
+      `docs/code-reviews/S1.8-state-sync-round7-repin-review.md`, or tell me it was not run so I can record
+      that as a deviation (the same way **D-17** was recorded for PR #8).
+      (b) ~~Dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, already pinned to
       `0983ad5..87e89c6` and dispatch-ready. **Two things that round must disposition, both disclosed in
       the brief:** the PR #8 merge-before-review deviation (**D-17** — you choose whether to accept it as a
       recorded deviation with its compensating controls), and the reverted out-of-chain commits.
-      **S2.1 starts only after Round 7 returns STAGE APPROVED.**
+      **S2.1 starts only after Round 7 returns STAGE APPROVED.**~~
+      **Round 7 returned STAGE APPROVED** (you told me 2026-08-27; returned record pending filing). Please
+      paste the reviewer's returned record into the Round 7 stub in `docs/code-reviews/S1-stage-review.md`.
+      Until it is filed I cannot read how the round dispositioned **D-17**, so D-17 stays open with a dated
+      note. On your word, Stage 1 is closed and Stage 2 has started with **S2.1** (Part 1B).
   *(Superseded detail of items 1.7–1.9, preserved struck for the record — **not open actions**:)*
   ~~(added 2026-08-27, item 1.9) The Round-6 findings are being fixed by sprint **S1.5**
       (`claude/s1.5-stage-remediation-4`). Your actions, in order:
@@ -139,6 +152,30 @@ that is broken.)
 
 ---
 
+## PART 1B — Stage 2 · S2.1 Code Check (added 2026-08-27)
+
+Sprint **S2.1** is built on branch `claude/s2.1-code-check-ci` (cut from `master` at `9d838da`, the PR #10
+merge). It adds the automatic **"Code Check"** that runs on every pull request — typecheck, lint, formatting
+check, build and a dependency-vulnerability audit (plus unit tests, once they exist). The check **runs** on
+every PR from the moment S2.1 merges, but nothing **requires** it until you add it to the `master`
+protection rule — and only you can do that. Until then a red PR can still be merged by hand, so the gate
+counts as pending until you confirm it locks.
+
+- [ ] **1B.1** GitHub → **Pull requests** → **New pull request** → base `master`, compare
+      `claude/s2.1-code-check-ci` → title suggestion: **"S2.1 — Code Check CI"** → Create.
+- [ ] **1B.2** On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
+      I ran the same checks locally at the branch head and every one passed.)*
+- [ ] **1B.3** Send me the **PR number** and the **Preview URL**.
+- [ ] **1B.4** After the S2.1 review returns APPROVE and you merge the PR: GitHub → **Settings** →
+      **Branches** → **edit the existing `master` rule** (do not create a second one) → tick **"Require
+      status checks to pass before merging"** → search for and select **"Code Check"** → **Save changes**.
+- [ ] **1B.5** Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
+      Tell me — an unverified gate is the same as no gate.
+
+> **Nothing here touches Vercel, Stripe or Supabase.** This is GitHub only, and no secret is involved.
+
+---
+
 ## PART 2 — Supabase login links · REVIEWED
 
 ### 2A — Production (`unretire-prod`) — two entries to REMOVE
@@ -152,10 +189,11 @@ Site URL `https://www.unretireproject.com` ✓ and 7 redirect URLs. Five are rig
       `86400-s-projects`, which is already on the list. *(If you still use that older account for this
       project, tell me and we keep it.)*
 
-- [x] **2.9** ⚠ Change **Site URL** to `https://unretire.vercel.app` for now. Your custom domain is not
-      live yet (see Part 4) — it currently shows a GoDaddy "Launching Soon" page. We switch Site URL to
-      the real domain on the day DNS goes live. **Keep all the unretireproject.com entries in the redirect
-      list** — they cost nothing and will be needed.
+- [x] **2.9** ⚠ ~~Change **Site URL** to `https://unretire.vercel.app` for now. Your custom domain is not~~
+      ~~live yet (see Part 4) — it currently shows a GoDaddy "Launching Soon" page. We switch Site URL to~~
+      ~~the real domain on the day DNS goes live.~~ **Keep all the unretireproject.com entries in the redirect
+      list** — they cost nothing and will be needed. *(Switched back to `https://www.unretireproject.com`
+      on 2026-08-27 — Part 4B, L2. The redirect list was left unchanged.)*
 
 > ✓ Keep these five: `www.unretireproject.com/**`, `unretireproject.com/**`,
 > `*-86400-s-projects.vercel.app/**`, `unretire.vercel.app/**`, `localhost:3000/**`
@@ -218,16 +256,24 @@ webhook pointed at it would break. The fix is a permanent branch that always has
 
 ## PART 4 — Domain
 
-- [ ] **4.3** ⚠ **Your domain is not live yet.** I checked both `unretireproject.com` and
+- [x] **4.3** ~~⚠ **Your domain is not live yet.** I checked both `unretireproject.com` and
       `www.unretireproject.com` — both return a **GoDaddy "Launching Soon" parking page**, not your site.
       Adding it in Vercel is only half the job; the **DNS records at GoDaddy must point to Vercel**.
       Vercel → **Settings** → **Domains** → click your domain → it shows the exact records to create.
-      Copy those into GoDaddy → DNS. Then tell me and I will verify it end to end.
-- [x] **4.4** Until DNS is done, set `NEXT_PUBLIC_SITE_URL` to `https://unretire.vercel.app`
-      (Production, Type **Config**). Right now it points at the parking page. We switch it on launch day.
+      Copy those into GoDaddy → DNS. Then tell me and I will verify it end to end.~~ **Done 2026-08-27 —
+      DNS is live.** `https://www.unretireproject.com` serves your site (from Vercel), and
+      `https://unretireproject.com` (no www) redirects to it. I verified the domain and the webhook endpoint (the
+      login-link proof is still owed — see L5). *(The domain itself
+      is still registered at GoDaddy — only the DNS moved.)*
+- [x] **4.4** ~~Until DNS is done, set `NEXT_PUBLIC_SITE_URL` to `https://unretire.vercel.app`
+      (Production, Type **Config**). Right now it points at the parking page. We switch it on launch day.~~
+      **Superseded 2026-08-27 by L1 below** — `NEXT_PUBLIC_SITE_URL` now points at
+      `https://www.unretireproject.com`.
 
-> **Your real live site today is `https://unretire.vercel.app`.** That is what customers reach, and it is
-> working fine. Nothing is broken — the pretty address just is not connected yet.
+> ~~**Your real live site today is `https://unretire.vercel.app`.** That is what customers reach, and it is
+> working fine. Nothing is broken — the pretty address just is not connected yet.~~
+> **(2026-08-27) Your live site is now `https://www.unretireproject.com`.** The `unretire.vercel.app`
+> address still answers as a fallback.
 
 - [x] **4.2** `half-a-life.vercel.app` — answered: separate repo now. I will handle removing its leftover
       live Stripe webhook carefully in a later sprint; **do not delete anything there yourself yet.**
@@ -239,16 +285,25 @@ webhook pointed at it would break. The fix is a permanent branch that always has
 Save this. When DNS is done and `https://www.unretireproject.com` shows your site (not the GoDaddy page),
 do exactly these five, in this order. **You do not touch any secret — every value here is a public address.**
 
-- [ ] **L1** Vercel → Environment Variables → `NEXT_PUBLIC_SITE_URL` (Production) →
-      change to `https://www.unretireproject.com`
-- [ ] **L2** Supabase → **unretire-prod** → Authentication → URL Configuration →
-      **Site URL** → change to `https://www.unretireproject.com` → Save
+**Update 2026-08-27: DNS went live and you completed all five steps that day. Kept below for the record.**
+
+- [x] **L1** Vercel → Environment Variables → `NEXT_PUBLIC_SITE_URL` (Production) →
+      change to `https://www.unretireproject.com` — **done 2026-08-27** *(no trailing slash — the live page
+      now reports its own address as exactly `https://www.unretireproject.com`, which also closes the old
+      trailing-slash issue)*
+- [x] **L2** Supabase → **unretire-prod** → Authentication → URL Configuration →
+      **Site URL** → change to `https://www.unretireproject.com` → Save — **done 2026-08-27**
       *(Leave the redirect list alone — `unretire.vercel.app/**` stays as a useful fallback.)*
-- [ ] **L3** Stripe → **live mode** → Webhooks → **brilliant-splendor** → Update details →
-      Endpoint URL → `https://www.unretireproject.com/api/stripe/webhook` → Save
+- [x] **L3** Stripe → **live mode** → Webhooks → **brilliant-splendor** → Update details →
+      Endpoint URL → `https://www.unretireproject.com/api/stripe/webhook` → Save — **done 2026-08-27**
       *(Signing secret is preserved, so no Vercel change is needed — same as last time.)*
-- [ ] **L4** Vercel → Deployments → newest **Production** deployment → **Redeploy**
-- [ ] **L5** Tell me. I verify the domain, the webhook endpoint and the login links end to end.
+- [x] **L4** Vercel → Deployments → newest **Production** deployment → **Redeploy** — **done 2026-08-27**
+      *(the live page already shows the new address, which proves the redeploy picked it up)*
+- [x] **L5** ~~Tell me. I verify the domain, the webhook endpoint and the login links end to end.~~
+      **Verified 2026-08-27:** the domain is live; the webhook endpoint answers on the new address with the
+      live secret in place (a deliberately wrong signature gets "Invalid signature" back); and the no-www
+      address redirects to www. **Still to prove later (S2.5):** a real login/reset email whose link lands
+      on `https://www.unretireproject.com` — that proof needs a delivered email and is scheduled for S2.5.
 
 > **That's the whole list.** Your instinct was right — it is the Supabase URL and the Stripe webhook, plus
 > the site-URL variable and a redeploy. Nothing else moves.
@@ -268,10 +323,16 @@ feature list before any test is written.
 
 ## What I need back from you
 
-1. "Bypass is on" + the **pull request number**
-2. Confirmation when **Part 2** is done
-3. Confirmation when **Part 3A** is done, then again when **3B** is done
-4. Your answer on `half-a-life.vercel.app`
+*(The original four asks are all received — struck for the record. Current asks, updated 2026-08-27:)*
+
+1. ~~"Bypass is on" + the **pull request number**~~ → the **S2.1 pull request number** and its
+   **Preview URL** (Part 1B.3)
+2. ~~Confirmation when **Part 2** is done~~ → the **S1.8 per-PR review record** pasted into
+   `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` — or tell me it was not run (item 1.12a)
+3. ~~Confirmation when **Part 3A** is done, then again when **3B** is done~~ → the **Round 7 stage-gate
+   record** pasted into the Round 7 stub in `docs/code-reviews/S1-stage-review.md` (item 1.12b)
+4. ~~Your answer on `half-a-life.vercel.app`~~ → confirmation that **"Code Check" is a required status**
+   on `master` and that the merge button stayed locked on a later PR (Part 1B.4–1B.5)
 
 **Never paste a secret key into chat.** Values go into the Vercel or Supabase screens only; names are fine.
 If a secret is ever exposed, **rotate it at the provider first**, then tell me.
