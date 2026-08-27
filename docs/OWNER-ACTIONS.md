@@ -372,7 +372,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
       appears just before `.supabase.co` — it should be **`dtdadtggahjsrmevwvbu`** (the test project). If it says
       `hcjivvlwxltyiycfbttc` instead, stop and tell me — that would mean the preview is pointed at production.
       *(These are public identifiers, not secrets — fine to paste.)*
-
+
 > ### ⚠ What one shared Mailchimp audience means, in writing
 > You chose to keep a single live audience (**D-22**), which I have recorded. The consequence is permanent: **any
 > form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
