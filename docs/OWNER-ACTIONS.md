@@ -62,9 +62,10 @@ that is broken.)
 - [x] **1.1–1.3** Protection Bypass enabled ✓
 - [x] **1.4** PR is **#1** — https://github.com/86400websites/unretire/pull/1 ✓ (I looked it up, no need to send it)
 - [x] **1.5** ~~Re-run the Codex review with the prompt I give you, then **merge PR #1 yourself**.~~ Done 2026-08-26 — the per-PR review reached **APPROVE at round 9** and you merged PR #1 (merge commit `1309e01`) ✓
-- [ ] **1.6** The stage gate (Round 3, 2026-08-26) returned **STAGE NOT APPROVED** — 8 documentation
-      findings, all being fixed by sprint **S1.2** (branch `claude/s1.2-stage-remediation`, docs only).
-      Your actions, in order:
+- [x] **1.6** *(closed 2026-08-27, S1.6 — all three of its actions completed on 2026-08-26; it had been
+      left rendering as an open checkbox.)* The stage gate (Round 3, 2026-08-26) returned **STAGE NOT
+      APPROVED** — 8 documentation findings, all fixed by sprint **S1.2** (branch
+      `claude/s1.2-stage-remediation`, docs only). Your actions, in order:
       ~~(a) dispatch the S1.2 per-PR review; (b) merge the S1.2 PR on APPROVE; (c) dispatch stage-gate
       Round 4~~ — **all three done 2026-08-26**: S1.2 per-PR APPROVE (round 2) → PR #2 merged (`4c3d52e`)
       → Round 4 dispatched and returned **STAGE NOT APPROVED** (5 cumulative findings).
@@ -75,14 +76,34 @@ that is broken.)
 - [x] **1.8** ~~(added 2026-08-26) The Round-5 findings are being fixed by sprint S1.4…~~ **Done
       2026-08-27**: S1.4 per-PR APPROVE (round 2) → PR #4 merged (`f61082c`) → stage-gate **Round 6**
       dispatched and returned **STAGE NOT APPROVED** (3 pinpoint findings; 7 of 9 exit criteria VERIFIED).
-- [ ] **1.9** (added 2026-08-27) The Round-6 findings are being fixed by sprint **S1.5**
+- [x] **1.9** ~~(added 2026-08-27) The Round-6 findings are being fixed by sprint S1.5…~~ **Done
+      2026-08-27**: S1.5 per-PR **APPROVE on round 1** → PR #5 merged (`4c8228f`). That review also
+      returned the complete 22-item enumeration now closed by S1.6.
+- [ ] **1.10** (added 2026-08-27) **Two decisions I need from you — neither blocks S1.6, both matter:**
+      **(a) D-15 — unlabelled placeholder testimonials are live right now.** PR #7 removed the
+      "these are placeholders" notes from the book and stories pages, but the four invented
+      testimonials ("Reader name, former executive" …) are still on `/book`. Pick one: restore a
+      one-line disclaimer, send me real attributions, or remove those four quotes. I will not change
+      `src/` until you choose.
+      **(b) D-16 — teammate PRs bypassed the review chain.** PRs #6 and #7 merged straight to `master`
+      with no independent review. Until S2.1's CI exists, that review is the *only* live gate. Tell me
+      whether every contributor's PR goes through it (recommended) or whether small content edits get a
+      recorded exception — and whether those two PRs should get a retroactive review record.
+- [ ] **1.11** (added 2026-08-27) The 22-item enumeration is closed by sprint **S1.6**
+      (`claude/s1.6-current-state-truth-pass`). Your actions, in order:
+      (a) when the S1.6 PR is open and its Preview built, dispatch the per-PR review brief
+      `docs/code-reviews/S1.6-current-state-truth-pass-review.md`;
+      (b) **merge the S1.6 PR** on APPROVE;
+      (c) dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
+      Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**
+  *(Superseded detail of items 1.7–1.9, preserved struck for the record — **not open actions**:)*
+  ~~(added 2026-08-27, item 1.9) The Round-6 findings are being fixed by sprint **S1.5**
       (`claude/s1.5-stage-remediation-4`). Your actions, in order:
       (a) when the S1.5 PR is open and its Preview built, dispatch the per-PR review brief
       `docs/code-reviews/S1.5-stage-remediation-4-review.md`;
       (b) **merge the S1.5 PR** on APPROVE;
       (c) dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
-      Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**
-  *(Superseded detail of items 1.7–1.8, preserved struck for the record — **not open actions**:)*
+      Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**~~
   ~~(added 2026-08-26) The Round-5 findings are being fixed by sprint **S1.4**
       (`claude/s1.4-stage-remediation-3`). Your actions, in order:
       (a) when the S1.4 PR is open and its Preview built, dispatch the per-PR review brief

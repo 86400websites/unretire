@@ -81,9 +81,10 @@ closes in its named fixing sprint. An invariant marked **MET** must remain met b
 - [ ] 🔴 **I7 — Public writes validated and abuse-controlled.** `/api/subscribe` et al. are schema-validated server-side and carry the §5 abuse controls, failing **CLOSED** in Production. *(set 2026-08-26; corrected the same day — S1.2 per-PR review Finding 2 — **NOT MET on both halves**: `src/app/api/subscribe/route.ts:29-31` checks only that `email` is a present, non-empty string — no schema, no email-format check — and `tag`/`mergeFields` pass through to Mailchimp unvalidated; abuse controls are absent entirely. Both halves: Known issue 5 (expanded 2026-08-26), Sprint S4.5, stack decision D-9. The Formspree contact/community/enterprise forms post directly from the browser to a third-party endpoint outside this handler's control — see Known issue 20.)*
 - [ ] 🔴 **I8 — Security headers.** The §6 header set is defined in framework config and verified on the deployed response. *(set 2026-08-26 — **NOT MET**: `next.config.ts` defines none; live response carries HSTS only — Known issue 46, Sprint S4.5)*
 
-*(This section was filled on 2026-08-26 — stage-gate Round 3, Finding 3 — which makes this file the third
-intentional exception to SOP-copy byte-identity, alongside the two Supabase docs: the fill is mandated by
-this section's own instruction above.)*
+*(This section was filled on 2026-08-26 — stage-gate Round 3, Finding 3 — which makes this file one of the
+declared exceptions to SOP-copy byte-identity: the fill is mandated by this section's own instruction
+above. The full ledger — **21 byte-identical + 4 declared exceptions** as of 2026-08-27 — is kept in
+`docs/code-reviews/S1-stage-review.md` §6 item 4.)*
 
 ---
 

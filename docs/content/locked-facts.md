@@ -36,11 +36,19 @@ them without an owner decision, and do not lock them.
    `src/app/learn/course/courseData.ts` totals 48. The code total is 48; the home-page
    copy needs an owner-approved content fix (Known issue 8).
 
-2. **Placeholder testimonial attributions ("Reader name").**
-   All four book-page testimonials are attributed "Reader name, …"
-   (`src/app/book/page.tsx` `testimonials` array, lines 40–45), and the page itself
+2. **Placeholder testimonial attributions ("Reader name") — now UNLABELLED on the live site.**
+   All four book-page testimonials are attributed with the placeholder token "Reader name" (three add a descriptor — "…, former executive", "…, recently retired", "…, retired educator" — the fourth is bare)
+   (`src/app/book/page.tsx` `testimonials` array, lines 41–44). ~~and the page itself
    prints "Placeholders written in the book's voice — swap in real endorsements when
-   available." Real endorsements are owner input (Known issue 9).
+   available."~~ ⚠ **That disclaimer was REMOVED from the page on 2026-08-27 by PR #7
+   (`6c4416a`), while the four placeholder testimonials themselves remain.** The same PR
+   removed the equivalent note from `src/app/stories/page.tsx` — whose deleted paragraph also
+   carried the non-disclaimer sentence "Each card links to a full profile.", now gone too.
+   **Net effect: the invented endorsements carry no statement that they are placeholders**, on a
+   page that sells the book. (The byline still reads "Reader name", so the tell remains visible —
+   what was removed is the explicit disclaimer.) Recorded
+   2026-08-27 (Sprint S1.6); severity escalated under Known issue 9. Real endorsements are
+   owner input.
 
 3. **Unverified community stats: "340+ Members, 18 Countries".**
    `src/app/community/page.tsx` (lines 4–5) claims these numbers; no source verifies
