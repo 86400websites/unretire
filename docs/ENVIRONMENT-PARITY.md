@@ -471,13 +471,15 @@ touching live data. Objects never sync between accounts; everything below was cr
 
 ### After Phase E — the end state, in one table
 
-**Configured 2026-08-25.** The "proven by" column is what turns each cell from a claim into a fact; every one
-of them is still outstanding.
+**The Database and Money columns were configured 2026-08-25; the Email column is NOT yet configured**
+*(corrected 2026-08-27, stage-gate Round 6 Finding 1 — ~~an earlier heading stamped the whole table
+"Configured 2026-08-25"~~, wrongly covering the nonexistent test audience)*. The "proven by" column is
+what turns each cell from a claim into a fact; every one of them is still outstanding.
 
 | Scope | Database | Money | Email | Inbox | Proven by |
 |---|---|---|---|---|---|
-| **Local** | `unretire-test` | Stripe sandbox + local CLI listener | test audience | shared Formspree (accepted) | developer's own run |
-| **Preview** | `unretire-test` ✅ configured | Stripe **sandbox** ✅ configured — delivery blocked by Known issue 32 | test audience 🟡 unproven | shared Formspree (accepted) | §8 P1, P2, P4, P5, P7 |
+| **Local** | `unretire-test` | Stripe sandbox + local CLI listener | ~~test audience~~ **live audience today** — no test audience exists yet (S2.2 creates it); local form tests hit the live list until then | shared Formspree (accepted) | developer's own run |
+| **Preview** | `unretire-test` ✅ configured | Stripe **sandbox** ✅ configured — delivery blocked by Known issue 32 | ~~test audience 🟡 unproven~~ **one shared LIVE audience — 🔴 NOT SPLIT** (no Preview-scoped `MAILCHIMP_LIST_ID` exists; Preview form testing prohibited until S2.2 splits it; §8 P7 then proves the completed split) | shared Formspree (accepted) | §8 P1, P2, P4, P5, P7 |
 | **Production** | `unretire-prod` | Stripe live mode | live audience | real Formspree | §8 P10, P13 + the launch smoke (§7) |
 
 ---

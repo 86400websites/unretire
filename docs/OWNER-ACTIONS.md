@@ -72,7 +72,18 @@ that is broken.)
       2026-08-26**: S1.3 per-PR APPROVE (round 2) → PR #3 merged (`ae78679`) → stage-gate **Round 5**
       dispatched and returned **STAGE NOT APPROVED** (1 Blocking + 2 Should-fix; 7 of 8 exit criteria
       VERIFIED).
-- [ ] **1.8** (added 2026-08-26) The Round-5 findings are being fixed by sprint **S1.4**
+- [x] **1.8** ~~(added 2026-08-26) The Round-5 findings are being fixed by sprint S1.4…~~ **Done
+      2026-08-27**: S1.4 per-PR APPROVE (round 2) → PR #4 merged (`f61082c`) → stage-gate **Round 6**
+      dispatched and returned **STAGE NOT APPROVED** (3 pinpoint findings; 7 of 9 exit criteria VERIFIED).
+- [ ] **1.9** (added 2026-08-27) The Round-6 findings are being fixed by sprint **S1.5**
+      (`claude/s1.5-stage-remediation-4`). Your actions, in order:
+      (a) when the S1.5 PR is open and its Preview built, dispatch the per-PR review brief
+      `docs/code-reviews/S1.5-stage-remediation-4-review.md`;
+      (b) **merge the S1.5 PR** on APPROVE;
+      (c) dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
+      Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**
+  *(Superseded detail of items 1.7–1.8, preserved struck for the record — **not open actions**:)*
+  ~~(added 2026-08-26) The Round-5 findings are being fixed by sprint **S1.4**
       (`claude/s1.4-stage-remediation-3`). Your actions, in order:
       (a) when the S1.4 PR is open and its Preview built, dispatch the per-PR review brief
       `docs/code-reviews/S1.4-stage-remediation-3-review.md`;
