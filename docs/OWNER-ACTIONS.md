@@ -79,7 +79,12 @@ that is broken.)
 - [x] **1.9** ~~(added 2026-08-27) The Round-6 findings are being fixed by sprint S1.5…~~ **Done
       2026-08-27**: S1.5 per-PR **APPROVE on round 1** → PR #5 merged (`4c8228f`). That review also
       returned the complete 22-item enumeration now closed by S1.6.
-- [ ] **1.10** (added 2026-08-27) **Two decisions I need from you — neither blocks S1.6, both matter:**
+- [x] **1.10** ~~(added 2026-08-27) Two decisions I need from you~~ — **both answered 2026-08-27: you
+      chose to revert PRs #6/#7 wholesale and redo that work later through the normal process.** That
+      resolved **D-15** (the disclaimers are back on the live pages, so the exposure is closed) and
+      **D-16** (every contributor PR goes through the per-PR review, as WORKFLOW §6–§7 already says;
+      reverted work needs no retroactive review record). Sprint **S1.7** performed the revert.
+      *(Original text, struck for the record:)* ~~**Two decisions I need from you — neither blocks S1.6, both matter:**
       **(a) D-15 — unlabelled placeholder testimonials are live right now.** PR #7 removed the
       "these are placeholders" notes from the book and stories pages, but the four invented
       testimonials ("Reader name, former executive" …) are still on `/book`. Pick one: restore a
@@ -88,14 +93,17 @@ that is broken.)
       **(b) D-16 — teammate PRs bypassed the review chain.** PRs #6 and #7 merged straight to `master`
       with no independent review. Until S2.1's CI exists, that review is the *only* live gate. Tell me
       whether every contributor's PR goes through it (recommended) or whether small content edits get a
-      recorded exception — and whether those two PRs should get a retroactive review record.
-- [ ] **1.11** (added 2026-08-27) The 22-item enumeration is closed by sprint **S1.6**
-      (`claude/s1.6-current-state-truth-pass`). Your actions, in order:
-      (a) when the S1.6 PR is open and its Preview built, dispatch the per-PR review brief
-      `docs/code-reviews/S1.6-current-state-truth-pass-review.md`;
-      (b) **merge the S1.6 PR** on APPROVE;
+      recorded exception — and whether those two PRs should get a retroactive review record.~~
+- [ ] **1.11** (updated 2026-08-27) **Two stacked PRs, merged in order.** Your actions:
+      (a) dispatch the S1.6 per-PR review brief `docs/code-reviews/S1.6-current-state-truth-pass-review.md`
+      (PR open, head `692ed9d`) and **merge S1.6** on APPROVE;
+      (b) dispatch the S1.7 per-PR review brief
+      `docs/code-reviews/S1.7-revert-out-of-chain-changes-review.md` and **merge S1.7** on APPROVE — this
+      is the revert, so `src/` returns to the last reviewed baseline;
       (c) dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, re-pinned per its
       Round 7 stub. **S2.1 starts only after Round 7 returns STAGE APPROVED.**
+      *(The two teammate branches `feat/remove-life` and `feat/remove-2` were deleted from the remote at
+      your request — their commits remain in `master`'s history, so nothing is lost.)*
   *(Superseded detail of items 1.7–1.9, preserved struck for the record — **not open actions**:)*
   ~~(added 2026-08-27, item 1.9) The Round-6 findings are being fixed by sprint **S1.5**
       (`claude/s1.5-stage-remediation-4`). Your actions, in order:

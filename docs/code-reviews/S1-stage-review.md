@@ -5,24 +5,28 @@
 
 ## ⏳ STATUS: ROUND 6 NOT APPROVED → S1.5 merged (APPROVED round 1) → **S1.6 truth pass in progress**; Round 7 next
 
-> ### ⚠ Two commits in the stage range did NOT go through the review chain — read before Round 7
+> ### ⚠ Two commits in the stage range did NOT go through the review chain — **and were reverted**
 >
 > On **2026-08-27**, PRs **#6** (`c05d852`) and **#7** (`6c4416a`), authored by a teammate
 > (sozana-blidy, commit message "description"), were merged to `master` **without a per-PR Codex review
 > and without a review record**, and they change **`src/`** inside a stage declared documentation-only.
-> They are inside the stage range and the Round-7 reviewer will encounter them. Disclosed here rather
-> than discovered:
+> They are inside the stage range and the Round-7 reviewer will encounter them. **On 2026-08-27 the owner
+> instructed that both be reverted and the work redone later through the normal chain; Sprint S1.7 did so
+> (decisions D-15 and D-16, both resolved).** Consequently, at the stage head **`src/` and the tracked
+> archive are byte-identical to `f61082c`** — the last head any stage round reviewed — so the stage's
+> documentation-only claim holds at the head, `git diff --check` is clean again, and Known issue 47 is
+> closed. The commits and their reverts both remain in the range as history. Disclosed here rather than
+> discovered:
 >
 > | PR | Change | Assessment |
 > |---|---|---|
 > | #6 `c05d852` | Removes the fixed "← Half a Life" pill from `src/app/page.tsx`; replaces `unretire 21-august-2026.zip` with `unretire 25-august.zip` (rename **plus new bytes**, 6.3→6.2MB) | The pill pointed at **`href="/"` — this site's own root**, a pre-standalone leftover, so removing it is an improvement (an earlier draft of this block wrongly called it a cross-link to another project — corrected 2026-08-27). ⚠ **Identical references survive in shared chrome** (`UnRetireNav.tsx:250`, `UnRetireFooter.tsx:64,99`), so the pattern is not cleared site-wide. The archive swap leaves Known issue 7 open (still tracked junk) |
 > | #7 `6c4416a` | Removes the placeholder disclaimers from `src/app/book/page.tsx` and `src/app/stories/page.tsx` (the stories deletion also took the sentence "Each card links to a full profile.") | ⚠ **Makes Known issue 9 worse**: the four "Reader name" testimonials at `book/page.tsx:41-44` remain live with nothing stating they are placeholders — the byline token is still visible, the explicit disclaimer is not. Escalated to High; owner decision **D-15** |
 >
-> Also introduced: three trailing-whitespace-only lines (`page.tsx:74`, `book/page.tsx:213`,
-> `stories/page.tsx:107`), so **`git diff --check` reports three errors over any range including them** —
-> the Rounds 1–6 range (`0983ad5..f61082c`) still exits 0, so Round 7 is the first to see them — **new Known issue 47**, fix owned by S3.1. The governance question
-> (should teammate PRs go through the chain?) is owner decision **D-16**. S1.6 records all of this but
-> deliberately **does not touch `src/`**, keeping its own scope documentation-only.
+> They also introduced three trailing-whitespace-only lines (`page.tsx:74`, `book/page.tsx:213`,
+> `stories/page.tsx:107`) — filed as Known issue 47 and **closed by the same revert**. **Verification for
+> Round 7:** `git diff f61082c <stage head> -- src/ "unretire*.zip"` should be **empty**. S1.6 recorded
+> this episode without touching `src/`; **S1.7** performs the revert and is itself a reviewed PR.
 
 Round 6 (filed below) verified 7 of 9 exit criteria; its 3 findings were fixed by **S1.5**, which passed
 its per-PR review **on round 1** (head `b44c42c`) and merged as **PR #5** (`4c8228f`). That review also

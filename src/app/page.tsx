@@ -71,7 +71,13 @@ export default function UnRetirePage() {
         </p>
       </div>
 
-    
+      {/* Fixed "back to Half a Life" pill */}
+      <Link
+        href="/"
+        className="fixed bottom-5 right-5 z-[60] inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm border border-[#E5E5E5] text-[#444444] hover:text-[#D05D11] text-[11px] font-bold tracking-[0.1em] uppercase rounded-full px-4 py-2 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] transition-colors"
+      >
+        ← Half a Life
+      </Link>
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="bg-white">
