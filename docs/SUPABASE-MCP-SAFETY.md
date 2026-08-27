@@ -9,11 +9,21 @@
 > |---|---|
 > | `[PROJECT_PATH]` | `c:/Users/Khalid Siddiqui/OneDrive/Desktop/Qatada/86400/9. Websites/3. Unretire/unretire` |
 > | `[SUPABASE_DEV_PROJECT_REF]` | `dtdadtggahjsrmevwvbu` — project `unretire-test`, region ap-south-1 (confirmed 2026-08-25, D-8 resolved) |
-> | `[SUPABASE_PROD_PROJECT_REF]` | ⚠ Owner to confirm — **stays disconnected from MCP by default** |
+> | `[SUPABASE_PROD_PROJECT_REF]` | ~~⚠ Owner to confirm — **stays disconnected from MCP by default**~~ **`hcjivvlwxltyiycfbttc`** — project `unretire-prod`, region eu-west-1 (a public identifier, not a secret). Connected **read-only** under the Profile B exception below (D-11); it is never writable |
 > | Profile | **B — approved production read-only exception**, granted by the owner 2026-08-25 (D-11). Reason: schema inspection + debugging parity. Scope `read_only=true`, features `database,debugging,docs`. Removal: at client handover or on request. Manual tool-call approval stays ON. |
 > | Data classification | Confidential — the database holds account identities and purchase entitlements. |
 >
-> Status: **Supabase MCP is NOT currently connected** for this project (no `.mcp.json` exists in the repo).
+> Status: ~~**Supabase MCP is NOT currently connected** for this project (no `.mcp.json` exists in the repo).~~
+> **WIRED 2026-08-27 (Sprint S2.2) — NOT YET CONNECTED.** `.mcp.json` exists at the project root with exactly two HTTP servers:
+> **`supabase-test`** → `project_ref=dtdadtggahjsrmevwvbu`, `features=database,debugging,docs`, **no** `read_only` (writable
+> by design, non-production); and **`supabase-prod-readonly`** → `project_ref=hcjivvlwxltyiycfbttc`, **`read_only=true`**,
+> `features=database,debugging,docs`. The file carries **no credential, token, key, password, connection string or
+> authorization header**, and the §6 six-point pre-commit gate was run and returned **PASS on all six points**;
+> `claude mcp list` matches the file. **Server naming (D-21, 2026-08-27):** the owner chose **`supabase-test`** for the
+> writable server, matching the real project `unretire-test`, so every `supabase-dev` in the generic SOP body below means
+> `supabase-test` here. ⏳ Both servers show **"Pending approval"** until the owner runs `claude` once to approve the
+> project and completes browser OAuth per server — `supabase-test` in org **"Test Databases"**, `supabase-prod-readonly`
+> in org **"86400"**.
 > Nothing here is active yet; this file governs the connection if and when the owner asks for one.
 
 
@@ -33,14 +43,14 @@ Supabase's official guidance recommends using MCP for development and testing ra
 
 | Connection | Environment | Power | Purpose |
 |---|---|---|---|
-| `supabase-dev` | isolated development/test project or safe database branch | read + approved writes | inspect, build, test, and verify migrations |
+| `supabase-dev` — **in this project: `supabase-test`** (D-21, 2026-08-27) | isolated development/test project or safe database branch | read + approved writes | inspect, build, test, and verify migrations |
 | Production MCP | not configured | none | the human uses the Supabase dashboard/SQL Editor and normal deployment controls |
 
 ### Profile B — approved exception
 
 | Connection | Environment | Power | Purpose |
 |---|---|---|---|
-| `supabase-dev` | isolated development/test project | read + approved writes | build and prove changes |
+| `supabase-dev` — **in this project: `supabase-test`** (D-21) | isolated development/test project | read + approved writes | build and prove changes |
 | `supabase-prod-readonly` | production | read only | narrow post-change verification when the owner accepts the data-exposure risk |
 
 Profile B is not the default. Record the owner, reason, date, allowed feature groups, data classification, and removal condition in `TECH-ARCHITECTURE.md` or the project Decision Log.
@@ -93,7 +103,7 @@ Under a recorded Profile B exception, the agent may perform only necessary read-
 
 1. **Confirm environment.** State the MCP server name and verify its project ref.
 2. **Inspect non-production.** Read the real schema and policies; never guess names.
-3. **Build and prove.** Run the migration only on `supabase-dev`; test relevant roles and error paths.
+3. **Build and prove.** Run the migration only on `supabase-dev` (**here: `supabase-test`**); test relevant roles and error paths.
 4. **Save artifacts.** Commit-ready up migration, supported rollback/down artifact, RLS policies, and verification notes go in the repository.
 5. **Review.** Classify the change as additive, reversible, or destructive. Explain data-loss and rollback limits.
 6. **Human ships.** The authorized human applies the verified production change using the approved production procedure.
@@ -109,7 +119,7 @@ Set the actual refs locally before running these commands. Project refs are iden
 ```bash
 SUPABASE_DEV_PROJECT_REF="replace-with-non-production-project-ref"
 
-claude mcp add --scope project --transport http supabase-dev \
+claude mcp add --scope project --transport http supabase-test \
   "https://mcp.supabase.com/mcp?project_ref=${SUPABASE_DEV_PROJECT_REF}&features=database,debugging,docs"
 ```
 
@@ -150,7 +160,7 @@ claude mcp list
 Before trusting the configuration:
 
 - [ ] `/mcp` shows the intended servers as connected and approved.
-- [ ] `supabase-dev` lists the expected non-production schema.
+- [ ] `supabase-test` (the `supabase-dev` slot in this SOP) lists the expected non-production schema.
 - [ ] A harmless, reversible write test succeeds only on non-production and is cleaned up.
 - [ ] If Profile B exists, a write attempt against `supabase-prod-readonly` is refused. Use a harmless statement designed not to mutate data.
 - [ ] Development and production refs differ.

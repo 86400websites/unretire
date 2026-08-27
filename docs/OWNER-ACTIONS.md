@@ -329,7 +329,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
 
 ## PART 1C — Stage 2 · S2.2 prep (added 2026-08-27)
 
-Three of the five things I asked for are now settled, so only **two** are left for you. Nothing here needs code.
+~~Three of the five things I asked for are now settled, so only **two** are left for you.~~ **Updated 2026-08-27: four of the five are settled — only **1C.2** (sign in to the two database tools) is left, and S2.2 is waiting on it.** Nothing here needs code.
 
 **Settled already — nothing to do:**
 - ~~Create a Mailchimp test audience~~ — **cancelled by your decision (D-22)**: one live audience, shared. See the
@@ -358,7 +358,7 @@ Three of the five things I asked for are now settled, so only **two** are left f
       > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
       > public, so I did not recommend it — your call.)*
 
-- [ ] **1C.2 — Sign in to the two database tools.** ⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet. **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
+- [ ] **1C.2 — Sign in to the two database tools.** 🔴 **READY NOW (2026-08-27) — this is the one thing S2.2 is waiting on.** `.mcp.json` now exists with both servers, and both report *"Pending approval"* until you approve the project and sign in. Until then I cannot run the test-database read or the refused-write check, and proof **P11** cannot run. ~~⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet.~~ **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
       `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
       so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
       Approve the project when Claude Code asks. No key, no token — browser sign-in only.
