@@ -3,7 +3,16 @@
 > Save the filled brief at docs/code-reviews/S1-stage-review.md before review.
 > Append the reviewer's returned record; the reviewer does not edit the repository.
 
-## ⏳ STATUS: ROUND 6 NOT APPROVED → S1.5 merged (APPROVED round 1) → **S1.6 truth pass in progress**; Round 7 next
+## ✅ STATUS: DISPATCH-READY for ROUND 7 (2026-08-27) — all seven S1 PRs merged
+
+**Round-7 re-pin (2026-08-27, post-S1.7-merge, sprint S1.8).** Every S1 PR is merged: #1–#5, **#8**
+(S1.6) and **#9** (S1.7). Round 6's 3 findings were fixed by S1.5 (APPROVED round 1); its requested
+one-pass enumeration of 22 remaining current-state mismatches was closed by S1.6; the two out-of-chain
+teammate commits were reverted by S1.7, whose per-PR review **APPROVED** and confirmed that `src/` and the
+tracked archive are **byte-identical to `f61082c`**. This brief is pinned to `0983ad5…..87e89c6…` (§1).
+**Two disclosures to weigh, both stated up front rather than left to be discovered:** the PR #8
+merge-before-review deviation (immediately below, decision **D-17**) and the reverted out-of-chain
+commits (the block after it).
 
 > ### ⚠ PR #8 (S1.6) was merged before its per-PR review — disclosed for the precondition check
 >
@@ -56,12 +65,13 @@ Email cells presented a nonexistent test audience as configured) and two Should-
 Round-5/S1.3 state) — all fixed by sprint **S1.5** (`claude/s1.5-stage-remediation-4`). After the S1.5 PR
 merges on per-PR APPROVE, re-pin §1's stage head and dispatch **Round 7** per the stub below.
 
-**Round-6 re-pin (2026-08-27, post-S1.4-merge):** Round 5 verified 7 of 8 exit criteria; its one Blocking
+**~~Round-6 re-pin (2026-08-27, post-S1.4-merge)~~ — superseded by the Round-7 re-pin at the top of this file; kept as history:** Round 5 verified 7 of 8 exit criteria; its one Blocking
 contradiction cluster + two Should-fix syncs were fixed by sprint **S1.4**, which passed its own per-PR
 review (**APPROVE, round 2, head `5362862`**; its round-1 finding — residual behavioral-isolation
 overstatements — fixed at class level with a zero-live-hit sweep independently confirmed) and was merged
-by the owner as **PR #4 → merge commit `f61082c233ac2f10d060c5274d6490f481377578`**. This brief is now
-pinned to the full stage range `0983ad5…..f61082c…` covering all four PRs (§1 below). Every
+by the owner as **PR #4 → merge commit `f61082c233ac2f10d060c5274d6490f481377578`**. ~~This brief is now
+pinned to the full stage range `0983ad5…..f61082c…` covering all four PRs (§1 below).~~ *(That pin was
+superseded twice more — by PR #8/S1.6 and PR #9/S1.7; §1 now pins `0983ad5…..87e89c6…` across seven PRs.)* Every
 environment-isolation statement in the active record set is now evidence-bounded: Supabase/Stripe
 configuration complete 2026-08-25, behavior a configured expectation pending the §8 proofs (S2.5), the
 Mailchimp audience one shared entry until S2.2. The paragraphs and precondition table beneath this block
@@ -123,12 +133,13 @@ exit criteria, and safety boundaries — do not drift into an unrelated product 
 - Repo: 86400websites/unretire
 - Stage: **S1 — System Integration** (two sub-sprints: S1.1, formerly R1; and S1.2, the Round-3 remediation)
 - Stage merge-base SHA (parent of the stage's first merge): `0983ad557218666b63cb5b6d3db9152041865bb9`
-- Stage head SHA (master after the stage's final merge): `f61082c233ac2f10d060c5274d6490f481377578` (the
-  PR #4 merge commit; ~~`ae78679…` Round-5 pin~~ ~~`4c3d52e…` Round-4 pin~~ ~~`1309e01…` Round-3 pin~~,
-  each superseded by the next remediation merge)
-- Immutable stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..f61082c233ac2f10d060c5274d6490f481377578`
+- Stage head SHA (master after the stage's final merge): `87e89c61c8f303a4ef7d1057f50330dbe14c6ddd` (the
+  PR #9 merge commit; ~~`f61082c…` Round-6 pin~~ ~~`ae78679…` Round-5~~ ~~`4c3d52e…` Round-4~~
+  ~~`1309e01…` Round-3~~, each superseded by the next remediation merge)
+- Immutable stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..87e89c61c8f303a4ef7d1057f50330dbe14c6ddd`
+  (**75 commits**, builder-counted 2026-08-27 — re-verify)
 - Default branch: master
-- Stage closed on: 2026-08-27 (PRs #1–#4 all merged)
+- Stage closed on: 2026-08-27 (PRs #1–#5, #8 and #9 all merged)
 
 ### PRs in this stage
 
@@ -137,15 +148,19 @@ exit criteria, and safety boundaries — do not drift into an unrelated product 
 | 1 | #1 — https://github.com/86400websites/unretire/pull/1 | S1.1 (formerly R1) | claude/r1-system-retrofit | `543d26e` (branch tip; substantive head `39f698d` + two review-record-only appends `ff1dae7`, `543d26e`, documented in Round 9) | docs/sprint-prompts/R1-system-retrofit.md | docs/code-reviews/S1.1-system-retrofit-review.md | **APPROVE** (Round 9, 2026-08-26, at `39f698d`) |
 | 2 | #2 — https://github.com/86400websites/unretire/pull/2 | S1.2 | claude/s1.2-stage-remediation | `0fa1e37` (branch tip; substantive head `e78faa8` + two review-record-only appends `e4e253f`, `0fa1e37`, documented in the brief's head-pin rule and Round 2) | docs/sprint-prompts/S1.2-stage-remediation.md | docs/code-reviews/S1.2-stage-remediation-review.md | **APPROVE** (Round 2, 2026-08-26, at `e78faa8`) |
 | 3 | #3 — https://github.com/86400websites/unretire/pull/3 | S1.3 | claude/s1.3-stage-remediation-2 | `aa6f59a` (branch tip; substantive head `32662b4` + two review-record-only appends `f3fe091`, `aa6f59a`, documented in the brief's head-pin rule and Round 2; earlier record-only commit `d65f118` sits inside the reviewed range) | docs/sprint-prompts/S1.3-stage-remediation-2.md | docs/code-reviews/S1.3-stage-remediation-2-review.md | **APPROVE** (Round 2, 2026-08-26, at `32662b4`) |
+| 6 | #9 — https://github.com/86400websites/unretire/pull/9 | S1.7 | claude/s1.7-revert-out-of-chain-changes | `9b7590c` (branch tip; substantive head `d13357b` + record-only appends `56046d0`, `9b7590c`) | docs/sprint-prompts/S1.7-revert-out-of-chain-changes.md | docs/code-reviews/S1.7-revert-out-of-chain-changes-review.md | **APPROVE** (2026-08-27, at `d13357b`) — one Should-fix deferred to S1.8 by the reviewer |
+| 5 | #8 — https://github.com/86400websites/unretire/pull/8 | S1.6 | claude/s1.6-current-state-truth-pass | `692ed9d` (the merged head) | docs/sprint-prompts/S1.6-current-state-truth-pass.md | docs/code-reviews/S1.6-current-state-truth-pass-review.md | ⚠ **REQUEST CHANGES**, reviewed **post-merge** (2026-08-27) — see the disclosure block above and **D-17**; findings 2–3 remediated in PR #9 |
 | 4 | #4 — https://github.com/86400websites/unretire/pull/4 | S1.4 | claude/s1.4-stage-remediation-3 | `991f7ea` (branch tip; substantive head `5362862` + two review-record-only appends `a1c0901`, `991f7ea`, documented in the brief's head-pin rule and Round 2; earlier record-only commit `ea942dd` sits inside the reviewed range) | docs/sprint-prompts/S1.4-stage-remediation-3.md | docs/code-reviews/S1.4-stage-remediation-3-review.md | **APPROVE** (Round 2, 2026-08-27, at `5362862`) |
 
 ### Confirm the target before reviewing
 
-- [ ] Both stage SHAs resolve, and `f61082c…` is the current tip of master.
-- [ ] The commits in the range are exactly the four listed PRs' branch commits plus their four merge
-      commits (`1309e01`, `4c3d52e`, `ae78679`, `f61082c`) — **59 commits total** (builder-counted
-      2026-08-27 via `git rev-list --count`; re-verify), all from the four listed branches — **no extra
-      merge, no direct push to master, no force-push** slipped into the range.
+- [ ] Both stage SHAs resolve, and `87e89c6…` is the current tip of master.
+- [ ] The commits in the range are exactly the **seven** listed PRs' branch commits plus their **seven**
+      merge commits (`1309e01`, `4c3d52e`, `ae78679`, `f61082c`, `8062cbe`, `87e89c6` — and the two
+      out-of-chain merges disclosed above, `1a62ed3` and `ef9431a`, whose content is reverted) —
+      **75 commits total** (builder-counted 2026-08-27 via `git rev-list --count`; re-verify). ⚠ **Note
+      the exception the disclosures cover:** the range does contain two merges that are *not* from a
+      listed `claude/*` branch — PRs #6 and #7 — and **no direct push to master or force-push** anywhere.
 - [ ] The changed-file list for the whole range matches the declared scope: the union of the three PRs'
       documentation/skills paths (Round 4 counted 61 unique for the first two PRs; PR #3 adds its four
       sprint/review records while re-touching existing docs and skills), **all under `docs/`,
@@ -205,7 +220,7 @@ Stop and report a target mismatch before reviewing if any of these disagree.
 - **Withdrawn mid-stage — `docs/predevelopment/`:** ~10 files were created, then withdrawn on owner
   instruction 2026-08-25 (project already at development stage; D-6 WITHDRAWN). The reviewer must confirm
   the withdrawal is clean — no dangling project-specific reference survives (see §6 focus item 3).
-- Hosting/Preview state at `f61082c`: Preview evidence per §1 (all four PRs). **Production at the Round-3 stage
+- Hosting/Preview state at `87e89c6`: Preview evidence per §1 (all seven PRs). **Production at the Round-3 stage
   head (probed 2026-08-26, read-only):** `https://unretire.vercel.app` HTTP 200; `/api/stripe/webhook`
   returns `Missing signature` unsigned and `Invalid signature` on a bogus signature; `og:url` resolves
   `https://unretire.vercel.app` — the docs-only merge changed no runtime behavior.
@@ -225,8 +240,8 @@ Stop and report a target mismatch before reviewing if any of these disagree.
 | 1 | Docs pack exists with no critical placeholder unfilled | Builder sweep 2026-08-26 at `1309e01`: ~260 bracketed-token hits across docs/**, CLAUDE.md, AGENTS.md — every one in a sanctioned class (verbatim template skeletons; per-use slots; SOP copies with prepended project-values blocks; review-brief owner-supplied values explicitly marked pending; quoted/struck historical text). Round 3's two placeholder-class defects (unfilled §9 invariants; stale operational facts) were corrected by S1.2 and verified closed by its round-2 APPROVE at `e78faa8` | | |
 | 2 | All 5 skills load by name | `.claude/skills/{activate-testing,browser-qa,close,handle-error,sprint-prompt}/SKILL.md` — all five tracked at `1309e01`, non-empty (5–13 KB), frontmatter name matches directory, all listed loadable | | |
 | 3 | Content freeze files match on-disk code (flagged items listed, not locked) | Builder spot-check 2026-08-26: $99 one-time and $199/yr match code at `src/app/learn/course/page.tsx`, `src/app/premium/page.tsx`, `src/lib/stripe/checkout.ts:13-19` (modes payment/subscription); home hero copy verbatim vs `src/app/page.tsx:87-97,146-149`; courseData = 10 modules / 48 lessons (4+6+5+5+5+5+5+4+4+5); the 31-vs-48 inconsistency is FLAGGED in locked-facts (Flagged item 1) and home.md, not locked; placeholder testimonials / "340+ Members" / date-bound banner all flagged and present as described | | |
-| 4 | Trackers live | At `f61082c` the trackers describe the merged reality with **every environment-isolation statement evidence-bounded** (S1.4, Round-5 F1 + its per-PR round-1 class sweep — zero live behavioral claims, independently confirmed by that reviewer's own truth sweep): Supabase/Stripe configuration complete 2026-08-25, behavior pending P1/P2/P5 (S2.5), Mailchimp one shared entry until S2.2; the Round-4 ground truths attributed (owner screenshot; owner protection confirmation). One deliberate timing exception declared below (the S1.4 board row) | | |
-| 5 | Owner reviewed and authorized the commit | Blocker #1 cleared in PROJECT-STATUS §5; PR #1 merged 2026-08-26 (`1309e01`); PR #2 merged 2026-08-26 (`4c3d52e`); PR #3 merged 2026-08-26 (`ae78679`); PR #4 merged 2026-08-27 (`f61082c`) — all by the owner | | |
+| 4 | Trackers live | At `87e89c6` **plus the S1.8 state-sync PR under review** the trackers describe the merged reality with **every environment-isolation statement evidence-bounded** (S1.4, Round-5 F1 + its per-PR round-1 class sweep — zero live behavioral claims, independently confirmed by that reviewer's own truth sweep): Supabase/Stripe configuration complete 2026-08-25, behavior pending P1/P2/P5 (S2.5), Mailchimp one shared entry until S2.2; the Round-4 ground truths attributed (owner screenshot; owner protection confirmation). One deliberate timing exception declared below (the S1.4 board row) | | |
+| 5 | Owner reviewed and authorized the commit | All seven merges are the owner's: PR #1 (`1309e01`), #2 (`4c3d52e`), #3 (`ae78679`), #4 (`f61082c`), #8 (`8062cbe`), #9 (`87e89c6`) — plus the two disclosed out-of-chain merges, since reverted. Blocker #1 cleared in PROJECT-STATUS §5. ⚠ PR #8 was merged **before** its review — see the disclosure block and **D-17**. ~~PR #1 merged 2026-08-26 (`1309e01`); PR #2 merged 2026-08-26 (`4c3d52e`); PR #3 merged 2026-08-26 (`ae78679`); PR #4 merged 2026-08-27 (`f61082c`) — all by the owner~~ | | |
 | 6 | (Stage-level) The S1 stage-gate review returns STAGE APPROVED | **This review** — the criterion this dispatch exists to satisfy; Rounds 1–3 filed below | | |
 | 7 | S1.2 acceptance: all 8 Round-3 findings corrected at their cited locations; checks unchanged; per-PR APPROVE | `docs/sprint-prompts/S1.2-stage-remediation.md` + `docs/code-reviews/S1.2-stage-remediation-review.md` — round-2 **APPROVE** at `e78faa8` (2026-08-26) with every F1–F8 closure and all five round-1 findings verified by that reviewer | | |
 | 8 | S1.3 acceptance: all 5 Round-4 findings corrected at their cited locations with owner-supplied evidence attributed; checks unchanged; per-PR APPROVE | `docs/sprint-prompts/S1.3-stage-remediation-2.md` + `docs/code-reviews/S1.3-stage-remediation-2-review.md` — round-2 **APPROVE** at `32662b4` (2026-08-26) with every F1–F5 closure and the round-1 P12 finding verified by that reviewer; both ground-truth facts attributed (owner screenshot; owner protection confirmation) | | |
@@ -247,10 +262,11 @@ Stop and report a target mismatch before reviewing if any of these disagree.
    from MCP until S2.2). **Still open, deliberate.**
 4. `docs/content/locked-facts.md` cites the book-page testimonials at "lines 40-45"; they sit at 41-44.
    Content identical; line-number drift only. **Still open.**
-5. **Declared timing state, not drift:** at the stage head `f61082c`, the PROJECT-STATUS §2 board row for
-   **S1.4** reads **In Progress** and §1 still names S1.4 as the active sprint, although PR #4 is merged
-   (the S1.2 and S1.3 rows' flips to Done correctly rode the next branch each time, demonstrating the
-   pattern). This is the rule-compliant state: per §11 and the round-9 precedent, a board flip after the
+5. **Declared timing state, not drift:** at the stage head `87e89c6`, the PROJECT-STATUS §2 board row for
+   **S1.8** reads **In Progress** and §1 names S1.8 as the active sprint — correct, because S1.8 is the
+   open PR under review, not yet merged. *(The same pattern held at every earlier round — e.g. at
+   `f61082c` the S1.4 row read In Progress although PR #4 was merged, because the flip to Done correctly
+   rode the next branch each time.)* This is the rule-compliant state: per §11 and the round-9 precedent, a board flip after the
    reviewed head invalidates per-PR approval, so the S1.4 flip rides the next authorized branch (S2.1, or
    a docs branch) **after** this gate returns its verdict — this gate's outcome is itself part of what
    that flip must record. Do not file the In-Progress row as a stale-tracker finding.
@@ -266,7 +282,7 @@ Stop and report a target mismatch before reviewing if any of these disagree.
 - Format check: N/A — no `format:check` script exists yet (arrives in S2.1)
 - Tests: N/A — no automated suite yet (harness S2.3, suite S5.1)
 - Production build: `pnpm build`
-- Stage-specific: `git diff --name-only 0983ad5..f61082c`; the byte-identity `cmp` checks in §6 item 4
+- Stage-specific: `git diff --name-only 0983ad5..87e89c6`; the byte-identity `cmp` checks in §6 item 4
 
 Do not install, upgrade, change a lockfile, apply a migration, or alter source/config to make a check pass.
 State every command you did not run and why.
@@ -282,11 +298,12 @@ State every command you did not run and why.
 
 ### Evidence at the stage head
 
-- At `5362862` (the S1.4 approved head — the stage head `f61082c` adds only two record-only commits and
-  the merge above it), the independent S1.4 round-2 reviewer re-ran typecheck (PASS), lint (exactly the
-  one known error, base/head blobs identical), and build (PASS, 35 routes + `/_not-found`, 58/58 static);
-  the S1.3 and S1.2 round-2 reviewers did the same at `32662b4` and `e78faa8`. **Re-run everything
-  yourself at `f61082c`** — the earlier builder run below was at the Round-3 pin `1309e01`:
+- Independent reviewers re-ran the full check set at each approved head — `d13357b` (S1.7), `692ed9d`
+  (S1.6, post-merge), `5362862` (S1.4), `32662b4` (S1.3), `e78faa8` (S1.2) — each returning typecheck
+  PASS, lint = exactly the one known pre-existing error with identical base/head blobs, and build PASS
+  (35 routes + `/_not-found`, 58/58 static). The builder re-ran the same set at `87e89c6` on 2026-08-27.
+  **Re-run everything yourself at `87e89c6`** — the older builder run recorded below was at the Round-3
+  pin `1309e01`:
 - Checks re-run at `1309e01` (builder, 2026-08-26, this machine): `git rev-parse HEAD` =
   `1309e01ebf225293effb9e641df4aae654563d8a`; range file list = 59 paths, 0 under `src/`, no
   dependency/config files; `pnpm exec tsc --noEmit` **exit 0, zero errors**; `pnpm lint` **exit 1 with
@@ -357,7 +374,7 @@ These are the questions a per-PR review structurally cannot ask. Work them in or
    docs/THREAT-MODEL.md (conditional in the close skill), docs/FIX-LOG.md (S3.1 onward, owner-decided
    2026-08-26), qa-evidence/ (S2.3).
 
-8. **Reversibility.** docs/ROLLBACK.md describes a path that works from `f61082c`. Nothing destructive
+8. **Reversibility.** docs/ROLLBACK.md describes a path that works from `87e89c6`. Nothing destructive
    shipped in this stage; confirm that claim against the range (deletions in the range are the withdrawn
    predevelopment files and the D-12 untracking — both documentation-state, not data).
 
@@ -385,7 +402,7 @@ governs*. Every later stage is built from these files.
    with its fixing sprint, not the aspirational one.
 2. **No runtime change.** The diff must touch no `src/`, `package.json`, lockfile, or config — verify
    against the range's file list (claimed: 59 paths, zero `src/`), not the claim.
-3. **Predevelopment withdrawal is clean.** `docs/predevelopment/` must not exist at `f61082c` and no
+3. **Predevelopment withdrawal is clean.** `docs/predevelopment/` must not exist at `87e89c6` and no
    project-specific claim that this repo has, needs, or will get predevelopment files may survive
    (`grep -rn "predevelopment" docs/ .claude/ CLAUDE.md AGENTS.md README.md`; generic SOP prose describing
    the concept in verbatim copies is fine; D-6 must read WITHDRAWN).
@@ -440,7 +457,7 @@ reinstated false safety claim (the Known-issue-38 retraction is the canary).
 2. Order of proof: **(a)** the code/config itself; **(b)** a machine-produced artifact (build output, test
    run, Preview response, dashboard state); **(c)** a human note. A human note alone is never proof of a
    technical fact.
-3. Verify at the **stage head** `f61082c`, not at the commit that introduced the thing.
+3. Verify at the **stage head** `87e89c6`, not at the commit that introduced the thing.
 4. Run the §4 commands if the environment allows. If a command cannot run, say why and rely on recorded
    evidence **without claiming independent execution**.
 5. **An unverifiable claim is itself a finding** — Blocking if it underpins an exit criterion, a safety
@@ -461,7 +478,7 @@ Return this complete and paste-ready. Do not write it into the repository.
 **Header**
 
 - Stage reviewed: S1 — System Integration
-- Confirmed stage range: [CONFIRM: 0983ad557218666b63cb5b6d3db9152041865bb9..f61082c233ac2f10d060c5274d6490f481377578]
+- Confirmed stage range: [CONFIRM: 0983ad557218666b63cb5b6d3db9152041865bb9..87e89c61c8f303a4ef7d1057f50330dbe14c6ddd]
 - PRs confirmed in range: [LIST — flag any commit not attributable to PR #1]
 - Per-PR review preconditions: [PR #1 carries a current-head APPROVE — YES / NO + explanation of the
   record-append exemption applied]
@@ -489,7 +506,7 @@ spots. Do not return a bare approval.
 End with exactly one:
 
 **Verdict: [STAGE APPROVED / STAGE NOT APPROVED]** — [ONE_LINE_REASON].
-Stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..f61082c233ac2f10d060c5274d6490f481377578` ·
+Stage range: `0983ad557218666b63cb5b6d3db9152041865bb9..87e89c61c8f303a4ef7d1057f50330dbe14c6ddd` ·
 Reviewed by [REVIEWER] on [DATE].
 
 - **STAGE APPROVED** requires all of: no Blocking findings; every Should-fix given an explicit disposition;
@@ -802,7 +819,17 @@ the current gate state. Round 7 re-runs at the post-S1.5 head.
 
 ## Round 7 — [DATE] — [REVIEWER]
 
-*Not yet run.* Dispatch after the S1.5 remediation PR merges. Before dispatch: keep the stage merge-base
-`0983ad557218666b63cb5b6d3db9152041865bb9`, set §1's stage head to the S1.5 merge commit, add the S1.5 row
-to the §1 PR table, and refresh §3's exit-criteria rows 4 and 9 with the S1.5 closures. Append the
+*Dispatch-ready 2026-08-27 (sprint S1.8).* The re-pin is done: §1 pins
+`0983ad557218666b63cb5b6d3db9152041865bb9..87e89c61c8f303a4ef7d1057f50330dbe14c6ddd` with **all seven PRs**
+listed (#1–#5, #8, #9) and 75 commits; the two disclosures are in the status block at the top; the
+exit-criteria table carries rows 1–9. Dispatch everything from "Role and boundaries" through §9. Append the
 returned record here.
+
+**The two things this round must disposition, stated plainly so they are not discovered:**
+1. **PR #8 merged before its per-PR review** — reviewed post-merge, REQUEST CHANGES, findings 2–3
+   remediated in PR #9, finding 1 historical. Decision **D-17** holds the owner disposition. The template
+   makes this a Blocking finding in its own right; the owner may accept it as a recorded deviation with its
+   compensating controls (reviewed anyway, remediated, and S2.1's required status check prevents
+   recurrence) or take whatever this round prescribes.
+2. **Two out-of-chain commits (#6, #7) in the range, since reverted** — verify with
+   `git diff f61082c 87e89c6 -- src/ "unretire*.zip"`, which must be **empty**.
