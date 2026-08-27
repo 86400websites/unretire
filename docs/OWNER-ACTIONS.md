@@ -327,6 +327,55 @@ do exactly these five, in this order. **You do not touch any secret — every va
 
 ---
 
+## PART 1C — Stage 2 · S2.2 prep (added 2026-08-27)
+
+Three of the five things I asked for are now settled, so only **two** are left for you. Nothing here needs code.
+
+**Settled already — nothing to do:**
+- ~~Create a Mailchimp test audience~~ — **cancelled by your decision (D-22)**: one live audience, shared. See the
+  warning below.
+- ~~Land a commit on `staging`~~ — **done 2026-08-27**: you authorised me once, and I fast-forwarded `staging` to
+  match `master` (it was 86 commits behind). Vercel has built it — the address answers now instead of 404'ing.
+  **We are keeping the `staging` branch permanently** — it is the address your Sandbox webhook points at.
+- ~~Confirm `unretire-test` is not paused~~ — you confirmed it.
+
+- [ ] **1C.1 — Stripe Sandbox webhook: put the bypass in the URL.** *(This is the one I explained badly. Here it is
+      plainly.)* Your `staging` address sits behind Vercel's login page. I tested it: a request to
+      `…/api/stripe/webhook` comes back **"401 Protected deployment"** — which is exactly what **Stripe** gets when it
+      tries to tell your site a payment succeeded. Stripe cannot send the secret header that would get it past the
+      login page; the only thing it can carry is the web address itself. So the secret goes **into the address**.
+      1. Vercel → project `unretire` → **Settings** → **Deployment Protection** → **Protection Bypass for
+         Automation** → copy the secret. *(It already exists — you created it on 2026-08-25.)*
+      2. Stripe → **Sandbox** (not live) → **Developers** → **Webhooks** → **captivating-triumph** →
+         **Update details** → set the Endpoint URL to exactly this, with the secret pasted where shown:
+         `https://unretire-git-staging-86400-s-projects.vercel.app/api/stripe/webhook?x-vercel-protection-bypass=PASTE_THE_SECRET_HERE`
+      3. While you are on that screen, confirm the subscribed events are exactly **`checkout.session.completed`**
+         and **`customer.subscription.deleted`** — those are the only two the code handles
+         (`src/app/api/stripe/webhook/route.ts:36,61`); anything else is ignored.
+      4. Save, then tell me. I will verify the endpoint answers.
+      > **Never paste that secret into chat.** It goes from the Vercel screen into the Stripe field, nowhere else.
+      > *(Alternative if you would rather not put a secret in a URL: give the `staging` branch its own subdomain in
+      > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
+      > public, so I did not recommend it — your call.)*
+
+- [ ] **1C.2 — Sign in to the two database tools.** In a normal terminal, run `claude` in the project folder, then
+      `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
+      so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
+      Approve the project when Claude Code asks. No key, no token — browser sign-in only.
+      > `supabase-prod-readonly` is **read-only by construction** — it cannot write to your live database even if
+      > something tried. That is the exception you approved on 2026-08-25 (D-11).
+
+> ### ⚠ What one shared Mailchimp audience means, in writing
+> You chose to keep a single live audience (**D-22**), which I have recorded. The consequence is permanent: **any
+> form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
+> your real welcome emails. To keep that harmless we agreed two rules: **(1)** every test signup uses *your own*
+> email with a plus-tag — `you+ur-test-01@…` — so the automated mail lands in your inbox and the fake contacts are
+> findable and deletable in one search; **(2)** the launch test suite will **not** run automated email-capture tests
+> against a preview — it checks the code's behaviour against a fake Mailchimp, and you and I verify the real
+> sign-up journey **once, by hand**, before launch.
+
+---
+
 ## PART 5 — Later, when we reach testing
 
 Nothing to do now. When we get there I will walk you through creating two fake test users in
