@@ -65,12 +65,13 @@ Email cells presented a nonexistent test audience as configured) and two Should-
 Round-5/S1.3 state) — all fixed by sprint **S1.5** (`claude/s1.5-stage-remediation-4`). After the S1.5 PR
 merges on per-PR APPROVE, re-pin §1's stage head and dispatch **Round 7** per the stub below.
 
-**Round-6 re-pin (2026-08-27, post-S1.4-merge):** Round 5 verified 7 of 8 exit criteria; its one Blocking
+**~~Round-6 re-pin (2026-08-27, post-S1.4-merge)~~ — superseded by the Round-7 re-pin at the top of this file; kept as history:** Round 5 verified 7 of 8 exit criteria; its one Blocking
 contradiction cluster + two Should-fix syncs were fixed by sprint **S1.4**, which passed its own per-PR
 review (**APPROVE, round 2, head `5362862`**; its round-1 finding — residual behavioral-isolation
 overstatements — fixed at class level with a zero-live-hit sweep independently confirmed) and was merged
-by the owner as **PR #4 → merge commit `f61082c233ac2f10d060c5274d6490f481377578`**. This brief is now
-pinned to the full stage range `0983ad5…..f61082c…` covering all four PRs (§1 below). Every
+by the owner as **PR #4 → merge commit `f61082c233ac2f10d060c5274d6490f481377578`**. ~~This brief is now
+pinned to the full stage range `0983ad5…..f61082c…` covering all four PRs (§1 below).~~ *(That pin was
+superseded twice more — by PR #8/S1.6 and PR #9/S1.7; §1 now pins `0983ad5…..87e89c6…` across seven PRs.)* Every
 environment-isolation statement in the active record set is now evidence-bounded: Supabase/Stripe
 configuration complete 2026-08-25, behavior a configured expectation pending the §8 proofs (S2.5), the
 Mailchimp audience one shared entry until S2.2. The paragraphs and precondition table beneath this block
@@ -154,10 +155,12 @@ exit criteria, and safety boundaries — do not drift into an unrelated product 
 ### Confirm the target before reviewing
 
 - [ ] Both stage SHAs resolve, and `87e89c6…` is the current tip of master.
-- [ ] The commits in the range are exactly the four listed PRs' branch commits plus their four merge
-      commits (`1309e01`, `4c3d52e`, `ae78679`, `f61082c`) — **59 commits total** (builder-counted
-      2026-08-27 via `git rev-list --count`; re-verify), all from the four listed branches — **no extra
-      merge, no direct push to master, no force-push** slipped into the range.
+- [ ] The commits in the range are exactly the **seven** listed PRs' branch commits plus their **seven**
+      merge commits (`1309e01`, `4c3d52e`, `ae78679`, `f61082c`, `8062cbe`, `87e89c6` — and the two
+      out-of-chain merges disclosed above, `1a62ed3` and `ef9431a`, whose content is reverted) —
+      **75 commits total** (builder-counted 2026-08-27 via `git rev-list --count`; re-verify). ⚠ **Note
+      the exception the disclosures cover:** the range does contain two merges that are *not* from a
+      listed `claude/*` branch — PRs #6 and #7 — and **no direct push to master or force-push** anywhere.
 - [ ] The changed-file list for the whole range matches the declared scope: the union of the three PRs'
       documentation/skills paths (Round 4 counted 61 unique for the first two PRs; PR #3 adds its four
       sprint/review records while re-touching existing docs and skills), **all under `docs/`,
@@ -217,7 +220,7 @@ Stop and report a target mismatch before reviewing if any of these disagree.
 - **Withdrawn mid-stage — `docs/predevelopment/`:** ~10 files were created, then withdrawn on owner
   instruction 2026-08-25 (project already at development stage; D-6 WITHDRAWN). The reviewer must confirm
   the withdrawal is clean — no dangling project-specific reference survives (see §6 focus item 3).
-- Hosting/Preview state at `f61082c`: Preview evidence per §1 (all four PRs). **Production at the Round-3 stage
+- Hosting/Preview state at `87e89c6`: Preview evidence per §1 (all seven PRs). **Production at the Round-3 stage
   head (probed 2026-08-26, read-only):** `https://unretire.vercel.app` HTTP 200; `/api/stripe/webhook`
   returns `Missing signature` unsigned and `Invalid signature` on a bogus signature; `og:url` resolves
   `https://unretire.vercel.app` — the docs-only merge changed no runtime behavior.
@@ -237,8 +240,8 @@ Stop and report a target mismatch before reviewing if any of these disagree.
 | 1 | Docs pack exists with no critical placeholder unfilled | Builder sweep 2026-08-26 at `1309e01`: ~260 bracketed-token hits across docs/**, CLAUDE.md, AGENTS.md — every one in a sanctioned class (verbatim template skeletons; per-use slots; SOP copies with prepended project-values blocks; review-brief owner-supplied values explicitly marked pending; quoted/struck historical text). Round 3's two placeholder-class defects (unfilled §9 invariants; stale operational facts) were corrected by S1.2 and verified closed by its round-2 APPROVE at `e78faa8` | | |
 | 2 | All 5 skills load by name | `.claude/skills/{activate-testing,browser-qa,close,handle-error,sprint-prompt}/SKILL.md` — all five tracked at `1309e01`, non-empty (5–13 KB), frontmatter name matches directory, all listed loadable | | |
 | 3 | Content freeze files match on-disk code (flagged items listed, not locked) | Builder spot-check 2026-08-26: $99 one-time and $199/yr match code at `src/app/learn/course/page.tsx`, `src/app/premium/page.tsx`, `src/lib/stripe/checkout.ts:13-19` (modes payment/subscription); home hero copy verbatim vs `src/app/page.tsx:87-97,146-149`; courseData = 10 modules / 48 lessons (4+6+5+5+5+5+5+4+4+5); the 31-vs-48 inconsistency is FLAGGED in locked-facts (Flagged item 1) and home.md, not locked; placeholder testimonials / "340+ Members" / date-bound banner all flagged and present as described | | |
-| 4 | Trackers live | At `f61082c` the trackers describe the merged reality with **every environment-isolation statement evidence-bounded** (S1.4, Round-5 F1 + its per-PR round-1 class sweep — zero live behavioral claims, independently confirmed by that reviewer's own truth sweep): Supabase/Stripe configuration complete 2026-08-25, behavior pending P1/P2/P5 (S2.5), Mailchimp one shared entry until S2.2; the Round-4 ground truths attributed (owner screenshot; owner protection confirmation). One deliberate timing exception declared below (the S1.4 board row) | | |
-| 5 | Owner reviewed and authorized the commit | Blocker #1 cleared in PROJECT-STATUS §5; PR #1 merged 2026-08-26 (`1309e01`); PR #2 merged 2026-08-26 (`4c3d52e`); PR #3 merged 2026-08-26 (`ae78679`); PR #4 merged 2026-08-27 (`f61082c`) — all by the owner | | |
+| 4 | Trackers live | At `87e89c6` **plus the S1.8 state-sync PR under review** the trackers describe the merged reality with **every environment-isolation statement evidence-bounded** (S1.4, Round-5 F1 + its per-PR round-1 class sweep — zero live behavioral claims, independently confirmed by that reviewer's own truth sweep): Supabase/Stripe configuration complete 2026-08-25, behavior pending P1/P2/P5 (S2.5), Mailchimp one shared entry until S2.2; the Round-4 ground truths attributed (owner screenshot; owner protection confirmation). One deliberate timing exception declared below (the S1.4 board row) | | |
+| 5 | Owner reviewed and authorized the commit | All seven merges are the owner's: PR #1 (`1309e01`), #2 (`4c3d52e`), #3 (`ae78679`), #4 (`f61082c`), #8 (`8062cbe`), #9 (`87e89c6`) — plus the two disclosed out-of-chain merges, since reverted. Blocker #1 cleared in PROJECT-STATUS §5. ⚠ PR #8 was merged **before** its review — see the disclosure block and **D-17**. ~~PR #1 merged 2026-08-26 (`1309e01`); PR #2 merged 2026-08-26 (`4c3d52e`); PR #3 merged 2026-08-26 (`ae78679`); PR #4 merged 2026-08-27 (`f61082c`) — all by the owner~~ | | |
 | 6 | (Stage-level) The S1 stage-gate review returns STAGE APPROVED | **This review** — the criterion this dispatch exists to satisfy; Rounds 1–3 filed below | | |
 | 7 | S1.2 acceptance: all 8 Round-3 findings corrected at their cited locations; checks unchanged; per-PR APPROVE | `docs/sprint-prompts/S1.2-stage-remediation.md` + `docs/code-reviews/S1.2-stage-remediation-review.md` — round-2 **APPROVE** at `e78faa8` (2026-08-26) with every F1–F8 closure and all five round-1 findings verified by that reviewer | | |
 | 8 | S1.3 acceptance: all 5 Round-4 findings corrected at their cited locations with owner-supplied evidence attributed; checks unchanged; per-PR APPROVE | `docs/sprint-prompts/S1.3-stage-remediation-2.md` + `docs/code-reviews/S1.3-stage-remediation-2-review.md` — round-2 **APPROVE** at `32662b4` (2026-08-26) with every F1–F5 closure and the round-1 P12 finding verified by that reviewer; both ground-truth facts attributed (owner screenshot; owner protection confirmation) | | |
@@ -259,10 +262,11 @@ Stop and report a target mismatch before reviewing if any of these disagree.
    from MCP until S2.2). **Still open, deliberate.**
 4. `docs/content/locked-facts.md` cites the book-page testimonials at "lines 40-45"; they sit at 41-44.
    Content identical; line-number drift only. **Still open.**
-5. **Declared timing state, not drift:** at the stage head `f61082c`, the PROJECT-STATUS §2 board row for
-   **S1.4** reads **In Progress** and §1 still names S1.4 as the active sprint, although PR #4 is merged
-   (the S1.2 and S1.3 rows' flips to Done correctly rode the next branch each time, demonstrating the
-   pattern). This is the rule-compliant state: per §11 and the round-9 precedent, a board flip after the
+5. **Declared timing state, not drift:** at the stage head `87e89c6`, the PROJECT-STATUS §2 board row for
+   **S1.8** reads **In Progress** and §1 names S1.8 as the active sprint — correct, because S1.8 is the
+   open PR under review, not yet merged. *(The same pattern held at every earlier round — e.g. at
+   `f61082c` the S1.4 row read In Progress although PR #4 was merged, because the flip to Done correctly
+   rode the next branch each time.)* This is the rule-compliant state: per §11 and the round-9 precedent, a board flip after the
    reviewed head invalidates per-PR approval, so the S1.4 flip rides the next authorized branch (S2.1, or
    a docs branch) **after** this gate returns its verdict — this gate's outcome is itself part of what
    that flip must record. Do not file the In-Progress row as a stale-tracker finding.
@@ -294,11 +298,12 @@ State every command you did not run and why.
 
 ### Evidence at the stage head
 
-- At `5362862` (the S1.4 approved head — the stage head `f61082c` adds only two record-only commits and
-  the merge above it), the independent S1.4 round-2 reviewer re-ran typecheck (PASS), lint (exactly the
-  one known error, base/head blobs identical), and build (PASS, 35 routes + `/_not-found`, 58/58 static);
-  the S1.3 and S1.2 round-2 reviewers did the same at `32662b4` and `e78faa8`. **Re-run everything
-  yourself at `f61082c`** — the earlier builder run below was at the Round-3 pin `1309e01`:
+- Independent reviewers re-ran the full check set at each approved head — `d13357b` (S1.7), `692ed9d`
+  (S1.6, post-merge), `5362862` (S1.4), `32662b4` (S1.3), `e78faa8` (S1.2) — each returning typecheck
+  PASS, lint = exactly the one known pre-existing error with identical base/head blobs, and build PASS
+  (35 routes + `/_not-found`, 58/58 static). The builder re-ran the same set at `87e89c6` on 2026-08-27.
+  **Re-run everything yourself at `87e89c6`** — the older builder run recorded below was at the Round-3
+  pin `1309e01`:
 - Checks re-run at `1309e01` (builder, 2026-08-26, this machine): `git rev-parse HEAD` =
   `1309e01ebf225293effb9e641df4aae654563d8a`; range file list = 59 paths, 0 under `src/`, no
   dependency/config files; `pnpm exec tsc --noEmit` **exit 0, zero errors**; `pnpm lint` **exit 1 with
