@@ -339,7 +339,7 @@ Three of the five things I asked for are now settled, so only **two** are left f
   **We are keeping the `staging` branch permanently** — it is the address your Sandbox webhook points at.
 - ~~Confirm `unretire-test` is not paused~~ — you confirmed it.
 
-- [ ] **1C.1 — Stripe Sandbox webhook: put the bypass in the URL.** *(This is the one I explained badly. Here it is
+- [x] **1C.1 — Stripe Sandbox webhook: put the bypass in the URL.** ✅ **Done 2026-08-27 (owner-reported).** I cannot verify it from here — the endpoint answers `401 Protected deployment` to anyone without the secret, which is the point. It is proven the first time a Sandbox payment's `checkout.session.completed` shows **delivered** in Stripe's recent-deliveries list; that is proof **P6**, owed by S2.5. *(This is the one I explained badly. Here it is
       plainly.)* Your `staging` address sits behind Vercel's login page. I tested it: a request to
       `…/api/stripe/webhook` comes back **"401 Protected deployment"** — which is exactly what **Stripe** gets when it
       tries to tell your site a payment succeeded. Stripe cannot send the secret header that would get it past the
@@ -358,7 +358,7 @@ Three of the five things I asked for are now settled, so only **two** are left f
       > Vercel, which makes it publicly reachable with no bypass at all. That also makes a test copy of the site
       > public, so I did not recommend it — your call.)*
 
-- [ ] **1C.2 — Sign in to the two database tools.** In a normal terminal, run `claude` in the project folder, then
+- [ ] **1C.2 — Sign in to the two database tools.** ⏳ **Not yet possible — my sequencing error, not anything you missed.** The two servers do not exist until sprint S2.2 creates `.mcp.json`, so there is nothing to sign in to yet. **This step happens *during* S2.2**: I create the file, you run `/mcp` once, and we carry on. Nothing to do now. *(When we get there:)* in a normal terminal, run `claude` in the project folder, then
       `/mcp`, and sign in with your browser once **per server**. They live in **different Supabase organisations**,
       so pick carefully: `supabase-test` → org **"Test Databases"**; `supabase-prod-readonly` → org **"86400"**.
       Approve the project when Claude Code asks. No key, no token — browser sign-in only.
@@ -370,9 +370,15 @@ Three of the five things I asked for are now settled, so only **two** are left f
 > form submitted on a preview build, or on my machine, adds a real subscriber to your real list** and can trigger
 > your real welcome emails. To keep that harmless we agreed two rules: **(1)** every test signup uses *your own*
 > email with a plus-tag — `you+ur-test-01@…` — so the automated mail lands in your inbox and the fake contacts are
-> findable and deletable in one search; **(2)** the launch test suite will **not** run automated email-capture tests
-> against a preview — it checks the code's behaviour against a fake Mailchimp, and you and I verify the real
-> sign-up journey **once, by hand**, before launch.
+> findable and deletable in one search; **(2)** ~~the launch test suite will not run automated email-capture tests
+> against a preview~~ — **updated 2026-08-27 at your request: the robot tests WILL exercise your real automations.**
+> That is safe *because* of rule (1): every address the robot signs up is your own inbox, so your welcome emails
+> actually arrive somewhere real and you can see them work. Four house rules come with it: the robot may **only**
+> use `you+ur-test-…` addresses — **never** invented ones like `test@example.com`, because those bounce and bounces
+> are what damage a sending domain; every test **deletes its own contact** afterwards; email tests run only in the
+> **full** suite, never in the daily morning check (a daily signup would be ~365 contacts and ~365 emails a year);
+> and where an automation sends over several days, the robot confirms the sign-up landed correctly and **you**
+> confirm the later emails in your inbox — no test can wait three days.
 
 ---
 
