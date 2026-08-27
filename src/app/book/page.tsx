@@ -210,9 +210,7 @@ export default function BookPage() {
               </figure>
             ))}
           </div>
-          <p className="text-center text-[13px] text-[#888888] italic mt-8 max-w-[60ch] mx-auto">
-            Placeholders written in the book&apos;s voice — swap in real endorsements when available.
-          </p>
+           
         </div>
       </section>
 
