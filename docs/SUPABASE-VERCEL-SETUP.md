@@ -32,11 +32,11 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > times**: the **PR** requirement is already enabled (above); ~~the **CI** requirement cannot be added yet
 > because `.github/workflows/code-check.yml` does not exist — Sprint **S2.1** creates the workflow and
 > then adds "Code Check" as the required status, and verifies the merge button locks on red. Read A3 as
-> satisfied in halves until S2.1 records both.~~ **Updated 2026-08-27 (Sprint S2.1, in progress — PR #11 open since 2026-08-27):**
-> `.github/workflows/code-check.yml` now **exists on the S2.1 branch** `claude/s2.1-code-check-ci`
-> (verbatim from `docs/TECHNICAL-INTEGRITY.md`; PR #11 open since 2026-08-27). The workflow is installed by S2.1 and
+> satisfied in halves until S2.1 records both.~~ **Updated 2026-08-27 (Sprint S2.1, in progress — merged 2026-08-27 as PR #11 (`a68f210`)):**
+> `.github/workflows/code-check.yml` now **exists on `master` since the S2.1 merge (PR #11, 2026-08-27)** `claude/s2.1-code-check-ci`
+> (verbatim from `docs/TECHNICAL-INTEGRITY.md`; merged 2026-08-27 as PR #11 (`a68f210`)). The workflow is installed by S2.1 and
 > will **run** on every PR from its merge — but nothing **requires** it yet: adding "Code Check" as the
-> required status on the existing `master` protection rule (GitHub web UI; `gh` CLI not installed) and
+> required status on the existing `master` protection — a **Ruleset** named "Protect master": Settings → Rules → Rulesets (GitHub web UI; `gh` CLI not installed) — and
 > watching the merge button stay locked until the check passes remain the **owner's action after merge**,
 > pending. An unverified gate is the same as no gate. Read A3 as satisfied in halves until the owner
 > records the required status and the watched-lock verification.
