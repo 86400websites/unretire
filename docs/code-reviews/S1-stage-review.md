@@ -5,6 +5,20 @@
 
 ## ⏳ STATUS: ROUND 6 NOT APPROVED → S1.5 merged (APPROVED round 1) → **S1.6 truth pass in progress**; Round 7 next
 
+> ### ⚠ PR #8 (S1.6) was merged before its per-PR review — disclosed for the precondition check
+>
+> `docs/WORKFLOW.md` §6–§7 puts the independent review before the merge. **PR #8 was merged on 2026-08-27
+> (`8062cbe`) while its review record still read "Not yet run."** The review was then dispatched
+> **post-merge** over the unchanged immutable range `4c8228f..692ed9d` and returned **REQUEST CHANGES**
+> with three findings — the deviation itself (Blocking), a sprint record that narrated a step-list
+> correction not matching the doc (Blocking), and a stale §4 dependency line (Should-fix). **Findings 2
+> and 3 are fixed in PR #9 (S1.7), through the normal review-before-merge sequence.** Finding 1 is
+> historical and cannot be undone. Its verdict record is filed in full at
+> `docs/code-reviews/S1.6-current-state-truth-pass-review.md`, and the owner disposition is tracked as
+> **D-17** in PROJECT-STATUS §8. This block exists so the §1 precondition check ("every PR carries a
+> current-head APPROVE") is answered from disclosure rather than discovery: for PR #8 the honest answer is
+> **NO — reviewed post-merge, REQUEST CHANGES, findings remediated in PR #9**.
+>
 > ### ⚠ Two commits in the stage range did NOT go through the review chain — **and were reverted**
 >
 > On **2026-08-27**, PRs **#6** (`c05d852`) and **#7** (`6c4416a`), authored by a teammate
