@@ -3,7 +3,7 @@
 > ## ⚠ STATUS BANNER — read before every present-tense sentence below (added 2026-08-27, Sprint S1.6; updated 2026-08-27, Sprint S2.1)
 >
 > **This document describes the TARGET design. ~~Wall 2 is not live yet in this repository.~~ 2026-08-27: Wall 2 is
-> INSTALLED on the Sprint S2.1 branch (`claude/s2.1-code-check-ci`, in progress; PR not yet opened — the owner opens it)
+> INSTALLED on the Sprint S2.1 branch (`claude/s2.1-code-check-ci`, in progress; PR #11 opened by the owner 2026-08-27)
 > but is NOT yet a required status on `master`.** Every present-tense statement below **about Wall 2 (the Code
 > Check) or Wall 4 (behavior proof)** — "machines enforce", "every PR passes", "red cannot merge", "package.json
 > defines" — describes the state **after S2.1 merges AND the owner adds the required "Code Check" status (Wall 2),
@@ -12,7 +12,7 @@
 >
 > | Piece | State (2026-08-27, Sprint S2.1) |
 > |---|---|
-> | `.github/workflows/code-check.yml` | ~~**Does not exist** — created by **S2.1**~~ **EXISTS on the S2.1 branch** (in progress; PR not yet opened), diff-verified identical to the YAML block in this file (name "Code Check", `pull_request` only, `timeout-minutes: 10`, node 20, pnpm cache, frozen lockfile, six named steps) — 2026-08-27 |
+> | `.github/workflows/code-check.yml` | ~~**Does not exist** — created by **S2.1**~~ **EXISTS on the S2.1 branch** (in progress; PR #11 open since 2026-08-27), diff-verified identical to the YAML block in this file (name "Code Check", `pull_request` only, `timeout-minutes: 10`, node 20, pnpm cache, frozen lockfile, six named steps) — 2026-08-27 |
 > | `package.json` scripts `typecheck`, `format:check` | ~~**Do not exist** (only `dev`, `build`, `start`, `lint`) — added by **S2.1**~~ **EXIST on the S2.1 branch**: `typecheck` = `tsc --noEmit`, `format:check` = `prettier --check .`, `lint` = `eslint .`; `"packageManager": "pnpm@11.3.0"` pinned (pnpm 11.3.0 verified installed). No dependency entry changed; `pnpm-lock.yaml` byte-identical — 2026-08-27 |
 > | Prettier config | ~~**Does not exist** — added by **S2.1**~~ **EXISTS on the S2.1 branch**: `.prettierrc` = `{ "endOfLine": "auto" }` — the single deliberate deviation from the literal `{}`, because the worktree is CRLF under `core.autocrlf=true` while CI checks out LF; with `{}` the local check would be permanently red on Windows. `.prettierignore` excludes `.next/ out/ build/ node_modules/ pnpm-lock.yaml next-env.d.ts public/ qa-evidence/` and `*.md` (markdown excluded by owner decision 2026-08-27 so docs and filed records stay byte-stable). `prettier-plugin-tailwindcss` stays installed but NOT enabled (deliberate follow-up, not silent) — 2026-08-27 |
 > | Lint | **0 errors, 0 warnings** at branch head — Known issue 16 (raw `<a href="/learn/course">` in `src/app/premium/page.tsx`) fixed on the S2.1 branch with `next/link`; closes on merge. Known issue 10 (no CI / no typecheck-format scripts / bare eslint) likewise fixed on the S2.1 branch; closes on merge — 2026-08-27 |
@@ -37,11 +37,11 @@ One page. The standards are written once as configuration; machines enforce them
 | Wall | What it guarantees | Where it lives |
 |---|---|---|
 | 1. The rules | How code must be written | `CLAUDE.md`, `TECH-ARCHITECTURE.md` |
-| 2. **The Code Check** | Every PR passes the six checks below — **red physically cannot merge** ~~⚠ *target; the workflow does not exist yet — **S2.1***~~ ⚠ *2026-08-27: the workflow EXISTS on the S2.1 branch (in progress; PR not yet opened) and runs on every PR from S2.1's merge; "red cannot merge" holds only once the owner adds the required "Code Check" status and watches it lock a real PR* | This file + `.github/workflows/code-check.yml` ~~*(to be created)*~~ *(on the S2.1 branch, 2026-08-27)* |
+| 2. **The Code Check** | Every PR passes the six checks below — **red physically cannot merge** ~~⚠ *target; the workflow does not exist yet — **S2.1***~~ ⚠ *2026-08-27: the workflow EXISTS on the S2.1 branch (in progress; PR #11 open since 2026-08-27) and runs on every PR from S2.1's merge; "red cannot merge" holds only once the owner adds the required "Code Check" status and watches it lock a real PR* | This file + `.github/workflows/code-check.yml` ~~*(to be created)*~~ *(on the S2.1 branch, 2026-08-27)* |
 | 3. Independent review | A second pair of eyes on every PR; Blocking findings never merge ✅ *live today* | Codex review, `WORKFLOW.md` §7 |
 | 4. Behavior proof | Every feature actually works, before launch and every morning after ⚠ *target; harness **S2.3**, suite **S5.1*** | `testing-setup/` + `error-tracking/` |
 
-This file supplies Wall 2 and is deliberately the simplest piece of the whole system: one workflow file, one GitHub setting, nothing to operate. ~~⚠ **Not yet installed — Sprint S2.1 installs it** (status banner above).~~ ⚠ **2026-08-27: the workflow file is installed on the S2.1 branch (in progress; PR not yet opened); the one GitHub setting — the required "Code Check" status — is still an owner action after the PR is open** (status banner above).
+This file supplies Wall 2 and is deliberately the simplest piece of the whole system: one workflow file, one GitHub setting, nothing to operate. ~~⚠ **Not yet installed — Sprint S2.1 installs it** (status banner above).~~ ⚠ **2026-08-27: the workflow file is installed on the S2.1 branch (in progress; PR #11 open since 2026-08-27); the one GitHub setting — the required "Code Check" status — is still an owner action after the PR is open** (status banner above).
 
 ## The house standard, in plain words
 
@@ -57,7 +57,7 @@ Line-level professionalism rule for the builder: no `any`, no `@ts-ignore`, no `
 
 ## The Code Check → `.github/workflows/code-check.yml`
 
-~~⚠ **This file does not exist yet — Sprint S2.1 creates it exactly as written below** (status banner at the top).~~ ⚠ **2026-08-27: the file exists on the S2.1 branch (in progress; PR not yet opened), diff-verified identical to the block below** (status banner at the top). Once it exists it runs automatically on **every pull request**. About three robot-minutes. You never trigger it, tune it, or maintain it.
+~~⚠ **This file does not exist yet — Sprint S2.1 creates it exactly as written below** (status banner at the top).~~ ⚠ **2026-08-27: the file exists on the S2.1 branch (in progress; PR #11 open since 2026-08-27), diff-verified identical to the block below** (status banner at the top). Once it exists it runs automatically on **every pull request**. About three robot-minutes. You never trigger it, tune it, or maintain it.
 
 ```yaml
 name: Code Check
@@ -72,7 +72,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Types are sound
@@ -89,20 +89,26 @@ jobs:
         run: pnpm audit --prod --audit-level=critical
 ```
 
+> **Node version — corrected 2026-08-27 (Sprint S2.1, first CI run).** The block originally pinned `node-version: 20`.
+> The first "Code Check" run on PR #11 failed at `actions/setup-node` before any of our steps ran: **pnpm 11.3.0
+> (the pinned package manager) requires Node ≥ 22.13** (`npm view pnpm@11.3.0 engines`), and Node 20 reached end of
+> life on 2026-04-30. The pin is now **24** — the active LTS line and the version the local checks were run on
+> (v24.15.0); Next 16.2.7 needs only ≥ 20.9. The workflow file and this block stay byte-identical.
+
 The contract behind it: `package.json` defines the scripts `typecheck` (`tsc --noEmit`), `lint`, `format:check` (`prettier --check .`), `build`, and optionally `test:unit` — Claude Code sets these up once during the Setup Gate. ~~⚠ **Today `package.json` defines only `dev`, `build`, `start` and `lint`; `typecheck` and `format:check` (and the Prettier config `format:check` needs) are added by S2.1.** Until then the equivalent commands are run directly: `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm build`.~~ ⚠ **2026-08-27: done on the S2.1 branch** — `typecheck` = `tsc --noEmit`, `format:check` = `prettier --check .`, `lint` = `eslint .`, `"packageManager": "pnpm@11.3.0"`, plus the Prettier config (house standard item 3). The canonical local verification commands are now `pnpm typecheck` · `pnpm lint` · `pnpm format:check` · `pnpm build` (CI additionally runs `pnpm audit --prod --audit-level=critical` and `pnpm run --if-present test:unit`); `pnpm exec tsc --noEmit` remains equivalent, but the script is canonical. `CLAUDE.md`'s Verification section was updated to match on the branch.
 
 ## Setup (once per site — new build or retrofit, identical)
 
-*Retrofit note: the workflow file and package.json scripts land in Sprint S2.1 — see docs/ROADMAP.md. (2026-08-27: landed on the S2.1 branch `claude/s2.1-code-check-ci`, in progress; PR not yet opened.)*
+*Retrofit note: the workflow file and package.json scripts land in Sprint S2.1 — see docs/ROADMAP.md. (2026-08-27: landed on the S2.1 branch `claude/s2.1-code-check-ci`, in progress; PR #11 open since 2026-08-27.)*
 
-- [ ] **Claude Code (one normal PR):** strict `tsconfig`, ESLint + Prettier configs, the ~~five~~ four scripts above (`test:unit` is optional and not yet present), and the workflow file. No behavior changes ride along. *(Branch complete 2026-08-27, PR not yet opened — commits b3f7cd3 Prettier config; 57639bf one dedicated format-only commit, 63 code files (62 in `src/` + the stray root `page.tsx`) — the Step-4 contingency: `prettier --check` failed on 131 files at the merge-base measured with `--end-of-line auto` (154 with the default `lf`, the excess being CRLF line endings, not style); the whitespace-stripped character diff of every file shows only trailing commas, semicolons (statement terminators and inline type-member separators), arrow-function parentheses, quote style, CSS hex-case/leading-zero normalisation and `{" "}` placement, with typecheck and build results identical before and after; 1770cc1 workflow + scripts + pin + Known-issue-16 fix + CLAUDE.md. PR not yet opened — the owner opens it.)*
+- [ ] **Claude Code (one normal PR):** strict `tsconfig`, ESLint + Prettier configs, the ~~five~~ four scripts above (`test:unit` is optional and not yet present), and the workflow file. No behavior changes ride along. *(Branch complete 2026-08-27, PR #11 open since 2026-08-27 — commits b3f7cd3 Prettier config; 57639bf one dedicated format-only commit, 63 code files (62 in `src/` + the stray root `page.tsx`) — the Step-4 contingency: `prettier --check` failed on 131 files at the merge-base measured with `--end-of-line auto` (154 with the default `lf`, the excess being CRLF line endings, not style); the whitespace-stripped character diff of every file shows only trailing commas, semicolons (statement terminators and inline type-member separators), arrow-function parentheses, quote style, CSS hex-case/leading-zero normalisation and `{" "}` placement, with typecheck and build results identical before and after; 1770cc1 workflow + scripts + pin + Known-issue-16 fix + CLAUDE.md. PR #11 opened by the owner 2026-08-27.)*
 - [ ] **You (2 minutes, once):** GitHub → the repo → **Settings → Branches → Add branch protection rule** → branch name `master` → tick **"Require a pull request before merging"** and **"Require status checks to pass before merging"** → search and select **"Code Check"** → save. *(Retrofit note 2026-08-26: the "Require a pull request" half is already enabled on this repo — owner-confirmed; what S2.1 adds is the required "Code Check" status, then the watch-one-PR verification below.)* *(2026-08-27: still pending — owner action after the S2.1 PR is open, via the GitHub web UI; `gh` CLI not installed.)*
 - [ ] **You + Claude Code (verify once):** watch one PR — the "Code Check" appears and goes ✅, and GitHub's merge button stays locked until it does. An unverified gate is the same as no gate. *(2026-08-27: pending — until this is recorded, a red PR can still be merged by hand; the workflow runs on every PR from S2.1's merge, but nothing requires it yet.)*
 
 ## Day to day
 
-*(From S2.1's merge onward —* ⚠ *~~not yet true today; see the status banner.~~ 2026-08-27: the ✅/❌ appears on every PR from S2.1's merge; the "merge button stays locked" half is true only once the owner adds the required status and watches it on a real PR; see the status banner.)* Every PR now carries a plain ✅ or ❌ before your merge button. On ✅, merge as usual. On ❌, you do nothing — Claude Code reads the failure, fixes it, pushes, and the check re-runs; red can't reach `master`, so there is nothing to worry about, only something to wait for. You never have to wonder whether the checks were *really* run — the merge button is the proof. **Until S2.1 lands, the local checks are run and reported by hand in each sprint's record, and the independent review (Wall 3) is the gate that actually holds.** *(2026-08-27: still the case — S2.1 is in progress, PR not yet opened; and after its merge, red can still be merged by hand until the required status is added and watched.)*
+*(From S2.1's merge onward —* ⚠ *~~not yet true today; see the status banner.~~ 2026-08-27: the ✅/❌ appears on every PR from S2.1's merge; the "merge button stays locked" half is true only once the owner adds the required status and watches it on a real PR; see the status banner.)* Every PR now carries a plain ✅ or ❌ before your merge button. On ✅, merge as usual. On ❌, you do nothing — Claude Code reads the failure, fixes it, pushes, and the check re-runs; red can't reach `master`, so there is nothing to worry about, only something to wait for. You never have to wonder whether the checks were *really* run — the merge button is the proof. **Until S2.1 lands, the local checks are run and reported by hand in each sprint's record, and the independent review (Wall 3) is the gate that actually holds.** *(2026-08-27: still the case — S2.1 is in progress, PR #11 open since 2026-08-27; and after its merge, red can still be merged by hand until the required status is added and watched.)*
 
 ## The boundary, one line
 
-The Code Check proves the **code** is sound on every PR; the Launch Gate and morning check prove the **site** behaves. Both, always — neither replaces the other. ~~⚠ **Both are target state**: the Code Check arrives in **S2.1**,~~ the Launch Gate harness in **S2.3** and its suite in **S5.1** are still target state. ~~Today neither is live~~ 2026-08-27: the Code Check is installed on the S2.1 branch (in progress; PR not yet opened) and runs on every PR from its merge but is not yet a required status; the Launch Gate is still not live — the independent review (Wall 3) plus hand-run local checks carry the load.
+The Code Check proves the **code** is sound on every PR; the Launch Gate and morning check prove the **site** behaves. Both, always — neither replaces the other. ~~⚠ **Both are target state**: the Code Check arrives in **S2.1**,~~ the Launch Gate harness in **S2.3** and its suite in **S5.1** are still target state. ~~Today neither is live~~ 2026-08-27: the Code Check is installed on the S2.1 branch (in progress; PR #11 open since 2026-08-27) and runs on every PR from its merge but is not yet a required status; the Launch Gate is still not live — the independent review (Wall 3) plus hand-run local checks carry the load.

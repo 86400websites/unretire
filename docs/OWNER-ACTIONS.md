@@ -61,7 +61,7 @@ that is broken.)
 
 ---
 
-## PART 1 — Stage 1 · MERGED — ~~stage gate in remediation (updated 2026-08-26)~~ stage gate STAGE APPROVED (owner-reported 2026-08-27; returned record pending filing)
+## PART 1 — Stage 1 · MERGED — ~~stage gate in remediation (updated 2026-08-26)~~ stage gate STAGE APPROVED (owner-confirmed 2026-08-27; returned record to be pasted by the owner)
 
 - [x] **1.1–1.3** Protection Bypass enabled ✓
 - [x] **1.4** PR is **#1** — https://github.com/86400websites/unretire/pull/1 ✓ (I looked it up, no need to send it)
@@ -112,16 +112,15 @@ that is broken.)
       steps are done — two review records still need to be pasted into the repo.**
       (a) ~~Dispatch the S1.8 per-PR review brief `docs/code-reviews/S1.8-state-sync-round7-repin-review.md`
       and **merge S1.8** on APPROVE — it closes the last Should-fix and re-pins the stage brief.~~
-      **Done 2026-08-27:** S1.8 merged as **PR #10** (`9d838da`). Its per-PR verdict is **not on file** —
-      the review file still holds only the unfilled brief. Please paste the returned review into
-      `docs/code-reviews/S1.8-state-sync-round7-repin-review.md`, or tell me it was not run so I can record
-      that as a deviation (the same way **D-17** was recorded for PR #8).
+      **Done 2026-08-27:** S1.8 merged as **PR #10** (`9d838da`). You confirmed on 2026-08-27 that Codex
+      **APPROVED** it. Please paste the returned review into
+      `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` so the record is complete.
       (b) ~~Dispatch stage-gate **Round 7** — `docs/code-reviews/S1-stage-review.md`, already pinned to
       `0983ad5..87e89c6` and dispatch-ready. **Two things that round must disposition, both disclosed in
       the brief:** the PR #8 merge-before-review deviation (**D-17** — you choose whether to accept it as a
       recorded deviation with its compensating controls), and the reverted out-of-chain commits.
       **S2.1 starts only after Round 7 returns STAGE APPROVED.**~~
-      **Round 7 returned STAGE APPROVED** (you told me 2026-08-27; returned record pending filing). Please
+      **Round 7 returned STAGE APPROVED** (you told me 2026-08-27; returned record to be pasted by the owner). Please
       paste the reviewer's returned record into the Round 7 stub in `docs/code-reviews/S1-stage-review.md`.
       Until it is filed I cannot read how the round dispositioned **D-17**, so D-17 stays open with a dated
       note. On your word, Stage 1 is closed and Stage 2 has started with **S2.1** (Part 1B).
@@ -161,11 +160,11 @@ every PR from the moment S2.1 merges, but nothing **requires** it until you add 
 protection rule — and only you can do that. Until then a red PR can still be merged by hand, so the gate
 counts as pending until you confirm it locks.
 
-- [ ] **1B.1** GitHub → **Pull requests** → **New pull request** → base `master`, compare
+- [x] **1B.1** *(done 2026-08-27 — PR #11)* GitHub → **Pull requests** → **New pull request** → base `master`, compare
       `claude/s2.1-code-check-ci` → title suggestion: **"S2.1 — Code Check CI"** → Create.
-- [ ] **1B.2** On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
+- [ ] **1B.2** *(2026-08-27: the first runs failed at `actions/setup-node` before any of our steps — pnpm 11 needs Node 22.13+ and the workflow pinned Node 20; fixed by pinning Node 24; the re-run on the new head is what to watch)* On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
       I ran the same checks locally at the branch head and every one passed.)*
-- [ ] **1B.3** Send me the **PR number** and the **Preview URL**.
+- [x] **1B.3** *(received 2026-08-27 — PR #11; Preview https://unretire-git-claude-s21-code-check-ci-86400-s-projects.vercel.app)* Send me the **PR number** and the **Preview URL**.
 - [ ] **1B.4** After the S2.1 review returns APPROVE and you merge the PR: GitHub → **Settings** →
       **Branches** → **edit the existing `master` rule** (do not create a second one) → tick **"Require
       status checks to pass before merging"** → search for and select **"Code Check"** → **Save changes**.
@@ -328,7 +327,7 @@ feature list before any test is written.
 1. ~~"Bypass is on" + the **pull request number**~~ → the **S2.1 pull request number** and its
    **Preview URL** (Part 1B.3)
 2. ~~Confirmation when **Part 2** is done~~ → the **S1.8 per-PR review record** pasted into
-   `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` — or tell me it was not run (item 1.12a)
+   `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` (you confirmed APPROVE on 2026-08-27 — item 1.12a)
 3. ~~Confirmation when **Part 3A** is done, then again when **3B** is done~~ → the **Round 7 stage-gate
    record** pasted into the Round 7 stub in `docs/code-reviews/S1-stage-review.md` (item 1.12b)
 4. ~~Your answer on `half-a-life.vercel.app`~~ → confirmation that **"Code Check" is a required status**

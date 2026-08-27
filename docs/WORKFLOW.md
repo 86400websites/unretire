@@ -11,7 +11,7 @@ Every change to `(Un)Retire` follows:
 > gate that actually holds. `master`'s PR-before-merge protection is enabled; its required status check is
 > added in S2.1.~~
 >
-> ⚠ **Status, 2026-08-27 (Sprint S2.1, in progress — PR not yet opened):** the **Code Check (CI)** workflow is installed by Sprint
+> ⚠ **Status, 2026-08-27 (Sprint S2.1, in progress — PR #11 open since 2026-08-27):** the **Code Check (CI)** workflow is installed by Sprint
 > **S2.1** (`.github/workflows/code-check.yml`, verbatim from `docs/TECHNICAL-INTEGRITY.md`) and runs on every
 > PR from S2.1's merge. The **required-status** half of `master`'s protection — adding "Code Check" as a
 > required status check to the existing branch-protection rule and watching the merge button stay locked
