@@ -18,7 +18,7 @@ Tick each box as you go. Nothing here needs code. Do the sections **in order**.
 | Live Stripe product **UnRetire — Premium** | $199 USD, **per year** — correct |
 | Live webhook `brilliant-splendor` | ~~✅ Repointed to `https://unretire.vercel.app/api/stripe/webhook` on 2026-08-25 — verified receiving~~ ✅ Repointed to `https://www.unretireproject.com/api/stripe/webhook` on 2026-08-27 (Part 4B, L3) — verified 2026-08-27: I sent the endpoint a deliberately wrong signature and it answered "Invalid signature", which proves the route is live on the new address with the live secret in place |
 | Sandbox products **Course (Test)** $99 and **Premium (Test)** $199/yr | Already exist |
-| GitHub branch protection on `master` | Done — **PR-before-merge rule enabled (owner-confirmed 2026-08-26)**. ~~The required "Code Check" status is added in S2.1 once CI exists~~ The "Code Check" workflow now exists on the S2.1 branch (2026-08-27); making it a **required** status is **your** action once the PR shows the check — see Part 1B |
+| GitHub branch protection on `master` | Done — **PR-before-merge rule enabled (owner-confirmed 2026-08-26)**. ~~The required "Code Check" status is added in S2.1 once CI exists~~ The "Code Check" workflow is live on `master` since the S2.1 merge (PR #11, 2026-08-27) and ran green on that PR; making it a **required** status is **your** action — see Part 1B (confirmation pending) |
 | `.env.example` and the 5 Claude skills in the repo | Done — every clone gets them |
 | Supabase test project `unretire-test` | Exists |
 
@@ -153,22 +153,37 @@ that is broken.)
 
 ## PART 1B — Stage 2 · S2.1 Code Check (added 2026-08-27)
 
-Sprint **S2.1** is built on branch `claude/s2.1-code-check-ci` (cut from `master` at `9d838da`, the PR #10
-merge). It adds the automatic **"Code Check"** that runs on every pull request — typecheck, lint, formatting
-check, build and a dependency-vulnerability audit (plus unit tests, once they exist). The check **runs** on
-every PR from the moment S2.1 merges, but nothing **requires** it until you add it to the `master`
+Sprint **S2.1** was built on branch `claude/s2.1-code-check-ci` and **merged on 2026-08-27 as PR #11** after the
+Codex review approved it. It adds the automatic **"Code Check"** that runs on every pull request — typecheck, lint, formatting
+check, build and a dependency-vulnerability audit (plus unit tests, once they exist). The check now **runs** on
+every PR, but nothing **requires** it until you add it to the `master`
 protection rule — and only you can do that. Until then a red PR can still be merged by hand, so the gate
 counts as pending until you confirm it locks.
 
 - [x] **1B.1** *(done 2026-08-27 — PR #11)* GitHub → **Pull requests** → **New pull request** → base `master`, compare
       `claude/s2.1-code-check-ci` → title suggestion: **"S2.1 — Code Check CI"** → Create.
-- [ ] **1B.2** *(2026-08-27: the first runs failed at `actions/setup-node` before any of our steps — pnpm 11 needs Node 22.13+ and the workflow pinned Node 20; fixed by pinning Node 24; the re-run on the new head is what to watch)* On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
+- [x] **1B.2** *(done 2026-08-27 — green at `3f695a7`, run 33063383071, after the first runs failed at `actions/setup-node`: pnpm 11 needs Node 22.13+ and the workflow pinned Node 20; fixed by pinning Node 24)* On the PR's **Checks** tab, wait for **"Code Check"** to appear and go green. *(It should —
       I ran the same checks locally at the branch head and every one passed.)*
 - [x] **1B.3** *(received 2026-08-27 — PR #11; Preview https://unretire-git-claude-s21-code-check-ci-86400-s-projects.vercel.app)* Send me the **PR number** and the **Preview URL**.
-- [ ] **1B.4** After the S2.1 review returns APPROVE and you merge the PR: GitHub → **Settings** →
-      **Branches** → **edit the existing `master` rule** (do not create a second one) → tick **"Require
-      status checks to pass before merging"** → search for and select **"Code Check"** → **Save changes**.
-- [ ] **1B.5** Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
+- [ ] **1B.4** **This is the one open item** — and your screenshot of 2026-08-27 shows exactly where to do it.
+      Your protection is a **Ruleset** called **"Protect master"** (not the older "branch protection rule"
+      screen), and it is already **Active** with an **empty bypass list** — so nobody, including you, can
+      slip past it. Three of its rules are on: *Restrict deletions*, *Require a pull request before
+      merging*, *Block force pushes*. The one that is off is the one we need:
+
+      GitHub → **Settings** → **Rules** → **Rulesets** → **Protect master** → scroll to **Branch rules** →
+      1. tick **"Require status checks to pass"**;
+      2. a panel opens under it — click **"+ Add checks"** (or the search box), type **Code Check**, and
+         **select it** so it is listed;
+      3. leave **"Require branches to be up to date before merging"** **unticked** *(optional and stricter:
+         it forces every PR to re-run against the newest `master` before it can merge — useful on a busy
+         repo, needless churn on this one; not part of the `docs/TECHNICAL-INTEGRITY.md` spec)*;
+      4. click **Save changes** at the bottom.
+
+      **Do not tick anything else** on that page — the other rules (linear history, signed commits,
+      deployments, code scanning, code quality, coverage, Copilot review) are outside what this project
+      needs, and each one adds a way for a PR to get stuck.
+- [ ] **1B.5** *(the docs-only close-out PR — #12 once opened — is the one to watch)* Open any later PR and confirm the **merge button stays locked** until "Code Check" passes.
       Tell me — an unverified gate is the same as no gate.
 
 > **Nothing here touches Vercel, Stripe or Supabase.** This is GitHub only, and no secret is involved.
@@ -324,14 +339,16 @@ feature list before any test is written.
 
 *(The original four asks are all received — struck for the record. Current asks, updated 2026-08-27:)*
 
-1. ~~"Bypass is on" + the **pull request number**~~ → the **S2.1 pull request number** and its
-   **Preview URL** (Part 1B.3)
+1. ~~"Bypass is on" + the **pull request number**~~ → ~~the S2.1 pull request number and its Preview URL (Part 1B.3)~~ received. Now: your **Commit: YES / Push: YES** for the
+   docs-only close-out branch `claude/s2.1-close-out`, then open its PR (#12)
 2. ~~Confirmation when **Part 2** is done~~ → the **S1.8 per-PR review record** pasted into
    `docs/code-reviews/S1.8-state-sync-round7-repin-review.md` (you confirmed APPROVE on 2026-08-27 — item 1.12a)
 3. ~~Confirmation when **Part 3A** is done, then again when **3B** is done~~ → the **Round 7 stage-gate
    record** pasted into the Round 7 stub in `docs/code-reviews/S1-stage-review.md` (item 1.12b)
 4. ~~Your answer on `half-a-life.vercel.app`~~ → confirmation that **"Code Check" is a required status**
    on `master` and that the merge button stayed locked on a later PR (Part 1B.4–1B.5)
+5. *(Nothing to do — recorded 2026-08-27 as decision **D-18**:)* error tracking (Sentry, S2.4) moves to after testing and
+   before launch, as you asked.
 
 **Never paste a secret key into chat.** Values go into the Vercel or Supabase screens only; names are fine.
 If a secret is ever exposed, **rotate it at the provider first**, then tell me.
