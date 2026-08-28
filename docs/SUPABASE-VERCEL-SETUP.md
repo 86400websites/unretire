@@ -66,6 +66,27 @@ Use Part A only when `[HOSTING_PROVIDER]` is Vercel. Use Part B only when `[DATA
 > **a correct allow-list here does not make the application's own redirect handling safe** — see
 > `docs/ENVIRONMENT-PARITY.md` §5.3b.
 >
+> **MCP status — added 2026-08-27 (Sprint S2.2).** Resolving the MCP line at the top of this file for this
+> project: a **project-scoped `.mcp.json`** now exists at the repo root with exactly two HTTP servers —
+> `supabase-test`, the **TEST** project `unretire-test` (read-write, deliberately **no** `read_only` flag), and
+> `supabase-prod-readonly`, the **PROD** project `unretire-prod` with **`read_only=true`**. Both are limited to
+> feature groups `database,debugging,docs`, and the file carries **no credential, token, key or authorization
+> header** — URLs only. The production connection is the **Profile B exception approved as D-11 (2026-08-25)**;
+> the writable server is named `supabase-test`, not `supabase-dev` (**D-21**, 2026-08-27). ~~⚠ **Not yet
+> connected:** both servers are **pending the owner's one-time project approval and per-server browser OAuth**,
+> an S2.2 step that has not been performed.~~ → **Connected 2026-08-27:** the owner approved the project and
+> completed browser OAuth for both; `claude mcp list` shows both ✔ Connected, and the `docs/SUPABASE-MCP-SAFETY.md`
+> §7 guardrail tests all passed the same day (reversible write on `supabase-test` created and cleaned up; write on
+> `supabase-prod-readonly` refused — `cannot execute UPDATE in a read-only transaction`). Wiring detail: `docs/TECH-ARCHITECTURE.md` §10; governing rules:
+> `docs/SUPABASE-MCP-SAFETY.md`.
+>
+> **Mailchimp is out of this profile's scope — noted 2026-08-27 (Sprint S2.2).** This file covers Vercel + Supabase
+> only, so it carries no Mailchimp status line. The Mailchimp posture is owner decision **D-22 (2026-08-27): one
+> live audience serves Production, Preview and local; the audience split is CANCELLED, not deferred**, with five
+> compensating controls. Recorded in `docs/TECH-ARCHITECTURE.md` §6 (`MAILCHIMP_LIST_ID`) and
+> `docs/PROJECT-STATUS.md` §8; proof **P7** in `docs/ENVIRONMENT-PARITY.md` §8 is therefore **N/A — accepted
+> risk**, not owed. Do not read B6's Supabase-only "Preview points at TEST" checklist as covering email.
+>
 > Retrofit note: this site is already deployed, so Part A is a **reconciliation** checklist (confirm what is
 > already configured) rather than a from-scratch setup. Values are set by the owner in the provider
 > dashboards — never in this or any committed file. The per-variable state, and every proof still outstanding,

@@ -15,3 +15,7 @@ qa-evidence/
 # Documentation and filed records stay byte-stable (Prettier would reflow tables and
 # rewrite review/sprint records) — owner decision 2026-08-27, Sprint S2.1 Step 4
 *.md
+
+# Local Claude Code approval file (written by the tool in its own style; ignored by the user's global git ignore,
+# which Prettier does not read). Never committed; excluded so the local check stays meaningful. — S2.2, 2026-08-27
+.claude/settings.local.json
