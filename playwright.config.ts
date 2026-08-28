@@ -3,29 +3,59 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * (Un)Retire — Playwright harness (Sprint S2.3).
  *
- * The deployment under test is named by PLAYWRIGHT_BASE_URL — a deployed
- * Vercel Preview in CI, or http://localhost:3000 for a local self-check.
- * When VERCEL_AUTOMATION_BYPASS_SECRET is present (GitHub Actions secrets
- * only — never a local file), every request carries Vercel's sanctioned
- * Protection Bypass for Automation header. The value is read from
- * process.env by name and is never logged, titled or reported.
+ * The deployment under test is named by PLAYWRIGHT_BASE_URL and is validated
+ * before anything runs: only this project's Vercel Preview hosts over https,
+ * or plain http://localhost for a credential-free local self-check. When
+ * VERCEL_AUTOMATION_BYPASS_SECRET is present (GitHub Actions secrets only —
+ * never a local file) the target MUST be a Preview host, and the secret is
+ * attached only to same-origin requests by tests/e2e/fixtures.ts — never
+ * context-wide. The value is read from process.env by name and is never
+ * logged, titled or reported.
  */
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL;
-if (!baseURL) {
-  throw new Error(
-    "PLAYWRIGHT_BASE_URL is not set. Point it at the deployment under test — " +
-      "a deployed Vercel Preview URL, or http://localhost:3000 for a local self-check.",
-  );
+const PREVIEW_HOST = /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1)$/;
+
+function resolveTarget(raw: string | undefined, bypassPresent: boolean) {
+  if (!raw) {
+    throw new Error(
+      "PLAYWRIGHT_BASE_URL is not set. Point it at the deployment under test — " +
+        "a deployed Vercel Preview URL, or http://localhost:3000 for a local self-check.",
+    );
+  }
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(`PLAYWRIGHT_BASE_URL is not an absolute URL: ${raw}`);
+  }
+  const isPreview =
+    url.protocol === "https:" && PREVIEW_HOST.test(url.hostname);
+  const isLocal = url.protocol === "http:" && LOCAL_HOST.test(url.hostname);
+  if (bypassPresent ? !isPreview : !(isPreview || isLocal)) {
+    throw new Error(
+      `Refusing to test ${url.origin}: the harness only targets this project's ` +
+        "Vercel Preview hosts (https://unretire-*-86400-s-projects.vercel.app)" +
+        (bypassPresent
+          ? " while a bypass secret is present — the secret must never be sent anywhere else."
+          : ", or http://localhost for a local self-check. Production is never a target."),
+    );
+  }
+  // Origin only: no path or query can ride along into every request.
+  return url.origin;
 }
 
-const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-const extraHTTPHeaders = bypassSecret
-  ? {
-      "x-vercel-protection-bypass": bypassSecret,
-      "x-vercel-set-bypass-cookie": "true",
-    }
-  : undefined;
+// Playwright attaches a failure-time ARIA snapshot of the page (error-context.md)
+// that renders form field values — including a filled password field. This is
+// the documented switch that skips it; it is defaulted here so EVERY run is
+// covered, not only the workflow (Round-1 review, Finding 2). A page close in
+// the auth helper is a second layer, but it cannot cover a test-timeout abort.
+if (!process.env.PLAYWRIGHT_NO_COPY_PROMPT) {
+  process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
+}
+
+const bypassPresent = Boolean(process.env.VERCEL_AUTOMATION_BYPASS_SECRET);
+const baseURL = resolveTarget(process.env.PLAYWRIGHT_BASE_URL, bypassPresent);
 
 const desktop = devices["Desktop Chrome"];
 
@@ -43,8 +73,9 @@ type FixtureRole = "signed-in" | "course" | "premium";
 /**
  * One auth-setup project per role. Each signs in one fixture account and
  * stores its session under tests/e2e/.auth/ (gitignored). Setup projects
- * never record a trace or screenshot, so a filled password field can never
- * reach an artefact.
+ * never record a trace or screenshot, and the helper closes the page on any
+ * failure so Playwright's error-context snapshot can never contain a filled
+ * password field (Round-1 review, Finding 2).
  *
  * The two browser projects carry NO `dependencies` in S2.3: the smoke needs
  * no session, so it can run locally without credentials. S5.1 adds the
@@ -69,7 +100,6 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
-    extraHTTPHeaders,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

@@ -9,8 +9,8 @@
 >
 > | Piece | State today (2026-08-27) |
 > |---|---|
-> | `@playwright/test` dev dependency + `playwright.config` | ~~**Do not exist** — installed by **S2.3**~~ **Landed 2026-08-28 in Sprint S2.3** (`@playwright/test` 1.62.1, `playwright.config.ts`) — on the S2.3 branch, uncommitted until the owner authorises; the merged state follows the S2.3 PR |
-> | `tests/e2e/` and any spec in it | ~~**Does not exist** — created by **S2.3**~~ **Landed 2026-08-28 in S2.3**: one `@smoke` homepage spec + three auth-setup projects (same caveat) |
+> | `@playwright/test` dev dependency + `playwright.config` | ~~**Do not exist** — installed by **S2.3**~~ **Landed 2026-08-28 in Sprint S2.3** (`@playwright/test` 1.62.1, `playwright.config.ts`) — committed on the S2.3 branch and green on PR #16 (2026-08-28); the merged state follows the PR's approval |
+> | `tests/e2e/` and any spec in it | ~~**Does not exist** — created by **S2.3**~~ **Landed 2026-08-28 in S2.3**: one `@smoke` homepage spec + three auth-setup projects + a shared fixture that scopes the bypass header (same status) |
 > | `docs/FEATURE-LIST.md` | **Does not exist** — produced by **S5.1** (`/activate-testing` Phase 1, owner-approved) |
 > | `.github/workflows/morning-check.yml` | ~~**Does not exist** — added **disabled** in S2.3~~ **Added DISABLED 2026-08-28 in S2.3** (schedule commented out + guarded by the `MORNING_CHECK_ENABLED` variable), enabled only in **S5.2** |
 > | Any automated test run / GO verdict | **None yet** — the first full run is **S5.1** *(S2.3's smoke passed on the deployed Preview on 2026-08-28 — PR #16, head `8111884` — and locally 2/2; a smoke is not a GO)* |

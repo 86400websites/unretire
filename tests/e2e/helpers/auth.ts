@@ -10,7 +10,11 @@ import { expect, type Page } from "@playwright/test";
  * which is exactly what proof P1 (docs/ENVIRONMENT-PARITY.md §8) asks.
  *
  * Credentials come from process.env by NAME (GitHub Actions secrets). They
- * are never logged, and the password never appears in any message.
+ * are never logged, and the password never appears in any message. Before a
+ * credential is typed, the page's origin is re-checked against the validated
+ * deployment under test; on ANY failure the page is closed before the runner
+ * can snapshot it, so a filled password field can never reach
+ * error-context.md (Round-1 review, Findings 2 and 3).
  */
 
 export type FixtureRole = "signed-in" | "course" | "premium";
@@ -39,17 +43,44 @@ function requireEnv(name: string): string {
   return value;
 }
 
-export async function signInAs(page: Page, role: FixtureRole): Promise<void> {
+export async function signInAs(
+  page: Page,
+  role: FixtureRole,
+  baseURL: string | undefined,
+): Promise<void> {
   const email = requireEnv(EMAIL_VAR[role]);
   const password = requireEnv(PASSWORD_VAR);
+  if (!baseURL) throw new Error("baseURL is not configured.");
+  const expectedOrigin = new URL(baseURL).origin;
 
   try {
     await page.goto("/login");
+
+    // Never type a credential anywhere but the validated deployment under test.
+    const actualOrigin = new URL(page.url()).origin;
+    if (actualOrigin !== expectedOrigin) {
+      throw new Error(
+        `Refusing to enter credentials: /login resolved to ${actualOrigin}, ` +
+          `not the deployment under test (${expectedOrigin}).`,
+      );
+    }
+
     await page.locator("#email").fill(email);
     await page.locator("#password").fill(password);
     await page.getByRole("button", { name: "Log in", exact: true }).click();
-    await page.waitForURL("**/account");
+    // Explicit step timeouts keep an ordinary failure inside this try/catch (so the
+    // page is closed below) instead of letting the whole test time out first.
+    await page.waitForURL("**/account", { timeout: 15_000 });
+
+    // The account page shows the signed-in address — the fixture's own.
+    await expect(page.getByText(email, { exact: true })).toBeVisible({
+      timeout: 10_000,
+    });
+
+    await page.context().storageState({ path: storageStatePath(role) });
   } catch (err) {
+    // Close before the runner's failure snapshot can see the form.
+    await page.close().catch(() => undefined);
     const detail = err instanceof Error ? err.message : String(err);
     throw new Error(
       `The "${role}" fixture could not sign in and reach /account. If this ` +
@@ -59,10 +90,7 @@ export async function signInAs(page: Page, role: FixtureRole): Promise<void> {
         "fixture exists in unretire-test and that the deployment resolves " +
         `to it (proof P1). Detail: ${detail}`,
     );
+  } finally {
+    await page.close().catch(() => undefined);
   }
-
-  // The account page shows the signed-in address — the fixture's own.
-  await expect(page.getByText(email, { exact: true })).toBeVisible();
-
-  await page.context().storageState({ path: storageStatePath(role) });
 }

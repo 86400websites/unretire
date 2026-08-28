@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { test, expect } from "../fixtures";
 
 /**
  * Launch Gate smoke (docs/testing-setup/SETUP-CHECKLIST.md Part 4): the

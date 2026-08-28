@@ -5,17 +5,21 @@ name: E2E — Preview
 # status on `master`; the Code Check remains the only required check.
 #
 # Three ways in:
-#   - pull_request — the pre-merge path. GitHub only fires workflow_dispatch and
-#     deployment_status for files already on the default branch, so on a PR this job
-#     waits for Vercel's Preview deployment of the PR head and tests that URL.
-#   - workflow_dispatch — manual, paste any Preview URL (after this file is on master).
-#   - deployment_status — automatic on a successful Preview deployment (after merge).
+#   - pull_request — the PR's own check: waits for Vercel's Preview deployment of the
+#     PR head, then tests that URL. Re-runs on every push.
+#   - workflow_dispatch — manual, paste a Preview URL (GitHub offers the button only
+#     once this file is on the default branch).
+#   - deployment_status — automatic on a successful Preview deployment.
+#
+# Whatever the source, the URL must be https on this project's Vercel Preview hosts
+# (unretire-*-86400-s-projects.vercel.app) — enforced here AND in playwright.config.ts —
+# because the browser will carry the bypass secret and type fixture credentials there.
 on:
   pull_request:
   workflow_dispatch:
     inputs:
       preview_url:
-        description: "Deployed Preview URL to test (https://…vercel.app, no trailing slash)"
+        description: "Deployed Preview URL to test (https://unretire-…-86400-s-projects.vercel.app)"
         required: true
         type: string
   deployment_status:
@@ -83,6 +87,11 @@ jobs:
             fi
           fi
           url="${url%/}"
+          # Anchored allow-list: https, this project's Preview hosts only, no path.
+          if ! [[ "$url" =~ ^https://unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$ ]]; then
+            echo "::error::Refusing to test '$url' — not an https URL on this project's Vercel Preview hosts"
+            exit 1
+          fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Testing $url"
       - uses: pnpm/action-setup@v4
@@ -96,6 +105,9 @@ jobs:
         run: pnpm exec playwright test
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
+          # Skip Playwright's failure-time page snapshot (error-context.md): it would render
+          # form field values. Belt and braces with the auth helper closing its page.
+          PLAYWRIGHT_NO_COPY_PROMPT: "1"
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_FIXTURE_PASSWORD: ${{ secrets.E2E_FIXTURE_PASSWORD }}
           E2E_SIGNED_IN_EMAIL: ${{ secrets.E2E_SIGNED_IN_EMAIL }}
