@@ -49,7 +49,7 @@ Run the commands recorded in `TECH-ARCHITECTURE.md`:
 - [ ] Typecheck: ~~`pnpm exec tsc --noEmit`~~ `pnpm typecheck` (2026-08-27, S2.1 — `pnpm exec tsc --noEmit` remains equivalent; the script is canonical)
 - [ ] Lint: `pnpm lint`
 - [ ] Format: `pnpm format:check` (added 2026-08-27, S2.1)
-- [ ] Tests: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing).
+- [ ] Tests: ~~N/A — no automated suite yet.~~ `pnpm test:e2e` (from S2.3, 2026-08-28 — the smoke spec + auth setups; needs `PLAYWRIGHT_BASE_URL`; the deployed-Preview run is the `E2E — Preview` Actions workflow). This project has auth + payments, so per docs/TECH-ARCHITECTURE.md the full e2e suite is REQUIRED before launch; it arrives with /activate-testing in S5.1.
 - [ ] Production build: `pnpm build`
 - [ ] Manual and accessibility checks required by the sprint pass on affected journeys.
 - [ ] Review the diff and changed-file list; every file belongs to scope.
