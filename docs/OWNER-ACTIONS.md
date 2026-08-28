@@ -372,7 +372,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
       > `supabase-prod-readonly` is **read-only by construction** — it cannot write to your live database even if
       > something tried. That is the exception you approved on 2026-08-25 (D-11).
 
-- [x] **1C.3 — ~~One look at the preview site~~ WITHDRAWN 2026-08-27 — nothing to do.** My instruction was wrong: the database address sits inside the site's JavaScript, not in the page source, so you could not have seen it by viewing the source. I cannot see it from here either — the preview sends my browser to the Vercel login. This check moves to **S2.3**, where the test robot carries the proper key to get past that login. *(Original text, kept for the record:)* I need to prove the
+- [x] **1C.3 — ~~One look at the preview site~~ WITHDRAWN 2026-08-27 — nothing to do.** My instruction was wrong: the database address is not in the page source — and, as I found on 2026-08-28 while building S2.3, it is not in the site's JavaScript either: the site talks to the database only from the server, so nothing you could open in a browser would ever show it. I cannot see it from here either — the preview sends my browser to the Vercel login. This check moves to **S2.3**, where the test robot carries the proper key to get past that login and proves it a better way: it logs in with a test account that exists only in the test database — if that login works on the preview, the preview is using the test database. *(Original text, kept for the record:)* I need to prove the
       preview build talks to the **test** database, not the live one, and the preview sits behind Vercel's login so I
       cannot look myself. Open https://unretire-git-claude-s22-environment-isolation-86400-s-projects.vercel.app (sign in to Vercel
       if asked), then press **Ctrl+U** to view the page source and **Ctrl+F** for `supabase.co`. Tell me the word that
@@ -394,11 +394,51 @@ do exactly these five, in this order. **You do not touch any secret — every va
 
 ---
 
-## PART 5 — Later, when we reach testing
+## PART 5 — Testing setup · S2.3 (opened 2026-08-28) — four small things, ~15 minutes
 
-Nothing to do now. When we get there I will walk you through creating two fake test users in
-`unretire-test`, connecting the Supabase MCP tools, setting up Sentry error alerts, and approving the
-feature list before any test is written.
+The test robot (Playwright) is built and waiting on the branch `claude/s2.3-playwright-harness`. Of the four
+things it needed from you, **5.1, 5.2 and 5.3 are done** (2026-08-28) and you gave Commit/Push for the
+branch, which is now pushed; **5.4 is done as well — PR #16 is open and green. What remains is 5.5.** Nothing here needs code, and none of it touches the live site or the
+live database.
+
+- [x] **5.1 — Three fake test accounts in the TEST database — DONE for you, 2026-08-28.** You asked me to create
+      them through the database tool so they are certainly right, and I did: three accounts in **`unretire-test`**
+      only (email-confirmed, one shared password, nothing in the live database — I checked it holds none of
+      these addresses). They use your own mailbox with plus-tags, so nothing can ever bounce:
+      `thefalafeltheory+ur-e2e-signed-in@gmail.com`, `thefalafeltheory+ur-e2e-course@gmail.com`,
+      `thefalafeltheory+ur-e2e-premium@gmail.com`. If you would rather use a different mailbox, say so and I
+      will recreate them.
+- [x] **5.2 — Give the robot its keys, in GitHub only — DONE 2026-08-28** (your screenshot shows all five
+      names; I never see the values). If `tests/e2e/.auth/FIXTURES.local.md` still exists, delete it now.
+      *(Original instructions, kept for reference:)* Open the local file
+      **`tests/e2e/.auth/FIXTURES.local.md`** in your editor — it is ignored by git and exists only on your
+      machine — and copy its four values into GitHub → the `unretire` repository → Settings → Secrets and
+      variables → Actions → **New repository secret**: `E2E_FIXTURE_PASSWORD`, `E2E_SIGNED_IN_EMAIL`,
+      `E2E_COURSE_EMAIL`, `E2E_PREMIUM_EMAIL`. The fifth, `VERCEL_AUTOMATION_BYPASS_SECRET`, you copy from
+      Vercel → project `unretire` → Settings → Deployment Protection → Protection Bypass for Automation (I can
+      never see that one). **Then delete `FIXTURES.local.md`.** *(You asked for these in `.env.example`; that
+      file is committed and placeholder-only, so real values can never go there — the hand-off file is the
+      safe equivalent. `.env.example` already lists `VERCEL_AUTOMATION_BYPASS_SECRET`; adding the four `E2E_*` names as placeholders was blocked by your `.env*` permission rule, so they are documented here instead.)*
+- [x] **5.3 — Two decisions — confirmed by you on 2026-08-28 ("Ok").** **D-23** — the robot runs from
+      GitHub Actions, which is where the keys above live. **D-24** — after any test that signs an address up to
+      Mailchimp, the robot archives that contact again automatically (the code for that comes later, in S5.1).
+- [x] **5.4 — DONE 2026-08-28.** PR #16 is open; "E2E — Preview" went green on it — twice, in fact: once as
+      the pull-request check and once because Vercel's own deployment also triggers it. Proof P1 is closed:
+      the preview is using the test database. *(Original instructions, kept for reference:)* Open
+      https://github.com/86400websites/unretire/compare/master...claude/s2.3-playwright-harness?expand=1
+      → *Create pull request* (title: `S2.3 — Playwright harness`). The **"E2E — Preview"** check appears on
+      the PR within a minute, waits for Vercel to finish the preview, then tests it — there is no button to
+      press. Green on all five lines = the preview is proven to use the test database (proof P1) and the robot
+      is alive. Tell me the PR number and whether it went green; if it is red, send me the link and I will read
+      it. *(The manual "Run workflow" button only starts working after this file reaches `master` — GitHub's
+      rule, not ours.)*
+- [ ] **5.5 — Independent review, then merge.** *(Round 1 came back on 2026-08-28 as REQUEST CHANGES — four findings, all fixed the same day. Round 2 came back the same day with two more — one real: a Production deployment address could have passed the address check — both fixed; the next ask is Round 3 at the new head.)* When I tell you the brief is pinned to the final head, run
+      the Codex review from `docs/code-reviews/S2.3-playwright-harness-review.md` exactly as for S2.2, paste the
+      returned record back to me, and merge only on **APPROVE**. After the merge, the "Run workflow" button for
+      "E2E — Preview" also works from `master`, and I run the Production smoke (read-only).
+
+Later: approving the feature list before any further test is written (S5.1); Sentry error alerts (S2.4)
+come after the Launch Gate passes.
 
 ---
 

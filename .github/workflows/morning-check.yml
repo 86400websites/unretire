@@ -1,0 +1,31 @@
+name: Morning Check
+# DISABLED until Sprint S5.2 (after the Launch Gate GO) — added disabled by Sprint S2.3 on 2026-08-28.
+# Two locks: the schedule below is commented out, and the job is guarded by the repository
+# variable MORNING_CHECK_ENABLED, which does not exist yet. S5.2 tags the owner-approved
+# `@morning` specs, sets PRODUCTION_URL and the two test-account secrets, then enables both.
+# Source: docs/testing-setup/templates/MORNING-CHECK-TEMPLATE.md (Node pinned to 24 here —
+# pnpm 11.3.0 needs ≥ 22.13, the S2.1 lesson).
+on:
+  # schedule:
+  #   - cron: "30 1 * * *"   # daily 01:30 UTC = 07:00 IST — GitHub cron is UTC; adjust to taste
+  workflow_dispatch: # allows a manual run anytime from the Actions tab
+jobs:
+  morning-check:
+    if: vars.MORNING_CHECK_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Run @morning tests against production
+        run: pnpm exec playwright test --grep "@morning"
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ vars.PRODUCTION_URL }}
+          MORNING_TEST_EMAIL: ${{ secrets.MORNING_TEST_EMAIL }}
+          MORNING_TEST_PASSWORD: ${{ secrets.MORNING_TEST_PASSWORD }}

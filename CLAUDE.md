@@ -92,7 +92,7 @@ Run the exact commands defined by the repo and filled task prompt:
 1. Typecheck: pnpm typecheck
 2. Lint: pnpm lint
 3. Format: pnpm format:check
-4. Tests: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing).
+4. Tests: pnpm test:e2e (from S2.3 — the smoke spec + auth setups; needs PLAYWRIGHT_BASE_URL, e.g. http://localhost:3000 against pnpm dev for the two browser projects; the deployed-Preview run is the "E2E — Preview" GitHub Actions workflow, which alone holds the bypass secret and fixture credentials). This project has auth + payments, so per docs/TECH-ARCHITECTURE.md the full e2e suite is REQUIRED before launch; it arrives with /activate-testing in S5.1.
 5. Production build: pnpm build
 6. Task-specific and manual checks: [TASK_SPECIFIC_CHECKS]
 
