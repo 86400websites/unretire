@@ -14,8 +14,11 @@ import { defineConfig, devices } from "@playwright/test";
  * for a credential-free local self-check. When VERCEL_AUTOMATION_BYPASS_SECRET
  * is present (GitHub Actions secrets only — never a local file) it is attached
  * only to same-origin requests by tests/e2e/fixtures.ts — never context-wide.
- * Values are read from process.env by name and never logged, titled or
- * reported.
+ * Values are read from process.env by name and the specs never log, title or
+ * report them. Playwright's OWN step titles do include typed values
+ * (`Fill "<value>"`), and the HTML reporter embeds those titles for passing tests
+ * — which is why the workflow never uploads playwright-report/ (S2.5, Known
+ * issue 51); the local report is gitignored.
  */
 
 const PROJECT_HOST = /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
@@ -106,7 +109,8 @@ function setupProject(role: FixtureRole) {
  * dispatch input `parity: on` sets (decision D-25). pull_request runs never carry it, and
  * the two browser projects ignore the folder outright. The project depends on the course
  * and premium setups because the checkout specs run as those fixtures; it records neither
- * trace nor screenshot (credentials are typed in it).
+ * trace nor screenshot (credentials are typed in it — and see the note above on step
+ * titles: the HTML report is the reason playwright-report/ is never uploaded).
  */
 const PARITY_SPECS = "**/parity/**";
 const parityEnabled = process.env.E2E_PARITY === "1";
