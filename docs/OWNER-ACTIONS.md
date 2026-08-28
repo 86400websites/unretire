@@ -398,7 +398,7 @@ do exactly these five, in this order. **You do not touch any secret — every va
 
 The test robot (Playwright) is built and waiting on the branch `claude/s2.3-playwright-harness`. Of the four
 things it needed from you, **5.1, 5.2 and 5.3 are done** (2026-08-28) and you gave Commit/Push for the
-branch, which is now pushed; **5.4 is done as well — PR #16 is open and green. What remains is 5.5.** Nothing here needs code, and none of it touches the live site or the
+branch, which is now pushed; **5.4 and 5.5 are done too — PR #16 is merged. Part 5 is complete apart from the close-out pull request (5.5 a).** Nothing here needs code, and none of it touches the live site or the
 live database.
 
 - [x] **5.1 — Three fake test accounts in the TEST database — DONE for you, 2026-08-28.** You asked me to create
@@ -432,7 +432,7 @@ live database.
       is alive. Tell me the PR number and whether it went green; if it is red, send me the link and I will read
       it. *(The manual "Run workflow" button only starts working after this file reaches `master` — GitHub's
       rule, not ours.)*
-- [ ] **5.5 — Independent review, then merge.** *(Round 1 came back on 2026-08-28 as REQUEST CHANGES — four findings, all fixed the same day. Round 2 came back the same day with two more — one real: a Production deployment address could have passed the address check — both fixed; the next ask is Round 3 at the new head.)* When I tell you the brief is pinned to the final head, run
+- [x] **5.5 — DONE 2026-08-28.** Round 3 came back **APPROVE** with no findings and you merged PR #16. *(History: Round 1 — four findings, all fixed the same day; Round 2 — two more, one real: a Production deployment address could have passed the address check — both fixed.)* Two tiny things remain: **(a)** give me Commit/Push YES for the close-out branch `claude/s2.3-close-out` and merge its docs-only pull request (same as PR #15 last time); **(b)** delete `tests/e2e/.auth/FIXTURES.local.md` from your machine if it is still there. When I tell you the brief is pinned to the final head, run
       the Codex review from `docs/code-reviews/S2.3-playwright-harness-review.md` exactly as for S2.2, paste the
       returned record back to me, and merge only on **APPROVE**. After the merge, the "Run workflow" button for
       "E2E — Preview" also works from `master`, and I run the Production smoke (read-only).
