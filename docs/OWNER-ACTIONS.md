@@ -492,7 +492,7 @@ database or real money.** The first four items are needed before I can continue;
       commit id I give you → `parity` = **on** → Run. It takes about five minutes. Green on all ten lines = the proofs
       ran. Send me the link either way; if it is red, I will read it (a red caused by the test database's hourly email
       limit needs no change — we re-run the same commit an hour later).
-- [ ] **6.6 — Three inbox and Mailchimp reads (after 6.5).** (a) You will receive one or two emails from the test
+- [ ] **6.6 — Three inbox and Mailchimp reads (after 6.5).** *(a) ✅ done 2026-08-28 — the reset link points back at the preview site (proof P3). (b)/(c) still open: open one of the two `ur-test-s25` contacts → Tags → tell me it says `starter-plan`; **archive both**; send the audience's field and tag lists.* (a) You will receive one or two emails from the test
       database (a signup confirmation if "Confirm email" is on; a password-reset for the signed-in test account). Click
       the link and tell me the **address at the top of the browser** on the page it lands on — it should start with the
       preview site's address (`https://unretire-git-claude-s25-…vercel.app`), never `www.unretireproject.com` and never
@@ -502,17 +502,25 @@ database or real money.** The first four items are needed before I can continue;
       permanent delete — decision D-24). One such contact exists per button press — **two today:**
       `…+ur-test-s25-33196333939@…` and `…+ur-test-s25-33197903287@…`. (c) Send me the audience's list of
       merge fields and tags (Audience → Settings → Audience fields and *|MERGE|* tags; and the Tags page) — names only.
-- [ ] **6.7 — Two Stripe Sandbox reads (after 6.5).** In the **Sandbox** (never live): (a) Payments — two new test
+- [x] **6.7 — Two Stripe Sandbox reads (after 6.5).** ✅ Done 2026-08-28 — both payments Succeeded in the Sandbox; `captivating-triumph` delivered 2 events, 0 failed (proofs P4, P6). **⚠ See 6.12 — that webhook screenshot shows the bypass secret.** In the **Sandbox** (never live): (a) Payments — two new test
       payments (a $99 one-time and a $199/year subscription) from the test accounts, and **nothing new in live mode**;
       (b) Developers → Webhooks → `captivating-triumph` → recent deliveries — the `checkout.session.completed` event
       shows **200**. That 200 is proof P6.
-- [ ] **6.8 — One reset on the live site, for proof P13.** On https://www.unretireproject.com/forgot-password
+- [x] **6.8 — One reset on the live site, for proof P13.** ✅ Done 2026-08-28 — the link landed on the live domain (proof P13). On https://www.unretireproject.com/forgot-password
       request a reset for **your own existing** account (do not create one). Open the email and tell me the address at
       the top of the browser after clicking (expected to start with `https://www.unretireproject.com/`; a "page not
       found" is expected — Known issue 2). If you have no account on the live site, tell me and this half waits for
       launch day.
-- [ ] **6.9 — Confirm nothing changed in Vercel's environment variables since 2026-08-28** (names and scopes only —
-      a "yes, unchanged" is enough; that re-affirms proof P12).
+- [x] **6.9 — Confirm nothing changed in Vercel's environment variables since 2026-08-28** ✅ "yes that's right" (proof P12 re-affirmed).
+- [ ] **6.12 — Recommended: rotate the Preview bypass secret.** The webhook screenshot you sent for 6.7 shows the
+      endpoint address with the secret inside it (it has to be in that address — Stripe cannot send it any other
+      way), and that screenshot now lives in our chat history. It only opens preview builds (test database, Sandbox
+      keys — never live data), so this is a tidy-up, not an emergency, and it does not block the review. When you do
+      it, do all three in this order or the robot goes red: (1) Vercel → project `unretire` → Settings → Deployment
+      Protection → Protection Bypass for Automation → **regenerate**; (2) GitHub → Settings → Secrets and variables →
+      Actions → edit `VERCEL_AUTOMATION_BYPASS_SECRET` with the new value; (3) Stripe **Sandbox** → Developers →
+      Webhooks → `captivating-triumph` → Update details → put the new value after `?x-vercel-protection-bypass=`.
+      Never paste it into chat again — the screens only.
 - [x] **6.10 — Known issue 31 (Stripe API-version tidy-up) moves to S4.3.** ✅ "Ok" 2026-08-28 — recorded there.
 - [x] **6.11 — Delete `tests/e2e/.auth/FIXTURES.local.md` from your machine.** ✅ Deleted by me on 2026-08-28 at
       your request, without opening it.
