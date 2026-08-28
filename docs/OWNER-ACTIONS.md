@@ -456,7 +456,11 @@ database or real money.** The first four items are needed before I can continue;
 > fast-forwarded to `master`), 6.3 ✅ (`E2E_OWNER_MAILBOX` added; password confirmed > 8 characters), 6.4 ✅ (all
 > screens read; the one mismatch — "Confirm email" — was switched OFF on the test project by you; two prod screens
 > still welcome: *Providers → Email* detail and *Attack Protection*), 6.10 ✅ ("Ok"), 6.11 ✅ (deleted by me without
-> opening it). **Open: 6.5–6.9 (after the push and the PR) and the Commit/Push words for this branch.**
+> opening it). ~~**Open: 6.5–6.9 (after the push and the PR) and the Commit/Push words for this branch.**~~
+> **Later the same day:** Commit/Push YES ("Ok please proceed"); PR #18 opened; **6.5 ✅ — pressed twice: run #25 at
+> `2958785` went 7/10 (two defects in my test code, fixed), run #28 at `d1b7d2f` went 10/10.** The robot bought the
+> course and Premium in the Stripe Sandbox and the test database received both access rows; a test signup landed in
+> the test database only; a password-reset e-mail was sent to your inbox (twice — once per run). **Open: 6.6–6.9.**
 
 - [x] **6.1 — Say "yes" to building the test database from the captured files.** ✅ Done 2026-08-28. Two files,
       `supabase/migrations/0001_entitlements.sql` and `0002_book_downloads.sql`, are the live tables' definitions as
@@ -483,7 +487,7 @@ database or real money.** The first four items are needed before I can continue;
       (for the "Confirm signup" and "Reset password" templates, whether the link uses `{{ .ConfirmationURL }}` or
       `{{ .SiteURL }}` / `{{ .TokenHash }}`; and whether a custom SMTP provider is set — its name only); **Sessions**
       (JWT expiry, refresh-token rotation, OTP expiry). This becomes the written parity table the roadmap asks for.
-- [ ] **6.5 — Press the button (after 6.1–6.4 and after I tell you the branch is pushed).** GitHub → Actions →
+- [x] **6.5 — Press the button (after 6.1–6.4 and after I tell you the branch is pushed).** ✅ Done 2026-08-28 — run #28 (`d1b7d2f`) green on all ten lines; run #25 before it was red on my code, not yours. GitHub → Actions →
       "E2E — Preview" → **Run workflow** → *Use workflow from:* **`claude/s2.5-environment-parity`** → `sha` = the full
       commit id I give you → `parity` = **on** → Run. It takes about five minutes. Green on all ten lines = the proofs
       ran. Send me the link either way; if it is red, I will read it (a red caused by the test database's hourly email
@@ -495,7 +499,8 @@ database or real money.** The first four items are needed before I can continue;
       `localhost`. A "page not found" there is expected (Known issue 2). If you would rather not click, copy the part of
       the link after `redirect_to=`. (b) Mailchimp → your audience → search **`ur-test-s25`**: tell me the tag and first
       name on the contact (expected: tag `starter-plan`, first name `E2E`), then **archive every match** (archive, not
-      permanent delete — decision D-24). One such contact exists per button press. (c) Send me the audience's list of
+      permanent delete — decision D-24). One such contact exists per button press — **two today:**
+      `…+ur-test-s25-33196333939@…` and `…+ur-test-s25-33197903287@…`. (c) Send me the audience's list of
       merge fields and tags (Audience → Settings → Audience fields and *|MERGE|* tags; and the Tags page) — names only.
 - [ ] **6.7 — Two Stripe Sandbox reads (after 6.5).** In the **Sandbox** (never live): (a) Payments — two new test
       payments (a $99 one-time and a $199/year subscription) from the test accounts, and **nothing new in live mode**;
