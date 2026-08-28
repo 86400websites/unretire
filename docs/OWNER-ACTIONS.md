@@ -512,15 +512,26 @@ database or real money.** The first four items are needed before I can continue;
       found" is expected — Known issue 2). If you have no account on the live site, tell me and this half waits for
       launch day.
 - [x] **6.9 — Confirm nothing changed in Vercel's environment variables since 2026-08-28** ✅ "yes that's right" (proof P12 re-affirmed).
-- [ ] **6.12 — Recommended: rotate the Preview bypass secret.** The webhook screenshot you sent for 6.7 shows the
-      endpoint address with the secret inside it (it has to be in that address — Stripe cannot send it any other
-      way), and that screenshot now lives in our chat history. It only opens preview builds (test database, Sandbox
-      keys — never live data), so this is a tidy-up, not an emergency, and it does not block the review. When you do
-      it, do all three in this order or the robot goes red: (1) Vercel → project `unretire` → Settings → Deployment
-      Protection → Protection Bypass for Automation → **regenerate**; (2) GitHub → Settings → Secrets and variables →
-      Actions → edit `VERCEL_AUTOMATION_BYPASS_SECRET` with the new value; (3) Stripe **Sandbox** → Developers →
-      Webhooks → `captivating-triumph` → Update details → put the new value after `?x-vercel-protection-bypass=`.
-      Never paste it into chat again — the screens only.
+- [ ] **6.12 — Required: rotate the Preview bypass secret** (Known issue 52). The webhook screenshot you sent for
+      6.7 shows the endpoint address with the secret inside it (it has to be in that address — Stripe cannot send it
+      any other way), and that screenshot now lives in our chat history. It only opens preview builds (test database,
+      Sandbox keys — never live data), so the damage is bounded — but our own rule (`docs/ENV-VARS-SAFETY.md`) is
+      "rotate first", so please do it before the review rather than after. All three, in this order, or the robot
+      goes red: (1) Vercel → project `unretire` → Settings → Deployment Protection → Protection Bypass for Automation
+      → **regenerate**; (2) GitHub → Settings → Secrets and variables → Actions → edit
+      `VERCEL_AUTOMATION_BYPASS_SECRET` with the new value; (3) Stripe **Sandbox** → Developers → Webhooks →
+      `captivating-triumph` → Update details → put the new value after `?x-vercel-protection-bypass=`. Never paste it
+      into chat again — the screens only. If you decide to postpone it, say so and I record that as your decision.
+- [ ] **6.13 — The robot's own report was leaking the test password (Known issue 51) — two clean-ups.** My
+      pre-review check found that the report file the robot uploads after every run lists each typing step with the
+      text it typed — including the test accounts' password — and that upload has happened on every run since S2.3.
+      Only people with access to the GitHub repository could download it, and it opens nothing but the three test
+      accounts, but it should not exist. The robot no longer uploads that file (fixed on the branch). Please:
+      (a) GitHub → Actions → open each past "E2E — Preview" run → scroll to **Artifacts** → delete the
+      `playwright-report` artefact (there are about ten runs since 2026-08-28 12:00; they also expire by themselves
+      after 14 days); (b) **recommended:** change the test accounts' password — tell me and I will set a new one
+      on the three test accounts through the database tool, hand it to you the same way as in S2.3, and you update
+      `E2E_FIXTURE_PASSWORD` in GitHub.
 - [x] **6.10 — Known issue 31 (Stripe API-version tidy-up) moves to S4.3.** ✅ "Ok" 2026-08-28 — recorded there.
 - [x] **6.11 — Delete `tests/e2e/.auth/FIXTURES.local.md` from your machine.** ✅ Deleted by me on 2026-08-28 at
       your request, without opening it.

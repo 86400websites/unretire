@@ -9,7 +9,7 @@
 |---|---|
 | Change name | `entitlements` — production baseline, captured |
 | Migration number | 0001 (first number in `supabase/migrations/`; never reused) |
-| Sprint / PR | S2.5 / #[PR_NUMBER — owner-supplied when the PR opens] |
+| Sprint / PR | S2.5 / #18 |
 | Supabase project(s) | `unretire-test` · ref `dtdadtggahjsrmevwvbu` (TEST) · `unretire-prod` · ref `hcjivvlwxltyiycfbttc` (PROD) — names/refs only, never keys |
 | Change class | **additive / backwards-compatible — a baseline capture.** On TEST it creates the table, its policy, trigger and function from nothing. On PROD it changes nothing: PROD is the source the file was captured from. |
 | Data impact | none — no row is read, transformed or deleted in either project |

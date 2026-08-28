@@ -9,7 +9,7 @@
 |---|---|
 | Change name | `book_downloads` — production baseline, verified against the committed file |
 | Migration number | 0002 |
-| Sprint / PR | S2.5 / #[PR_NUMBER — owner-supplied when the PR opens] |
+| Sprint / PR | S2.5 / #18 |
 | Supabase project(s) | `unretire-test` · ref `dtdadtggahjsrmevwvbu` (TEST) · `unretire-prod` · ref `hcjivvlwxltyiycfbttc` (PROD) — names/refs only, never keys |
 | Change class | **additive / backwards-compatible — a baseline.** On TEST it creates the table and its two policies from nothing. On PROD it changes nothing: PROD already holds exactly this definition. |
 | Data impact | none |
