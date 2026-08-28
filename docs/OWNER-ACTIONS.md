@@ -155,9 +155,9 @@ that is broken.)
 
 Sprint **S2.1** was built on branch `claude/s2.1-code-check-ci` and **merged on 2026-08-27 as PR #11** after the
 Codex review approved it. It adds the automatic **"Code Check"** that runs on every pull request — typecheck, lint, formatting
-check, build and a dependency-vulnerability audit (plus unit tests, once they exist). The check now **runs** on
-every PR, but nothing **requires** it until you add it to the `master`
-protection rule — and only you can do that. ~~Until then a red PR can still be merged by hand, so the gate
+check, build and a dependency-vulnerability audit (plus unit tests, once they exist). The check **runs** on every PR ~~, but nothing **requires** it until you add it to the `master`
+protection rule — and only you can do that~~ **and, since 2026-08-27, is a required status: a red PR cannot be
+merged**. ~~Until then a red PR can still be merged by hand, so the gate
 counts as pending until you confirm it locks.~~ **You did that on 2026-08-27: the `master` ruleset now requires
 the `code-check` status (I confirmed it from GitHub's own API), so a red PR cannot be merged. The gate is closed.**
 
