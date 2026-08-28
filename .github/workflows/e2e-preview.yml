@@ -24,6 +24,14 @@ on:
         description: "Full 40-character commit SHA whose Vercel PREVIEW deployment to test (copy it from the PR's commit list)"
         required: true
         type: string
+      parity:
+        description: "Also run the S2.5 parity specs (tests/e2e/parity/) — they create a signup in unretire-test, two Stripe SANDBOX payments and ONE contact in the live Mailchimp audience (D-22/D-25). Manual runs only."
+        required: false
+        default: "off"
+        type: choice
+        options:
+          - "off"
+          - "on"
   deployment_status:
 permissions:
   contents: read
@@ -120,6 +128,10 @@ jobs:
           E2E_SIGNED_IN_EMAIL: ${{ secrets.E2E_SIGNED_IN_EMAIL }}
           E2E_COURSE_EMAIL: ${{ secrets.E2E_COURSE_EMAIL }}
           E2E_PREMIUM_EMAIL: ${{ secrets.E2E_PREMIUM_EMAIL }}
+          # S2.5 (D-25): the parity project exists only when this is "1", and only the manual
+          # `parity: on` input sets it — pull_request and deployment_status runs never do.
+          E2E_PARITY: ${{ inputs.parity == 'on' && '1' || '' }}
+          E2E_OWNER_MAILBOX: ${{ secrets.E2E_OWNER_MAILBOX }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

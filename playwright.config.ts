@@ -99,6 +99,24 @@ function setupProject(role: FixtureRole) {
   };
 }
 
+/**
+ * S2.5 parity specs (tests/e2e/parity/) write real things — a signup in unretire-test, a
+ * Stripe SANDBOX payment, one contact in the live Mailchimp audience — so they belong to
+ * a project that exists ONLY when E2E_PARITY=1, which only the "E2E — Preview" workflow's
+ * dispatch input `parity: on` sets (decision D-25). pull_request runs never carry it, and
+ * the two browser projects ignore the folder outright. The project depends on the course
+ * and premium setups because the checkout specs run as those fixtures; it records neither
+ * trace nor screenshot (credentials are typed in it).
+ */
+const PARITY_SPECS = "**/parity/**";
+const parityEnabled = process.env.E2E_PARITY === "1";
+const parityProject = {
+  name: "parity-chromium",
+  testMatch: "**/parity/*.spec.ts",
+  dependencies: ["setup:course", "setup:premium"],
+  use: { ...desktop, trace: "off" as const, screenshot: "off" as const },
+};
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
@@ -110,7 +128,11 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    // A Playwright trace records request headers — including the bypass header the shared
+    // fixture adds — and the workflow uploads test-results/ on every run. So no trace is
+    // ever recorded while a bypass secret is present (reproduced with a dummy value,
+    // S2.5 — Known issue 49); locally, without a secret, a failure keeps its trace.
+    trace: bypassPresent ? "off" : "retain-on-failure",
     screenshot: "only-on-failure",
   },
   projects: [
@@ -120,12 +142,15 @@ export default defineConfig({
     {
       name: "desktop-chromium",
       testMatch: "**/*.spec.ts",
+      testIgnore: PARITY_SPECS,
       use: { ...desktop },
     },
     {
       name: "mobile-390",
       testMatch: "**/*.spec.ts",
+      testIgnore: PARITY_SPECS,
       use: mobile390,
     },
+    ...(parityEnabled ? [parityProject] : []),
   ],
 });
