@@ -147,7 +147,7 @@ that is broken.)
       (same merge-base, new head = the S1.3 merge commit). S2.1 starts only after Round 5 returns STAGE
       APPROVED~~ (the standing reminder stays true: during S2.1 you add the required **"Code Check"**
       status to the existing `master` protection rule — the PR-before-merge half is already enabled,
-      confirmed 2026-08-26).
+      confirmed 2026-08-26).~~
 
 ---
 
