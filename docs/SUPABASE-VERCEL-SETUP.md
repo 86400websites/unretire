@@ -169,8 +169,8 @@ Why this matters: RLS is the last line of defense when application code gets a c
 
 ### B5. Migration workflow
 
-- [ ] Every schema change lives in the repo as numbered SQL: up-SQL + a paired `.down.sql` + the RLS policies, all in the same PR.
-- [ ] Apply through the project's approved migration procedure: **TEST first → verify per role → owner approval → PROD**. Do not let an AI agent apply a Production migration without explicit authorization.
+- [x] Every schema change lives in the repo as numbered SQL: up-SQL + a paired `.down.sql` + the RLS policies, all in the same PR. *(Adopted S2.5, 2026-08-28 — `supabase/migrations/`, README there; `0001_entitlements` and `0002_book_downloads` are the production baseline captured read-only, each with a filled change record under `docs/database-changes/`.)*
+- [x] Apply through the project's approved migration procedure: **TEST first → verify per role → owner approval → PROD**. Do not let an AI agent apply a Production migration without explicit authorization. *(Exercised S2.5, 2026-08-28: applied to `unretire-test` only, after the owner's explicit authorisation, through the `supabase-test` MCP; verified per role — an INSERT as `authenticated`/`anon` refused by RLS; Production was the source and was never written.)*
 - [ ] Keep changes backwards-compatible so code and schema can deploy independently — a hosting rollback does NOT roll back the database.
 
 ### B6. Wire Vercel env vars to Supabase
