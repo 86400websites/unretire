@@ -4,22 +4,24 @@ name: E2E — Preview
 # credentials — as GitHub Actions secrets, referenced by name. It is not a required
 # status on `master`; the Code Check remains the only required check.
 #
-# Three ways in:
-#   - pull_request — the PR's own check: waits for Vercel's Preview deployment of the
-#     PR head, then tests that URL. Re-runs on every push.
-#   - workflow_dispatch — manual, paste a Preview URL (GitHub offers the button only
-#     once this file is on the default branch).
-#   - deployment_status — automatic on a successful Preview deployment.
-#
-# Whatever the source, the URL must be https on this project's Vercel Preview hosts
-# (unretire-*-86400-s-projects.vercel.app) — enforced here AND in playwright.config.ts —
-# because the browser will carry the bypass secret and type fixture credentials there.
+# Three ways in, ONE way to a URL: no trigger accepts a URL. Each trigger names a
+# commit SHA, and the job resolves that commit's Vercel deployment through GitHub's
+# Deployments API, accepting only a deployment whose environment starts with
+# "Preview" and whose latest status is "success" — then tests its recorded
+# environment_url. A Vercel hostname cannot prove "Preview" (Production deployments
+# share the unretire-<hash>-…vercel.app shape), so the environment recorded by
+# GitHub is the authority (Round-2 review, Finding 1).
+#   - pull_request     — the PR's own check; SHA = the PR head. Re-runs on every push.
+#   - workflow_dispatch — manual; input = a full commit SHA (the button appears only
+#                        once this file is on the default branch).
+#   - deployment_status — automatic on a successful Preview deployment; SHA = the
+#                        deployed commit.
 on:
   pull_request:
   workflow_dispatch:
     inputs:
-      preview_url:
-        description: "Deployed Preview URL to test (https://unretire-…-86400-s-projects.vercel.app)"
+      sha:
+        description: "Full 40-character commit SHA whose Vercel PREVIEW deployment to test (copy it from the PR's commit list)"
         required: true
         type: string
   deployment_status:
@@ -43,57 +45,62 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # Test the harness at the exact commit that was deployed.
-          ref: ${{ github.event.pull_request.head.sha || github.event.deployment.sha || github.sha }}
-      - name: Resolve the deployed Preview URL
+          ref: ${{ github.event.pull_request.head.sha || github.event.deployment.sha || inputs.sha || github.sha }}
+      - name: Resolve the deployed Preview URL from GitHub's Deployments API
         id: preview
         env:
           GH_TOKEN: ${{ github.token }}
-          INPUT_URL: ${{ inputs.preview_url }}
-          EVENT_URL: ${{ github.event.deployment_status.environment_url }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          INPUT_SHA: ${{ inputs.sha }}
+          EVENT_SHA: ${{ github.event.deployment.sha }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
+          sha="${INPUT_SHA:-${EVENT_SHA:-$PR_SHA}}"
+          if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Expected a full 40-character commit SHA, got '$sha'"
+            exit 1
+          fi
+          # A pull_request run may arrive before Vercel has deployed the head: wait up to
+          # 10 minutes. Manual and deployment_status runs refer to a deployment that must
+          # already exist, so they get one look and no waiting.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then attempts=40; else attempts=1; fi
           url=""
-          if [ -n "$INPUT_URL" ]; then
-            url="$INPUT_URL"
-          elif [ -n "$EVENT_URL" ]; then
-            url="$EVENT_URL"
-          else
-            # pull_request: wait (up to 10 min) for Vercel's GitHub deployment of the PR head.
-            for attempt in $(seq 1 40); do
-              id=$(gh api "repos/$GITHUB_REPOSITORY/deployments?sha=$HEAD_SHA&per_page=20" \
-                --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty')
-              if [ -n "$id" ]; then
-                state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" \
-                  --jq '.[0].state // empty')
-                case "$state" in
-                  success)
-                    url=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=20" \
-                      --jq '[.[] | select(.state == "success")][0].environment_url // empty')
-                    ;;
-                  failure | error)
-                    echo "::error::Vercel reported the Preview deployment of $HEAD_SHA as $state"
-                    exit 1
-                    ;;
-                esac
-              fi
-              [ -n "$url" ] && break
-              echo "Preview deployment of $HEAD_SHA not ready yet (attempt $attempt/40)"
-              sleep 15
-            done
-            if [ -z "$url" ]; then
-              echo "::error::No successful Vercel Preview deployment found for $HEAD_SHA within 10 minutes"
-              exit 1
+          for attempt in $(seq 1 "$attempts"); do
+            id=$(gh api "repos/$GITHUB_REPOSITORY/deployments?sha=$sha&per_page=20" \
+              --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty')
+            if [ -n "$id" ]; then
+              state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" \
+                --jq '.[0].state // empty')
+              case "$state" in
+                success)
+                  url=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=20" \
+                    --jq '[.[] | select(.state == "success")][0].environment_url // empty')
+                  ;;
+                failure | error)
+                  echo "::error::Vercel reported the Preview deployment of $sha as $state"
+                  exit 1
+                  ;;
+              esac
             fi
+            [ -n "$url" ] && break
+            if [ "$attempt" -lt "$attempts" ]; then
+              echo "Preview deployment of $sha not ready yet (attempt $attempt/$attempts)"
+              sleep 15
+            fi
+          done
+          if [ -z "$url" ]; then
+            echo "::error::No successful Vercel PREVIEW deployment is recorded for commit $sha"
+            exit 1
           fi
           url="${url%/}"
-          # Anchored allow-list: https, this project's Preview hosts only, no path.
+          # Sanity check on what GitHub recorded: https on this project's Vercel hosts, no path.
+          # (Shape only — the Preview environment above is what makes it a Preview.)
           if ! [[ "$url" =~ ^https://unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$ ]]; then
-            echo "::error::Refusing to test '$url' — not an https URL on this project's Vercel Preview hosts"
+            echo "::error::Refusing to test '$url' — not an https URL on this project's Vercel hosts"
             exit 1
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "Testing $url"
+          echo "Testing $url (Preview deployment of $sha)"
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -106,7 +113,7 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
           # Skip Playwright's failure-time page snapshot (error-context.md): it would render
-          # form field values. Belt and braces with the auth helper closing its page.
+          # form field values. Belt and braces with the config default and the auth helper.
           PLAYWRIGHT_NO_COPY_PROMPT: "1"
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_FIXTURE_PASSWORD: ${{ secrets.E2E_FIXTURE_PASSWORD }}

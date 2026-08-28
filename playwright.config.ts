@@ -3,24 +3,31 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * (Un)Retire — Playwright harness (Sprint S2.3).
  *
- * The deployment under test is named by PLAYWRIGHT_BASE_URL and is validated
- * before anything runs: only this project's Vercel Preview hosts over https,
- * or plain http://localhost for a credential-free local self-check. When
- * VERCEL_AUTOMATION_BYPASS_SECRET is present (GitHub Actions secrets only —
- * never a local file) the target MUST be a Preview host, and the secret is
- * attached only to same-origin requests by tests/e2e/fixtures.ts — never
- * context-wide. The value is read from process.env by name and is never
- * logged, titled or reported.
+ * The deployment under test is named by PLAYWRIGHT_BASE_URL. In CI that value
+ * is never typed by hand: the "E2E — Preview" workflow resolves it from
+ * GitHub's Deployments API — a deployment of a named commit whose environment
+ * starts with "Preview" — because a Vercel hostname alone cannot prove
+ * "Preview" (a Production deployment shares the unretire-<hash>-… shape).
+ * The check below is therefore a coarse guard, not a Preview proof: it keeps
+ * a bypass-bearing run off third-party hosts, the custom Production domain
+ * and the production-branch alias, and allows plain http://localhost only
+ * for a credential-free local self-check. When VERCEL_AUTOMATION_BYPASS_SECRET
+ * is present (GitHub Actions secrets only — never a local file) it is attached
+ * only to same-origin requests by tests/e2e/fixtures.ts — never context-wide.
+ * Values are read from process.env by name and never logged, titled or
+ * reported.
  */
 
-const PREVIEW_HOST = /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
+const PROJECT_HOST = /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
+// The production branch's alias shares the project-host shape; refuse it outright.
+const PRODUCTION_BRANCH_ALIAS = /^unretire-git-master-/;
 const LOCAL_HOST = /^(localhost|127\.0\.0\.1)$/;
 
 function resolveTarget(raw: string | undefined, bypassPresent: boolean) {
   if (!raw) {
     throw new Error(
-      "PLAYWRIGHT_BASE_URL is not set. Point it at the deployment under test — " +
-        "a deployed Vercel Preview URL, or http://localhost:3000 for a local self-check.",
+      "PLAYWRIGHT_BASE_URL is not set. In CI the E2E — Preview workflow resolves it " +
+        "from GitHub's Deployments API; locally use http://localhost:3000 for a self-check.",
     );
   }
   let url: URL;
@@ -29,13 +36,16 @@ function resolveTarget(raw: string | undefined, bypassPresent: boolean) {
   } catch {
     throw new Error(`PLAYWRIGHT_BASE_URL is not an absolute URL: ${raw}`);
   }
-  const isPreview =
-    url.protocol === "https:" && PREVIEW_HOST.test(url.hostname);
+  const isProjectHost =
+    url.protocol === "https:" &&
+    PROJECT_HOST.test(url.hostname) &&
+    !PRODUCTION_BRANCH_ALIAS.test(url.hostname);
   const isLocal = url.protocol === "http:" && LOCAL_HOST.test(url.hostname);
-  if (bypassPresent ? !isPreview : !(isPreview || isLocal)) {
+  if (bypassPresent ? !isProjectHost : !(isProjectHost || isLocal)) {
     throw new Error(
       `Refusing to test ${url.origin}: the harness only targets this project's ` +
-        "Vercel Preview hosts (https://unretire-*-86400-s-projects.vercel.app)" +
+        "Vercel hosts (https://unretire-*-86400-s-projects.vercel.app, never the " +
+        "production-branch alias)" +
         (bypassPresent
           ? " while a bypass secret is present — the secret must never be sent anywhere else."
           : ", or http://localhost for a local self-check. Production is never a target."),

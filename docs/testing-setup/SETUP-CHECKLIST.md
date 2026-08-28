@@ -26,7 +26,7 @@ Vercel can protect Preview links so strangers cannot see unfinished work. The ro
 
 - [x] **You:** in Vercel → the project → Settings → Deployment Protection → enable **Protection Bypass for Automation**. Vercel generates a secret. *(done 2026-08-25)*
 - [x] **You:** add that secret to the project's environment variables in Vercel (Preview environment) and to GitHub Actions secrets — Claude Code will tell you the exact variable name to use. Paste the value only into those dashboards, never into chat, never into any file. *(Vercel half done 2026-08-25 — `VERCEL_AUTOMATION_BYPASS_SECRET`, Preview scope; the GitHub Actions secret of the same name was added 2026-08-28 — OWNER-ACTIONS Part 5.2, owner screenshot, names only)*
-- [x] **Claude Code:** reference the secret **by name only** in the Playwright config so test requests carry the bypass header. If Preview protection is off, skip this part. *(S2.3, 2026-08-28 — `playwright.config.ts` sends `x-vercel-protection-bypass` when the variable is present)*
+- [x] **Claude Code:** reference the secret **by name only** in the Playwright config so test requests carry the bypass header. If Preview protection is off, skip this part. *(S2.3, 2026-08-28 — ~~`playwright.config.ts` sends `x-vercel-protection-bypass` when the variable is present~~ the shared fixture `tests/e2e/fixtures.ts` attaches `x-vercel-protection-bypass` + `x-vercel-set-bypass-cookie` by name **only to requests whose origin equals the validated deployment under test — never context-wide** (Round-1 remediation; proven by the Round-2 runs 33162485808 (`pull_request`) / 33162520875 (`deployment_status`) at `5ce24cd`))*
 
 ## Part 4 — Prove it works, then close
 

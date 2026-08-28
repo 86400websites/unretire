@@ -432,7 +432,7 @@ live database.
       is alive. Tell me the PR number and whether it went green; if it is red, send me the link and I will read
       it. *(The manual "Run workflow" button only starts working after this file reaches `master` — GitHub's
       rule, not ours.)*
-- [ ] **5.5 — Independent review, then merge.** *(Round 1 came back on 2026-08-28 as REQUEST CHANGES — four findings, all fixed the same day; the next ask is Round 2 at the new head.)* When I tell you the brief is pinned to the final head, run
+- [ ] **5.5 — Independent review, then merge.** *(Round 1 came back on 2026-08-28 as REQUEST CHANGES — four findings, all fixed the same day. Round 2 came back the same day with two more — one real: a Production deployment address could have passed the address check — both fixed; the next ask is Round 3 at the new head.)* When I tell you the brief is pinned to the final head, run
       the Codex review from `docs/code-reviews/S2.3-playwright-harness-review.md` exactly as for S2.2, paste the
       returned record back to me, and merge only on **APPROVE**. After the merge, the "Run workflow" button for
       "E2E — Preview" also works from `master`, and I run the Production smoke (read-only).
