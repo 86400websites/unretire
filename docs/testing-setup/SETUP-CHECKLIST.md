@@ -25,12 +25,12 @@ When the last box is ticked, testing is a single ask forever after: `/activate-t
 Vercel can protect Preview links so strangers cannot see unfinished work. The robot needs a sanctioned key through that door — never a workaround.
 
 - [x] **You:** in Vercel → the project → Settings → Deployment Protection → enable **Protection Bypass for Automation**. Vercel generates a secret. *(done 2026-08-25)*
-- [ ] **You:** add that secret to the project's environment variables in Vercel (Preview environment) and to GitHub Actions secrets — Claude Code will tell you the exact variable name to use. Paste the value only into those dashboards, never into chat, never into any file. *(Vercel half done 2026-08-25 — `VERCEL_AUTOMATION_BYPASS_SECRET`, Preview scope; the GitHub Actions secret of the same name is OWNER-ACTIONS Part 5.2 — pending 2026-08-28)*
+- [x] **You:** add that secret to the project's environment variables in Vercel (Preview environment) and to GitHub Actions secrets — Claude Code will tell you the exact variable name to use. Paste the value only into those dashboards, never into chat, never into any file. *(Vercel half done 2026-08-25 — `VERCEL_AUTOMATION_BYPASS_SECRET`, Preview scope; the GitHub Actions secret of the same name was added 2026-08-28 — OWNER-ACTIONS Part 5.2, owner screenshot, names only)*
 - [x] **Claude Code:** reference the secret **by name only** in the Playwright config so test requests carry the bypass header. If Preview protection is off, skip this part. *(S2.3, 2026-08-28 — `playwright.config.ts` sends `x-vercel-protection-bypass` when the variable is present)*
 
 ## Part 4 — Prove it works, then close
 
-- [ ] **Claude Code:** write one smoke test (homepage loads with no errors) and run it against a deployed Preview to prove the pipeline is alive end to end. *(spec written and passing locally 2/2 on 2026-08-28; the deployed-Preview run — the `E2E — Preview` workflow — is pending the Part 3 secret)*
+- [x] **Claude Code:** write one smoke test (homepage loads with no errors) and run it against a deployed Preview to prove the pipeline is alive end to end. *(spec written; local 2/2 on 2026-08-28; **passed against the deployed Preview of PR #16 at `8111884` in both profiles, alongside the three auth-setup projects — `E2E — Preview` runs 33157431610 / 33157354972**)*
 - [ ] **You:** merge the setup PR (normal workflow: PR → Preview → review → merge).
 - [ ] **You:** confirm in one line that setup is done, dated, in the PR or project status.
 

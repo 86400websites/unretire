@@ -13,7 +13,7 @@
 > | `tests/e2e/` and any spec in it | ~~**Does not exist** — created by **S2.3**~~ **Landed 2026-08-28 in S2.3**: one `@smoke` homepage spec + three auth-setup projects (same caveat) |
 > | `docs/FEATURE-LIST.md` | **Does not exist** — produced by **S5.1** (`/activate-testing` Phase 1, owner-approved) |
 > | `.github/workflows/morning-check.yml` | ~~**Does not exist** — added **disabled** in S2.3~~ **Added DISABLED 2026-08-28 in S2.3** (schedule commented out + guarded by the `MORNING_CHECK_ENABLED` variable), enabled only in **S5.2** |
-> | Any automated test run / GO verdict | **None yet** — the first full run is **S5.1** *(S2.3's local smoke passed 2/2 on 2026-08-28 and its Preview run is pending — neither is a GO)* |
+> | Any automated test run / GO verdict | **None yet** — the first full run is **S5.1** *(S2.3's smoke passed on the deployed Preview on 2026-08-28 — PR #16, head `8111884` — and locally 2/2; a smoke is not a GO)* |
 >
 > Nothing in this repo may cite a passing test, a spec file, or a GO verdict until those sprints land.
 > The gates that *are* live today are the independent Codex review and hand-run local checks.
