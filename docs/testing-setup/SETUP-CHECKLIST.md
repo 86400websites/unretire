@@ -31,8 +31,8 @@ Vercel can protect Preview links so strangers cannot see unfinished work. The ro
 ## Part 4 — Prove it works, then close
 
 - [x] **Claude Code:** write one smoke test (homepage loads with no errors) and run it against a deployed Preview to prove the pipeline is alive end to end. *(spec written; local 2/2 on 2026-08-28; **passed against the deployed Preview of PR #16 at `8111884` in both profiles, alongside the three auth-setup projects — `E2E — Preview` runs 33157431610 / 33157354972**)*
-- [ ] **You:** merge the setup PR (normal workflow: PR → Preview → review → merge).
-- [ ] **You:** confirm in one line that setup is done, dated, in the PR or project status.
+- [x] **You:** merge the setup PR (normal workflow: PR → Preview → review → merge). *(PR #16 merged 2026-08-28 after three Codex rounds — APPROVE at `b54c776`)*
+- [x] **You:** confirm in one line that setup is done, dated, in the PR or project status. *(Recorded 2026-08-28 by the merge: the Launch Gate setup half is DONE — `docs/PROJECT-STATUS.md` §2 S2.3 row and the sprint record's Outcome)*
 
 ---
 
