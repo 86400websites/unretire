@@ -442,9 +442,85 @@ come after the Launch Gate passes.
 
 ---
 
+## PART 6 — Environment parity · S2.5 (opened 2026-08-28) — the proofs that turn "configured" into "verified"
+
+Sprint S2.5 is built and waiting on the branch `claude/s2.5-environment-parity`. It does three things: copies the
+**exact** definition of your live database tables into the test database (from a read-only capture — nothing is
+typed by hand), writes down the login settings of both databases side by side, and then runs the test robot through
+a real signup, two **sandbox** purchases and one newsletter signup on the preview site to prove each lands in the
+test database / the Stripe sandbox / your one Mailchimp list — and nowhere else. **Nothing here touches the live
+database or real money.** The first four items are needed before I can continue; the rest come as the sprint runs.
+
+> **Status 2026-08-28 (same day):** 6.1 ✅ ("Yes please — but please also verify" → applied to `unretire-test` and
+> verified line by line against production; an unauthorised role is refused), 6.2 ✅ ("ok yes" → `staging`
+> fast-forwarded to `master`), 6.3 ✅ (`E2E_OWNER_MAILBOX` added; password confirmed > 8 characters), 6.4 ✅ (all
+> screens read; the one mismatch — "Confirm email" — was switched OFF on the test project by you; two prod screens
+> still welcome: *Providers → Email* detail and *Attack Protection*), 6.10 ✅ ("Ok"), 6.11 ✅ (deleted by me without
+> opening it). **Open: 6.5–6.9 (after the push and the PR) and the Commit/Push words for this branch.**
+
+- [x] **6.1 — Say "yes" to building the test database from the captured files.** ✅ Done 2026-08-28. Two files,
+      `supabase/migrations/0001_entitlements.sql` and `0002_book_downloads.sql`, are the live tables' definitions as
+      read from `unretire-prod` on 2026-08-28. I will apply them to **`unretire-test` only** — never to the live
+      database, which is where they came from. The plain-English records are `docs/database-changes/0001-entitlements.md`
+      and `0002-book-downloads.md`. Two things I found while capturing, for your information (nothing to do): the
+      live `status` column also allows a value `expired` that no document mentioned, and there is no database index on
+      the subscription id (harmless at today's size; noted for S4.3).
+- [x] **6.2 — Say "yes" to refreshing `staging` once more.** ✅ Done 2026-08-28 (your Stripe Sandbox webhook keeps the same address and bypass parameter; only the code behind it was refreshed). As on 2026-08-27, I fast-forward the `staging` branch to
+      match `master` so the Sandbox webhook address runs the current code before any test payment. No code changes on
+      it; it only mirrors what is already merged.
+- [x] **6.3 — One new robot key, in GitHub only: `E2E_OWNER_MAILBOX`.** ✅ Done 2026-08-28 (no password of any kind was needed — only the address; the robot uses the S2.3 `E2E_FIXTURE_PASSWORD`, which you confirmed is longer than 8 characters). GitHub → the `unretire` repository → Settings →
+      Secrets and variables → Actions → **New repository secret** → name `E2E_OWNER_MAILBOX`, value = your own bare
+      mailbox address (the one the three test accounts use, without any `+tag`). The robot builds every test address
+      from it with a plus-tag, so every test email lands in **your** inbox and nothing can ever bounce. Also confirm
+      the shared test-account password is **at least 8 characters** (the signup form insists on it). *This is decision
+      **D-25** — the parity tests run only when you press the button in 6.5, never on every pull request and never in
+      the daily morning check.*
+- [x] **6.4 — Read me the login settings of BOTH databases** ✅ Done 2026-08-28 — recorded in `docs/ENVIRONMENT-PARITY.md` §5.3c. **One thing it found and you fixed the same day:** "Confirm email" was ON in the test database and OFF on the live one; you switched the test database to OFF, so both now behave the same way (the live database was never touched). Still welcome, not blocking: the live database's *Providers → Email* detail and *Attack Protection* screens. (Supabase → project → **Authentication**). Screenshots
+      are perfect; none of these screens holds a secret (never send the API Keys page). For `unretire-prod` and then
+      `unretire-test`: **URL Configuration** (the Site URL and the full Redirect URLs list); **Providers → Email**
+      (is "Confirm email" on or off; secure email change; minimum password length; leaked-password protection);
+      **Sign In / Providers** (which providers are enabled); **Rate Limits** (how many emails per hour); **Emails**
+      (for the "Confirm signup" and "Reset password" templates, whether the link uses `{{ .ConfirmationURL }}` or
+      `{{ .SiteURL }}` / `{{ .TokenHash }}`; and whether a custom SMTP provider is set — its name only); **Sessions**
+      (JWT expiry, refresh-token rotation, OTP expiry). This becomes the written parity table the roadmap asks for.
+- [ ] **6.5 — Press the button (after 6.1–6.4 and after I tell you the branch is pushed).** GitHub → Actions →
+      "E2E — Preview" → **Run workflow** → *Use workflow from:* **`claude/s2.5-environment-parity`** → `sha` = the full
+      commit id I give you → `parity` = **on** → Run. It takes about five minutes. Green on all ten lines = the proofs
+      ran. Send me the link either way; if it is red, I will read it (a red caused by the test database's hourly email
+      limit needs no change — we re-run the same commit an hour later).
+- [ ] **6.6 — Three inbox and Mailchimp reads (after 6.5).** (a) You will receive one or two emails from the test
+      database (a signup confirmation if "Confirm email" is on; a password-reset for the signed-in test account). Click
+      the link and tell me the **address at the top of the browser** on the page it lands on — it should start with the
+      preview site's address (`https://unretire-git-claude-s25-…vercel.app`), never `www.unretireproject.com` and never
+      `localhost`. A "page not found" there is expected (Known issue 2). If you would rather not click, copy the part of
+      the link after `redirect_to=`. (b) Mailchimp → your audience → search **`ur-test-s25`**: tell me the tag and first
+      name on the contact (expected: tag `starter-plan`, first name `E2E`), then **archive every match** (archive, not
+      permanent delete — decision D-24). One such contact exists per button press. (c) Send me the audience's list of
+      merge fields and tags (Audience → Settings → Audience fields and *|MERGE|* tags; and the Tags page) — names only.
+- [ ] **6.7 — Two Stripe Sandbox reads (after 6.5).** In the **Sandbox** (never live): (a) Payments — two new test
+      payments (a $99 one-time and a $199/year subscription) from the test accounts, and **nothing new in live mode**;
+      (b) Developers → Webhooks → `captivating-triumph` → recent deliveries — the `checkout.session.completed` event
+      shows **200**. That 200 is proof P6.
+- [ ] **6.8 — One reset on the live site, for proof P13.** On https://www.unretireproject.com/forgot-password
+      request a reset for **your own existing** account (do not create one). Open the email and tell me the address at
+      the top of the browser after clicking (expected to start with `https://www.unretireproject.com/`; a "page not
+      found" is expected — Known issue 2). If you have no account on the live site, tell me and this half waits for
+      launch day.
+- [ ] **6.9 — Confirm nothing changed in Vercel's environment variables since 2026-08-28** (names and scopes only —
+      a "yes, unchanged" is enough; that re-affirms proof P12).
+- [x] **6.10 — Known issue 31 (Stripe API-version tidy-up) moves to S4.3.** ✅ "Ok" 2026-08-28 — recorded there.
+- [x] **6.11 — Delete `tests/e2e/.auth/FIXTURES.local.md` from your machine.** ✅ Deleted by me on 2026-08-28 at
+      your request, without opening it.
+
+Also needed from you, as every sprint: the **Commit / Push** decision for this branch, then the pull request, then
+the Codex review from `docs/code-reviews/S2.5-environment-parity-review.md` once I pin the brief.
+
+---
+
 ## What I need back from you
 
-*(The original four asks are all received — struck for the record. Current asks, updated 2026-08-27:)*
+*(The original four asks are all received — struck for the record. Current asks, updated 2026-08-28 — **Part 6
+items 6.1–6.4 first**, then the Commit/Push decision for `claude/s2.5-environment-parity`; earlier list retained:)*
 
 1. ~~"Bypass is on" + the **pull request number**~~ → ~~the S2.1 pull request number and its Preview URL (Part 1B.3)~~ received. Now: your **Commit: YES / Push: YES** for the
    docs-only close-out branch `claude/s2.1-close-out`, then open its PR (#12)

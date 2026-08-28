@@ -805,6 +805,37 @@ Local, Preview and Production, so no amount of environment splitting affects it,
 fully green Preview suite would say nothing about it whatsoever. It is exactly the class of problem that a
 parity document is prone to hiding, which is why it is written down here.
 
+### 5.3c Auth-settings parity — recorded 2026-08-28 (Sprint S2.5, proof P9) — first read, one mismatch
+
+Read by the owner from both dashboards (screenshots, names and settings only — no secret screen) and transcribed
+here. **P9 status (second read, 2026-08-28): every row read matches or is by design — the one mismatch found on the
+first read ("Confirm email" ON in test, OFF in production) was corrected by the owner on `unretire-test` the same
+day; two production rows (Providers → Email detail; Attack Protection) are still to be read.** Note the plan tiers:
+`unretire-prod` is Pro, `unretire-test` is Free — the Free tier cannot edit e-mail templates or session controls,
+which is why those rows read "identical defaults" rather than "configured the same". Re-read after any change to
+either project's Authentication settings.
+
+| Setting | `unretire-prod` (Pro) | `unretire-test` (Free) | Match | Note / compensating check |
+|---|---|---|---|---|
+| Site URL | `https://www.unretireproject.com` | `http://localhost:3000` | by design | Exactly as §5.3a records; P13's inspection half re-recorded against the `www` host 2026-08-28 |
+| Redirect URLs | `http://localhost:3000/**`, `https://www.unretireproject.com/**`, `https://unretire.vercel.app/**`, `https://unretireproject.com/**`, `https://*-86400-s-projects.vercel.app/**` (5) | `http://localhost:3000/**`, `https://*-86400-s-projects.vercel.app/**` (2) | by design | Exactly as §5.3a records; §5.3a outstanding item 2 (the two broad production entries) unchanged |
+| Allow new users to sign up | ON | ON | Y | |
+| Allow manual linking | OFF | OFF | Y | |
+| Allow anonymous sign-ins | OFF | OFF | Y | |
+| **Confirm email** | **OFF** | ~~ON~~ **OFF** (switched by the owner 2026-08-28, test project only) | **Y** (was N on the first read) | §7 risk 2: both projects now run `register()`'s live-session branch; the S2.5 signup spec must annotate `OFF`. Production was never changed. |
+| Enabled providers | Email only | Email only | Y | No custom providers on either |
+| Providers → Email detail | *not yet read* (Pro) | Enable email provider ON · secure email change ON · secure password change OFF · require current password when updating OFF · leaked-password protection OFF (Pro-only feature) · **minimum password length 6** · password requirements none · e-mail OTP expiry 3600 s · e-mail OTP length 8 | owed (prod) | The app enforces ≥ 8 characters itself (`src/app/auth/actions.ts`), so a 6-character dashboard minimum cannot fork behaviour; the fixture password is > 8 (owner-confirmed 2026-08-28) |
+| Leaked-password protection | *not yet read* | DISABLED (Pro-only) | owed (prod) | Prod Attack Protection screen not yet supplied |
+| Captcha protection | *not yet read* | OFF | owed (prod) | Abuse controls are S4.5 (D-9) either way |
+| Email templates — "Confirm sign up" and "Reset password" | Default bodies; link = **`{{ .ConfirmationURL }}`** (Source view) | Default bodies (Free tier cannot edit; Preview shows the same default link) — `{{ .ConfirmationURL }}` | Y | So a P3/P13 link's own host is `<ref>.supabase.co`; the proof is the origin it resolves to (`redirect_to` / the address bar) — §8 P3 |
+| Security notification e-mails (password changed, e-mail changed, phone changed, sign-in method linked/removed, MFA added/removed) | all OFF | all OFF | Y | |
+| SMTP | **built-in** — the dashboard shows the warning "You're using the built-in email service. This service has rate limits and is not meant to be used for production apps." | built-in (Free) | Y — but see note | **Production on the built-in mailer is the §5.3/§6 C7 gap — Known issue 50 (S4.5).** Two auth e-mails per hour, project-wide, is a live limit on password resets today |
+| Rate limits | e-mails 2/h · SMS 30/h · token refresh 150/5 min · token verification 30/5 min · anonymous 30/h · sign-ups/sign-ins 30/5 min · Web3 30/5 min · IP forwarding OFF | identical | Y | The 2/h e-mail cap is why a parity run sends one auth e-mail, not two, once "Confirm email" is OFF on test |
+| Sessions | single session OFF · time-box 0 · inactivity 0 · access token 3600 s · refresh-token revocation ON · reuse interval 10 s | identical (the session controls are Pro-only but show the same values) | Y | |
+| MFA | TOTP enabled · 10 factors · phone MFA disabled · AAL1 limit ON | identical | Y | Unused by the app |
+| Audit logs to database | OFF | OFF | Y | |
+| Performance | 10 s max request · Absolute · 10 connections | identical (Pro-only controls, same values) | Y | |
+
 ### 5.4 Mailchimp field parity — ~~a setup task~~ **moot as a parity task (D-22, 2026-08-27); the field list survives as the assertion contract**
 
 > **Why this subsection changed.** *Parity* here only ever meant "make the test audience match the live one".
@@ -881,7 +912,7 @@ webhook `captivating-triumph` needs an address that never changes. A per-PR Prev
 |---|---|
 | Keep it? | **Yes — permanently.** Deleting it destroys the alias and the Sandbox webhook loses its target. |
 | Merge `staging` **into** `master`? | **Never.** It holds nothing `master` does not; it is a deployment target, not a source of work. Nothing is ever developed on it. |
-| Merge `master` **into** `staging`? | **Yes, periodically — always as a fast-forward**, so `staging` mirrors `master` exactly (`git push origin origin/master:staging`). Done 2026-08-27 (`0983ad5` → `a68f210`, 86 commits). |
+| Merge `master` **into** `staging`? | **Yes, periodically — always as a fast-forward**, so `staging` mirrors `master` exactly (`git push origin origin/master:staging`). Done 2026-08-27 (`0983ad5` → `a68f210`, 86 commits) and again 2026-08-28 before the S2.5 payment proofs (`a68f210` → `9727337`, owner-authorised — OWNER-ACTIONS 6.2; `src/` byte-identical across that range, so the webhook code did not change). |
 | When must it be refreshed? | Before **any** Sandbox payment test (S2.5, S5.1) and before **launch** — otherwise a payment test exercises stale code and proves nothing about what is live. Refresh it whenever `master` has moved and a test is about to run. |
 | Which environment values does it use? | Vercel treats every non-Production branch as **Preview**, so the `staging` deployment reads the **Preview** scope: the `unretire-test` Supabase project and Stripe **sandbox** keys/prices. That is the isolation working as designed. ⚠ It also reads the **shared** `MAILCHIMP_LIST_ID` — the live audience — which is the accepted risk recorded as **D-22**. |
 | Is it protected? | No, and it does not need to be. The `master` ruleset targets the **default branch only**, so `staging` takes a direct fast-forward push with no PR and no review. |
