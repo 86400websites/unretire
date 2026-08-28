@@ -44,5 +44,6 @@ test("acceptance (4) — an email capture on the Preview satisfies the /api/subs
 
   expect(response.status()).toBe(200);
   expect(await response.json()).toEqual({ success: true });
-  await expect(page.getByRole("status")).toContainText("You’re in");
+  // The page renders a straight apostrophe (`You&apos;re`); match either form.
+  await expect(page.getByRole("status")).toContainText(/You.re in/);
 });

@@ -111,6 +111,7 @@ export async function completeStripeCheckout(
   await page.waitForURL(/^https:\/\/checkout\.stripe\.com\//, {
     timeout: 30_000,
   });
+  await page.waitForLoadState("networkidle").catch(() => undefined);
 
   // If Stripe offers its Link wallet for the pre-filled e-mail, decline it and pay as a guest.
   const noLink = page.getByRole("button", {
@@ -129,15 +130,67 @@ export async function completeStripeCheckout(
   const postal = page.locator("#billingPostalCode");
   if (await postal.count()) await postal.fill(TEST_CARD.postalCode);
 
+  // Stripe's "Save my info for 1-click checkout" (Link) box, when pre-checked, makes a phone
+  // number mandatory and blocks submission with a validation error. Pay as a plain guest.
+  const saveWithLink = page.locator("#enableStripePass");
+  if ((await saveWithLink.count()) && (await saveWithLink.isChecked())) {
+    await saveWithLink.uncheck();
+  }
+
   await page.getByTestId("hosted-payment-submit-button").click();
 
-  await page.waitForURL(
-    (url) =>
-      url.origin === origin &&
-      url.pathname === "/unretire/account" &&
-      url.searchParams.get("checkout") === "success",
-    { timeout: 60_000 },
+  // Either Stripe redirects back to the deployment under test, or it stops on a visible
+  // validation / processing error. Fail fast with that error text (never a silent 60 s wait).
+  const backOnOrigin = (url: URL) =>
+    url.origin === origin &&
+    url.pathname === "/unretire/account" &&
+    url.searchParams.get("checkout") === "success";
+  const deadline = Date.now() + 60_000;
+  while (Date.now() < deadline) {
+    if (backOnOrigin(new URL(page.url()))) return;
+    const problem = await visibleStripeProblem(page);
+    if (problem) {
+      throw new Error(
+        `Stripe Checkout did not complete — the page reports: "${problem}" ` +
+          `(${await safeWhereAmI(page)})`,
+      );
+    }
+    await page.waitForTimeout(1_000);
+  }
+  throw new Error(
+    `Stripe Checkout did not redirect back within 60 s and showed no error text ` +
+      `(${await safeWhereAmI(page)})`,
   );
+}
+
+/** Any visible error/alert text on Stripe's hosted page (validation, decline, Link prompt). */
+async function visibleStripeProblem(page: Page): Promise<string | null> {
+  const candidates = page.locator(
+    '[role="alert"], .FieldError, [id$="-fieldset-error"], [data-testid*="error" i]',
+  );
+  const n = await candidates.count();
+  const texts: string[] = [];
+  for (let i = 0; i < n; i += 1) {
+    const el = candidates.nth(i);
+    if (await el.isVisible().catch(() => false)) {
+      const t = (await el.innerText().catch(() => ""))
+        .replace(/\s+/g, " ")
+        .trim();
+      if (t) texts.push(t);
+    }
+  }
+  return texts.length ? texts.join(" | ").slice(0, 400) : null;
+}
+
+/**
+ * Where the page is, without leaking anything: origin + first path segment only (a Stripe
+ * Checkout URL carries the session id in its path; a Preview URL may carry a query string).
+ */
+async function safeWhereAmI(page: Page): Promise<string> {
+  const url = new URL(page.url());
+  const first = url.pathname.split("/").filter(Boolean)[0] ?? "";
+  const title = (await page.title().catch(() => "")).slice(0, 80);
+  return `at ${url.origin}/${first}${first ? "/…" : ""}; title "${title}"`;
 }
 
 /**
