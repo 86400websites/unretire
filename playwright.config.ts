@@ -14,8 +14,11 @@ import { defineConfig, devices } from "@playwright/test";
  * for a credential-free local self-check. When VERCEL_AUTOMATION_BYPASS_SECRET
  * is present (GitHub Actions secrets only — never a local file) it is attached
  * only to same-origin requests by tests/e2e/fixtures.ts — never context-wide.
- * Values are read from process.env by name and never logged, titled or
- * reported.
+ * Values are read from process.env by name and the specs never log, title or
+ * report them. Playwright's OWN step titles do include typed values
+ * (`Fill "<value>"`), and the HTML reporter embeds those titles for passing tests
+ * — which is why the workflow never uploads playwright-report/ (S2.5, Known
+ * issue 51); the local report is gitignored.
  */
 
 const PROJECT_HOST = /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
@@ -99,6 +102,25 @@ function setupProject(role: FixtureRole) {
   };
 }
 
+/**
+ * S2.5 parity specs (tests/e2e/parity/) write real things — a signup in unretire-test, a
+ * Stripe SANDBOX payment, one contact in the live Mailchimp audience — so they belong to
+ * a project that exists ONLY when E2E_PARITY=1, which only the "E2E — Preview" workflow's
+ * dispatch input `parity: on` sets (decision D-25). pull_request runs never carry it, and
+ * the two browser projects ignore the folder outright. The project depends on the course
+ * and premium setups because the checkout specs run as those fixtures; it records neither
+ * trace nor screenshot (credentials are typed in it — and see the note above on step
+ * titles: the HTML report is the reason playwright-report/ is never uploaded).
+ */
+const PARITY_SPECS = "**/parity/**";
+const parityEnabled = process.env.E2E_PARITY === "1";
+const parityProject = {
+  name: "parity-chromium",
+  testMatch: "**/parity/*.spec.ts",
+  dependencies: ["setup:course", "setup:premium"],
+  use: { ...desktop, trace: "off" as const, screenshot: "off" as const },
+};
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
@@ -110,7 +132,11 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    // A Playwright trace records request headers — including the bypass header the shared
+    // fixture adds — and the workflow uploads test-results/ on every run. So no trace is
+    // ever recorded while a bypass secret is present (reproduced with a dummy value,
+    // S2.5 — Known issue 49); locally, without a secret, a failure keeps its trace.
+    trace: bypassPresent ? "off" : "retain-on-failure",
     screenshot: "only-on-failure",
   },
   projects: [
@@ -120,12 +146,15 @@ export default defineConfig({
     {
       name: "desktop-chromium",
       testMatch: "**/*.spec.ts",
+      testIgnore: PARITY_SPECS,
       use: { ...desktop },
     },
     {
       name: "mobile-390",
       testMatch: "**/*.spec.ts",
+      testIgnore: PARITY_SPECS,
       use: mobile390,
     },
+    ...(parityEnabled ? [parityProject] : []),
   ],
 });

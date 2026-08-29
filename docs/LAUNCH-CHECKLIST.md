@@ -86,6 +86,35 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
 - [ ] No accidental `noindex` anywhere — check the live HTML head and response headers.
 - [ ] Auth (if in use): sign up / sign in / reset on the live domain; email links land on `https://www.unretireproject.com`.
 
+### Parity residuals — what no Preview can prove (`docs/ENVIRONMENT-PARITY.md` §6 / §7; added by S2.5, 2026-08-28)
+
+A green Preview suite proves the application logic and the wiring of the test-mode dependencies. Each line below
+covers something only the real site can show; none may be ticked from a Preview result.
+
+- [ ] **One real purchase at a NON-ZERO amount** — a temporary $1 price, a real card, refunded afterwards — confirmed by
+      a success in the **live** Stripe dashboard **and** the `entitlements` row appearing in `unretire-prod` **and** the
+      member reaching the content. A 100%-off code does **not** satisfy this line: it skips the card, 3-D Secure,
+      capture and payout entirely, and for Premium collects no payment method at all (§6 C14; §9 row 3).
+- [ ] **Live Stripe account readiness** (§6 C15), dated by the owner: `charges_enabled` = true, `payouts_enabled` =
+      true, `requirements.currently_due` empty, a verified payout destination, business/tax details complete.
+- [ ] **Live webhook endpoint read off the dashboard** (§6 C16): `brilliant-splendor`'s URL is
+      `https://www.unretireproject.com/api/stripe/webhook`, **both** `checkout.session.completed` and
+      `customer.subscription.deleted` are subscribed, and its API version is recorded.
+- [ ] **One real `/assess` submission, end to end** (Known issue 53; added by S2.5 Round 2, 2026-08-30) — the
+      audience's thirteen merge tags are proven to **exist** (ENVIRONMENT-PARITY §5.4, verbatim owner read), but no
+      test posts them: submit the Wheel of Life once, then confirm in Mailchimp that `WEAKEST`, `WEAKLOW`,
+      `BRIGHTEST`, `SCORE` and all eight `S_*` fields hold the submitted values and that the `wheel-of-life` tag
+      started the intended Customer Journey. `/api/subscribe` swallows a failed tag call, so a silent no-op here
+      is invisible from the response.
+- [ ] **Prod-vs-test schema and policy diff re-run and empty** (proof P8, §5.6) — the committed
+      `supabase/migrations/` files are the intent; the diff is the proof both databases still match them.
+- [ ] **Production has no deployment protection; Preview does** (proof P10): `https://www.unretireproject.com` answers
+      200 with no bypass; a Preview URL without the bypass does not.
+- [ ] **Auth smoke on the real domain** (§6 C6): sign in, sign out, the session survives a refresh, and a password reset
+      requested on the live site resolves to `https://www.unretireproject.com/…` (proof P13's email half).
+- [ ] **Manual bot-check negative on Production** once abuse controls exist (§6 C10; S4.5): the real widget rejects a
+      scripted submission, and the server-side verification-failure path fails closed.
+
 ### The 48-hour watch
 - [ ] Monitor errors (host logs / error tracker) and form deliveries for 48 hours.
 - [ ] Log every issue found to the post-launch backlog with severity.
