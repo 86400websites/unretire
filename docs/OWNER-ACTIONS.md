@@ -464,10 +464,12 @@ database or real money.** The first four items are needed before I can continue;
 > **2026-08-29 — Part 6 is complete except one deferred item.** 6.4 ✅ (the two missing live screens arrived; **P9**
 > re-earned as PASS), 6.6 ✅ (all three reads), 6.7–6.9 ✅, 6.12 ✅ (secret rotated). 6.5 was pressed twice more —
 > the last at the parity head `b3c9489` (run 33264100084, green 10/10) — and you archived every contact.
-> **Open: only 6.13(b)** — rotate the three test accounts' password, deliberately timed for *after* PR #18 merges.
-> **Your next two actions are the review and the merge:** run the **Round 3** brief (Rounds 1 and 2 both returned
-> REQUEST CHANGES; every finding is closed), send the record back, and merge
-> PR #18 **only on APPROVE**.
+> **Open: only 6.13(b)** — rotate the three test accounts' password. **PR #18 merged 2026-08-29 (`ec6c7b7`), so this
+> is now due.** Everything else in Part 6 is complete.
+> ~~**Your next two actions are the review and the merge:** run the **Round 3** brief (Rounds 1 and 2 both returned
+> REQUEST CHANGES; every finding is closed), send the record back, and merge PR #18 only on APPROVE.~~
+> ✅ **Both done 2026-08-29: Round 3 returned APPROVE at reviewed head `34f01b9`, and you merged PR #18 as
+> `ec6c7b7` and deleted the branch. The Production smoke passed.**
 
 - [x] **6.1 — Say "yes" to building the test database from the captured files.** ✅ Done 2026-08-28. Two files,
       `supabase/migrations/0001_entitlements.sql` and `0002_book_downloads.sql`, are the live tables' definitions as
@@ -494,7 +496,7 @@ database or real money.** The first four items are needed before I can continue;
       (for the "Confirm signup" and "Reset password" templates, whether the link uses `{{ .ConfirmationURL }}` or
       `{{ .SiteURL }}` / `{{ .TokenHash }}`; and whether a custom SMTP provider is set — its name only); **Sessions**
       (JWT expiry, refresh-token rotation, OTP expiry). This becomes the written parity table the roadmap asks for.
-- [x] **6.5 — Press the button (after 6.1–6.4 and after I tell you the branch is pushed).** ✅ Done 2026-08-28 — run #28 (`d1b7d2f`) green on all ten lines; run #25 before it was red on my code, not yours. **Pressed twice more since, both green 10/10 and both with no artefact uploaded: run #35 (`48b1ab2`) and — the last one, at the reviewed head — run #60 ([33264100084](https://github.com/86400websites/unretire/actions/runs/33264100084), `b3c9489`), whose contacts you archived. No further press is needed unless a review round changes a test file.** GitHub → Actions →
+- [x] **6.5 — Press the button (after 6.1–6.4 and after I tell you the branch is pushed).** ✅ Done 2026-08-28 — run #28 (`d1b7d2f`) green on all ten lines; run #25 before it was red on my code, not yours. **Pressed twice more since, both green 10/10 and both with no artefact uploaded: run #35 (`48b1ab2`) and — the last one, at the **parity head** — run #60 ([33264100084](https://github.com/86400websites/unretire/actions/runs/33264100084), `b3c9489`), whose contacts you archived. *(Corrected in the close-out: `b3c9489` is the **parity** head — the commit the last dispatch ran at. The **reviewed** head, the one the approval covers, is `34f01b9`.)* No further press is needed unless a review round changes a test file.** GitHub → Actions →
       "E2E — Preview" → **Run workflow** → *Use workflow from:* **`claude/s2.5-environment-parity`** → `sha` = the full
       commit id I give you → `parity` = **on** → Run. It takes about five minutes. Green on all ten lines = the proofs
       ran. Send me the link either way; if it is red, I will read it (a red caused by the test database's hourly email
