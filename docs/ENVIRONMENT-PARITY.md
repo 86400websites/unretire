@@ -130,7 +130,7 @@ managed, item by item.
 |---|---|
 | Isolation wants a **different database**; fidelity wants **identical schema, security policies and auth settings**. | Different project — but built from a **committed SQL file** that is diffed against Production, plus a written auth-settings parity table evidenced from both dashboards. Isolation of the *data*; identity of the *definition*. (§5) |
 | Isolation wants **Stripe test mode**; fidelity wants the same prices, intervals, currency and events. | Mirror the *shape* exactly — same amounts, same currency, one-time vs yearly recurring, the same two webhook events. Accept that ids, keys and signing secrets differ **by necessity**, and close that gap with one real live purchase at launch. (§6 C1) |
-| Isolation wants a **separate email audience**; fidelity wants the same fields and the same automated journeys. | ~~Mirror the field names and tag names exactly and assert them. Accept that the automated journeys are **not** exercised — verify those once, manually, with the owner's own address.~~ **Resolved differently 2026-08-27 by D-22: there is no separate audience, so this tension is not managed — it is conceded.** One live audience serves every environment; fidelity is total and isolation is nil. The suite asserts the field and tag **contract** against the live audience under D-22 rules 1 and 2a–2e (`docs/PROJECT-STATUS.md` §8; cited at §6 **C8**) ~~(owner-mailbox plus-tags, no fabricated addresses, teardown, full-suite only, no campaign sends)~~ *(paraphrase struck 2026-08-28, S2.2 Round 1 Finding 4 — the rules have one canonical home)*; real automations therefore **can** be exercised, and **multi-day journeys are still confirmed manually in the owner's own inbox**. (§6 C8) |
+| Isolation wants a **separate email audience**; fidelity wants the same fields and the same automated journeys. | ~~Mirror the field names and tag names exactly and assert them. Accept that the automated journeys are **not** exercised — verify those once, manually, with the owner's own address.~~ **Resolved differently 2026-08-27 by D-22: there is no separate audience, so this tension is not managed — it is conceded.** One live audience serves every environment; fidelity is total and isolation is nil. ~~The suite asserts the field and tag **contract** against the live audience~~ **— corrected 2026-08-30 (Round 2, third pass; this was a sixth live instance the earlier passes missed): the suite asserts the *endpoint* half (`tests/e2e/parity/subscribe.spec.ts:45-48`), and the field/tag half is the owner's verbatim dashboard read at §5.4 —** under D-22 rules 1 and 2a–2e (`docs/PROJECT-STATUS.md` §8; cited at §6 **C8**) ~~(owner-mailbox plus-tags, no fabricated addresses, teardown, full-suite only, no campaign sends)~~ *(paraphrase struck 2026-08-28, S2.2 Round 1 Finding 4 — the rules have one canonical home)*; real automations therefore **can** be exercised, and **multi-day journeys are still confirmed manually in the owner's own inbox**. (§6 C8) |
 | Isolation wants Preview **locked behind a password**; fidelity wants Production's **open, unauthenticated** request path. | Use Vercel's sanctioned automation bypass on Preview (per `docs/testing-setup/SETUP-CHECKLIST.md` Part 3) and separately assert that Production has no protection — so both request paths get exercised. (§6 C3) |
 | Isolation wants Preview to **never touch production data**; fidelity wants Preview to run **exactly the same code**. | Same code, different environment **values**. That is only achievable if Vercel's Preview scope holds different values from Production. ~~**Today it does not — and that single change is what unlocks everything else.**~~ **Done 2026-08-25:** Preview now holds the `unretire-test` Supabase values and the sandbox Stripe values. What remains is *proof* — the split is configured in a dashboard, not yet demonstrated by a request (§3 Gap 1, §4, §8 P1/P2/P4). |
 
@@ -971,8 +971,10 @@ either project's Authentication settings.
 > exercises. **The gap that argument does not cover:** `route.ts:75` notes the tag "is what triggers the right
 > Customer Journey", and `route.ts:88-91` swallows a failed tag call. A tag auto-created under a name no journey
 > listens for therefore succeeds silently and fires nothing. That is an automation-wiring risk, not a data-loss risk,
-> and it is an **S5.1 / launch** item — the audience's Tags page has still not been read (OWNER-ACTIONS 6.6 c,
-> reopened).
+> and it is an **S5.1 / launch** item — the audience's Tags page has not been read. *(It is **not** a reopened owner
+> action: OWNER-ACTIONS 6.6 (c) is complete and stays ticked — the merge-tag screen it asked for arrived and is
+> pasted above. The unread Tags page is tracked as part of **Known issue 53** and on the launch checklist, and
+> nothing about it is owed by S2.5. An earlier version of this line said "6.6 c, reopened", which was never true.)*
 >
 > **Acceptance (4) is therefore fully PASS:** the endpoint contract (`200 {success:true}`), the observed
 > `FNAME`/`starter-plan` on the contact, the merge-tag identifiers in the verbatim block above, and the teardown —
@@ -1216,7 +1218,7 @@ Record the results in the PR that ships the wiring, or in `docs/PROJECT-STATUS.m
 > re-affirmed**, **P13 PASS** (a Production reset resolved to the production domain). **P1, P11** stand from
 > S2.3/S2.2. **P7 N/A** (D-22). **Every proof in this table is therefore recorded** — the §8 gate is met; what remains
 > open in this document is deliberate (the shared audience) or hygiene (§5.3a item 2, §9 rows 16–17).
-> **Re-proven at the reviewed head 2026-08-29** — `E2E — Preview` `workflow_dispatch` run
+> **Re-proven at the parity head `48b1ab2`, 2026-08-29** — `E2E — Preview` `workflow_dispatch` run
 > [33253395067](https://github.com/86400websites/unretire/actions/runs/33253395067) at `48b1ab2`, GREEN 10/10 against
 > the Preview `https://unretire-519zl323t-86400-s-projects.vercel.app`: P2 and P3's send re-observed in the test
 > project's auth log, both checkout specs took the already-owned branch (no new Sandbox purchase — the two P5 rows

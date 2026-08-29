@@ -463,9 +463,10 @@ database or real money.** The first four items are needed before I can continue;
 > the test database only; a password-reset e-mail was sent to your inbox (twice — once per run). ~~**Open: 6.6–6.9.**~~
 > **2026-08-29 — Part 6 is complete except one deferred item.** 6.4 ✅ (the two missing live screens arrived; **P9**
 > re-earned as PASS), 6.6 ✅ (all three reads), 6.7–6.9 ✅, 6.12 ✅ (secret rotated). 6.5 was pressed twice more —
-> the last at the reviewed head `b3c9489` (run 33264100084, green 10/10) — and you archived every contact.
+> the last at the parity head `b3c9489` (run 33264100084, green 10/10) — and you archived every contact.
 > **Open: only 6.13(b)** — rotate the three test accounts' password, deliberately timed for *after* PR #18 merges.
-> **Your next two actions are the review and the merge:** run the Round 2 brief, send the record back, and merge
+> **Your next two actions are the review and the merge:** run the **Round 3** brief (Rounds 1 and 2 both returned
+> REQUEST CHANGES; every finding is closed), send the record back, and merge
 > PR #18 **only on APPROVE**.
 
 - [x] **6.1 — Say "yes" to building the test database from the captured files.** ✅ Done 2026-08-28. Two files,
@@ -485,7 +486,7 @@ database or real money.** The first four items are needed before I can continue;
       the shared test-account password is **at least 8 characters** (the signup form insists on it). *This is decision
       **D-25** — the parity tests run only when you press the button in 6.5, never on every pull request and never in
       the daily morning check.*
-- [x] **6.4 — Read me the login settings of BOTH databases** — ⚠️ **re-opened 2026-08-29 (review Round 1, Finding 1): two screens of the LIVE database are still missing**, and the reviewer will not pass this proof (P9) on a table with empty cells. ✅ **COMPLETE 2026-08-29.** Providers → Email and Attack Protection both received; **every setting matches the test database** (captcha off on both, leaked-password protection off on both, identical password and OTP rules). The parity table has no empty cell and proof P9 is PASS. Everything else was ✅ Done 2026-08-28 — recorded in `docs/ENVIRONMENT-PARITY.md` §5.3c. **One thing it found and you fixed the same day:** "Confirm email" was ON in the test database and OFF on the live one; you switched the test database to OFF, so both now behave the same way (the live database was never touched). Still welcome, not blocking: the live database's *Providers → Email* detail and *Attack Protection* screens. (Supabase → project → **Authentication**). Screenshots
+- [x] **6.4 — Read me the login settings of BOTH databases** — ~~⚠️ **re-opened 2026-08-29 (review Round 1, Finding 1): two screens of the LIVE database are still missing**, and the reviewer will not pass this proof (P9) on a table with empty cells.~~ *(Struck 2026-08-30: the screens arrived the same day it was re-opened; the clause below is the current state.)* ✅ **COMPLETE 2026-08-29.** Providers → Email and Attack Protection both received; **every setting matches the test database** (captcha off on both, leaked-password protection off on both, identical password and OTP rules). The parity table has no empty cell and proof P9 is PASS. Everything else was ✅ Done 2026-08-28 — recorded in `docs/ENVIRONMENT-PARITY.md` §5.3c. **One thing it found and you fixed the same day:** "Confirm email" was ON in the test database and OFF on the live one; you switched the test database to OFF, so both now behave the same way (the live database was never touched). Still welcome, not blocking: the live database's *Providers → Email* detail and *Attack Protection* screens. (Supabase → project → **Authentication**). Screenshots
       are perfect; none of these screens holds a secret (never send the API Keys page). For `unretire-prod` and then
       `unretire-test`: **URL Configuration** (the Site URL and the full Redirect URLs list); **Providers → Email**
       (is "Confirm email" on or off; secure email change; minimum password length; leaked-password protection);
