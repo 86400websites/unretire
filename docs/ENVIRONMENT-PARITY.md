@@ -860,17 +860,21 @@ either project's Authentication settings.
 > exists with the right tag and merge fields and that `/api/subscribe` behaved correctly). Same list, different
 > purpose.
 
-> **Recorded from the live audience 2026-08-29 (Sprint S2.5, owner read — the "record the live audience's merge tags
-> and tag names once" obligation this subsection carries).** The contact profile of the S2.5 test contact
-> (`…+ur-test-s25-33253395067@…`, added via API, Subscribed) shows the audience's fields as: First Name, Last Name,
-> Address, Phone Number, **Weakest Spoke**, **Weakest Spoke Lower**, **Wheel Score**, **Passion & Purpose**,
-> **Health & Vitality**, **Relationships**, **Personal Growth & Creativity**, **Spirituality & Inner Peace**,
-> **Fun & Adventure**, **Money with Meaning**, **Contribution & Legacy**, **Brightest Spok[e]** — i.e. all thirteen
-> assessment merge fields the app can post (`FNAME`, `WEAKEST`, `WEAKLOW`, `SCORE`, `BRIGHTEST` and the eight
-> `S_*` spokes) exist on the live audience, so §7 risk 8 ("a merge field the app posts that the audience does not
-> define") cannot occur. Tag observed on that contact: **`starter-plan`** — the tag `EmailCaptureForm` sends by
-> default and `/api/subscribe` applies in its second, failure-tolerant call. **Acceptance (4) is closed on this
-> read plus the spec's own 200 `{success:true}`.**
+> **Partly recorded from the live audience 2026-08-29 (Sprint S2.5, owner read) — be exact about what was seen.**
+> The owner supplied one contact profile (`…+ur-test-s25-33253395067@…`, added via API, Subscribed). It shows:
+> **First Name `E2E`** — the value the spec posted, so the merge tag **`FNAME` is proven directly**; **Tags:
+> `starter-plan`** — the tag `EmailCaptureForm` sends by default and `/api/subscribe` applies in its second,
+> failure-tolerant call, so **that tag is proven directly**; and the audience's field **labels**: First Name, Last
+> Name, Address, Phone Number, Weakest Spoke, Weakest Spoke Lower, Wheel Score, Passion & Purpose, Health & Vitality,
+> Relationships, Personal Growth & Creativity, Spirituality & Inner Peace, Fun & Adventure, Money with Meaning,
+> Contribution & Legacy, Brightest Spok[e] — which correspond one-to-one with the contract below.
+> **What is still owed (OWNER-ACTIONS 6.6 c):** a profile shows labels, but the app posts by **merge tag**
+> (`WEAKEST`, `WEAKLOW`, `SCORE`, `BRIGHTEST`, `S_PASSION` …). The tag column lives at Audience → Settings →
+> **Audience fields and \*|MERGE|\* tags**, and the audience's tag list at Audience → Tags; neither has been read.
+> So **§7 risk 8 stays open for the twelve assessment tags** — it cannot bite the email-capture path proven here
+> (which posts only `FNAME` + a tag), only the assessment flow, whose own spec arrives in S5.1.
+> **Acceptance (4)'s contract half is PASS** on the spec's 200 `{success:true}` plus the two directly-proven values;
+> the merge-tag/tag listing and the contacts' archive are the owner items that finish the line.
 
 ~~Mirror into the test audience, and assert as part of setup:~~ **The contract to assert (unchanged list):**
 merge fields `FNAME`, `WEAKEST`, `WEAKLOW`,
