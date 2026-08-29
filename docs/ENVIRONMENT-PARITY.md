@@ -1130,6 +1130,11 @@ Record the results in the PR that ships the wiring, or in `docs/PROJECT-STATUS.m
 > the Preview `https://unretire-519zl323t-86400-s-projects.vercel.app`: P2 and P3's send re-observed in the test
 > project's auth log, both checkout specs took the already-owned branch (no new Sandbox purchase — the two P5 rows
 > are unchanged), and **acceptance (4) closed** on the owner's contact read (tag `starter-plan`, FNAME `E2E`; §5.4).
+> **Re-proven a second time at the final reviewed head `b3c9489` (2026-08-29)** — run
+> [33264100084](https://github.com/86400websites/unretire/actions/runs/33264100084), `parity: on`, **GREEN 10/10**,
+> **no artefact uploaded** (Known issue 51's fix holding), `entitlements` unchanged at the same two rows (no new
+> Sandbox purchase); the run's throwaway P2 account was deleted by the builder and its `ur-test-s25` contact
+> archived by the owner the same day.
 > *(What follows is the earlier history of this status, retained.)*
 >
 > **Recording status — rewritten whole 2026-08-26 (stage-gate Round 4, Finding 4; the 2026-08-25 version
