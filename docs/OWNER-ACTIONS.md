@@ -512,7 +512,7 @@ database or real money.** The first four items are needed before I can continue;
       found" is expected — Known issue 2). If you have no account on the live site, tell me and this half waits for
       launch day.
 - [x] **6.9 — Confirm nothing changed in Vercel's environment variables since 2026-08-28** ✅ "yes that's right" (proof P12 re-affirmed).
-- [ ] **6.12 — Required: rotate the Preview bypass secret** (Known issue 52). The webhook screenshot you sent for
+- [x] **6.12 — Required: rotate the Preview bypass secret** (Known issue 52). ✅ **DONE 2026-08-29 (owner-reported).** The old value that appeared in the webhook screenshot no longer opens anything. *(Instructions kept for the next time:)* The webhook screenshot you sent for
       6.7 shows the endpoint address with the secret inside it (it has to be in that address — Stripe cannot send it
       any other way), and that screenshot now lives in our chat history. It only opens preview builds (test database,
       Sandbox keys — never live data), so the damage is bounded — but our own rule (`docs/ENV-VARS-SAFETY.md`) is
@@ -525,13 +525,21 @@ database or real money.** The first four items are needed before I can continue;
 - [ ] **6.13 — The robot's own report was leaking the test password (Known issue 51) — two clean-ups.** My
       pre-review check found that the report file the robot uploads after every run lists each typing step with the
       text it typed — including the test accounts' password — and that upload has happened on every run since S2.3.
-      Only people with access to the GitHub repository could download it, and it opens nothing but the three test
-      accounts, but it should not exist. The robot no longer uploads that file (fixed on the branch). Please:
-      (a) GitHub → Actions → open each past "E2E — Preview" run → scroll to **Artifacts** → delete the
-      `playwright-report` artefact (there are about ten runs since 2026-08-28 12:00; they also expire by themselves
-      after 14 days); (b) **recommended:** change the test accounts' password — tell me and I will set a new one
-      on the three test accounts through the database tool, hand it to you the same way as in S2.3, and you update
-      `E2E_FIXTURE_PASSWORD` in GitHub.
+      Only people with access to **this** GitHub repository could download it, and it opens nothing but the three
+      test accounts in the test database, but it should not exist. The robot no longer uploads that file (fixed on
+      the branch, and proven by run 33253395067, which uploaded nothing at all).
+      **(a) Deleting the old artefacts — NOT required; owner's decision 2026-08-29: leave them.** They expire by
+      themselves on **2026-09-11** (14-day retention), they exist only in `86400websites/unretire` (artefacts are
+      per-repository — nothing you do or don't do here can touch another repo's Playwright setup), and the rotation
+      in (b) makes their contents worthless before then. The builder cannot delete them (no GitHub token here), and
+      deleting them by hand is optional tidying, not a control.
+      **(b) Rotate the three test accounts' password — the fix that actually closes it, and best done right after
+      PR #18 merges** (doing it mid-review would make the next `E2E — Preview` run fail until the GitHub secret
+      catches up). Two ways, your choice: **(i)** you do both halves — Supabase → `unretire-test` → SQL Editor →
+      `update auth.users set encrypted_password = extensions.crypt('YOUR-NEW-PASSWORD', extensions.gen_salt('bf')) where email like 'thefalafeltheory+ur-e2e-%';`
+      then GitHub → Secrets → `E2E_FIXTURE_PASSWORD` → the same value; or **(ii)** tell me and I set it through the
+      database tool and hand it over in a gitignored local file exactly as in S2.3, and you paste it into the secret
+      and delete the file. Either way, tell me when it is done and I record it.
 - [x] **6.10 — Known issue 31 (Stripe API-version tidy-up) moves to S4.3.** ✅ "Ok" 2026-08-28 — recorded there.
 - [x] **6.11 — Delete `tests/e2e/.auth/FIXTURES.local.md` from your machine.** ✅ Deleted by me on 2026-08-28 at
       your request, without opening it.
