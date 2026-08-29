@@ -860,42 +860,96 @@ either project's Authentication settings.
 > **Under decision D-22 there is no test audience and there will not be one** — one live audience serves
 > Production, Preview and local — so **there is nothing to mirror and nothing to diff.** The task is struck.
 > **The field and tag list itself is not struck**, because it is now doing a different job: it is the
-> **contract Playwright asserts** against the live audience (D-22 rule 2d — the spec checks that the contact
-> exists with the right tag and merge fields and that `/api/subscribe` behaved correctly). Same list, different
-> purpose.
+> **contract to assert** against the live audience (D-22 rule 2d). ~~the spec checks that the contact exists with
+> the right tag and merge fields and that `/api/subscribe` behaved correctly~~ — **corrected 2026-08-30 (review
+> Round 2): the shipped spec asserts only the endpoint half.** `tests/e2e/parity/subscribe.spec.ts:45-48` checks
+> the 200, the `{success:true}` body and the on-page confirmation; the contact, tag and merge-field half is the
+> owner's recorded dashboard read below. Same list, different purpose.
 
-> ### ✅ Recorded from the live audience — the merge tags themselves, 2026-08-29 (Sprint S2.5, owner read)
+> ### ✅ Recorded from the live audience — the merge tags themselves, 2026-08-29; **re-supplied verbatim as text 2026-08-30 (Sprint S2.5, review Round 2)**
 >
 > This subsection's standing obligation ("record the live audience's merge tags and tag names once") is **fulfilled**.
 > The owner supplied Audience → Settings → **Audience fields and \*|MERGE|\* tags** for the `UnRetire` audience, which
 > lists the identifier beside each label — the thing that actually matters, because `/api/subscribe` posts by tag,
-> not by label (Round 1 Finding 2):
+> not by label (Round 1 Finding 2).
+>
+> **Why this is pasted verbatim below.** The first record of this read (2026-08-29) was a builder *restatement* of a
+> screenshot, and its commit message said the identifiers were "cross-checked against `WheelOfLife.tsx` and
+> `subscribe/route.ts`" — which makes the table's agreement with the code **circular**, not corroborating. Review
+> Round 2 raised exactly that, and the adversarial audit that followed established the sharper version of it: nothing
+> in this repository ever told the owner which merge tags to create, and Mailchimp assigns UI-created fields
+> `MERGE<n>` unless the tag is edited, so "the field labelled *Weakest Spoke* carries the tag `WEAKEST`" was resting
+> on builder prose alone. **The owner therefore re-supplied the screen as text on 2026-08-30.** It is reproduced
+> unaltered — including its own typo — so that any reviewer can check it without trusting a summary:
+>
+> ```text
+> Field label	Data type	Merge tag	Default merge tag value
+> Email Address                     Email    *|EMAIL|*     OR *|MERGE0|*
+> First Name                        Text     *|FNAME|*     OR *|MERGE1|*    there
+> Last Name                         Text     *|LNAME|*     OR *|MERGE2|*
+> Address                           Address  *|ADDRESS|*   OR *|MERGE3|*
+> Phone Number                      Phone    *|PHONE|*     OR *|MERGE4|*
+> Weakest Spoke                     Text     *|WEAKEST|*   OR *|MERGE5|*    your weakest spoke
+> Weakest Spoke Lower               Text     *|WEAKLOW|*   OR *|MERGE6|*    that spoke
+> Wheel Score                       Number   *|SCORE|*     OR *|MERGE7|*    your
+> Passion & Purpose                 Number   *|S_PASSION|* OR *|MERGE8|*
+> Health & Vitality                 Number   *|S_HEALTH|*  OR *|MERGE9|*
+> Relationships                     Number   *|S_RELAT|*   OR *|MERGE10|*
+> Personal Growth & Creativity      Number   *|S_GROWTH|*  OR *|MERGE11|*
+> Spirituality & Inner Peace        Number   *|S_SPIRIT|*  OR *|MERGE12|*
+> Fun & Adventure                   Number   *|S_FUN|*     OR *|MERGE13|*
+> Money with Meaning                Number   *|S_MONEY|*   OR *|MERGE14|*
+> Contribution & Legacy             Number   *|S_CONTRIB|* OR *|MERGE15|*
+> Brightest Spok                    Text     *|BRIGHTEST|* OR *|MERGE16|*   your strongest spoke
+> ```
+>
+> *(Phone Number's label carries the format hint "(###) ### - ####" on screen; "Brightest Spok" is **[sic]** — the
+> audience's own label, missing its final "e". Do not "correct" either: they are what makes this a transcription of a
+> real screen rather than a reconstruction. The `*|MERGE<n>|*` column is Mailchimp's positional alias, which every
+> field carries in addition to its named tag.)*
 >
 > | Field label | Type | Merge tag | Posted by |
 > |---|---|---|---|
-> | Email Address | Email | `EMAIL` | the address itself |
-> | First Name | Text | **`FNAME`** | `EmailCaptureForm`, `DownloadGate`, the assessment |
+> | Email Address | Email | `EMAIL` | **not a merge field in this app** — the address travels as `email_address`, a sibling of `merge_fields` (`src/app/api/subscribe/route.ts:57-61`) |
+> | First Name | Text | **`FNAME`** | `EmailCaptureForm`, `DownloadGate`, the assessment — **conditionally** (`route.ts:38` gates it on a truthy `firstName`, and no form marks the name input required) |
 > | Last Name / Address / Phone Number | Text / Address / Phone | `LNAME` / `ADDRESS` / `PHONE` | never posted by this app |
 > | Weakest Spoke | Text | **`WEAKEST`** | `WheelOfLife` |
 > | Weakest Spoke Lower | Text | **`WEAKLOW`** | `WheelOfLife` |
 > | Wheel Score | Number | **`SCORE`** | `WheelOfLife` |
 > | Passion & Purpose · Health & Vitality · Relationships · Personal Growth & Creativity · Spirituality & Inner Peace · Fun & Adventure · Money with Meaning · Contribution & Legacy | Number ×8 | **`S_PASSION`, `S_HEALTH`, `S_RELAT`, `S_GROWTH`, `S_SPIRIT`, `S_FUN`, `S_MONEY`, `S_CONTRIB`** | `WheelOfLife` |
-> | Brightest Spok | Text | **`BRIGHTEST`** | `WheelOfLife` |
+> | Brightest Spok *[sic]* | Text | **`BRIGHTEST`** | `WheelOfLife` |
 >
 > **Every one of the thirteen tags the application can post exists on the live audience, spelled exactly as the code
 > spells it** (`src/app/EmailCaptureForm.tsx`, `src/app/DownloadGate.tsx`, `src/app/assess/WheelOfLife.tsx` →
-> `src/app/api/subscribe/route.ts`), and the numeric spokes are typed `Number`. **§7 risk 8 — "a merge field the app
-> posts that the audience does not define" — is CLOSED on evidence.** (Three fields the audience defines are simply
-> never posted; an unused field drops nothing.)
+> `src/app/api/subscribe/route.ts`), and the numeric spokes are typed `Number`. The audience defines **seventeen**
+> identifiers; the app posts **thirteen** of them (`FNAME` + `WEAKEST`, `WEAKLOW`, `BRIGHTEST`, `SCORE` + the eight
+> `S_*`). **§7 risk 8 — "a merge field the app posts that the audience does not define" — is CLOSED on evidence**,
+> and the evidence is the verbatim block above, not a restatement of it. (Four identifiers the audience defines are
+> simply never posted; an unused field drops nothing.)
 >
-> **Tag names need no equivalent listing, and none is owed.** Mailchimp *creates* a tag on demand when
-> `POST /lists/{id}/members/{hash}/tags` names one, so there is no "unknown tag" failure mode to guard against —
-> unlike a merge field, which silently drops data. `starter-plan` was observed on the S2.5 contact, which is the
-> path the harness exercises.
+> **What this does NOT prove — the residual, stated plainly.** Field *existence* is proven. The *end-to-end
+> assessment write* is not: that Mailchimp accepts a `PUT` carrying all thirteen keys at once, that the `Number`-typed
+> `SCORE` and eight `S_*` fields accept the computed integers, and that the `wheel-of-life` tag call succeeds. **No
+> test exercises `/assess` at all** — `tests/` contains zero matches for `assess`, `wheel` or `WEAKEST`, and the five
+> parity specs are checkout-course, checkout-premium, password-reset, signup and subscribe. That assertion is owed by
+> the **S5.1** assessment spec (one `/assess` submission to the owner's `+ur-test-…` address, read back, contact
+> archived). It **cannot** live in the email-capture spec: `EmailCaptureForm.tsx:25` and `DownloadGate.tsx:40` post
+> `{ email, firstName, tag }` and no `mergeFields` at all, so no assertion added there could ever exercise one of the
+> twelve assessment keys.
+>
+> **Tag names — the argument, and the one gap it does not cover.** Mailchimp *creates* a tag on demand when
+> `POST /lists/{id}/members/{hash}/tags` names one, so there is no "unknown tag" failure mode that loses data the way
+> an unknown merge field does. `starter-plan` was observed on the S2.5 contact, which is the path the harness
+> exercises. **The gap that argument does not cover:** `route.ts:75` notes the tag "is what triggers the right
+> Customer Journey", and `route.ts:88-91` swallows a failed tag call. A tag auto-created under a name no journey
+> listens for therefore succeeds silently and fires nothing. That is an automation-wiring risk, not a data-loss risk,
+> and it is an **S5.1 / launch** item — the audience's Tags page has still not been read (OWNER-ACTIONS 6.6 c,
+> reopened).
 >
 > **Acceptance (4) is therefore fully PASS:** the endpoint contract (`200 {success:true}`), the observed
-> `FNAME`/`starter-plan` on the contact, the merge-tag identifiers above, and the teardown — all three
-> `ur-test-s25` contacts archived by the owner on 2026-08-29 (D-22 rule 2b).
+> `FNAME`/`starter-plan` on the contact, the merge-tag identifiers in the verbatim block above, and the teardown —
+> **all four** `ur-test-s25` contacts, one per dispatch, archived by the owner (three on 2026-08-29, the fourth the
+> same day after dispatch 4; D-22 rule 2b).
 
 ~~Mirror into the test audience, and assert as part of setup:~~ **The contract to assert (unchanged list):**
 merge fields `FNAME`, `WEAKEST`, `WEAKLOW`,
@@ -903,9 +957,14 @@ merge fields `FNAME`, `WEAKEST`, `WEAKLOW`,
 `S_FUN`, `S_MONEY`, `S_CONTRIB`; tags `starter-plan`, `wheel-of-life`, and whichever tag each gated download
 passes. ~~Diff the two audiences' field and tag lists — a field present in test but missing in live silently
 drops assessment data.~~ → **there are no "two audiences" to diff (D-22).** The failure this diff existed to
-catch — assessment data silently dropped on an unknown merge field — is instead caught by asserting the fields
-above **on the live audience** in the email-capture spec, which every such spec must then tear down (§6 **C8**,
-rules 1, 2b and 2c).
+catch — assessment data silently dropped on an unknown merge field — is caught **today by the owner's verbatim
+dashboard read above**, which proves every one of the thirteen tags exists.
+~~instead caught by asserting the fields above **on the live audience** in the email-capture spec~~ — **struck
+2026-08-30 (review Round 2): that control is structurally impossible where this sentence put it.**
+`src/app/EmailCaptureForm.tsx:25` and `src/app/DownloadGate.tsx:40` post `{ email, firstName, tag }` and no
+`mergeFields` at all, so no assertion added to the email-capture spec could ever exercise one of the twelve
+assessment keys. Only `/assess` posts them, and no spec touches `/assess` — that is the **S5.1** assessment
+spec's obligation, and every such spec still tears its contact down (§6 **C8**, D-22 rules 1, 2b and 2c).
 
 ### 5.5 Seed data — the fixtures the suite needs
 
@@ -985,7 +1044,7 @@ Honest list. Each gap is permanent, and each has a compensating check that cover
 | **C5** | **Free tier vs Pro tier** | `unretire-test` is on the free tier: it auto-pauses after about a week idle, has smaller compute and fewer connections, no point-in-time recovery, and tighter auth-email limits. | A **preflight health check** that pings the test project and fails loudly with "the test project is paused" rather than letting database errors masquerade as app bugs. Never load-test against it. **S2.3 (2026-08-28): the auth-setup helper turns a network-level sign-in failure into a message naming this row ("the free-tier test project may be paused"); a dedicated pre-run ping is still owed by S5.1.** |
 | **C6** | **Domain and cookie behaviour** | Preview runs on a `vercel.app` subdomain; ~~Production is *intended* to run on `https://unretireproject.com` (D-2 resolved) but today runs on `https://unretire.vercel.app` (Known issue 27)~~ **2026-08-27: intended and actual are now the same host** — Production runs on `https://www.unretireproject.com` (D-2 amended to the `www` host; the apex 308-redirects to it; Known issue 27 RESOLVED). Cookie scope and secure-cookie prefixes behave differently — ~~and note that while both environments sit on `vercel.app`, this gap is **temporarily invisible**: it reappears the day DNS moves, which is the worst possible timing~~ the gap is **now real and visible** (since 2026-08-27 Preview sits on `vercel.app` and Production on the custom domain), so the compensating check is due. | After the domain is fixed, re-run the full auth smoke **on Production itself** — sign in, sign out, session survives a refresh, password reset *(the domain moved 2026-08-27 — this re-run is now due and has not been done; the auth-email landing on the `www` host is still unproven — §8 P3/P13, S2.5)*. `docs/LAUNCH-CHECKLIST.md` Phase 2 already carries the "add the new domain to the auth provider's redirect allow-list" line; keep it. |
 | **C7** | **Email deliverability** | The test project's built-in mailer is a rate-limited sandbox with poor deliverability. Inbox placement cannot be proven from Preview. | (i) Match production's confirm-email setting so the suite exercises the right flow; (ii) obtain reset tokens through the admin API rather than an inbox; (iii) at launch, one manual real-inbox reset to both a Gmail and an Outlook address, **checking the spam folder** — which is the same discipline `docs/LAUNCH-CHECKLIST.md` Phase 3 already requires for form delivery. |
-| **C8** | **Mailchimp has no test mode** | Only audience separation is possible, and a test audience cannot carry identical automated journeys unless they are rebuilt — and firing real journeys is exactly what isolation avoids. **Since D-22 (2026-08-27) even audience separation is off the table by decision: one live audience serves Production, Preview and local.** So the ceiling is now the floor — there is no isolation here at all, only controls. | ~~The suite asserts the **contract**: the endpoint reports success and the contact appears in the **test** audience with the right tag and fields. Separately **diff the field and tag lists** between the two audiences (§5.4). Verify the live journeys once, manually, with the owner's own address.~~ → **Rewritten 2026-08-27 (D-22).** The suite asserts the **contract** against the **live** audience: `/api/subscribe` behaved correctly and the contact appears with the right tag and merge fields (§5.4's list). ~~The two-audience diff~~ is moot. Multi-day journeys are still confirmed **manually, in the owner's own inbox**. Everything that keeps this survivable is in ~~**the five rules immediately below this table**~~ **D-22 rules 1 and 2a–2e (`docs/PROJECT-STATUS.md` §8)** — cited, not repeated, in the note immediately below this table *(2026-08-28)* — they are the compensating check. |
+| **C8** | **Mailchimp has no test mode** | Only audience separation is possible, and a test audience cannot carry identical automated journeys unless they are rebuilt — and firing real journeys is exactly what isolation avoids. **Since D-22 (2026-08-27) even audience separation is off the table by decision: one live audience serves Production, Preview and local.** So the ceiling is now the floor — there is no isolation here at all, only controls. | ~~The suite asserts the **contract**: the endpoint reports success and the contact appears in the **test** audience with the right tag and fields. Separately **diff the field and tag lists** between the two audiences (§5.4). Verify the live journeys once, manually, with the owner's own address.~~ → **Rewritten 2026-08-27 (D-22).** The suite asserts the **contract** against the **live** audience — **as split on 2026-08-30 (review Round 2):** the spec asserts that `/api/subscribe` behaved correctly (200, `{success:true}`, on-page confirmation), and ~~the contact appears with the right tag and merge fields (§5.4's list)~~ **that half is the owner's recorded dashboard read — no shipped spec posts merge fields, so none can assert them; `/assess` coverage is S5.1.** ~~The two-audience diff~~ is moot. Multi-day journeys are still confirmed **manually, in the owner's own inbox**. Everything that keeps this survivable is in ~~**the five rules immediately below this table**~~ **D-22 rules 1 and 2a–2e (`docs/PROJECT-STATUS.md` §8)** — cited, not repeated, in the note immediately below this table *(2026-08-28)* — they are the compensating check. |
 | **C9** | **Two of the three Formspree forms are hardcoded** | The contact and community forms have no environment indirection, so Preview submissions reach the owner's real inbox. | **Accepted, known non-isolation**, with the owner's sign-off. Mitigate by tagging test submissions with an obvious marker (for example a `[PREVIEW TEST]` prefix) so the owner can filter them; or make the endpoint environment-driven in a later sprint. |
 | **C10** | **Abuse controls do not exist yet** (Known issue 5, decision D-9, Sprint S4.5) | When bot protection and rate limiting land, Preview will use test keys that always pass — so the bot check is never genuinely exercised in Preview. | One manual negative test on Production with the real widget, plus a server-side test of the verification-failure path. Note that `docs/TECH-ARCHITECTURE.md` §7 already requires these to fail **closed** in Production. |
 | **C11** | **Public values are compiled into the build** | Preview and Production are separate builds with separately baked values. A dashboard change does **not** reach a deployment that already exists. | After changing any `NEXT_PUBLIC_*` value, **redeploy**, then assert the value **in the served page** (for example, read the rendered canonical/Open Graph tag) rather than trusting the dashboard. |
@@ -1001,8 +1060,12 @@ Honest list. Each gap is permanent, and each has a compensating check that cover
 write real subscribers; accepted under D-22. The compensating controls are **governed by D-22 rules 1 and
 2a–2e (`docs/PROJECT-STATUS.md` §8)** — that row is the enumeration's only canonical home, and this file no
 longer repeats it *(the copy that lived here from 2026-08-27 was removed 2026-08-28 under S2.2 Round 1,
-Finding 4, so the rules cannot drift between documents)*. For the harness: Playwright asserts the §5.4 field
-and tag list as the contract — that is the practical meaning of rule 2d (D-22, `docs/PROJECT-STATUS.md` §8).
+Finding 4, so the rules cannot drift between documents)*. For the harness: ~~Playwright asserts the §5.4 field
+and tag list as the contract~~ — **corrected 2026-08-30 (review Round 2).** Rule 2d's practical meaning is split:
+Playwright asserts the **endpoint** half it can reach synchronously (`subscribe.spec.ts:45-48` — the 200, the
+body, the on-page confirmation), and the **field/tag** half is the owner's dashboard read recorded verbatim in
+§5.4. Asserting the merge-field list from a spec requires a caller that posts merge fields, i.e. `/assess` —
+**S5.1** (D-22, `docs/PROJECT-STATUS.md` §8).
 
 **Two consequences to carry into every other document:** `MAILCHIMP_LIST_ID` and `MAILCHIMP_API_KEY` remaining
 single shared entries is **correct rather than a defect** (§2B rows 8–9), and **§8 P7 is N/A — accepted risk**,
@@ -1051,7 +1114,7 @@ The owner's core fear, ranked by likelihood × damage. Every entry has a mitigat
 | **5** | **`NEXT_PUBLIC_SITE_URL` — a green suite is honest here, and that is the problem.** Nothing functional breaks, so no test fails; production simply ships localhost canonical and social URLs. | Set it per environment (§4 step 8) and add one test asserting the rendered canonical/Open Graph host equals the deployment host. |
 | **6** | **Build-time desync.** A value corrected in the dashboard is absent from the already-built deployment; equally, Production's last build may predate a variable being added. | Redeploy after every environment change and re-run the smoke. Never treat the dashboard as the running state (§6 C11). |
 | **7** | **The protection bypass masks an auth problem.** The suite runs against Preview carrying a bypass Production never sees. | Run a small read-only smoke — public pages plus one sign-in with a dedicated production test account — **against Production**, not only Preview. |
-| **8** | ~~**Mailchimp fields exist in test but not in live.**~~ → **Restated 2026-08-27 (D-22): there is only one audience, so the test-vs-live mismatch cannot occur — the surviving risk is a merge field the app posts that the live audience does not define.** The assessment posts thirteen merge fields; behaviour on an unknown field differs and the failure is quiet. | ~~Diff the field and tag lists between the two audiences~~ *(no second audience exists — D-22)* — instead **assert the exact list against the live audience** in the email-capture spec, pre-launch (§5.4), under the five rules at §6 C8. |
+| **8** | ~~**Mailchimp fields exist in test but not in live.**~~ → **Restated 2026-08-27 (D-22): there is only one audience, so the test-vs-live mismatch cannot occur — the surviving risk is a merge field the app posts that the live audience does not define.** The assessment posts **up to thirteen** merge fields — twelve always, plus `FNAME` when a first name is supplied (`route.ts:38` gates it, and no form marks the name input required); behaviour on an unknown field differs and the failure is quiet. | ~~Diff the field and tag lists between the two audiences~~ *(no second audience exists — D-22)* — ~~instead **assert the exact list against the live audience** in the email-capture spec, pre-launch (§5.4)~~ → **CLOSED 2026-08-30 on the owner's verbatim `*|MERGE|*` tags read (§5.4): all thirteen exist, spelled as the code spells them, and the fields carry custom tags rather than Mailchimp's `MERGE<n>` defaults.** The email-capture spec was never able to carry this assertion (it posts no merge fields); the **end-to-end** assessment write stays unexercised until the **S5.1** `/assess` spec — recorded as a residual in §5.4, under the five rules at §6 C8. |
 | **9** | **Abuse controls (not built yet) behave differently.** Production will run a real bot check; Preview will use always-pass test keys. | Manual negative test on production plus a server-side test of the verification-failure path (§6 C10). |
 | **10** | **The free-tier test project pauses, or hits its email limit mid-run.** Produces **red** tests that look like app bugs — a false alarm, which is the safe direction, but it burns hours. | The C5 preflight health check with an explicit, unmistakable error message. |
 | **11** | **Region latency tempts someone to lengthen a timeout.** Low risk, conservative direction. | Record typical round-trips; never lengthen a timeout to make a test pass (§6 C4). |

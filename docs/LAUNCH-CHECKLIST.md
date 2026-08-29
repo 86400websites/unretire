@@ -100,6 +100,12 @@ covers something only the real site can show; none may be ticked from a Preview 
 - [ ] **Live webhook endpoint read off the dashboard** (§6 C16): `brilliant-splendor`'s URL is
       `https://www.unretireproject.com/api/stripe/webhook`, **both** `checkout.session.completed` and
       `customer.subscription.deleted` are subscribed, and its API version is recorded.
+- [ ] **One real `/assess` submission, end to end** (Known issue 53; added by S2.5 Round 2, 2026-08-30) — the
+      audience's thirteen merge tags are proven to **exist** (ENVIRONMENT-PARITY §5.4, verbatim owner read), but no
+      test posts them: submit the Wheel of Life once, then confirm in Mailchimp that `WEAKEST`, `WEAKLOW`,
+      `BRIGHTEST`, `SCORE` and all eight `S_*` fields hold the submitted values and that the `wheel-of-life` tag
+      started the intended Customer Journey. `/api/subscribe` swallows a failed tag call, so a silent no-op here
+      is invisible from the response.
 - [ ] **Prod-vs-test schema and policy diff re-run and empty** (proof P8, §5.6) — the committed
       `supabase/migrations/` files are the intent; the diff is the proof both databases still match them.
 - [ ] **Production has no deployment protection; Preview does** (proof P10): `https://www.unretireproject.com` answers
