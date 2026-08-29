@@ -6,10 +6,13 @@ import { assertOrigin, requireEnv } from "../helpers/parity";
  * link back to the Preview's own origin, never to Production and never to localhost.
  *
  * This spec only REQUESTS the e-mail: a password reset for the signed-in fixture (an
- * owner-owned address, so the mail lands in the owner's inbox). The observation — the
- * host of the link in the delivered e-mail — is the owner's read, recorded with the
- * token redacted. The link's path is the stale /unretire/reset-password (Known issue 2)
- * and lands on a 404 today; the host is the whole proof. requestPasswordReset() answers
+ * owner-owned address, so the mail lands in the owner's inbox). The observation is the
+ * owner's, recorded with the token redacted — and it is the origin the link RESOLVES to,
+ * never the link's own host: under Supabase's default {{ .ConfirmationURL }} template the
+ * href points at <project-ref>.supabase.co/auth/v1/verify?…&redirect_to=<origin>/auth/confirm…,
+ * so the host is always Supabase. Read the `redirect_to` parameter, or follow the link and
+ * read the address bar (it lands on the stale /unretire/reset-password — a 404 today,
+ * Known issue 2 — which is expected and not part of the proof). requestPasswordReset() answers
  * with the same message whether or not the address exists (enumeration protection), so
  * that message is all a spec can assert.
  */

@@ -8,7 +8,9 @@ import { assertOrigin, ownerAddress, requireEnv } from "../helpers/parity";
  * unretire-prod; the builder reads both projects (a count only) after the run, using the
  * address attached below, then deletes the throwaway account from unretire-test. If
  * "Confirm email" is ON in the test project, Supabase also sends a confirmation e-mail to
- * this owner-owned address — its link host is the owner's P3 read.
+ * this owner-owned address — the owner's P3 read is then the origin that link RESOLVES to
+ * (its `redirect_to` parameter, or the address bar after following it), never the link's
+ * own host, which under the default template is always <project-ref>.supabase.co.
  *
  * register() in src/app/auth/actions.ts has exactly two success outcomes, decided by the
  * dashboard setting; this spec accepts exactly those two and annotates which one it saw so
