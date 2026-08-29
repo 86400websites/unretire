@@ -880,33 +880,59 @@ either project's Authentication settings.
 > in this repository ever told the owner which merge tags to create, and Mailchimp assigns UI-created fields
 > `MERGE<n>` unless the tag is edited, so "the field labelled *Weakest Spoke* carries the tag `WEAKEST`" was resting
 > on builder prose alone. **The owner therefore re-supplied the screen as text on 2026-08-30.** It is reproduced
-> unaltered — including its own typo — so that any reviewer can check it without trusting a summary:
+> below exactly as supplied — the screen's own heading lines, its two-line label/type layout, the `Format:` hint,
+> the default-value column and its own typo, all intact. **The only change is that trailing tab characters ending
+> some rows were dropped** (markdown strips trailing whitespace); no label, data type, merge tag, `MERGE<n>` alias
+> or default value was touched. So a reviewer can check it without trusting a summary:
 >
 > ```text
+> ContactsAudience settings
+> Audience fields and merge tags
+> Audience Selector
+> UnRetire
 > Field label	Data type	Merge tag	Default merge tag value
-> Email Address                     Email    *|EMAIL|*     OR *|MERGE0|*
-> First Name                        Text     *|FNAME|*     OR *|MERGE1|*    there
-> Last Name                         Text     *|LNAME|*     OR *|MERGE2|*
-> Address                           Address  *|ADDRESS|*   OR *|MERGE3|*
-> Phone Number                      Phone    *|PHONE|*     OR *|MERGE4|*
-> Weakest Spoke                     Text     *|WEAKEST|*   OR *|MERGE5|*    your weakest spoke
-> Weakest Spoke Lower               Text     *|WEAKLOW|*   OR *|MERGE6|*    that spoke
-> Wheel Score                       Number   *|SCORE|*     OR *|MERGE7|*    your
-> Passion & Purpose                 Number   *|S_PASSION|* OR *|MERGE8|*
-> Health & Vitality                 Number   *|S_HEALTH|*  OR *|MERGE9|*
-> Relationships                     Number   *|S_RELAT|*   OR *|MERGE10|*
-> Personal Growth & Creativity      Number   *|S_GROWTH|*  OR *|MERGE11|*
-> Spirituality & Inner Peace        Number   *|S_SPIRIT|*  OR *|MERGE12|*
-> Fun & Adventure                   Number   *|S_FUN|*     OR *|MERGE13|*
-> Money with Meaning                Number   *|S_MONEY|*   OR *|MERGE14|*
-> Contribution & Legacy             Number   *|S_CONTRIB|* OR *|MERGE15|*
-> Brightest Spok                    Text     *|BRIGHTEST|* OR *|MERGE16|*   your strongest spoke
+> Email Address
+> Email	*|EMAIL|* OR *|MERGE0|*
+> First Name
+> Text	*|FNAME|* OR *|MERGE1|*	there
+> Last Name
+> Text	*|LNAME|* OR *|MERGE2|*
+> Address
+> Address	*|ADDRESS|* OR *|MERGE3|*
+> Phone Number
+> Format: (###) ### - ####
+> Phone	*|PHONE|* OR *|MERGE4|*
+> Weakest Spoke
+> Text	*|WEAKEST|* OR *|MERGE5|*	your weakest spoke
+> Weakest Spoke Lower
+> Text	*|WEAKLOW|* OR *|MERGE6|*	that spoke
+> Wheel Score
+> Number	*|SCORE|* OR *|MERGE7|*	your
+> Passion & Purpose
+> Number	*|S_PASSION|* OR *|MERGE8|*
+> Health & Vitality
+> Number	*|S_HEALTH|* OR *|MERGE9|*
+> Relationships
+> Number	*|S_RELAT|* OR *|MERGE10|*
+> Personal Growth & Creativity
+> Number	*|S_GROWTH|* OR *|MERGE11|*
+> Spirituality & Inner Peace
+> Number	*|S_SPIRIT|* OR *|MERGE12|*
+> Fun & Adventure
+> Number	*|S_FUN|* OR *|MERGE13|*
+> Money with Meaning
+> Number	*|S_MONEY|* OR *|MERGE14|*
+> Contribution & Legacy
+> Number	*|S_CONTRIB|* OR *|MERGE15|*
+> Brightest Spok
+> Text	*|BRIGHTEST|* OR *|MERGE16|*	your strongest spoke
 > ```
 >
-> *(Phone Number's label carries the format hint "(###) ### - ####" on screen; "Brightest Spok" is **[sic]** — the
-> audience's own label, missing its final "e". Do not "correct" either: they are what makes this a transcription of a
-> real screen rather than a reconstruction. The `*|MERGE<n>|*` column is Mailchimp's positional alias, which every
-> field carries in addition to its named tag.)*
+> *("Brightest Spok" is **[sic]** — the audience's own label, missing its final "e" — and Phone Number carries a
+> `Format:` hint line. Do not "correct" either: they are what makes this a transcription of a real screen rather
+> than a reconstruction. The `*|MERGE<n>|*` column is Mailchimp's positional alias, which every field carries in
+> addition to its named tag; the fields having **named** tags at all is the finding that matters, since Mailchimp
+> leaves UI-created fields on the numbered alias alone unless someone edits them.)*
 >
 > | Field label | Type | Merge tag | Posted by |
 > |---|---|---|---|
@@ -924,8 +950,10 @@ either project's Authentication settings.
 > `src/app/api/subscribe/route.ts`), and the numeric spokes are typed `Number`. The audience defines **seventeen**
 > identifiers; the app posts **thirteen** of them (`FNAME` + `WEAKEST`, `WEAKLOW`, `BRIGHTEST`, `SCORE` + the eight
 > `S_*`). **§7 risk 8 — "a merge field the app posts that the audience does not define" — is CLOSED on evidence**,
-> and the evidence is the verbatim block above, not a restatement of it. (Four identifiers the audience defines are
-> simply never posted; an unused field drops nothing.)
+> and the evidence is the verbatim block above, not a restatement of it. (Of the four identifiers the app never
+> posts, three — `LNAME`, `ADDRESS`, `PHONE` — are merge fields the audience defines and nothing sends; the fourth,
+> `EMAIL`, is not a merge field in this app at all, since the address travels as `email_address`. An unused field
+> drops nothing either way.)
 >
 > **What this does NOT prove — the residual, stated plainly.** Field *existence* is proven. The *end-to-end
 > assessment write* is not: that Mailchimp accepts a `PUT` carrying all thirteen keys at once, that the `Number`-typed
@@ -1193,7 +1221,7 @@ Record the results in the PR that ships the wiring, or in `docs/PROJECT-STATUS.m
 > the Preview `https://unretire-519zl323t-86400-s-projects.vercel.app`: P2 and P3's send re-observed in the test
 > project's auth log, both checkout specs took the already-owned branch (no new Sandbox purchase — the two P5 rows
 > are unchanged), and **acceptance (4) closed** on the owner's contact read (tag `starter-plan`, FNAME `E2E`; §5.4).
-> **Re-proven a second time at the final reviewed head `b3c9489` (2026-08-29)** — run
+> **Re-proven a second time at the parity head `b3c9489` (2026-08-29)** — run
 > [33264100084](https://github.com/86400websites/unretire/actions/runs/33264100084), `parity: on`, **GREEN 10/10**,
 > **no artefact uploaded** (Known issue 51's fix holding), `entitlements` unchanged at the same two rows (no new
 > Sandbox purchase); the run's throwaway P2 account was deleted by the builder and its `ur-test-s25` contact
