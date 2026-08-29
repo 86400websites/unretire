@@ -492,7 +492,7 @@ database or real money.** The first four items are needed before I can continue;
       commit id I give you → `parity` = **on** → Run. It takes about five minutes. Green on all ten lines = the proofs
       ran. Send me the link either way; if it is red, I will read it (a red caused by the test database's hourly email
       limit needs no change — we re-run the same commit an hour later).
-- [ ] **6.6 — Three inbox and Mailchimp reads (after 6.5).** *(a) ✅ done 2026-08-28 — the reset link points back at the preview site (proof P3). (b)/(c) still open: open one of the two `ur-test-s25` contacts → Tags → tell me it says `starter-plan`; **archive both**; send the audience's field and tag lists.* (a) You will receive one or two emails from the test
+- [x] **6.6 — Three inbox and Mailchimp reads (after 6.5).** ✅ (a) done 2026-08-28 — the reset link points back at the preview site (proof P3). ✅ (b)/(c) done 2026-08-29 — the contact profile you sent shows the tag **`starter-plan`**, First Name `E2E`, "Added via API", and the audience's full field list (recorded in `docs/ENVIRONMENT-PARITY.md` §5.4); that closes the email-capture acceptance line. **One tidy-up left:** archive the three `ur-test-s25` contacts (one per test run) — Audience → search `ur-test-s25` → select → Actions → Archive. (a) You will receive one or two emails from the test
       database (a signup confirmation if "Confirm email" is on; a password-reset for the signed-in test account). Click
       the link and tell me the **address at the top of the browser** on the page it lands on — it should start with the
       preview site's address (`https://unretire-git-claude-s25-…vercel.app`), never `www.unretireproject.com` and never

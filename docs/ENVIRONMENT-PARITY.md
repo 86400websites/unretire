@@ -860,6 +860,18 @@ either project's Authentication settings.
 > exists with the right tag and merge fields and that `/api/subscribe` behaved correctly). Same list, different
 > purpose.
 
+> **Recorded from the live audience 2026-08-29 (Sprint S2.5, owner read — the "record the live audience's merge tags
+> and tag names once" obligation this subsection carries).** The contact profile of the S2.5 test contact
+> (`…+ur-test-s25-33253395067@…`, added via API, Subscribed) shows the audience's fields as: First Name, Last Name,
+> Address, Phone Number, **Weakest Spoke**, **Weakest Spoke Lower**, **Wheel Score**, **Passion & Purpose**,
+> **Health & Vitality**, **Relationships**, **Personal Growth & Creativity**, **Spirituality & Inner Peace**,
+> **Fun & Adventure**, **Money with Meaning**, **Contribution & Legacy**, **Brightest Spok[e]** — i.e. all thirteen
+> assessment merge fields the app can post (`FNAME`, `WEAKEST`, `WEAKLOW`, `SCORE`, `BRIGHTEST` and the eight
+> `S_*` spokes) exist on the live audience, so §7 risk 8 ("a merge field the app posts that the audience does not
+> define") cannot occur. Tag observed on that contact: **`starter-plan`** — the tag `EmailCaptureForm` sends by
+> default and `/api/subscribe` applies in its second, failure-tolerant call. **Acceptance (4) is closed on this
+> read plus the spec's own 200 `{success:true}`.**
+
 ~~Mirror into the test audience, and assert as part of setup:~~ **The contract to assert (unchanged list):**
 merge fields `FNAME`, `WEAKEST`, `WEAKLOW`,
 `BRIGHTEST`, `SCORE`, and the eight spoke scores `S_PASSION`, `S_HEALTH`, `S_RELAT`, `S_GROWTH`, `S_SPIRIT`,
@@ -1087,8 +1099,13 @@ Record the results in the PR that ships the wiring, or in `docs/PROJECT-STATUS.m
 > **P4 PASS** (both payments in the Sandbox dashboard), **P6 confirmed** (2 deliveries, 0 failed), **P12
 > re-affirmed**, **P13 PASS** (a Production reset resolved to the production domain). **P1, P11** stand from
 > S2.3/S2.2. **P7 N/A** (D-22). **Every proof in this table is therefore recorded** — the §8 gate is met; what remains
-> open in this document is deliberate (the shared audience) or hygiene (§5.3a item 2, §9 rows 16–17). *(What follows
-> is the earlier history of this status, retained.)*
+> open in this document is deliberate (the shared audience) or hygiene (§5.3a item 2, §9 rows 16–17).
+> **Re-proven at the reviewed head 2026-08-29** — `E2E — Preview` `workflow_dispatch` run
+> [33253395067](https://github.com/86400websites/unretire/actions/runs/33253395067) at `48b1ab2`, GREEN 10/10 against
+> the Preview `https://unretire-519zl323t-86400-s-projects.vercel.app`: P2 and P3's send re-observed in the test
+> project's auth log, both checkout specs took the already-owned branch (no new Sandbox purchase — the two P5 rows
+> are unchanged), and **acceptance (4) closed** on the owner's contact read (tag `starter-plan`, FNAME `E2E`; §5.4).
+> *(What follows is the earlier history of this status, retained.)*
 >
 > **Recording status — rewritten whole 2026-08-26 (stage-gate Round 4, Finding 4; the 2026-08-25 version
 > had drifted out of agreement with its own rows).** ~~**No behavioural proof in this table is PASS.**~~ *(Superseded 2026-08-27/28: **P11 is PASS** — recorded 2026-08-27 by S2.2 (`supabase-test` `list_tables` → `{"tables":[]}`); ~~**P1 is deferred to S2.3** — not observable in S2.2, D-20 amended 2026-08-27~~ **P1 is PASS — 2026-08-28, Sprint S2.3, PR #16 head `8111884` (see the row)** *(S2.3 opened 2026-08-28: harness landed; the proof is a fixture sign-in on the Preview; ~~run pending~~ run green on both triggers)*; ~~**P12 is OWED — S2.5** — its 2026-08-27 PASS was reverted 2026-08-28 (Round 1 Finding 1: recorded on prose, not a reviewable artefact)~~ **P12 is PASS** (the artefact arrived the same day); every other proof is owed by S2.5. ~~D-20 amended a second time 2026-08-28: S2.2's proof scope closes as P11 only.~~ **D-20 amended a THIRD time later on 2026-08-28: the owner supplied the Vercel Environment Variables artefact, so **P12 is PASS** and S2.2 closes with **P11 and P12**; P1 alone moves to S2.3.**)* What
