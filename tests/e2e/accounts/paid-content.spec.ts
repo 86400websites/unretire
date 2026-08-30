@@ -123,10 +123,33 @@ test.describe("AC-011 — a member without the course cannot reach its content",
 
     // The outline is legitimately visible — that is the sales pitch. What must
     // not be there is the product.
-    await expect(
-      page.locator('svg[aria-label="Locked"]').first(),
-      "a non-buyer should see the locked affordance",
-    ).toBeVisible();
+    //
+    // Asserted through SEMANTICS, not decoration. An earlier draft looked for
+    // svg[aria-label="Locked"], which exists on the course HUB but not in the
+    // player — the player's padlock is aria-hidden and unlabelled, so the
+    // selector could never match and the assertion was meaningless (it failed
+    // outright here, and made the twin assertion in AC-015 pass vacuously).
+    // A disabled lesson button and an absent video are the real signals.
+    const lessonButtons = page.locator("button[disabled]");
+    expect(
+      await lessonButtons.count(),
+      "a non-buyer's lesson rows should be disabled",
+    ).toBeGreaterThan(0);
+    // NOT "no video iframe at all": the player deliberately shows the free
+    // course-intro preview to non-buyers, so a blanket count of zero would fail
+    // on correct behaviour. The rule is that every embed on the page must be
+    // that free preview and never a paid lesson.
+    const embeds = await page
+      .locator('iframe[src*="youtube"]')
+      .evaluateAll((els) =>
+        els.map((e) => (e as HTMLIFrameElement).getAttribute("src") ?? ""),
+      );
+    const paidEmbeds = embeds.filter((src) =>
+      PAID_VIDEO_IDS.some((id) => src.includes(id)),
+    );
+    expect(paidEmbeds, "a non-buyer was served a paid lesson video").toEqual(
+      [],
+    );
     expect(
       leaks(await page.content()),
       "paid video ids reached a signed-in non-buyer",
