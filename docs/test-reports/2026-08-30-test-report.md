@@ -3,7 +3,8 @@
 > Sprint **S5.1a — Launch Gate Discovery Probe** (D-27). One row per feature from `docs/FEATURE-LIST.md`.
 
 - Run type: **PARTIAL BY DESIGN** — the ⚪ (untested) lines only. The 23 🔴 lines are deliberately unwritten; each fix sprint writes its own spec red→green. **No verdict is issued by this sprint** — that is S5.1b.
-- Environment: **deployed Vercel Preview**, PR #20, head `af76f02`, Stripe test mode. Actions run **#96** — `105 passed · 1 failed`, 50.5 s, 106 tests in both browser profiles plus the three role sessions.
+- Environment: **deployed Vercel Preview**, PR #20, final head `795d292`, Stripe test mode. Actions runs **#98** and **#99** — both `105 passed · 1 failed` (1.1 m / 50.3 s), 106 tests across both browser profiles plus the three role sessions.
+- **Reproducible.** Two independent runs of the same commit returned identical results, including `AC-002` passing in both (2.7 s each). That is the point of the concurrency fix below: before it, the same commit gave 105/1 and 104/2 depending on which run won a race.
 - Database probe: `unretire-test` (non-production), read-only, via Supabase MCP.
 
 ## The one failure, and why it must stay
