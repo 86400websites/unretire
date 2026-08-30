@@ -30,6 +30,15 @@ export type Lesson = {
 export type ModuleIntro = {
   youtubeId?: string;
   deliverablePdf?: string;
+  /**
+   * Set by lockedModules() only. The locked outline must look exactly as it
+   * did before Known issue 37 was fixed, and buildItems() decides whether to
+   * draw the "Introduction" row by asking whether the intro has any content.
+   * Once the ids are stripped that test says "no", and the row would silently
+   * vanish for every unpaid visitor. This marker says "there IS an intro here,
+   * you just may not see what is in it."
+   */
+  hasContent?: boolean;
 };
 
 export type Module = {
@@ -50,8 +59,7 @@ export const modules: Module[] = [
       "Switch it off and commit — in writing — to how much of yourself you're bringing.",
     intro: {
       youtubeId: "ilShYAJFc6o",
-      deliverablePdf:
-        "/assets/unretire/course/Module1_Deliverable_Worksheet.pdf",
+      deliverablePdf: "/api/course-worksheet?doc=m1-intro",
     },
     lessons: [
       {
@@ -59,19 +67,19 @@ export const modules: Module[] = [
         title:
           "What If Retirement Is the Most Dangerous Beginning of Your Life?",
         youtubeId: "r81jMzTX0uI",
-        pdfUrl: "/assets/unretire/course/Module1_Lesson1_Worksheet.pdf",
+        pdfUrl: "/api/course-worksheet?doc=m1-l1",
       },
       {
         id: "1-2",
         title: "Who Are You When the Title Is Gone?",
         youtubeId: "EUaQQ8p0EH8",
-        pdfUrl: "/assets/unretire/course/Module1_Lesson2_Worksheet.pdf",
+        pdfUrl: "/api/course-worksheet?doc=m1-l2",
       },
       {
         id: "1-3",
         title: "Why Is Thinking Differently Never Enough?",
         youtubeId: "N44pfLLWiTw",
-        pdfUrl: "/assets/unretire/course/Module1_Lesson3_Worksheet.pdf",
+        pdfUrl: "/api/course-worksheet?doc=m1-l3",
       },
       {
         id: "1-4",
@@ -406,3 +414,37 @@ export const modules: Module[] = [
 
 export const getModule = (slug: string) => modules.find((m) => m.slug === slug);
 export const totalLessons = modules.reduce((n, m) => n + m.lessons.length, 0);
+
+/**
+ * The locked projection of the course — Known issue 37, half two.
+ *
+ * `modules` above is the PAID PAYLOAD: 58 video ids and every worksheet link.
+ * It used to be imported directly by CoursePlayer, a `"use client"` component,
+ * so the whole $99 course shipped in the JavaScript bundle of every visitor —
+ * signed out, signed in, paid or not. The padlock in the UI was decoration; the
+ * content behind it was already on the visitor's machine.
+ *
+ * The fix is structural: CoursePlayer no longer imports this file at all. It is
+ * handed a `modules` array as a prop, and the SERVER decides which one — the
+ * real data for an entitled member, this projection for everyone else.
+ *
+ * The projection keeps everything the locked outline legitimately shows (module
+ * numbers, titles, summaries, lesson titles, and whether a lesson HAS a video
+ * or worksheet, so the padlock can be drawn in the right places) and drops
+ * every value that is the product itself.
+ *
+ * Asserted by AC-012: an anonymous visitor's page — HTML and referenced JS
+ * chunks — must contain no lesson video id.
+ */
+export function lockedModules(): Module[] {
+  return modules.map((m) => ({
+    num: m.num,
+    slug: m.slug,
+    title: m.title,
+    summary: m.summary,
+    // `{}` rather than undefined: the row still renders, still shows a padlock,
+    // and still says a video exists — it just carries no id.
+    intro: m.intro ? { hasContent: true } : undefined,
+    lessons: m.lessons.map((l) => ({ id: l.id, title: l.title })),
+  }));
+}

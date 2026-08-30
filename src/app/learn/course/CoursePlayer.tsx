@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { modules, COURSE_INTRO_YOUTUBE_ID, type Module } from "./courseData";
+import type { Module } from "./courseData";
 
 type Item = {
   key: string;
@@ -15,7 +15,10 @@ type Item = {
 
 function buildItems(m: Module): Item[] {
   const items: Item[] = [];
-  if (m.intro && (m.intro.youtubeId || m.intro.deliverablePdf)) {
+  if (
+    m.intro &&
+    (m.intro.youtubeId || m.intro.deliverablePdf || m.intro.hasContent)
+  ) {
     items.push({
       key: `${m.slug}__intro`,
       moduleSlug: m.slug,
@@ -70,11 +73,27 @@ const PlayIcon = ({ size = 14 }: { size?: number }) => (
 export default function CoursePlayer({
   initialSlug,
   unlocked,
+  modules,
+  courseIntroYoutubeId,
 }: {
   initialSlug: string;
   unlocked: boolean;
+  /**
+   * Known issue 37. This used to be imported straight from courseData.ts — in a
+   * `"use client"` component, which shipped all 58 lesson video ids and every
+   * worksheet link to every visitor, paid or not. It is now a PROP, and the
+   * server hands over either the real course (entitled) or lockedModules()
+   * (everyone else). The padlock is no longer decoration over content the
+   * browser already has.
+   */
+  modules: Module[];
+  /** The whole-course intro is a deliberate free preview, so it is always sent. */
+  courseIntroYoutubeId?: string;
 }) {
-  const allItems = useMemo(() => modules.flatMap(buildItems), []);
+  // `modules` is a prop now (Known issue 37), so it belongs in the dependency
+  // array — an empty one was correct only while the data was a module-level
+  // import that could never change.
+  const allItems = useMemo(() => modules.flatMap(buildItems), [modules]);
   const initialModule =
     modules.find((m) => m.slug === initialSlug) ?? modules[0];
   const firstKey = buildItems(initialModule)[0]?.key ?? allItems[0]?.key;
@@ -235,11 +254,11 @@ export default function CoursePlayer({
               </>
             ) : (
               <>
-                {COURSE_INTRO_YOUTUBE_ID && (
+                {courseIntroYoutubeId && (
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-[#ECECEC]">
                     <iframe
                       className="absolute inset-0 w-full h-full"
-                      src={`https://www.youtube.com/embed/${COURSE_INTRO_YOUTUBE_ID}`}
+                      src={`https://www.youtube.com/embed/${courseIntroYoutubeId}`}
                       title="Course introduction"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
