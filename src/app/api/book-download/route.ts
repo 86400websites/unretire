@@ -10,18 +10,23 @@ export const runtime = "nodejs";
 
 // The un-watermarked masters live OUTSIDE /public so they can never be fetched
 // clean by a URL. Only this server route reads them.
+// Known issue 1: these pointed at src/app/unretire/account/_book/, a path left
+// behind by the promote-to-root refactor. The files have always been at
+// src/app/account/_book/, so readFile threw for every request and route.ts's
+// catch returned 500 + JSON — EVERY Premium download failed. Verified against
+// the deployed Preview by spec AC-015 (S5.1a, 2026-08-30).
 const MASTERS = {
   book: {
     path: path.join(
       process.cwd(),
-      "src/app/unretire/account/_book/unretire-book-master.pdf",
+      "src/app/account/_book/unretire-book-master.pdf",
     ),
     label: "book",
   },
   workbook: {
     path: path.join(
       process.cwd(),
-      "src/app/unretire/account/_book/unretire-workbook-master.pdf",
+      "src/app/account/_book/unretire-workbook-master.pdf",
     ),
     label: "workbook",
   },

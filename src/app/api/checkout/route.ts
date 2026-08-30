@@ -35,7 +35,10 @@ export async function POST(request: NextRequest) {
   // Already own it (premium includes the course)? Skip Stripe — send them
   // to the course instead of letting them pay twice.
   if (await hasAccess(body.product)) {
-    return NextResponse.json({ url: `${origin}/unretire/learn/course` });
+    // Known issue 2: this was `/unretire/learn/course`, removed by the
+    // promote-to-root refactor — so a customer who already owned the product
+    // was redirected to a 404 instead of the thing they had paid for.
+    return NextResponse.json({ url: `${origin}/learn/course` });
   }
   try {
     const url = await createCheckoutSession({

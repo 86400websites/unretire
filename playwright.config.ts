@@ -122,11 +122,39 @@ const PARITY_SPECS = "**/parity/**";
  * would make every public-page spec require the fixture secrets. This project carries the
  * dependencies instead. It records no trace: a stored session is a live auth token, and a
  * trace records the cookie that carries it.
+ *
+ * S3.1 adds tests/e2e/payments/ to the same project: those specs also need a stored
+ * session (an already-entitled member, or a signed-in member with no entitlement), and
+ * they assert money-path behaviour that needs NO real payment — the paid halves stay in
+ * the dispatch-only parity project.
  */
-const ROLE_SPECS = "**/accounts/**";
+const ROLE_SPECS = ["**/accounts/**", "**/payments/**", "**/logout/**"];
+
+/**
+ * tests/e2e/logout/ is a project of its own, and it must stay that way.
+ *
+ * `logout()` calls supabase `signOut()` at its default `global` scope
+ * (src/app/auth/actions.ts:178), revoking EVERY session for that user rather
+ * than just this browser's. The three fixture accounts are shared suite-wide,
+ * so running AC-002 alongside anything else that uses the `signed-in` fixture
+ * signs that spec out mid-test. It cost two false failures on PR #21 (runs
+ * #103/#104) before the cause was found — the same mechanism that produced a
+ * cross-run false failure in S5.1a, one level further down.
+ *
+ * `dependencies: ["roles-chromium"]` is the fix, and it is an ORDERING fix, not
+ * a weakened assertion: everything needing a live fixture session completes
+ * before this project destroys one.
+ */
+const logoutProject = {
+  name: "logout-chromium",
+  testMatch: "**/logout/*.spec.ts",
+  dependencies: ["setup:signed-in", "roles-chromium"],
+  use: { ...desktop, trace: "off" as const },
+};
+
 const rolesProject = {
   name: "roles-chromium",
-  testMatch: "**/accounts/*.spec.ts",
+  testMatch: ["**/accounts/*.spec.ts", "**/payments/*.spec.ts"],
   dependencies: ["setup:signed-in", "setup:course", "setup:premium"],
   use: { ...desktop, trace: "off" as const },
 };
@@ -165,16 +193,16 @@ export default defineConfig({
     {
       name: "desktop-chromium",
       testMatch: "**/*.spec.ts",
-      testIgnore: [PARITY_SPECS, ROLE_SPECS],
+      testIgnore: [PARITY_SPECS, ...ROLE_SPECS],
       use: { ...desktop },
     },
     {
       name: "mobile-390",
       testMatch: "**/*.spec.ts",
-      testIgnore: [PARITY_SPECS, ROLE_SPECS],
+      testIgnore: [PARITY_SPECS, ...ROLE_SPECS],
       use: mobile390,
     },
-    ...(rolesEnabled ? [rolesProject] : []),
+    ...(rolesEnabled ? [rolesProject, logoutProject] : []),
     ...(parityEnabled ? [parityProject] : []),
   ],
 });

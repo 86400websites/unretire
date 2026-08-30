@@ -20,14 +20,36 @@ export default async function AccountPage({
   return (
     <section className="bg-white">
       <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-        {checkout === "success" && (
-          <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
-            <p className="text-[15px] text-[#232F3F] leading-[1.6]">
-              <span className="font-bold">Payment successful.</span> Welcome —
-              your access is ready below.
-            </p>
-          </div>
-        )}
+        {/*
+          Known issue 45. This banner used to render from `?checkout=success`
+          alone, so it claimed "your access is ready" even when no entitlement
+          existed — which is exactly what made Known issue 22 invisible: the
+          webhook silently failed to grant access and the customer was
+          reassured anyway. The claim is now tied to the entitlement actually
+          read from the database.
+
+          The pending branch is not cosmetic: Stripe's webhook lands a moment
+          after the browser redirect, so a genuinely-successful payment can
+          arrive here before the entitlement is written. Saying nothing at all
+          in that window would look like the payment vanished.
+        */}
+        {checkout === "success" &&
+          (hasCourse ? (
+            <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
+              <p className="text-[15px] text-[#232F3F] leading-[1.6]">
+                <span className="font-bold">Payment successful.</span> Welcome —
+                your access is ready below.
+              </p>
+            </div>
+          ) : (
+            <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
+              <p className="text-[15px] text-[#232F3F] leading-[1.6]">
+                <span className="font-bold">Payment received.</span> We&apos;re
+                activating your access now — this usually takes a few seconds.
+                Refresh this page in a moment.
+              </p>
+            </div>
+          ))}
 
         <div className="mb-8">
           <p className="eyebrow mb-5">Your account</p>

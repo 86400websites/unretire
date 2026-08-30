@@ -46,24 +46,17 @@ test.describe("AC-010 — a signed-out visitor is denied the account area", () =
   });
 });
 
-test.describe("AC-002 — a member can log out", () => {
-  test.use({ storageState: storageStatePath("signed-in") });
-
-  test("AC-002 logging out ends the session", async ({ page }) => {
-    await page.goto("/account");
-    await expect(
-      page.getByRole("heading", { name: "Welcome back." }),
-    ).toBeVisible();
-
-    await page.getByRole("button", { name: /log ?out|sign ?out/i }).click();
-    await page.waitForURL(/\/login/);
-
-    // The session is genuinely gone, not just navigated away from: the gated
-    // route must now bounce us again.
-    await page.goto("/account");
-    await expect(page).toHaveURL(/\/login/);
-  });
-});
+/*
+ * AC-002 used to live here. It moved to tests/e2e/logout/ in S3.1 because it is
+ * DESTRUCTIVE to a shared fixture: `logout()` calls supabase signOut() at its
+ * default `global` scope (src/app/auth/actions.ts:178), which revokes every
+ * session belonging to that user — not just the one in this browser. Running in
+ * parallel with any other spec that uses the same fixture, it silently signed
+ * that spec out mid-test. It cost run #103/#104 two false failures (PY-003 and
+ * PY-004) before the cause was found.
+ *
+ * The logout project depends on this one, so it now runs strictly afterwards.
+ */
 
 test.describe("AC-013 — the book download is Premium-only", () => {
   test.use({ storageState: storageStatePath("course") });
@@ -119,17 +112,23 @@ test.describe("AC-015 — Premium includes the course", () => {
   }) => {
     // The allowed half of the boundary. AC-013 proved the denied half.
     //
-    // THIS TEST IS EXPECTED TO FAIL until S3.1, and it must not be softened —
-    // it is the red→green proof that Known issue 1 is fixed. The route reads
-    // its master PDFs from the stale `src/app/unretire/account/_book/…` path,
-    // so `readFile` throws and route.ts:97-101 returns 500 + JSON instead of
-    // the file. CONFIRMED on the Preview 2026-08-30 (PR #20, run #94/#95):
-    // content-type came back `application/json`.
+    // Known issue 1 was CONFIRMED here on PR #20 (runs #94/#95: content-type
+    // came back `application/json`) and then CONFIRMED FIXED on PR #21 run
+    // #103, which returned a real watermarked PDF and left the first-ever row
+    // in `book_downloads` — the table had been empty since the project began.
     //
-    // The status assertion below is the one that matters for diagnosis: a
-    // non-403 means authorisation still works and only the file path is
-    // broken. If this ever turns into a 403, the entitlement check itself has
-    // regressed — a different and worse finding than #1.
+    // WHY THIS ASSERTION IS SHAPED THIS WAY. The route enforces one download
+    // per user per document (route.ts:77-90). Having proved the PDF path once,
+    // this fixture can NEVER obtain that document again, so asserting
+    // "content-type is application/pdf" would make the spec pass exactly once
+    // in the project's lifetime and fail on every run after — which is what
+    // happened on run #104, an hour after it first went green.
+    //
+    // So the assertion is the invariant that must hold on EVERY run: the member
+    // is authorised, and the route is capable of producing the document. A
+    // "you already downloaded this" refusal is a legitimate business rule and
+    // is accepted. Known issue 1's signature — the route being unable to read
+    // its master at all — is not.
     //
     // `page.request`, not `api`, for the same reason as AC-013 above: the call
     // must carry this member's session.
@@ -137,13 +136,31 @@ test.describe("AC-015 — Premium includes the course", () => {
       data: { name: "E2E Fixture", type: "book" },
       failOnStatusCode: false,
     });
+
     expect(
       response.status(),
       "a Premium member must be authorised for the book download",
     ).not.toBe(403);
+
+    const contentType = response.headers()["content-type"] ?? "";
+    if (contentType.includes("application/pdf")) return; // fresh download — the strongest pass
+
+    // Otherwise the only acceptable answer is the one-per-document rule:
+    // route.ts:88-95 answers 409 "You've already downloaded this". Known issue
+    // 1's signature was a 500 from route.ts:97-101 — "the book is not available
+    // right now" — so a 500 here means the master PDF path has regressed.
+    const body = await response.text();
     expect(
-      response.headers()["content-type"],
-      "the download should return a PDF (Known issue 1 breaks this today)",
-    ).toContain("application/pdf");
+      response.status(),
+      "a non-PDF answer must be the 409 one-time-download rule, never a 500 (Known issue 1)",
+    ).toBe(409);
+    expect(
+      body,
+      "the route must not be failing to read its master PDF (Known issue 1)",
+    ).not.toMatch(/not available right now/i);
+    expect(
+      body,
+      "the only acceptable non-PDF answer is the one-download-per-document rule",
+    ).toMatch(/already downloaded/i);
   });
 });

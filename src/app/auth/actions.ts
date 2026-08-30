@@ -183,7 +183,7 @@ export async function logout(): Promise<void> {
 /**
  * Step 1 of password reset: email the user a recovery link. The link lands
  * on /auth/confirm (which exchanges the recovery token for a session), then
- * forwards to /unretire/reset-password where they set a new password.
+ * forwards to /reset-password where they set a new password.
  * Always returns a generic success message — we never reveal whether an
  * email is registered (enumeration protection).
  */
@@ -201,7 +201,10 @@ export async function requestPasswordReset(
   const origin = await getOrigin();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/confirm?next=/unretire/reset-password`,
+    // Known issue 2: this was `next=/unretire/reset-password`, removed by the
+    // promote-to-root refactor — so the reset link authenticated the user and
+    // then dropped them on a 404, with no way to set a new password.
+    redirectTo: `${origin}/auth/confirm?next=/reset-password`,
   });
 
   // Don't leak whether the address exists; show the same message either way.
