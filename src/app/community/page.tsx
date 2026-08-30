@@ -1,10 +1,13 @@
 import CommunityJoinForm from "./CommunityJoinForm";
 
-const stats = [
-  { num: "340+", label: "Members" },
-  { num: "18", label: "Countries" },
-  { num: "Monthly", label: "Live Events" },
-];
+// Known issue 9. "340+ Members" and "18 Countries" were removed in S4.5 on
+// the owner's instruction (2026-08-30): nobody had verified either number, and
+// LAUNCH-CHECKLIST.md:20 requires every exact claim the site makes to be
+// correct. "Monthly Live Events" stays — it describes the offering this page
+// goes on to detail, rather than counting anything.
+//
+// Restore the figures once they are real and someone can say where they came from.
+const stats = [{ num: "Monthly", label: "Live Events" }];
 
 const offerings = [
   {

@@ -323,7 +323,7 @@ export default function UnRetirePage() {
             <div className="card p-8 sm:p-10 flex flex-col">
               <h3 className="text-2xl mb-4">The Course — $99, once.</h3>
               <p className="prose-body leading-[1.8] mb-6 flex-1">
-                Ten modules. Thirty-one lessons. A short video and a
+                Ten modules. Forty-eight lessons. A short video and a
                 downloadable workbook for each module. It moves from an honest
                 look at where you are now, through purpose, health,
                 relationships, growth, money and contribution, and finishes with

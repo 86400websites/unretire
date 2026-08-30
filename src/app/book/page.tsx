@@ -82,28 +82,16 @@ const practices = [
   },
 ];
 
-const testimonials = [
-  {
-    quote:
-      "I retired with a full bank account and an empty calendar. This book gave me back the second thing — a reason to get up.",
-    who: "Reader name, former executive",
-  },
-  {
-    quote:
-      "I expected another \u201Cstay busy\u201D lecture. Instead it gave me permission to begin again, without pretending to be younger.",
-    who: "Reader name, recently retired",
-  },
-  {
-    quote:
-      "Honest, warm, and practical. The 14-day plan got me moving in a week — not someday.",
-    who: "Reader name, retired educator",
-  },
-  {
-    quote:
-      "It named the quiet crisis I couldn't put into words. Then it handed me a way out.",
-    who: "Reader name",
-  },
-];
+// Known issue 9 — the placeholder testimonials were REMOVED in S4.5 on the
+// owner's instruction (2026-08-30). All four were attributed to "Reader name",
+// and the page even shipped an internal note to the public saying they were
+// placeholders. A site selling a $99 product cannot display invented
+// endorsements: LAUNCH-CHECKLIST.md:19 requires zero placeholder text, and
+// fabricated testimonials are a consumer-protection matter, not a style choice.
+//
+// Reversible by design: when real, attributable quotes exist, restore this
+// array and the "What Readers Say" section that rendered it. Nothing else
+// on this page changed.
 
 function IconTile({ name, title }: { name: string; title: string }) {
   return (
@@ -291,43 +279,6 @@ export default function BookPage() {
               .
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* ── SOCIAL PROOF ─────────────────────────────────────── */}
-      <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
-        <div className="max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-14">
-            <p className="eyebrow mb-5">What Readers Say</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem]">
-              Don&apos;t just take our
-              <br />
-              word for it.
-            </h2>
-            <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {testimonials.map((t) => (
-              <figure key={t.who} className="card p-8 flex flex-col">
-                <span
-                  className="text-[#D05D11] text-4xl leading-none font-bold mb-3"
-                  aria-hidden="true"
-                >
-                  &ldquo;
-                </span>
-                <blockquote className="text-[1.05rem] italic text-[#232F3F] leading-[1.6] mb-5 flex-1">
-                  {t.quote}
-                </blockquote>
-                <figcaption className="text-[13px] text-[#666666] italic">
-                  — {t.who}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-          <p className="text-center text-[13px] text-[#888888] italic mt-8 max-w-[60ch] mx-auto">
-            Placeholders written in the book&apos;s voice — swap in real
-            endorsements when available.
-          </p>
         </div>
       </section>
 
