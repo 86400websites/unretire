@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { safeOrigin } from "@/lib/auth/safe-origin";
 import { createClient } from "@/lib/supabase/server";
 import {
   createCheckoutSession,
@@ -20,9 +21,17 @@ async function getOrigin(): Promise<string> {
   const h = await headers();
   const forwardedHost = h.get("x-forwarded-host");
   const host = forwardedHost ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "https";
-  if (host) return `${proto}://${host}`;
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const proto = h.get("x-forwarded-proto");
+  // Known issue 42. This is the origin that ends up INSIDE password-reset and
+  // confirmation e-mails, so a forged x-forwarded-host would put an attacker's
+  // link, carrying a valid token, into the victim's inbox from our own domain.
+  // safeOrigin() refuses any host that is not one of ours and falls back to the
+  // configured site URL rather than echoing the caller's.
+  return safeOrigin(
+    host,
+    proto,
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  );
 }
 
 export type Intent = PaidProduct | "account";

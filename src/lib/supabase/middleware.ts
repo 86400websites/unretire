@@ -6,11 +6,25 @@ import { NextResponse, type NextRequest } from "next/server";
  * session cookies in sync between the request and the response.
  * Call this from the root middleware.ts.
  *
- * FAIL-OPEN: this runs on every route, so it must never be the reason
- * the whole site goes down. If the Supabase env vars aren't present
- * (e.g. a build that predates them) or the auth call throws for any
- * reason, we return the request untouched. The worst case is that the
- * auth session isn't refreshed on that request — not a site-wide 500.
+ * FAIL-OPEN, AND THAT IS THE RIGHT CHOICE HERE — reviewed in Sprint S4.4,
+ * Known issue 14, decision D-30. Recorded because "fail-open auth middleware"
+ * sounds alarming and the reasoning is worth not having to reconstruct.
+ *
+ * This middleware is NOT an access control. All it does is refresh the Supabase
+ * session cookie. Nothing is authorised here, and no route relies on it for
+ * protection: /account, /api/book-download, /api/checkout,
+ * /api/course-worksheet and /learn/course/[module] each call getAccess() or
+ * hasAccess() themselves and deny on their own (verified route by route,
+ * S4.4). So when this passes a request through unrefreshed, the gate further in
+ * still runs — and an expired token makes getUser() return null there, which
+ * denies. The system fails CLOSED at the point that decides access.
+ *
+ * Making this fail closed would mean every route on the site — including the
+ * public marketing pages — returning 500 whenever Supabase has a hiccup, in
+ * exchange for no security gain, since the real checks would have denied anyway.
+ *
+ * If a future route is ever gated by middleware rather than by its own check,
+ * this reasoning stops holding and the decision must be revisited.
  *
  * IMPORTANT: always return the response object as-is (or copy its
  * cookies onto any new response you create), or the browser and server

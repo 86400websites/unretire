@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createCheckoutSession, isPaidProduct } from "@/lib/stripe/checkout";
 import { hasAccess } from "@/lib/auth/entitlements";
+import { safeOrigin } from "@/lib/auth/safe-origin";
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
@@ -28,10 +29,26 @@ export async function POST(request: NextRequest) {
   }
 
   // 3) Build absolute return URLs from the current origin.
-  const origin =
-    request.headers.get("origin") ??
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "http://localhost:3000";
+  // Known issue 42. The Origin header decides where Stripe returns the customer
+  // and where an existing owner is redirected, so an untrusted value must never
+  // reach it. A browser sends Origin on a same-origin POST; anything whose host
+  // is not ours is discarded in favour of the configured site URL.
+  const fallbackOrigin =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const originHeader = request.headers.get("origin");
+  let origin = fallbackOrigin;
+  if (originHeader) {
+    try {
+      const parsed = new URL(originHeader);
+      origin = safeOrigin(
+        parsed.host,
+        parsed.protocol.replace(":", ""),
+        fallbackOrigin,
+      );
+    } catch {
+      origin = fallbackOrigin;
+    }
+  }
   // Already own it (premium includes the course)? Skip Stripe — send them
   // to the course instead of letting them pay twice.
   if (await hasAccess(body.product)) {

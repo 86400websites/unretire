@@ -1,5 +1,11 @@
 import { getStripe } from "@/lib/stripe/server";
 
+/**
+ * Identifies sessions created by THIS application inside a Stripe account that
+ * is shared with other projects (Known issue 41). Not a secret — a label.
+ */
+export const STRIPE_APP_ID = "unretire";
+
 export type PaidProduct = "course" | "premium";
 
 export function isPaidProduct(v: unknown): v is PaidProduct {
@@ -67,7 +73,15 @@ export async function createCheckoutSession(opts: {
         : {}),
       customer_email: opts.email ?? undefined,
       client_reference_id: opts.userId,
-      metadata: { supabase_user_id: opts.userId, product: opts.product },
+      // `app` is Known issue 41's discriminator. The LIVE Stripe account is
+      // shared with other projects, so their events reach our webhook too;
+      // stamping our own name lets the handler tell them apart by something
+      // better than "this user id happens to look like one of ours".
+      metadata: {
+        supabase_user_id: opts.userId,
+        product: opts.product,
+        app: STRIPE_APP_ID,
+      },
       // Known issue 2: this was `/unretire/account`, a path the promote-to-root
       // refactor removed — so every paying customer landed on a 404 at the most
       // important moment of the journey.
