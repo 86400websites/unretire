@@ -32,9 +32,13 @@ test.describe("AC-010 — a signed-out visitor is denied the account area", () =
   });
 
   test("AC-010 /api/book-download refuses an anonymous request", async ({
-    page,
+    api,
   }) => {
-    const response = await page.request.post("/api/book-download", {
+    // `api`, not `page.request`: the latter is not routed, so on a protected
+    // Preview it never reaches the app — Vercel answers 401 first. This test in
+    // particular carries an empty storageState, so it has no bypass cookie to
+    // fall back on (S5.1a; see tests/e2e/fixtures.ts).
+    const response = await api.post("/api/book-download", {
       data: { name: "E2E Fixture", type: "book" },
       failOnStatusCode: false,
     });
@@ -70,6 +74,14 @@ test.describe("AC-013 — the book download is Premium-only", () => {
     // The course fixture holds a real 'course' entitlement and no 'premium'
     // one. ownsProduct() deliberately does NOT promote course → premium
     // (src/lib/auth/entitlements.ts), so this must be a 403.
+    //
+    // `page.request` here, NOT the `api` fixture — the opposite of AC-010
+    // above. This call must carry the member's session, and `page.request`
+    // shares the browser context's cookie jar; a standalone APIRequestContext
+    // would be anonymous and would return 403 for the wrong reason, making the
+    // test pass while proving nothing. The Vercel bypass rides along in the
+    // same jar: the auth setup navigates with `x-vercel-set-bypass-cookie`,
+    // so the stored role session contains the bypass cookie by design.
     const response = await page.request.post("/api/book-download", {
       data: { name: "E2E Fixture", type: "book" },
       failOnStatusCode: false,
@@ -106,10 +118,21 @@ test.describe("AC-015 — Premium includes the course", () => {
     page,
   }) => {
     // The allowed half of the boundary. AC-013 proved the denied half.
-    // NOTE: this is expected to FAIL today for a reason that is NOT an access
-    // problem — Known issue 1, the route reads its master PDFs from a stale
-    // path. A 500 here confirms #1; a 403 would mean the entitlement check
-    // itself regressed, which is a different and worse finding.
+    //
+    // THIS TEST IS EXPECTED TO FAIL until S3.1, and it must not be softened —
+    // it is the red→green proof that Known issue 1 is fixed. The route reads
+    // its master PDFs from the stale `src/app/unretire/account/_book/…` path,
+    // so `readFile` throws and route.ts:97-101 returns 500 + JSON instead of
+    // the file. CONFIRMED on the Preview 2026-08-30 (PR #20, run #94/#95):
+    // content-type came back `application/json`.
+    //
+    // The status assertion below is the one that matters for diagnosis: a
+    // non-403 means authorisation still works and only the file path is
+    // broken. If this ever turns into a 403, the entitlement check itself has
+    // regressed — a different and worse finding than #1.
+    //
+    // `page.request`, not `api`, for the same reason as AC-013 above: the call
+    // must carry this member's session.
     const response = await page.request.post("/api/book-download", {
       data: { name: "E2E Fixture", type: "book" },
       failOnStatusCode: false,

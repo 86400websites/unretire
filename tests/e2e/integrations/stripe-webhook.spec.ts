@@ -33,8 +33,8 @@ const FORGED_EVENT = JSON.stringify({
   },
 });
 
-test("IN-001 — an unsigned webhook event is refused", async ({ page }) => {
-  const response = await page.request.post("/api/stripe/webhook", {
+test("IN-001 — an unsigned webhook event is refused", async ({ api }) => {
+  const response = await api.post("/api/stripe/webhook", {
     headers: { "Content-Type": "application/json" },
     data: FORGED_EVENT,
     failOnStatusCode: false,
@@ -46,8 +46,8 @@ test("IN-001 — an unsigned webhook event is refused", async ({ page }) => {
   ).toBe(400);
 });
 
-test("IN-001 — a wrongly-signed webhook event is refused", async ({ page }) => {
-  const response = await page.request.post("/api/stripe/webhook", {
+test("IN-001 — a wrongly-signed webhook event is refused", async ({ api }) => {
+  const response = await api.post("/api/stripe/webhook", {
     headers: {
       "Content-Type": "application/json",
       // Shaped like a real Stripe signature header, but not a valid signature

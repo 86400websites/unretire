@@ -29,6 +29,7 @@ test("PG-005 — home shows the course and Premium offers at the prices /premium
 
 test("PG-008 — the blog lists posts and every listed post opens", async ({
   page,
+  api,
 }) => {
   await page.goto("/blog");
 
@@ -48,12 +49,16 @@ test("PG-008 — the blog lists posts and every listed post opens", async ({
   // because fourteen sequential fetches exceed a single test budget on a dev
   // server that compiles each route on first hit, and reachability has no
   // ordering requirement.
+  //
+  // Via the `api` fixture rather than `page.request`: these are anonymous
+  // fetches, and `page.request` would only reach a protected Preview because
+  // the goto above happened to leave a bypass cookie in the jar. That made the
+  // test silently order-dependent — it would have started failing the moment
+  // the navigation moved or was removed.
   const results = await Promise.all(
     [...hrefs].map(async (href) => ({
       href,
-      status: (
-        await page.request.get(href, { failOnStatusCode: false })
-      ).status(),
+      status: (await api.get(href, { failOnStatusCode: false })).status(),
     })),
   );
   const broken = results
