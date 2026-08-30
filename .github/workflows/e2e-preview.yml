@@ -37,8 +37,27 @@ permissions:
   contents: read
   deployments: read
 concurrency:
-  group: e2e-preview-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
+  # Keyed on the COMMIT under test, because the SHA is the only value both triggers
+  # share — and they must share a lane. The previous key fell back to github.run_id
+  # for any non-PR event, and a run_id is unique per run, so the `pull_request` and
+  # `deployment_status` runs of the SAME commit landed in different groups and ran
+  # CONCURRENTLY against the same three fixture accounts. AC-002 signs a fixture out,
+  # and `supabase.auth.signOut()` (src/app/auth/actions.ts:178) takes the library's
+  # default `global` scope, which revokes that user's session everywhere — so one run
+  # signed the other run out mid-test. Observed on PR #20, 2026-08-30: run #96 was
+  # 105/1 (clean) while its twin #97 was 104/2, the extra failure being AC-002 unable
+  # to find the signed-in heading. Fixed by S5.1a.
+  #
+  # `cancel-in-progress: false` so the second trigger QUEUES rather than cancelling
+  # the first: both finish and both report green. Cancelling would leave a grey
+  # "cancelled" check beside a green one on every PR, which reads as a problem when
+  # it isn't. The suite runs in well under a minute, so serialising costs little.
+  #
+  # The parity input gets its own lane: a manual `parity: on` dispatch writes real
+  # data (a signup, two Stripe SANDBOX payments, one live Mailchimp contact — D-25),
+  # so it must never be queued behind, or interleaved with, an ordinary run.
+  group: e2e-preview-${{ github.event.pull_request.head.sha || github.event.deployment.sha || inputs.sha || github.sha }}-${{ inputs.parity || 'off' }}
+  cancel-in-progress: false
 jobs:
   e2e-preview:
     # PR and manual runs always; deployment_status runs only for a SUCCESSFUL Preview
