@@ -113,6 +113,25 @@ function setupProject(role: FixtureRole) {
  * titles: the HTML report is the reason playwright-report/ is never uploaded).
  */
 const PARITY_SPECS = "**/parity/**";
+
+/**
+ * S5.1a role specs (tests/e2e/accounts/) reuse a stored fixture session to assert the
+ * access boundaries — the allowed AND denied halves the Launch Gate requires. They are
+ * split out of the two browser projects for the reason the note above records: those
+ * projects must stay runnable locally with no credentials, and a `dependencies` entry
+ * would make every public-page spec require the fixture secrets. This project carries the
+ * dependencies instead. It records no trace: a stored session is a live auth token, and a
+ * trace records the cookie that carries it.
+ */
+const ROLE_SPECS = "**/accounts/**";
+const rolesProject = {
+  name: "roles-chromium",
+  testMatch: "**/accounts/*.spec.ts",
+  dependencies: ["setup:signed-in", "setup:course", "setup:premium"],
+  use: { ...desktop, trace: "off" as const },
+};
+const rolesEnabled = Boolean(process.env.E2E_FIXTURE_PASSWORD);
+
 const parityEnabled = process.env.E2E_PARITY === "1";
 const parityProject = {
   name: "parity-chromium",
@@ -146,15 +165,16 @@ export default defineConfig({
     {
       name: "desktop-chromium",
       testMatch: "**/*.spec.ts",
-      testIgnore: PARITY_SPECS,
+      testIgnore: [PARITY_SPECS, ROLE_SPECS],
       use: { ...desktop },
     },
     {
       name: "mobile-390",
       testMatch: "**/*.spec.ts",
-      testIgnore: PARITY_SPECS,
+      testIgnore: [PARITY_SPECS, ROLE_SPECS],
       use: mobile390,
     },
+    ...(rolesEnabled ? [rolesProject] : []),
     ...(parityEnabled ? [parityProject] : []),
   ],
 });
