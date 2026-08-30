@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { checkRateLimit, rateLimitedResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -22,12 +23,47 @@ function mailchimpConfig() {
   };
 }
 
+/** RFC-shaped enough to reject junk without rejecting real addresses. */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_EMAIL = 254; // RFC 5321
+const MAX_NAME = 100;
+
 export async function POST(req: NextRequest) {
   try {
+    // Known issue 5, SECURITY-CHECKLIST §5. This endpoint is fully public and
+    // writes to a LIVE Mailchimp audience shared by every environment (D-22),
+    // so an unthrottled loop could stuff the list or burn the send quota. Ten
+    // submissions a minute is far above what a person does and far below what a
+    // script does. Fails CLOSED — see src/lib/rate-limit.ts.
+    const { limited, retryAfter } = await checkRateLimit(
+      req.headers,
+      "subscribe",
+      { limit: 10, windowSeconds: 60 },
+    );
+    if (limited) return rateLimitedResponse(retryAfter);
+
     const { email, firstName, tag, mergeFields } = await req.json();
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    // §5 also calls for server-side validation: the browser's `type="email"`
+    // check is a convenience for honest users, not a control — nothing stops a
+    // script POSTing here directly.
+    if (!email || typeof email !== "string" || !EMAIL.test(email.trim())) {
+      return NextResponse.json(
+        { error: "A valid email address is required" },
+        { status: 400 },
+      );
+    }
+    if (email.length > MAX_EMAIL) {
+      return NextResponse.json({ error: "Email is too long" }, { status: 400 });
+    }
+    if (firstName !== undefined && typeof firstName !== "string") {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+    if (typeof firstName === "string" && firstName.length > MAX_NAME) {
+      return NextResponse.json({ error: "Name is too long" }, { status: 400 });
+    }
+    if (tag !== undefined && typeof tag !== "string") {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
     const { listId, base, headers } = mailchimpConfig();
