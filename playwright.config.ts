@@ -128,7 +128,30 @@ const PARITY_SPECS = "**/parity/**";
  * they assert money-path behaviour that needs NO real payment — the paid halves stay in
  * the dispatch-only parity project.
  */
-const ROLE_SPECS = ["**/accounts/**", "**/payments/**"];
+const ROLE_SPECS = ["**/accounts/**", "**/payments/**", "**/logout/**"];
+
+/**
+ * tests/e2e/logout/ is a project of its own, and it must stay that way.
+ *
+ * `logout()` calls supabase `signOut()` at its default `global` scope
+ * (src/app/auth/actions.ts:178), revoking EVERY session for that user rather
+ * than just this browser's. The three fixture accounts are shared suite-wide,
+ * so running AC-002 alongside anything else that uses the `signed-in` fixture
+ * signs that spec out mid-test. It cost two false failures on PR #21 (runs
+ * #103/#104) before the cause was found — the same mechanism that produced a
+ * cross-run false failure in S5.1a, one level further down.
+ *
+ * `dependencies: ["roles-chromium"]` is the fix, and it is an ORDERING fix, not
+ * a weakened assertion: everything needing a live fixture session completes
+ * before this project destroys one.
+ */
+const logoutProject = {
+  name: "logout-chromium",
+  testMatch: "**/logout/*.spec.ts",
+  dependencies: ["setup:signed-in", "roles-chromium"],
+  use: { ...desktop, trace: "off" as const },
+};
+
 const rolesProject = {
   name: "roles-chromium",
   testMatch: ["**/accounts/*.spec.ts", "**/payments/*.spec.ts"],
@@ -179,7 +202,7 @@ export default defineConfig({
       testIgnore: [PARITY_SPECS, ...ROLE_SPECS],
       use: mobile390,
     },
-    ...(rolesEnabled ? [rolesProject] : []),
+    ...(rolesEnabled ? [rolesProject, logoutProject] : []),
     ...(parityEnabled ? [parityProject] : []),
   ],
 });

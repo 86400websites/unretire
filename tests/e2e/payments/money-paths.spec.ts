@@ -81,11 +81,21 @@ test.describe("PY-007 — an existing owner is not sold the same thing twice", (
 
   test("PY-007 buying something you already own redirects to it, not to a 404", async ({
     page,
+    baseURL,
   }) => {
     // page.request, not the `api` fixture: this call must carry the member's
     // session so /api/checkout sees an owner (see AC-013's note in
     // tests/e2e/accounts/access-boundaries.spec.ts).
+    //
+    // The explicit Origin header matters. /api/checkout builds its redirect
+    // from `request.headers.get("origin") ?? NEXT_PUBLIC_SITE_URL ??
+    // "http://localhost:3000"`, and Playwright's request context sends no
+    // Origin — so without this the route fell back to localhost and the spec
+    // failed against a URL that cannot exist in CI (observed, PR #21 run #103).
+    // A browser always sends Origin on a same-origin POST, so this reproduces
+    // real conditions rather than working around them.
     const response = await page.request.post("/api/checkout", {
+      headers: { Origin: new URL(baseURL as string).origin },
       data: { product: "course" },
       failOnStatusCode: false,
     });
