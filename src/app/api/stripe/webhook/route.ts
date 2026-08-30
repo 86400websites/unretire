@@ -38,20 +38,46 @@ export async function POST(request: NextRequest) {
         const userId = session.metadata?.supabase_user_id;
         const product = session.metadata?.product;
 
-        if (userId && (product === "course" || product === "premium")) {
-          await admin.from("entitlements").upsert(
-            {
-              user_id: userId,
-              product,
-              status: "active",
-              stripe_customer_id:
-                typeof session.customer === "string" ? session.customer : null,
-              stripe_subscription_id:
-                typeof session.subscription === "string"
-                  ? session.subscription
-                  : null,
-            },
-            { onConflict: "user_id,product" },
+        if (!userId || !(product === "course" || product === "premium")) {
+          // Not one of ours. The live Stripe account is shared with other
+          // projects (Known issue 41), so their events reach this endpoint too
+          // and carry no supabase_user_id. Retrying can never make such an
+          // event ours, so acknowledge it — a non-2xx here would make Stripe
+          // redeliver a foreign event against this endpoint for days.
+          console.warn(
+            `Ignoring ${event.type} ${event.id}: no recognised supabase_user_id/product metadata.`,
+          );
+          break;
+        }
+
+        const { error: upsertError } = await admin.from("entitlements").upsert(
+          {
+            user_id: userId,
+            product,
+            status: "active",
+            stripe_customer_id:
+              typeof session.customer === "string" ? session.customer : null,
+            stripe_subscription_id:
+              typeof session.subscription === "string"
+                ? session.subscription
+                : null,
+          },
+          { onConflict: "user_id,product" },
+        );
+
+        // Known issue 22 / SECURITY-CHECKLIST §9 invariant I4. supabase-js v2
+        // returns {data, error} and does NOT throw on an API error, so this
+        // result was previously discarded and the handler still answered 200 —
+        // Stripe saw success, never retried, and the customer paid for nothing.
+        // Answering non-2xx puts the event back on Stripe's retry schedule and
+        // surfaces it in the Stripe dashboard's failed-delivery list.
+        if (upsertError) {
+          console.error(
+            `Entitlement upsert FAILED for ${event.id} (${product}): ${upsertError.code ?? "unknown"} — returning 500 so Stripe retries.`,
+          );
+          return NextResponse.json(
+            { error: "Entitlement write failed" },
+            { status: 500 },
           );
         }
         break;
@@ -60,10 +86,25 @@ export async function POST(request: NextRequest) {
       // Premium subscription ended or was cancelled → revoke access.
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
-        await admin
+        const { error: revokeError } = await admin
           .from("entitlements")
           .update({ status: "canceled" })
           .eq("stripe_subscription_id", sub.id);
+
+        // Same rule in the other direction (Known issue 22): a failed revoke
+        // that answered 200 would leave a cancelled member with live access and
+        // no further attempt to take it away. Matching zero rows is NOT an
+        // error — a subscription belonging to another project on this shared
+        // account simply matches nothing here.
+        if (revokeError) {
+          console.error(
+            `Entitlement revoke FAILED for ${event.id}: ${revokeError.code ?? "unknown"} — returning 500 so Stripe retries.`,
+          );
+          return NextResponse.json(
+            { error: "Entitlement revoke failed" },
+            { status: 500 },
+          );
+        }
         break;
       }
 
@@ -76,6 +117,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Handler error" }, { status: 500 });
   }
 
-  // Always 200 once verified, so Stripe stops retrying.
+  // 200 once the event has been verified AND fully handled. Every path that
+  // failed to write returns non-2xx above, so a 200 from here means the
+  // entitlement really changed (Known issue 22).
   return NextResponse.json({ received: true });
 }

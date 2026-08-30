@@ -122,11 +122,16 @@ const PARITY_SPECS = "**/parity/**";
  * would make every public-page spec require the fixture secrets. This project carries the
  * dependencies instead. It records no trace: a stored session is a live auth token, and a
  * trace records the cookie that carries it.
+ *
+ * S3.1 adds tests/e2e/payments/ to the same project: those specs also need a stored
+ * session (an already-entitled member, or a signed-in member with no entitlement), and
+ * they assert money-path behaviour that needs NO real payment — the paid halves stay in
+ * the dispatch-only parity project.
  */
-const ROLE_SPECS = "**/accounts/**";
+const ROLE_SPECS = ["**/accounts/**", "**/payments/**"];
 const rolesProject = {
   name: "roles-chromium",
-  testMatch: "**/accounts/*.spec.ts",
+  testMatch: ["**/accounts/*.spec.ts", "**/payments/*.spec.ts"],
   dependencies: ["setup:signed-in", "setup:course", "setup:premium"],
   use: { ...desktop, trace: "off" as const },
 };
@@ -165,13 +170,13 @@ export default defineConfig({
     {
       name: "desktop-chromium",
       testMatch: "**/*.spec.ts",
-      testIgnore: [PARITY_SPECS, ROLE_SPECS],
+      testIgnore: [PARITY_SPECS, ...ROLE_SPECS],
       use: { ...desktop },
     },
     {
       name: "mobile-390",
       testMatch: "**/*.spec.ts",
-      testIgnore: [PARITY_SPECS, ROLE_SPECS],
+      testIgnore: [PARITY_SPECS, ...ROLE_SPECS],
       use: mobile390,
     },
     ...(rolesEnabled ? [rolesProject] : []),
