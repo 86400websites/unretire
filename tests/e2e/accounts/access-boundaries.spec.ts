@@ -101,10 +101,21 @@ test.describe("AC-015 — Premium includes the course", () => {
 
     const response = await page.goto("/learn/course/module-1");
     expect(response?.status()).toBe(200);
+
+    // S4.3: this previously counted svg[aria-label="Locked"] and expected 0 —
+    // which was true on every run for the wrong reason. That label exists on
+    // the course HUB, never in the player, so the selector matched nothing
+    // whatever the entitlement was. A test that cannot fail proves nothing.
+    // The real signals are that the lesson rows are enabled and the video the
+    // member paid for is actually there.
     expect(
-      await page.locator('svg[aria-label="Locked"]').count(),
-      "no module should read as locked for a Premium member",
+      await page.locator("button[disabled]").count(),
+      "no lesson row should be disabled for an entitled member",
     ).toBe(0);
+    await expect(
+      page.locator('iframe[src*="youtube"]').first(),
+      "an entitled member should be served the lesson video",
+    ).toBeVisible({ timeout: 15_000 });
   });
 
   test("AC-015 a Premium member is allowed the book download", async ({

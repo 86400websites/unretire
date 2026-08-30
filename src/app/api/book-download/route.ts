@@ -172,6 +172,29 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Known issue 43. Every OTHER insert failure used to fall through to the
+  // download, on the reasoning that the user had legitimately asked for it. But
+  // the row is the ONLY thing enforcing "once": if the insert keeps failing —
+  // an RLS denial, a connection error, the table missing — the limit does not
+  // degrade, it disappears, and the document can be fetched without end.
+  //
+  // docs/SECURITY-CHECKLIST.md §5 requires a control that cannot be recorded to
+  // fail CLOSED. The customer is told plainly it is a retryable failure rather
+  // than being accused of having already downloaded it, and only a safe
+  // identifier is logged — never the upstream body.
+  if (insertError) {
+    console.error(
+      `book_downloads insert failed for doc_type=${type}: ${insertError.code ?? "unknown"} — refusing the download so the one-time limit cannot be bypassed.`,
+    );
+    return NextResponse.json(
+      {
+        error:
+          "We could not record your download just now, so we have not sent the file. Please try again in a moment.",
+      },
+      { status: 503 },
+    );
+  }
+
   // 5. Stream it back as a download.
   const prefix = type === "workbook" ? "UnRetire-Workbook" : "UnRetire";
   const safeFile =

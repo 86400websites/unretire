@@ -83,6 +83,72 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      /**
+       * Known issue 39 — the renewal hole.
+       *
+       * Access was granted on checkout and revoked ONLY on
+       * customer.subscription.deleted. A Premium subscription whose renewal
+       * payment failed therefore kept working: Stripe moved it to past_due and
+       * then unpaid, neither of which this handler listened for, so the member
+       * kept full access indefinitely without paying. Premium was being given
+       * away.
+       *
+       * customer.subscription.updated is the authoritative status feed, so it
+       * is what we follow.
+       *
+       * A NOTE ON past_due, which is deliberate and not an oversight. The
+       * production CHECK constraint admits exactly three values — 'active',
+       * 'canceled', 'expired' (supabase/migrations/0001_entitlements.sql) — so
+       * there is no state for "paying, but this month's charge bounced". We
+       * therefore leave past_due members ACTIVE: Stripe is still retrying the
+       * card, and cutting off a paying customer over a bank decline they have
+       * not yet had a chance to fix would be worse than a few days' grace. When
+       * dunning finally fails Stripe moves the subscription to unpaid or
+       * canceled, and the line below revokes. Representing past_due properly
+       * would mean altering a Production constraint — an owner decision, not a
+       * side effect of this sprint.
+       */
+      case "customer.subscription.updated": {
+        const sub = event.data.object as Stripe.Subscription;
+        const REVOKE = ["unpaid", "canceled", "incomplete_expired", "paused"];
+        const RESTORE = ["active", "trialing"];
+
+        // past_due and incomplete are the grace states — leave them untouched.
+        if (!REVOKE.includes(sub.status) && !RESTORE.includes(sub.status))
+          break;
+
+        const nextStatus = REVOKE.includes(sub.status) ? "canceled" : "active";
+        const { error: syncError } = await admin
+          .from("entitlements")
+          .update({ status: nextStatus })
+          .eq("stripe_subscription_id", sub.id);
+
+        if (syncError) {
+          console.error(
+            `Entitlement sync FAILED for ${event.id} (stripe status ${sub.status} → ${nextStatus}): ${syncError.code ?? "unknown"} — returning 500 so Stripe retries.`,
+          );
+          return NextResponse.json(
+            { error: "Entitlement sync failed" },
+            { status: 500 },
+          );
+        }
+        break;
+      }
+
+      /**
+       * A renewal that bounced. No state change — see the past_due note above;
+       * Stripe is still retrying and customer.subscription.updated is what
+       * decides the outcome. Logged so there is a breadcrumb, because this
+       * project ships without error tracking (D-28).
+       */
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.warn(
+          `Invoice payment failed (${event.id}, invoice ${invoice.id}). Access unchanged; awaiting customer.subscription.updated.`,
+        );
+        break;
+      }
+
       // Premium subscription ended or was cancelled → revoke access.
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
