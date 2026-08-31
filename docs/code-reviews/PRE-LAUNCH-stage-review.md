@@ -134,6 +134,12 @@ S4.3/S4.5 sprint records absent and S4.5 tracker rows stale; migration 0003 unap
 
 ## Remediation record — Finding 10 (Sprint S4.5c, 2026-08-31)
 
+> ⚠ **Note on where this landed.** S4.5 was merged to `master` as **PR #24** (`a7a2540`) and
+> **PR #25** (`0afbef2`) **while this verdict still read REQUEST CHANGES and Finding 10 was
+> still open**, and GitHub deleted the branch on merge. The reviewed range `baa1d92..8fc94ad`
+> is therefore on `master` already. S4.5c lands on `claude/s4.5c-test-integrity`, branched
+> from the merged `master`, and the re-review should be pinned to `0afbef2..<its head>`.
+
 Findings **1–9** were fixed in `231b637` and recorded in `docs/sprint-prompts/S4.5-launch-floor.md`.
 Finding **10** was left open and is closed here. Sprint record:
 `docs/sprint-prompts/S4.5c-test-integrity.md`.
