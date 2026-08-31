@@ -20,23 +20,45 @@
  */
 
 /**
- * Preview deployments have generated hostnames, so they cannot be listed one by
- * one — but the shape is specific to this Vercel team. Note the required
- * `-86400-s-projects` suffix: without it, `unretire-anything.vercel.app` is a
- * name any stranger could claim. The same pattern guards the test harness in
- * playwright.config.ts.
+ * Pre-launch review Finding 9.
+ *
+ * This used to allow any host matching /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/.
+ * That is a NAMING CONVENTION, not proof of ownership: Vercel hands out
+ * *.vercel.app names from project names on a first-come basis, so the pattern
+ * describes a shape anyone could occupy rather than deployments that are ours.
+ *
+ * The allow-list is now exact and platform-provided. Vercel sets these at
+ * runtime and a caller cannot influence them, so each is an identity rather
+ * than a guess:
+ *
+ *   VERCEL_URL                     this deployment's own hostname
+ *   VERCEL_BRANCH_URL              the branch alias serving Preview
+ *   VERCEL_PROJECT_PRODUCTION_URL  the project's production domain
+ *
+ * plus NEXT_PUBLIC_SITE_URL's host (apex and www), which the owner configures.
+ * Anything else falls back to the configured site URL.
  */
-const PROJECT_PREVIEW_HOST =
-  /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
+function platformHosts(): string[] {
+  return [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ]
+    .filter((h): h is string => Boolean(h))
+    .map((h) => h.toLowerCase());
+}
 
 const LOCAL_HOST = /^(localhost|127\.0\.0\.1)(:\d+)?$/;
 
+/**
+ * The configured public domain, in both apex and www form, since either may
+ * serve. Derived from NEXT_PUBLIC_SITE_URL rather than hard-coded.
+ */
 function siteHosts(): string[] {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
   if (!configured) return [];
   try {
     const host = new URL(configured).host.toLowerCase();
-    // Accept the apex and www form of the same domain, since either may serve.
     const bare = host.replace(/^www\./, "");
     return [host, bare, `www.${bare}`];
   } catch {
@@ -49,12 +71,7 @@ export function isAllowedHost(host: string | null | undefined): boolean {
   const candidate = host.toLowerCase();
 
   if (siteHosts().includes(candidate)) return true;
-
-  // Set by the platform, not by the caller, so it cannot be forged.
-  const vercelUrl = process.env.VERCEL_URL?.toLowerCase();
-  if (vercelUrl && candidate === vercelUrl) return true;
-
-  if (PROJECT_PREVIEW_HOST.test(candidate)) return true;
+  if (platformHosts().includes(candidate)) return true;
 
   // Local development only — never a valid production host.
   if (process.env.VERCEL_ENV !== "production" && LOCAL_HOST.test(candidate)) {

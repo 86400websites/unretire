@@ -25,12 +25,15 @@ test("AC-014 — a forged host never becomes a link in our e-mail", () => {
     "evil.example",
     "www.unretireproject.com.evil.example",
     "evil.example:443",
-    // The one that makes a loose pattern dangerous. vercel.app subdomains are
-    // claimable by anyone, so "starts with unretire-" is not ownership — only
-    // the team suffix is. A guard written as /^unretire-.+\.vercel\.app$/ would
-    // hand an attacker a trusted origin for the price of a free deployment.
+    // vercel.app subdomains are handed out from project names on a first-come
+    // basis, so ANY pattern over that namespace describes a shape a stranger
+    // can occupy rather than deployments that are ours. Pre-launch review
+    // Finding 9: the guard used to trust
+    // /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/, so the third entry
+    // below — which matches that pattern exactly — was ACCEPTED. It must not be.
     "unretire-evil.vercel.app",
     "unretire-anything.vercel.app",
+    "unretire-attacker-86400-s-projects.vercel.app",
     "notunretire-x-86400-s-projects.vercel.app",
     "unretireproject.com.attacker.net",
   ];
@@ -51,9 +54,23 @@ test("AC-014 — the hosts we really run on are still accepted", () => {
   expect(isAllowedHost("www.unretireproject.com")).toBe(true);
   expect(isAllowedHost("unretireproject.com")).toBe(true);
   expect(isAllowedHost("UNRETIREPROJECT.COM")).toBe(true); // case-insensitive
+  // Preview hosts are trusted by EXACT match against what the platform itself
+  // reports, never by shape. These are set by Vercel at runtime and a caller
+  // cannot influence them.
+  process.env.VERCEL_URL = "unretire-abc123-86400-s-projects.vercel.app";
+  process.env.VERCEL_BRANCH_URL =
+    "unretire-git-branch-86400-s-projects.vercel.app";
   expect(isAllowedHost("unretire-abc123-86400-s-projects.vercel.app")).toBe(
     true,
   );
+  expect(isAllowedHost("unretire-git-branch-86400-s-projects.vercel.app")).toBe(
+    true,
+  );
+  // ...and a same-shaped host the platform did NOT report is still refused.
+  expect(
+    isAllowedHost("unretire-someoneelse-86400-s-projects.vercel.app"),
+    "shape alone must never confer trust",
+  ).toBe(false);
 
   expect(safeOrigin("www.unretireproject.com", "https", FALLBACK)).toBe(SITE);
 });

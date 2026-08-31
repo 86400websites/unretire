@@ -5,23 +5,21 @@ import { useState } from "react";
 /**
  * Where this form posts.
  *
- * Set NEXT_PUBLIC_FORMSPREE_ENDPOINT (Vercel + .env.local) to the endpoint
- * of a form created at https://formspree.io that delivers to
- * unretire86400@gmail.com — e.g. https://formspree.io/f/abcdwxyz
+ * Pre-launch review Finding 8. This used to POST straight to Formspree from the
+ * browser, so it had no rate limit and no server-side validation — the endpoint
+ * was in the page source and could be hit directly, bypassing the site. It now
+ * goes through /api/form, which applies the same abuse control as every other
+ * public write and resolves the Formspree endpoint server-side.
  *
- * Until that is set the form does NOT pretend the visitor typed something
- * wrong: it tells them the form is unavailable and gives them the address
- * to email instead, so a real lead is never silently dropped.
+ * The old client-side `isConfigured` check went with it: the browser no longer
+ * knows (or needs to know) whether the upstream is configured. The server
+ * decides, and an unconfigured upstream returns 502 — which lands in the same
+ * "failed" state below, so the promise this file was written around still
+ * holds: a real lead is never silently dropped, and the visitor is given an
+ * address to email instead.
  */
-const ENDPOINT =
-  process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ??
-  "https://formspree.io/f/mgogyqey";
+const ENDPOINT = "/api/form";
 const CONTACT_EMAIL = "unretire86400@gmail.com";
-
-// A placeholder like ".../YOUR_FORM_ID" must not count as configured.
-const isConfigured = /^https:\/\/formspree\.io\/f\/[A-Za-z0-9]+$/.test(
-  ENDPOINT,
-);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -48,12 +46,6 @@ export default function DiscoveryForm() {
       return;
     }
 
-    // Delivery failure — nothing the visitor can fix.
-    if (!isConfigured) {
-      setState("failed");
-      return;
-    }
-
     setState("sending");
     try {
       const res = await fetch(ENDPOINT, {
@@ -62,12 +54,7 @@ export default function DiscoveryForm() {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({
-          ...form,
-          name,
-          email,
-          _subject: `Discovery Call request — ${form.company.trim() || name}`,
-        }),
+        body: JSON.stringify({ form: "enterprise", ...form, name, email }),
       });
       setState(res.ok ? "done" : "failed");
     } catch {

@@ -45,51 +45,86 @@ export async function createCheckoutSession(opts: {
   if (!price)
     throw new Error(`Stripe price not configured for ${opts.product}`);
 
-  // Known issue 40: Stripe advises an idempotency key on every POST so a
-  // network retry cannot create a second session. The key is scoped to the
-  // buyer + product and bucketed to the minute: a double-click or an automatic
-  // retry reuses the same key and Stripe replays the original session, while a
-  // genuine later attempt (the buyer cancelled, then changed their mind) falls
-  // into a new bucket and gets a fresh one. Stripe expires keys after 24 h.
-  const idempotencyKey = `checkout:${opts.userId}:${opts.product}:${Math.floor(
-    Date.now() / 60_000,
-  )}`;
+  // Known issue 40, revised for pre-launch review Finding 5 (Blocking).
+  //
+  // The first version bucketed the key by minute, which meant it did NOT cover
+  // the case it was added for: two tabs, or an impatient retry, either side of
+  // a minute boundary produced two DIFFERENT keys and therefore two payable
+  // sessions. An idempotency key should identify one operation, not one moment.
+  //
+  // The key is now stable for a given buyer and product. Stripe replays the
+  // original response for 24 h, so a double-click, a retry, or a second tab all
+  // land on the SAME Checkout Session and only one of them can be paid.
+  const idempotencyKey = `checkout:${opts.userId}:${opts.product}:v2`;
 
-  const session = await getStripe().checkout.sessions.create(
-    {
-      mode: config.mode,
-      line_items: [{ price, quantity: 1 }],
-      // Shows the "Add promotion code" field at checkout so guests can enter
-      // a Stripe promotion code (e.g. FREE during the preview). Discounts are
-      // configured entirely in the Stripe dashboard — no code changes to add,
-      // change, or expire a coupon.
-      allow_promotion_codes: true,
-      // For subscriptions only: don't force a card when nothing is due now.
-      // A 100%-off ("Forever") coupon makes the subscription $0, so with this
-      // set Stripe completes checkout without asking for a card. One-time
-      // payments (the course) don't need this and already skip the card at $0.
-      ...(config.mode === "subscription"
-        ? { payment_method_collection: "if_required" as const }
-        : {}),
-      customer_email: opts.email ?? undefined,
-      client_reference_id: opts.userId,
-      // `app` is Known issue 41's discriminator. The LIVE Stripe account is
-      // shared with other projects, so their events reach our webhook too;
-      // stamping our own name lets the handler tell them apart by something
-      // better than "this user id happens to look like one of ours".
-      metadata: {
-        supabase_user_id: opts.userId,
-        product: opts.product,
-        app: STRIPE_APP_ID,
-      },
-      // Known issue 2: this was `/unretire/account`, a path the promote-to-root
-      // refactor removed — so every paying customer landed on a 404 at the most
-      // important moment of the journey.
-      success_url: `${opts.origin}/account?checkout=success`,
-      cancel_url: `${opts.origin}${config.cancelPath}?checkout=cancelled`,
+  // Extracted so the self-heal below can re-issue the IDENTICAL parameters;
+  // Stripe rejects a reused idempotency key whose payload differs.
+  const params = {
+    mode: config.mode,
+    line_items: [{ price, quantity: 1 }],
+    // Shows the "Add promotion code" field at checkout so guests can enter
+    // a Stripe promotion code (e.g. FREE during the preview). Discounts are
+    // configured entirely in the Stripe dashboard — no code changes to add,
+    // change, or expire a coupon.
+    allow_promotion_codes: true,
+    // For subscriptions only: don't force a card when nothing is due now.
+    // A 100%-off ("Forever") coupon makes the subscription $0, so with this
+    // set Stripe completes checkout without asking for a card. One-time
+    // payments (the course) don't need this and already skip the card at $0.
+    ...(config.mode === "subscription"
+      ? {
+          payment_method_collection: "if_required" as const,
+          // Pre-launch review Finding 4. Checkout metadata lands on the
+          // SESSION, but customer.subscription.* events carry the
+          // SUBSCRIPTION, which had none — so lifecycle handlers could only
+          // match on stripe_subscription_id and had no way to tell "not ours"
+          // from "ours, but the grant has not landed yet". Stamping the
+          // subscription makes every later event self-identifying.
+          subscription_data: {
+            metadata: {
+              supabase_user_id: opts.userId,
+              product: opts.product,
+              app: STRIPE_APP_ID,
+            },
+          },
+        }
+      : {}),
+    customer_email: opts.email ?? undefined,
+    client_reference_id: opts.userId,
+    // `app` is Known issue 41's discriminator. The LIVE Stripe account is
+    // shared with other projects, so their events reach our webhook too;
+    // stamping our own name lets the handler tell them apart by something
+    // better than "this user id happens to look like one of ours".
+    metadata: {
+      supabase_user_id: opts.userId,
+      product: opts.product,
+      app: STRIPE_APP_ID,
     },
-    { idempotencyKey },
-  );
+    // Known issue 2: this was `/unretire/account`, a path the promote-to-root
+    // refactor removed — so every paying customer landed on a 404 at the most
+    // important moment of the journey.
+    success_url: `${opts.origin}/account?checkout=success`,
+    cancel_url: `${opts.origin}${config.cancelPath}?checkout=cancelled`,
+  };
+
+  const session = await getStripe().checkout.sessions.create(params, {
+    idempotencyKey,
+  });
+
+  // A stable key means Stripe may replay a session created earlier. If that
+  // session is no longer open — already completed, or expired after 24 h — its
+  // URL is useless, so ask for a genuinely new one keyed on the stale session.
+  // Without this, a buyer whose first attempt expired would be handed a dead
+  // link and could never pay.
+  if (session.status && session.status !== "open") {
+    const replacement = await getStripe().checkout.sessions.create(params, {
+      idempotencyKey: `${idempotencyKey}:after:${session.id}`,
+    });
+    if (!replacement.url) {
+      throw new Error("Stripe did not return a checkout URL");
+    }
+    return replacement.url;
+  }
 
   if (!session.url) throw new Error("Stripe did not return a checkout URL");
   return session.url;

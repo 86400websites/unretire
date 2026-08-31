@@ -28,6 +28,45 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAIL = 254; // RFC 5321
 const MAX_NAME = 100;
 
+/**
+ * Pre-launch review Finding 7 (Blocking).
+ *
+ * `mergeFields` used to be forwarded wholesale: `Object.assign(merge_fields,
+ * mergeFields)` copied ANY key from an anonymous request straight into the
+ * shared LIVE Mailchimp audience. A caller could supply a valid victim address
+ * plus arbitrary fields and mutate that contact, trigger an unintended journey,
+ * or simply consume the account's quota. Type-checking that it was an object
+ * was not validation.
+ *
+ * These are the only keys the site itself sends — FNAME from the capture forms,
+ * and the assessment's results (src/app/assess/WheelOfLife.tsx). Anything else
+ * is dropped rather than forwarded.
+ */
+const ALLOWED_MERGE_FIELDS = new Set([
+  "FNAME",
+  "WEAKEST",
+  "WEAKLOW",
+  "BRIGHTEST",
+  "SCORE",
+  "S_PASSION",
+  "S_HEALTH",
+  "S_RELAT",
+  "S_GROWTH",
+  "S_SPIRIT",
+  "S_FUN",
+  "S_MONEY",
+  "S_CONTRIB",
+]);
+const MAX_MERGE_VALUE = 100;
+
+/**
+ * Tags are shape-validated rather than enumerated. An exhaustive list would be
+ * one forgotten download-gate tag away from silently breaking a real form,
+ * whereas a shape check still rules out oversized or structured input, which is
+ * what the abuse case needs.
+ */
+const TAG = /^[A-Za-z0-9_-]{1,40}$/;
+
 export async function POST(req: NextRequest) {
   try {
     // Known issue 5, SECURITY-CHECKLIST §5. This endpoint is fully public and
@@ -62,7 +101,7 @@ export async function POST(req: NextRequest) {
     if (typeof firstName === "string" && firstName.length > MAX_NAME) {
       return NextResponse.json({ error: "Name is too long" }, { status: 400 });
     }
-    if (tag !== undefined && typeof tag !== "string") {
+    if (tag !== undefined && (typeof tag !== "string" || !TAG.test(tag))) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
@@ -70,10 +109,29 @@ export async function POST(req: NextRequest) {
 
     // Build the merge fields. FNAME stays for backward compatibility; the
     // assessment passes WEAKEST / WEAKLOW / SCORE via mergeFields.
-    const merge_fields: Record<string, unknown> = {};
+    const merge_fields: Record<string, string | number> = {};
     if (firstName) merge_fields.FNAME = firstName;
-    if (mergeFields && typeof mergeFields === "object") {
-      Object.assign(merge_fields, mergeFields);
+
+    // Allow-list, not passthrough — see ALLOWED_MERGE_FIELDS above.
+    if (
+      mergeFields &&
+      typeof mergeFields === "object" &&
+      !Array.isArray(mergeFields)
+    ) {
+      for (const [key, value] of Object.entries(
+        mergeFields as Record<string, unknown>,
+      )) {
+        if (!ALLOWED_MERGE_FIELDS.has(key)) continue;
+        if (typeof value === "number" && Number.isFinite(value)) {
+          merge_fields[key] = value;
+        } else if (
+          typeof value === "string" &&
+          value.length <= MAX_MERGE_VALUE
+        ) {
+          merge_fields[key] = value;
+        }
+        // Anything else — nested objects, arrays, oversized strings — is dropped.
+      }
     }
 
     // Mailchimp identifies a contact by the MD5 of the lowercased email.
