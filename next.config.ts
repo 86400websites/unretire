@@ -11,19 +11,23 @@ import type { NextConfig } from "next";
  * the site actually loads. Each entry below was verified against the code
  * rather than added defensively:
  *
- *   • youtube.com  \u2014 lesson videos and the free course-intro preview, embedded
+ *   • youtube.com  — lesson videos and the free course-intro preview, embedded
  *                    as iframes. `frame-src` only; nothing is fetched from it.
- *   • formspree.io \u2014 the contact, community and enterprise forms POST here via
- *                    fetch(), so it belongs in `connect-src`, not `form-action`.
+ *   • formspree.io — REMOVED from connect-src. It was needed while the
+ *                    contact, community and enterprise forms POSTed to it
+ *                    directly from the browser. Pre-launch review Finding 8
+ *                    moved all three behind /api/form, so the call is now
+ *                    server-to-server and the browser never reaches Formspree.
+ *                    §6 requires only origins the site actually loads.
  *
- * NOT included, and why \u2014 so the next reader does not "helpfully" widen it:
+ * NOT included, and why — so the next reader does not "helpfully" widen it:
  *   • Supabase: the browser never talks to it. src/lib/supabase/client.ts
  *     exists but is imported by nothing, and `supabase.co` appears in no client
  *     chunk (verified in the built output, S4.5). All auth runs through Server
  *     Actions. If a browser client is ever wired up, add https://*.supabase.co
  *     to connect-src as a recorded decision.
  *   • Google Fonts: next/font/google downloads and self-hosts at build time, so
- *     the fonts come from /_next/static \u2014 no external font origin is used.
+ *     the fonts come from /_next/static — no external font origin is used.
  *   • Stripe: checkout is a top-level navigation to checkout.stripe.com, which
  *     CSP does not govern; api.stripe.com is only ever called server-side.
  *   • amazon.com: ordinary links. A link is not a load.
@@ -74,7 +78,7 @@ const csp = [
   `style-src 'self' 'unsafe-inline'${vercelToolbar.style}`,
   `img-src 'self' data: blob:${vercelToolbar.img}`,
   `font-src 'self' data:${vercelToolbar.font}`,
-  `connect-src 'self' https://formspree.io${isDev ? " ws: http://localhost:*" : ""}${vercelToolbar.connect}`,
+  `connect-src 'self'${isDev ? " ws: http://localhost:*" : ""}${vercelToolbar.connect}`,
   `frame-src https://www.youtube.com https://www.youtube-nocookie.com${vercelToolbar.frame}`,
   // This site is never meant to be framed by anyone.
   "frame-ancestors 'none'",
