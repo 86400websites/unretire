@@ -103,12 +103,48 @@ for (const form of FORMS) {
   test(`FM-005 — the ${form.kind} form posts to our server, never to Formspree`, async ({
     page,
   }) => {
-    // Record where the page tries to send the submission, and let nothing out.
+    /**
+     * OBSERVE EVERYTHING, INTERCEPT ALMOST NOTHING.
+     *
+     * The first two versions of this test wrapped the whole page in
+     * `page.route("**\/*")`, and both broke it on the deployed Preview while
+     * passing locally:
+     *
+     *   v1 called `route.continue()`, which sends the request immediately and
+     *   skips every remaining handler — including the CONTEXT-level route in
+     *   tests/e2e/fixtures.ts that attaches the Vercel Protection Bypass
+     *   header. Vercel then answered 401 to the document itself, React never
+     *   hydrated, and the probe below timed out.
+     *
+     *   v2 swapped in `route.fallback()` on the theory that it would hand the
+     *   request down to that context handler. It did not fix the run, so the
+     *   theory was wrong or incomplete — and the honest response to a fix that
+     *   did not work is to stop relying on the mechanism, not to guess at it
+     *   again.
+     *
+     * So the page's traffic is no longer touched. `page.on("request")` is a
+     * passive observer: it sees every request the page makes, including any POST
+     * to any host, and changes nothing — so the document, the chunks and the
+     * bypass header all behave exactly as they do in every other spec in this
+     * suite. Only the two possible SUBMISSION targets are intercepted, which is
+     * the one thing that genuinely must not happen for real: a valid submission
+     * would e-mail the owner on every pull request. That mistake has already
+     * been made once this sprint (see abuse/public-write-endpoints.spec.ts).
+     *
+     * The assertion is made against the OBSERVER, so a POST to a third host
+     * would still be caught even though it is not intercepted — and no such host
+     * can exist, because FM-006 proves the Formspree endpoint has left the
+     * bundle entirely.
+     */
     const attempts: string[] = [];
-    await page.route("**/*", async (route) => {
-      const request = route.request();
-      if (request.method() === "POST") {
-        attempts.push(request.url());
+    page.on("request", (request) => {
+      if (request.method() === "POST") attempts.push(request.url());
+    });
+
+    await page.route(
+      (url) =>
+        url.pathname === "/api/form" || url.hostname.endsWith("formspree.io"),
+      async (route) => {
         // Answer as the proxy would on success, so the form reaches its done
         // state and the test can tell "submitted" from "silently failed".
         await route.fulfill({
@@ -116,27 +152,23 @@ for (const form of FORMS) {
           contentType: "application/json",
           body: JSON.stringify({ ok: true }),
         });
-        return;
-      }
-      // `fallback()`, NOT `continue()`. This is the whole reason the three
-      // FM-005 tests failed on the deployed Preview while passing locally.
-      //
-      // tests/e2e/fixtures.ts registers a context-level route that attaches the
-      // Vercel Protection Bypass header to same-origin requests. Handlers run
-      // most-recently-registered first, so this page-level one runs BEFORE it —
-      // and `route.continue()` sends the request immediately, skipping every
-      // remaining handler. On a protected Preview that means no bypass header,
-      // Vercel answers 401 to the document itself, React never hydrates, and
-      // the hydration probe below times out with no clue as to why. `fallback()`
-      // passes the request down the chain so the bypass is still applied.
-      //
-      // Localhost has no protection, so nothing about this was observable in a
-      // local run — the same blind spot that produced Known issue 49's sibling
-      // in S5.1a, when the bypass never reached API-style requests.
-      await route.fallback();
-    });
+      },
+    );
 
-    await page.goto(form.route, { waitUntil: "load" });
+    const response = await page.goto(form.route, { waitUntil: "load" });
+
+    // Diagnose before probing. A hydration timeout is an opaque symptom with
+    // many possible causes, and this sprint has already spent two rounds
+    // guessing at one from CI logs alone. If the document itself did not come
+    // back 200 — Vercel's 401 when a bypass is missing being the case that
+    // actually happened — say THAT, here, instead of failing 30 seconds later
+    // inside waitForFunction with no clue as to why.
+    expect(
+      response?.status(),
+      `${form.route} did not load — on a protected Preview a 401 here means the ` +
+        "bypass header did not reach the document, so nothing below can work",
+    ).toBe(200);
+
     await waitForHydration(page, Object.keys(form.fields)[0]!);
 
     for (const [selector, value] of Object.entries(form.fields)) {
@@ -148,6 +180,12 @@ for (const form of FORMS) {
       await input.fill(value);
     }
 
+    // Only POSTs caused by THIS click are the submission. Anything the page
+    // posted while loading — a Server Action, an analytics beacon, whatever a
+    // future dependency adds — is not what this test is about, and folding it
+    // into the assertion would make the test fail for a reason that has nothing
+    // to do with Finding 8.
+    attempts.length = 0;
     await page.getByRole("button", { name: form.submit }).first().click();
 
     await expect
