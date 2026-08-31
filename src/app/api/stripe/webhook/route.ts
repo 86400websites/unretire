@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { STRIPE_APP_ID } from "@/lib/stripe/checkout";
 
 export const runtime = "nodejs";
 
@@ -38,6 +39,18 @@ export async function POST(request: NextRequest) {
         const userId = session.metadata?.supabase_user_id;
         const product = session.metadata?.product;
 
+        // Known issue 41. If the event names an application and it is not
+        // ours, it belongs to another project on this shared account. Ignore
+        // it. Events with NO `app` key still fall through to the checks below,
+        // so sessions created before this stamp existed are not stranded.
+        const app = session.metadata?.app;
+        if (app && app !== STRIPE_APP_ID) {
+          console.warn(
+            `Ignoring ${event.type} ${event.id}: belongs to application "${app}", not ${STRIPE_APP_ID}.`,
+          );
+          break;
+        }
+
         if (!userId || !(product === "course" || product === "premium")) {
           // Not one of ours. The live Stripe account is shared with other
           // projects (Known issue 41), so their events reach this endpoint too
@@ -72,6 +85,17 @@ export async function POST(request: NextRequest) {
         // Answering non-2xx puts the event back on Stripe's retry schedule and
         // surfaces it in the Stripe dashboard's failed-delivery list.
         if (upsertError) {
+          // 23503 = foreign_key_violation: the user id is not in OUR auth.users,
+          // so this is another project's event wearing a familiar-looking
+          // metadata shape. Retrying can never make it ours, and the S3.1 fix
+          // that answers 500 on a write failure would otherwise have Stripe
+          // redeliver a foreign event for days. Acknowledge and move on.
+          if (upsertError.code === "23503") {
+            console.warn(
+              `Ignoring ${event.type} ${event.id}: supabase_user_id is not a user of this project (foreign key violation).`,
+            );
+            break;
+          }
           console.error(
             `Entitlement upsert FAILED for ${event.id} (${product}): ${upsertError.code ?? "unknown"} — returning 500 so Stripe retries.`,
           );
