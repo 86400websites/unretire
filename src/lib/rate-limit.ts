@@ -54,6 +54,40 @@ function bucketFor(ip: string, endpoint: string): string {
   return createHash("sha256").update(`${endpoint}:${ip}`).digest("hex");
 }
 
+/**
+ * Delete windows old enough that nothing will ever look them up again.
+ *
+ * Without this the table grows for ever — one row per caller per window, never
+ * removed — which is why migration 0003 indexes window_start. Found in a
+ * self-audit before review: the migration's comment already promised a sweep
+ * that did not exist.
+ *
+ * It swallows every failure, and that is the point. It is CALLED from inside
+ * checkRateLimit's try block, but because nothing escapes this function it can
+ * never reach that fail-closed handler — so a tidy-up failure cannot refuse a
+ * legitimate request. This is housekeeping, not the control: by the time it
+ * runs the limiter has already decided. A stale row is harmless anyway, because
+ * every lookup is scoped to the current window.
+ */
+async function sweepExpired(
+  admin: ReturnType<typeof createAdminClient>,
+  cutoffMs: number,
+): Promise<void> {
+  try {
+    const { error } = await admin
+      .from("rate_limits")
+      .delete()
+      .lt("window_start", new Date(cutoffMs).toISOString());
+    if (error) {
+      console.warn(
+        `rate_limits sweep skipped: ${error.code ?? "unknown"} (no effect on limiting).`,
+      );
+    }
+  } catch {
+    // Never allowed to affect the caller.
+  }
+}
+
 export async function checkRateLimit(
   headers: Headers,
   endpoint: string,
@@ -94,6 +128,10 @@ export async function checkRateLimit(
       );
 
     if (writeError) throw writeError;
+
+    // Housekeeping, deliberately AFTER the decision and in its own guard — see
+    // sweepExpired().
+    await sweepExpired(admin, windowStart.getTime() - windowMs * 10);
 
     return { limited: false, retryAfter };
   } catch (err) {
