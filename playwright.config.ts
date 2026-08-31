@@ -171,10 +171,36 @@ const logoutProject = {
   use: { ...desktop, trace: "off" as const },
 };
 
+const parityEnabled = process.env.E2E_PARITY === "1";
+
+/**
+ * On a parity run, the role specs must wait for the PURCHASES.
+ *
+ * S4.5c. `roles-chromium` asserts what an entitled member can see; the parity
+ * checkout specs are what MAKE the fixtures entitled when they own nothing. The
+ * two projects used to run concurrently, which was invisible while the fixture
+ * accounts permanently owned their products — and became a guaranteed failure
+ * the moment those rows were cleared so a real purchase could be exercised.
+ *
+ * Without this the parity suite cannot be green in either direction: leave the
+ * fixtures owning their products and the checkout specs correctly refuse to
+ * report a purchase they did not make; clear them and five entitled-member
+ * specs race the purchase and lose. Ordering resolves it, and it is the same
+ * remedy — and the same reasoning — as `logout-chromium` depending on
+ * `roles-chromium` below. No assertion is weakened; only the order is fixed.
+ *
+ * On an ordinary run E2E_PARITY is unset, the parity project does not exist,
+ * and these dependencies are exactly what they always were.
+ */
 const rolesProject = {
   name: "roles-chromium",
   testMatch: ["**/accounts/*.spec.ts", "**/payments/*.spec.ts"],
-  dependencies: ["setup:signed-in", "setup:course", "setup:premium"],
+  dependencies: [
+    "setup:signed-in",
+    "setup:course",
+    "setup:premium",
+    ...(parityEnabled ? ["parity-chromium"] : []),
+  ],
   use: { ...desktop, trace: "off" as const },
 };
 const rolesEnabled = Boolean(process.env.E2E_FIXTURE_PASSWORD);
@@ -198,7 +224,6 @@ if (process.env.CI && !rolesEnabled) {
   );
 }
 
-const parityEnabled = process.env.E2E_PARITY === "1";
 const parityProject = {
   name: "parity-chromium",
   testMatch: "**/parity/*.spec.ts",
