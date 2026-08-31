@@ -131,6 +131,25 @@ const PARITY_SPECS = "**/parity/**";
 const ROLE_SPECS = ["**/accounts/**", "**/payments/**", "**/logout/**"];
 
 /**
+ * tests/e2e/abuse/ asserts the rate limiter, whose counter is keyed on caller
+ * IP + endpoint — one bucket shared by everything the runner sends. Running the
+ * same file in a second browser profile would put two independent sequences
+ * into that one counter, and the order of the 400s and the 429 would stop being
+ * defined. So these specs belong to ONE profile. Excluding them from mobile-390
+ * costs no coverage: they assert HTTP contracts through the `api` fixture and
+ * never render a page, so a viewport cannot change the answer.
+ */
+const ABUSE_SPECS = "**/abuse/**";
+
+/**
+ * tests/e2e/crawl/ is excluded from the second profile for a related reason —
+ * see the note at the top of tests/e2e/crawl/links.spec.ts. A link target is an
+ * HTTP contract and does not change with the viewport, and running the crawl
+ * twice doubles a genuinely expensive sweep.
+ */
+const CRAWL_SPECS = "**/crawl/**";
+
+/**
  * tests/e2e/logout/ is a project of its own, and it must stay that way.
  *
  * `logout()` calls supabase `signOut()` at its default `global` scope
@@ -159,6 +178,25 @@ const rolesProject = {
   use: { ...desktop, trace: "off" as const },
 };
 const rolesEnabled = Boolean(process.env.E2E_FIXTURE_PASSWORD);
+
+/**
+ * A run that silently drops half the suite must never report success.
+ *
+ * `rolesEnabled` is what makes every access-boundary, paid-content, money-path
+ * and logout spec exist. With the fixture password absent those projects are
+ * simply not created — Playwright finds fewer tests, passes all of them, and
+ * prints a green total. That is the shape of failure this project has already
+ * been bitten by repeatedly: a suite that passes for an incidental reason. It
+ * is fine locally, where a credential-free self-check is the whole point, and
+ * it is never acceptable in CI, where the secrets are supposed to be present.
+ */
+if (process.env.CI && !rolesEnabled) {
+  throw new Error(
+    "E2E_FIXTURE_PASSWORD is not set in CI, so the role, payment and logout " +
+      "projects would be skipped and the run would report green having never " +
+      "asserted a single access boundary. Refusing to run a partial suite.",
+  );
+}
 
 const parityEnabled = process.env.E2E_PARITY === "1";
 const parityProject = {
@@ -199,7 +237,7 @@ export default defineConfig({
     {
       name: "mobile-390",
       testMatch: "**/*.spec.ts",
-      testIgnore: [PARITY_SPECS, ...ROLE_SPECS],
+      testIgnore: [PARITY_SPECS, ABUSE_SPECS, CRAWL_SPECS, ...ROLE_SPECS],
       use: mobile390,
     },
     ...(rolesEnabled ? [rolesProject, logoutProject] : []),

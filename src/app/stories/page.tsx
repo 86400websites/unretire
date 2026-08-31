@@ -153,9 +153,19 @@ export default function StoriesPage() {
               People who unretired
             </h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
+            {/*
+              Known issue 9 / FEATURE-LIST PG-007. This paragraph used to read
+              "Each card links to a full profile. Placeholders below — swap in
+              real, named stories as they're gathered." — the page telling every
+              visitor, in its own words, that what follows is not real. S4.5
+              removed the equivalent admissions from /book and /community and
+              missed this one; the pre-launch review's Finding 10 surfaced it
+              because no spec covered the page. Removed on the same basis as
+              those, and fully reversible: a real, named story goes straight
+              back in. Asserted by tests/e2e/pages/links-and-copy.spec.ts.
+            */}
             <p className="text-[14px] text-[#888888] italic">
-              Each card links to a full profile. Placeholders below — swap in
-              real, named stories as they&apos;re gathered.
+              Each card links to a full profile.
             </p>
           </div>
 

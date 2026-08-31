@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { checkRateLimit, rateLimitedResponse } from "@/lib/rate-limit";
+import { validateSubscribePayload } from "@/lib/forms/subscribe-payload";
 
 export const runtime = "nodejs";
 
@@ -23,49 +24,20 @@ function mailchimpConfig() {
   };
 }
 
-/** RFC-shaped enough to reject junk without rejecting real addresses. */
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_EMAIL = 254; // RFC 5321
-const MAX_NAME = 100;
-
 /**
- * Pre-launch review Finding 7 (Blocking).
+ * The single message an anonymous caller ever gets when the upstream fails.
  *
- * `mergeFields` used to be forwarded wholesale: `Object.assign(merge_fields,
- * mergeFields)` copied ANY key from an anonymous request straight into the
- * shared LIVE Mailchimp audience. A caller could supply a valid victim address
- * plus arbitrary fields and mutate that contact, trigger an unintended journey,
- * or simply consume the account's quota. Type-checking that it was an object
- * was not validation.
- *
- * These are the only keys the site itself sends — FNAME from the capture forms,
- * and the assessment's results (src/app/assess/WheelOfLife.tsx). Anything else
- * is dropped rather than forwarded.
+ * Known issue 44 / FEATURE-LIST FM-009, scoped to S4.5 and closed here.
+ * The route used to `console.error("Mailchimp upsert error:", upsertData)` —
+ * the whole parsed response — and then return `upsertData.detail` to the
+ * browser as the `error` field. Mailchimp `detail` strings carry operational
+ * and contact-level specifics: existing-subscriber state, compliance and abuse
+ * status, list identifiers, quota conditions. That is upstream text this
+ * application has not vetted, echoed to an anonymous caller and written
+ * verbatim into logs. CLAUDE.md's security rules are explicit: error responses
+ * must not expose internals or upstream bodies.
  */
-const ALLOWED_MERGE_FIELDS = new Set([
-  "FNAME",
-  "WEAKEST",
-  "WEAKLOW",
-  "BRIGHTEST",
-  "SCORE",
-  "S_PASSION",
-  "S_HEALTH",
-  "S_RELAT",
-  "S_GROWTH",
-  "S_SPIRIT",
-  "S_FUN",
-  "S_MONEY",
-  "S_CONTRIB",
-]);
-const MAX_MERGE_VALUE = 100;
-
-/**
- * Tags are shape-validated rather than enumerated. An exhaustive list would be
- * one forgotten download-gate tag away from silently breaking a real form,
- * whereas a shape check still rules out oversized or structured input, which is
- * what the abuse case needs.
- */
-const TAG = /^[A-Za-z0-9_-]{1,40}$/;
+const UPSTREAM_FAILED = "We could not sign you up just now. Please try again.";
 
 export async function POST(req: NextRequest) {
   try {
@@ -81,63 +53,29 @@ export async function POST(req: NextRequest) {
     );
     if (limited) return rateLimitedResponse(retryAfter);
 
-    const { email, firstName, tag, mergeFields } = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
 
-    // §5 also calls for server-side validation: the browser's `type="email"`
-    // check is a convenience for honest users, not a control — nothing stops a
-    // script POSTing here directly.
-    if (!email || typeof email !== "string" || !EMAIL.test(email.trim())) {
-      return NextResponse.json(
-        { error: "A valid email address is required" },
-        { status: 400 },
-      );
+    // Validation, the tag shape check and the merge-field allow-list all live in
+    // src/lib/forms/subscribe-payload.ts so they can be asserted directly —
+    // an HTTP test cannot see which fields survived, and must not find out by
+    // writing to the live audience. Pre-launch review Findings 7 and 10.
+    const parsed = validateSubscribePayload(body);
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
-    if (email.length > MAX_EMAIL) {
-      return NextResponse.json({ error: "Email is too long" }, { status: 400 });
-    }
-    if (firstName !== undefined && typeof firstName !== "string") {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    }
-    if (typeof firstName === "string" && firstName.length > MAX_NAME) {
-      return NextResponse.json({ error: "Name is too long" }, { status: 400 });
-    }
-    if (tag !== undefined && (typeof tag !== "string" || !TAG.test(tag))) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    }
+    const { email, tag, merge_fields } = parsed;
 
     const { listId, base, headers } = mailchimpConfig();
-
-    // Build the merge fields. FNAME stays for backward compatibility; the
-    // assessment passes WEAKEST / WEAKLOW / SCORE via mergeFields.
-    const merge_fields: Record<string, string | number> = {};
-    if (firstName) merge_fields.FNAME = firstName;
-
-    // Allow-list, not passthrough — see ALLOWED_MERGE_FIELDS above.
-    if (
-      mergeFields &&
-      typeof mergeFields === "object" &&
-      !Array.isArray(mergeFields)
-    ) {
-      for (const [key, value] of Object.entries(
-        mergeFields as Record<string, unknown>,
-      )) {
-        if (!ALLOWED_MERGE_FIELDS.has(key)) continue;
-        if (typeof value === "number" && Number.isFinite(value)) {
-          merge_fields[key] = value;
-        } else if (
-          typeof value === "string" &&
-          value.length <= MAX_MERGE_VALUE
-        ) {
-          merge_fields[key] = value;
-        }
-        // Anything else — nested objects, arrays, oversized strings — is dropped.
-      }
-    }
 
     // Mailchimp identifies a contact by the MD5 of the lowercased email.
     const subscriberHash = crypto
       .createHash("md5")
-      .update(email.toLowerCase().trim())
+      .update(email.toLowerCase())
       .digest("hex");
 
     // Upsert: creates the contact if new (subscribed), or updates their merge
@@ -156,14 +94,11 @@ export async function POST(req: NextRequest) {
       },
     );
 
-    const upsertData = await upsertRes.json();
-
     if (!upsertRes.ok) {
-      console.error("Mailchimp upsert error:", upsertData);
-      return NextResponse.json(
-        { error: upsertData.detail || "Subscription failed" },
-        { status: 500 },
-      );
+      // A safe identifier only — the status code and nothing from the body.
+      console.error(`Mailchimp upsert failed with HTTP ${upsertRes.status}.`);
+      // Status unchanged from before this fix — only the body and the log are.
+      return NextResponse.json({ error: UPSTREAM_FAILED }, { status: 500 });
     }
 
     // Add the tag (this is what triggers the right Customer Journey).
@@ -178,16 +113,21 @@ export async function POST(req: NextRequest) {
         },
       );
       // Tags endpoint returns 204 on success. If it fails, the contact is
-      // still saved — log it but don't fail the whole request.
+      // still saved — log the status only and don't fail the whole request.
       if (!tagRes.ok) {
-        const tagData = await tagRes.json().catch(() => ({}));
-        console.error("Mailchimp tag error:", tagData);
+        console.error(
+          `Mailchimp tag request failed with HTTP ${tagRes.status}.`,
+        );
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Subscribe error:", err);
+    // Never the upstream body, and never the error's own message: a thrown
+    // fetch error can carry the request URL, which contains the audience id.
+    console.error(
+      `Subscribe error: ${err instanceof Error ? err.name : "unknown"}`,
+    );
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

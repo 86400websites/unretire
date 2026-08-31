@@ -98,11 +98,20 @@ const TEST_CARD = {
 
 /**
  * Complete Stripe's hosted Checkout with the test card and wait for the redirect back to
- * the deployment under test. The redirect target is the stale success_url
- * `/unretire/account?checkout=success` (Known issue 2, fixed in S3.1) — a 404 on this
- * codebase today — so the URL is asserted and nothing on that page is. The bypass header
- * never reaches checkout.stripe.com: the shared fixture attaches it to same-origin
- * requests only.
+ * the deployment under test.
+ *
+ * THE TARGET IS `/account?checkout=success` — src/lib/stripe/checkout.ts:106.
+ *
+ * It used to be the stale `/unretire/account?checkout=success`, and this helper was
+ * written against that: "the redirect target is the stale success_url (Known issue 2)".
+ * S3.1 fixed the success_url and did not update this file, so from that sprint onward the
+ * helper waited sixty seconds for a URL the site would never produce and then threw. It
+ * was never noticed because the two specs that call it stopped calling it — see the
+ * already-owned note in checkout-course.spec.ts — so the money path's only real proof was
+ * broken and silent at the same time. Found by the S4.5c audit, not by a run.
+ *
+ * The bypass header never reaches checkout.stripe.com: the shared fixture attaches it to
+ * same-origin requests only.
  */
 export async function completeStripeCheckout(
   page: Page,
@@ -143,7 +152,7 @@ export async function completeStripeCheckout(
   // validation / processing error. Fail fast with that error text (never a silent 60 s wait).
   const backOnOrigin = (url: URL) =>
     url.origin === origin &&
-    url.pathname === "/unretire/account" &&
+    url.pathname === "/account" &&
     url.searchParams.get("checkout") === "success";
   const deadline = Date.now() + 60_000;
   while (Date.now() < deadline) {

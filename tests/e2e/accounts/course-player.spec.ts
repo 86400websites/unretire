@@ -18,9 +18,21 @@ test.describe("IN-005 — lesson video for an entitled member", () => {
     await page.goto("/learn/course/module-1");
 
     // The player is unlocked: lesson rows are selectable, not disabled.
-    const lessonButtons = page.locator("button:not([disabled])");
+    //
+    // S4.5c: this used to be `page.locator("button:not([disabled])")` over the
+    // WHOLE page, which matches the site's own header and footer chrome — the
+    // menu toggle alone satisfies it. The count could therefore never reach
+    // zero, on this page or any other, so it was the same
+    // assertion-that-cannot-fail as the AC-015 one the pre-launch review
+    // caught. Scoped to the player, and stated as the thing that actually
+    // matters: an entitled member has NO locked rows.
+    const player = page.locator("main");
     expect(
-      await lessonButtons.count(),
+      await player.locator("button[disabled]").count(),
+      "no lesson row should be disabled for an entitled member",
+    ).toBe(0);
+    expect(
+      await player.locator("button:not([disabled])").count(),
       "an entitled member should have selectable lessons",
     ).toBeGreaterThan(0);
 

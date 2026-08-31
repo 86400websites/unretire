@@ -114,6 +114,33 @@ Reported before any test runs, per Phase 1.
 - **Found in code but not in docs:** `/articles` is a legacy off-nav page still reachable by URL (#4). All three Formspree forms — contact, community join and enterprise discovery — post to the **same hardcoded endpoint** `https://formspree.io/f/mgogyqey`: `ContactForm.tsx:5` and `CommunityJoinForm.tsx:5` hardcode it, and `DiscoveryForm.tsx:17-18` falls back to it when `NEXT_PUBLIC_FORMSPREE_ENDPOINT` is unset (#20). No approved doc records that these three flows share one inbox.
 - ~~**Contradiction to resolve before approval:** `src/app/learn/course/[module]/page.tsx` declares `generateStaticParams()` while also calling `hasAccess()`.~~ **Resolved 2026-08-30 from the `pnpm build` route table: the route is `ƒ (Dynamic) server-rendered on demand`.** Because `hasAccess()` reads cookies, the route opts out of static rendering and `generateStaticParams()` only enumerates params — the access check genuinely runs per request. AC-011 needs no clarification. The defect at AC-012 is unaffected: the check runs, then passes its answer to a client component that already holds all 48 lessons.
 
+## Coverage record — 2026-08-31 (Sprint S4.5c)
+
+Added after the pre-launch review's Finding 10: *"several claimed closures have no
+red→green spec."* The approved lines above are NOT edited — this records which of them
+gained a spec, so the S5.1b verdict can be read against evidence rather than against a
+tracker tick.
+
+| Line | Was | Now asserted by |
+|---|---|---|
+| PG-002 | 🔴 #4 | `tests/e2e/crawl/links.spec.ts` — still 🔴 and still blocked on **D-3**, but now measured: **exactly eight** dead links, held as a named exception list that fails in both directions |
+| PG-003 | 🔴 #3 | `tests/e2e/pages/links-and-copy.spec.ts` — the footer links are followed, both pages return 200 and carry real copy |
+| PG-006 | 🔴 #8 | `tests/e2e/pages/links-and-copy.spec.ts` — one lesson count site-wide, cross-checked against `courseData` |
+| PG-007 | 🔴 #9 | `tests/e2e/pages/links-and-copy.spec.ts` — all three named pages swept for placeholder copy and invented figures. **This spec is what found that `/stories` had been missed.** |
+| PG-011 | ⚪ | `tests/e2e/pages/public-pages.spec.ts` — the assertion no longer evaporates when the og:image tag is absent |
+| FM-004 | ⚪ | `tests/e2e/forms/subscribe-payload.spec.ts` |
+| FM-005 · FM-006 | ⚪ | `tests/e2e/forms/form-proxy.spec.ts` — the three forms post to `/api/form`, and the Formspree endpoint has left the bundle |
+| FM-009 | 🔴 #44 | `tests/e2e/forms/subscribe-payload.spec.ts` — **and the defect itself was still live**; S4.5 was assigned it and did not do it |
+| IN-002 | 🔴 #41 | `tests/e2e/integrations/webhook-fulfilment.spec.ts` — an event with no `app` stamp, and one stamped for another project, both write nothing |
+| PY-008 · PY-010 | ⚪ | `tests/e2e/integrations/webhook-fulfilment.spec.ts` — the settled-funds gate, the bounded `past_due` grace, out-of-order lifecycle events, and **I4** |
+| PR-001 · PR-002 · PR-004 | ⚪ | `tests/e2e/abuse/public-write-endpoints.spec.ts` — enforced *and* not failing closed |
+| PR-005 | ⚪ | `tests/e2e/security/headers.spec.ts` — read off the deployed response, not the config file |
+
+Still without a spec, and deliberately: **PY-001/PY-002/PY-006** (need a real sandbox
+charge — the parity project, D-25), **FM-002/FM-003/FM-007** (need a real write),
+**MN-001…MN-004** (manual by definition), **PR-003/PR-006** (need a database read the
+harness does not have).
+
 ## Change log
 
 Approved lines are never silently edited. Every later addition or change: [DATE — ID — what changed — re-approved by].
