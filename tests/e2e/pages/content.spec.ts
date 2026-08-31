@@ -5,8 +5,10 @@ import { test, expect } from "../fixtures";
  * Covers docs/FEATURE-LIST.md lines PG-005, PG-008, PG-009 and PG-010.
  *
  * PG-006 (lesson-count inconsistency, Known issue 8) and PG-007 (placeholder
- * testimonials, Known issue 9) are 🔴 lines and are deliberately NOT written
- * here — their specs belong to the S4.5 fix sprint, red→green in its branch.
+ * testimonials, Known issue 9) were deferred from here to the S4.5 fix sprint.
+ * S4.5 landed the fixes and never wrote the specs, which the pre-launch
+ * review'''s Finding 10 caught. They are now in
+ * tests/e2e/pages/links-and-copy.spec.ts, together with PG-002 and PG-003.
  */
 
 test("PG-005 — home shows the course and Premium offers at the prices /premium states", async ({

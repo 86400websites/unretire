@@ -72,12 +72,35 @@ test.describe("AC-012 — paid content is unobtainable without paying", () => {
       "the page should load some JS chunks",
     ).toBeGreaterThan(0);
 
+    // S4.5c: `if (res.status() !== 200) continue;` used to be the whole story,
+    // so a chunk that could not be fetched was skipped in silence and the test
+    // could report "no leak" having read nothing at all. That is not a
+    // hypothetical failure mode here — before S5.1a's af76f02 the bypass header
+    // never reached the `api` fixture, so on a protected Preview EVERY one of
+    // these would have 401'd and this assertion would have passed vacuously,
+    // declaring the paid course safe while Known issue 37 was fully live.
+    // Count what was actually read, and fail if that is nothing.
     const found: string[] = [];
+    const unreadable: string[] = [];
+    let scanned = 0;
     for (const src of chunks) {
       const res = await api.get(src, { failOnStatusCode: false });
-      if (res.status() !== 200) continue;
+      if (res.status() !== 200) {
+        unreadable.push(`${src} → ${res.status()}`);
+        continue;
+      }
+      scanned += 1;
       for (const id of leaks(await res.text())) found.push(`${id} in ${src}`);
     }
+
+    expect(
+      unreadable,
+      "a chunk that cannot be read cannot be cleared — this scan proves nothing about it",
+    ).toEqual([]);
+    expect(
+      scanned,
+      "no JavaScript chunk was actually read, so this test proved nothing",
+    ).toBeGreaterThan(0);
     expect(found, "paid video ids found in the shipped JavaScript").toEqual([]);
   });
 
