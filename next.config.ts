@@ -37,15 +37,45 @@ import type { NextConfig } from "next";
  */
 const isDev = process.env.NODE_ENV === "development";
 
+/**
+ * Vercel injects its preview-comments toolbar (vercel.live) into NON-PRODUCTION
+ * deployments only. The first version of this CSP blocked it, and every page on
+ * the Preview then logged
+ *
+ *   Refused to load the script 'https://vercel.live/_next-live/feedback/
+ *   feedback.js' because it violates ... script-src 'self' 'unsafe-inline'
+ *
+ * which failed PG-001 ("no console errors") across the whole suite on PR #24.
+ * Local testing could not have caught it: localhost has no such injection, so
+ * the toolbar only exists on a real Vercel preview.
+ *
+ * These origins are therefore added ONLY when the build is not Production, so
+ * the live policy stays exactly as narrow as SECURITY-CHECKLIST §6 requires.
+ * The toolbar is a build-time tool, not a site dependency; if Vercel Preview
+ * Comments is ever switched off for the project, this block can go with it.
+ */
+const isProduction = process.env.VERCEL_ENV === "production";
+const vercelToolbar = isProduction
+  ? { script: "", connect: "", img: "", frame: "", style: "", font: "" }
+  : {
+      script: " https://vercel.live",
+      // Vercel Live carries its realtime channel over Pusher.
+      connect: " https://vercel.live wss://*.pusher.com https://*.pusher.com",
+      img: " https://vercel.live https://vercel.com",
+      frame: " https://vercel.live",
+      style: " https://vercel.live",
+      font: " https://vercel.live https://assets.vercel.com",
+    };
+
 const csp = [
   "default-src 'self'",
   // 'unsafe-eval' is required by the dev-mode React refresh runtime only.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  `connect-src 'self' https://formspree.io${isDev ? " ws: http://localhost:*" : ""}`,
-  "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${vercelToolbar.script}`,
+  `style-src 'self' 'unsafe-inline'${vercelToolbar.style}`,
+  `img-src 'self' data: blob:${vercelToolbar.img}`,
+  `font-src 'self' data:${vercelToolbar.font}`,
+  `connect-src 'self' https://formspree.io${isDev ? " ws: http://localhost:*" : ""}${vercelToolbar.connect}`,
+  `frame-src https://www.youtube.com https://www.youtube-nocookie.com${vercelToolbar.frame}`,
   // This site is never meant to be framed by anyone.
   "frame-ancestors 'none'",
   "base-uri 'self'",
