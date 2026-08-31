@@ -41,10 +41,37 @@ const libre = Libre_Baskerville({
   variable: "--font-libre-baskerville",
 });
 
+/**
+ * The origin every absolute metadata URL is built from — og:url, og:image,
+ * twitter:*, and anything else Next resolves against `metadataBase`.
+ *
+ * S4.5c: this used to be `NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"`, and
+ * the deployed Preview was serving `<meta property="og:url"
+ * content="http://localhost:3000">` — every share of a Preview page advertised
+ * a machine that is not on the internet. `NEXT_PUBLIC_SITE_URL` is a
+ * build-time value on Vercel and is not scoped to the Preview environment, so
+ * every Preview build fell through to the localhost default. Production has the
+ * variable and was unaffected (verified 2026-08-27), which is exactly why it
+ * went unnoticed: nothing tested the Preview, because PG-011's assertion was
+ * wrapped in an `if` that skipped when the tag was absent.
+ *
+ * `VERCEL_URL` is the deployment's own hostname, set by the platform at build
+ * time and not influenceable by a caller — the same identity `safe-origin.ts`
+ * trusts. Falling back to it means a DEPLOYED build can never advertise
+ * localhost, whatever the environment variables say, which is Known issue 19's
+ * failure mode closed in code rather than in a dashboard. Localhost remains the
+ * last resort, where it is correct.
+ */
+function siteOrigin(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) return configured;
+  const vercel = process.env.VERCEL_URL?.trim();
+  if (vercel) return `https://${vercel}`;
+  return "http://localhost:3000";
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(siteOrigin()),
   title: {
     default: "(Un)Retire — Reboot. Don't Mute.",
     template: "%s · (Un)Retire",

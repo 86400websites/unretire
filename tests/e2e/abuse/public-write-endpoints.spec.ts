@@ -79,14 +79,25 @@ test.describe("PR-001/PR-002 — the public write endpoints are guarded", () => 
   test("PR-004 /api/form refuses anything it was not asked for", async ({
     api,
   }) => {
-    // An allow-list, not a filter: a form name that is not one of the three, a
-    // missing required field, and a malformed address are each refused before
-    // the upstream call. Kept to three requests so the burst below still has
-    // room inside the same window.
+    // ⚠ EVERY PAYLOAD HERE MUST BE INVALID, AND INVALID FOR A REASON THE ROUTE
+    // CHECKS BEFORE ITS `fetch` TO FORMSPREE.
+    //
+    // The first version of this test got that wrong and it was not theoretical:
+    // `{ form: "community", name: "E2E", email: "e2e@example.com", extra: 1 }`
+    // supplies BOTH of community's required fields with a well-formed address,
+    // so the route accepted it, forwarded it, and returned 200 — sending a real
+    // "Community join request" into the owner's Formspree inbox from CI. The
+    // comment underneath it even said the status depended on "something else
+    // being missing", which was a doubt written down and shipped anyway.
+    //
+    // The rule now: invalid form name, or a missing required field, or a
+    // malformed address, or a field of the wrong TYPE. Never a complete,
+    // well-formed submission. Three requests, so the burst below still has room
+    // inside the same window.
     const rejected = [
       { form: "contact" }, // required fields missing
-      { form: "contact", name: "E2E", email: "nope", message: "hi" },
-      { form: "community", name: "E2E", email: "e2e@example.com", extra: 1 },
+      { form: "contact", name: "E2E", email: "nope", message: "hi" }, // bad address
+      { form: "community", name: "E2E", email: "e2e@example.test", message: 7 }, // wrong type
     ];
 
     const statuses: number[] = [];
@@ -96,18 +107,21 @@ test.describe("PR-001/PR-002 — the public write endpoints are guarded", () => 
         failOnStatusCode: false,
       });
       statuses.push(res.status());
-      // Never the provider's words, and never an upstream body (Known issue 44).
       const body = await res.text();
+      // The backstop for the mistake above: the proxy answers `{"ok":true}`
+      // only when it has actually forwarded a message. If any payload in this
+      // list ever earns that, the list has drifted back into sending real mail.
+      expect(
+        body,
+        "a payload in this list was ACCEPTED and forwarded",
+      ).not.toContain('"ok":true');
+      // Never the provider's words, and never an upstream body (Known issue 44).
       expect(body).not.toContain("formspree");
       expect(body).not.toContain("mailchimp");
     }
 
-    // The third one is the interesting case: `extra` is not on the allow-list,
-    // so it is dropped rather than forwarded — and `community` still requires a
-    // real address, which "e2e@example.com" is, so that one is a 400 only if
-    // something else is missing. Assert the shape rather than a single code:
-    // every one of these must be a client error, and none may be a 429 (which
-    // would mean the control, not the validation, answered).
+    // Every one must be a client error, and none may be a 429 — a 429 would
+    // mean the control answered rather than the validation.
     for (const status of statuses) {
       expect(status, `unexpected status ${status}`).toBeGreaterThanOrEqual(400);
       expect(status, "a 429 here means the limit fired too early").not.toBe(

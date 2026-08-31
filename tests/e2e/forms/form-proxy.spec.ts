@@ -118,7 +118,22 @@ for (const form of FORMS) {
         });
         return;
       }
-      await route.continue();
+      // `fallback()`, NOT `continue()`. This is the whole reason the three
+      // FM-005 tests failed on the deployed Preview while passing locally.
+      //
+      // tests/e2e/fixtures.ts registers a context-level route that attaches the
+      // Vercel Protection Bypass header to same-origin requests. Handlers run
+      // most-recently-registered first, so this page-level one runs BEFORE it —
+      // and `route.continue()` sends the request immediately, skipping every
+      // remaining handler. On a protected Preview that means no bypass header,
+      // Vercel answers 401 to the document itself, React never hydrates, and
+      // the hydration probe below times out with no clue as to why. `fallback()`
+      // passes the request down the chain so the bypass is still applied.
+      //
+      // Localhost has no protection, so nothing about this was observable in a
+      // local run — the same blind spot that produced Known issue 49's sibling
+      // in S5.1a, when the bypass never reached API-style requests.
+      await route.fallback();
     });
 
     await page.goto(form.route, { waitUntil: "load" });
