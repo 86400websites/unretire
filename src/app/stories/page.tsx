@@ -154,18 +154,34 @@ export default function StoriesPage() {
             </h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
             {/*
-              Known issue 9 / FEATURE-LIST PG-007. This paragraph used to read
-              "Each card links to a full profile. Placeholders below — swap in
-              real, named stories as they're gathered." — the page telling every
-              visitor, in its own words, that what follows is not real. S4.5
-              removed the equivalent admissions from /book and /community and
-              missed this one; the pre-launch review's Finding 10 surfaced it
-              because no spec covered the page. Removed on the same basis as
-              those, and fully reversible: a real, named story goes straight
-              back in. Asserted by tests/e2e/pages/links-and-copy.spec.ts.
+              Known issue 9 / FEATURE-LIST PG-007 — RESTORED, and the reasoning
+              matters more than the sentence.
+
+              S4.5c first DELETED the "Placeholders below" half of this
+              paragraph, on the theory that S4.5 had removed the equivalent
+              admission from /book and had simply missed this page. That was
+              wrong, and it made the page worse.
+
+              What S4.5 actually did on /book was delete the invented
+              CONTENT (book/page.tsx:84-94 records it). Here the invented
+              content is the six archetypes above — "The Mentor", "The Artist" —
+              and the page's own metadata calls them "Real people who refused to
+              fade". Removing the label while leaving them is exactly the state
+              Known issue 9 describes as "strictly worse than the labelled state
+              it replaced": it is what PR #7 did, and what S1.7 was created to
+              revert. So this is back as it was.
+
+              The real fix is the owner's call, not this sprint's, and it is the
+              same decision they already made for /book: either replace these
+              with real, attributable stories, or remove the grid. Until then the
+              honest posture is the labelled one. Tracked as Known issue 9;
+              asserted by tests/e2e/pages/links-and-copy.spec.ts, which now
+              checks that this page is EITHER real-named OR labelled — never
+              invented-and-unlabelled.
             */}
             <p className="text-[14px] text-[#888888] italic">
-              Each card links to a full profile.
+              Each card links to a full profile. Placeholders below — swap in
+              real, named stories as they&apos;re gathered.
             </p>
           </div>
 

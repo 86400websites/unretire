@@ -82,32 +82,81 @@ test("PG-006 — the lesson count is the same claim on every page", async ({
 
 /* ─────────────── PG-007 — nothing on the site is a placeholder ───────────── */
 
-test("PG-007 — no page admits to showing placeholder content", async ({
+/**
+ * PG-007 reads: "Testimonials and community numbers on /book, /stories and
+ * /community are real — no placeholder text; stats traceable to locked-facts."
+ *
+ * THE FIRST VERSION OF THIS TEST ASSERTED SOMETHING WEAKER, and the difference
+ * mattered. It swept all three pages for words like "placeholder" and "swap in
+ * real", so it was satisfied by deleting the LABEL rather than the invented
+ * content — and that is exactly what S4.5c then did to /stories, turning the
+ * test green while six invented archetypes stayed on a page whose own metadata
+ * calls them "Real people who refused to fade". Known issue 9 has a name for
+ * that state: "strictly worse than the labelled state it replaced". PR #7 did
+ * it once and S1.7 was created to revert it.
+ *
+ * So the property is split in two, because the two pages are in different
+ * states and pretending otherwise is what caused the mistake:
+ *
+ *  • /book and /community — issue 9 IS closed. The invented content was
+ *    removed, so BOTH the content and any admission must be absent.
+ *  • /stories — issue 9 is NOT closed. The archetypes are still there pending
+ *    an owner decision, so the page must be honestly LABELLED. A page carrying
+ *    invented stories with no label fails; so does a page still labelled once
+ *    the stories are real. It can only move to a better state, never quietly
+ *    to a worse one.
+ */
+const ADMITS_PLACEHOLDER = [
+  /placeholder/i,
+  /swap in real/i,
+  /lorem ipsum/i,
+  /coming soon/i,
+  /\bTBD\b/,
+  /\bTK\b/,
+];
+
+test("PG-007 — /book and /community carry no invented content and no admission", async ({
   page,
 }) => {
-  // Known issue 9. S4.5 removed the four "Reader name" testimonials and the
-  // unverified "340+ Members / 18 Countries" figures from /book and
-  // /community — and left /stories still telling visitors, in the page's own
-  // words, that its cards are placeholders. This sweep is over all three pages
-  // named by FEATURE-LIST PG-007, which is what the single-page fix missed.
-  const PLACEHOLDER = [
-    /placeholder/i,
-    /reader name/i,
-    /lorem ipsum/i,
-    /swap in real/i,
-    /coming soon/i,
-    /\bTBD\b/,
-    /\bTK\b/,
-  ];
-
-  for (const route of ["/book", "/stories", "/community"]) {
+  for (const route of ["/book", "/community"]) {
     await page.goto(route, { waitUntil: "domcontentloaded" });
     const text = await page.locator("body").innerText();
 
-    const admitted = PLACEHOLDER.filter((pattern) => pattern.test(text)).map(
-      (pattern) => String(pattern),
+    // The content itself: the four testimonials were all bylined "Reader name".
+    expect(text, `${route} still shows a placeholder testimonial`).not.toMatch(
+      /reader name/i,
     );
-    expect(admitted, `${route} still shows placeholder copy`).toEqual([]);
+
+    const admitted = ADMITS_PLACEHOLDER.filter((p) => p.test(text)).map(String);
+    expect(admitted, `${route} still admits to placeholder copy`).toEqual([]);
+  }
+});
+
+test("PG-007 — /stories is either real or honestly labelled, never invented-and-unlabelled", async ({
+  page,
+}) => {
+  await page.goto("/stories", { waitUntil: "domcontentloaded" });
+  const text = await page.locator("body").innerText();
+
+  // The archetype titles are the invented content. If they are gone, the owner
+  // has resolved Known issue 9 and the label must go with them.
+  const INVENTED = ["The Mentor", "The Artist", "The Athlete"];
+  const stillInvented = INVENTED.filter((title) => text.includes(title));
+  const labelled = ADMITS_PLACEHOLDER.some((p) => p.test(text));
+
+  if (stillInvented.length > 0) {
+    expect(
+      labelled,
+      `/stories renders invented stories (${stillInvented.join(", ")}) on a page whose ` +
+        "metadata calls them real, with nothing telling the visitor they are placeholders. " +
+        "Known issue 9 — either replace them with real, attributable stories or restore the label.",
+    ).toBe(true);
+  } else {
+    expect(
+      labelled,
+      "/stories no longer shows the invented archetypes, so the placeholder label is stale — " +
+        "remove it and close Known issue 9 in PROJECT-STATUS §10",
+    ).toBe(false);
   }
 });
 

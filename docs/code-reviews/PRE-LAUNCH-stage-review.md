@@ -172,7 +172,7 @@ The reviewer counted five such tests in this range. Five more were found and fix
 
 ### Still outstanding at this head
 
-- **Migrations 0003 and 0004 are not on `unretire-prod`** — verified, `list_migrations` returns empty. Since Finding 8 the limiter also guards `/api/form`, so a Production deploy today leaves **all four public forms refusing every visitor**. Raised to a Blocker in `PROJECT-STATUS.md` §5. Owner action.
+- ~~**Migrations 0003 and 0004 are not on `unretire-prod`** — verified, `list_migrations` returns empty.~~ **CLEARED 2026-08-31** — the owner applied both to `unretire-prod`, verified read-only: RLS on with zero policies, both indexes present, `increment_rate_limit` `SECURITY INVOKER` with execute to `service_role` only. *(Original, retained:)* Since Finding 8 the limiter also guards `/api/form`, so a Production deploy today leaves **all four public forms refusing every visitor**. Raised to a Blocker in `PROJECT-STATUS.md` §5. Owner action.
 - **Known issue 4** — eight dead links, measured rather than estimated, blocked on **D-3**.
 - The **eight write-side parity specs** and the non-vacuous **`book_downloads` RLS proof** still need a dispatch-only run.
 - **This range has not been re-reviewed.** The standing verdict is REQUEST CHANGES; a re-run at the new head is required before S5.1b.
