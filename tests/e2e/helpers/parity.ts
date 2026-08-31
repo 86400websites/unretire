@@ -120,7 +120,12 @@ export async function completeStripeCheckout(
   await page.waitForURL(/^https:\/\/checkout\.stripe\.com\//, {
     timeout: 30_000,
   });
-  await page.waitForLoadState("networkidle").catch(() => undefined);
+  // Bounded explicitly. Stripe's hosted page keeps long-lived connections open,
+  // so "networkidle" is not guaranteed to arrive at all; without a timeout of
+  // its own this wait is bounded only by the test budget and eats it silently.
+  await page
+    .waitForLoadState("networkidle", { timeout: 10_000 })
+    .catch(() => undefined);
 
   // If Stripe offers its Link wallet for the pre-filled e-mail, decline it and pay as a guest.
   const noLink = page.getByRole("button", {
@@ -128,8 +133,57 @@ export async function completeStripeCheckout(
   });
   if (await noLink.count()) await noLink.first().click();
 
+  /**
+   * SAY WHAT STRIPE ACTUALLY SHOWED.
+   *
+   * The Course checkout timed out here on 2026-08-31 (parity run 33414598959)
+   * while the Premium one completed in 22 s through this same helper. All the
+   * run could report was a bare 180 s test timeout, which says nothing about
+   * why — and the parity project deliberately records neither screenshot nor
+   * trace, because credentials are typed in it. So the card form's absence is
+   * now reported as a named failure listing WHICH of Stripe's landmarks were
+   * present, rather than as a bare timeout.
+   *
+   * No money moves before this point: the card has not been filled yet, so a
+   * failure here means nothing was charged.
+   */
   const cardNumber = page.locator("#cardNumber");
-  await cardNumber.waitFor({ state: "visible", timeout: 30_000 });
+  try {
+    await cardNumber.waitFor({ state: "visible", timeout: 45_000 });
+  } catch {
+    // STRUCTURE ONLY — never the page's text. Stripe pre-fills the customer's
+    // e-mail on this page, and the fixture e-mails are Actions secrets; dumping
+    // innerText here would write one into the run log, which is exactly the
+    // shape of Known issues 49 and 51. Reporting WHICH landmarks exist is
+    // enough to tell a Link-wallet screen from a still-loading one, and leaks
+    // nothing.
+    const landmarks = [
+      ["link-wallet screen", '[data-testid="link-authenticate"], #linkOTP'],
+      ["a card option to choose", '[data-testid="card-accordion-item-button"]'],
+      ["a payment-method tab list", '[data-testid="payment-method-tabs"]'],
+      ["the submit button", '[data-testid="hosted-payment-submit-button"]'],
+      ["an error/alert", '[role="alert"]'],
+    ] as const;
+
+    const present: string[] = [];
+    for (const [label, selector] of landmarks) {
+      if (
+        await page
+          .locator(selector)
+          .count()
+          .catch(() => 0)
+      ) {
+        present.push(label);
+      }
+    }
+
+    throw new Error(
+      "Stripe's card form (#cardNumber) never appeared, so no card was submitted " +
+        "and NOTHING WAS CHARGED. " +
+        `Present on the page: ${present.length ? present.join(", ") : "none of the known landmarks"}. ` +
+        `(${await safeWhereAmI(page)})`,
+    );
+  }
   await cardNumber.fill(TEST_CARD.number);
   await page.locator("#cardExpiry").fill(TEST_CARD.expiry);
   await page.locator("#cardCvc").fill(TEST_CARD.cvc);
