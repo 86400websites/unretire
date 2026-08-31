@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 
-const ENDPOINT = "https://formspree.io/f/mgogyqey";
+// Pre-launch review Finding 8. This used to POST straight to Formspree from
+// the browser, which meant no rate limit and no server-side validation — the
+// endpoint was in the page source and could be hit directly, bypassing the
+// site entirely. It now goes through /api/form, which applies the same
+// abuse control as every other public write.
+const ENDPOINT = "/api/form";
 
 export default function CommunityJoinForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -34,10 +39,7 @@ export default function CommunityJoinForm() {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({
-          ...form,
-          _subject: `Community join request — ${form.name}`,
-        }),
+        body: JSON.stringify({ form: "community", ...form }),
       });
       setStatus(res.ok ? "done" : "failed");
     } catch {

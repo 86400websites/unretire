@@ -97,4 +97,34 @@ Reviewed range: `baa1d92..8fc94ad` · Reviewed by [REVIEWER] on [DATE].
 
 ## Returned review record
 
-*(paste the reviewer's returned record here)*
+**Reviewed by Codex on 2026-08-31 · range `baa1d92..8fc94ad` · Verdict: REQUEST CHANGES**
+
+Range confirmed. Recovered commit `b26bd19` and cherry-pick `8fc94ad` share patch-id `79b4350…`, so nothing was lost. 51 paths, 3,467 insertions, 180 deletions; no dependency or lockfile change. Exact-head CI matched and green: Code Check, `E2E — Preview` (pull_request), `E2E — Preview` (deployment_status). Typecheck, lint, format, build all pass. Credential-free local run: 112 passed.
+
+### Blocking
+
+| # | Location | Issue |
+|---|---|---|
+| **1** | `webhook/route.ts:42` | Discriminator rejects only when `metadata.app` **exists and differs**. An event with **no** `app` still reaches the upsert; `23503` only catches user ids absent from this project. |
+| **2** | `webhook/route.ts:37` | Grants without checking `session.payment_status`, and ignores `checkout.session.async_payment_succeeded/failed`. Delayed-notification methods complete Checkout **before funds settle**. |
+| **3** | `webhook/route.ts:123` | `past_due` grace has **no deadline**. Stripe's terminal dunning action can leave a subscription `past_due` indefinitely, contradicting the comment's assumption that it becomes `unpaid`/`canceled`. |
+| **4** | `webhook/route.ts:145,:179` | Zero-row lifecycle updates are treated as success. Stripe does not guarantee event order, so a revoke arriving before the grant is **permanently lost**, and the retried grant restores a cancelled subscription. |
+| **5** | `lib/stripe/checkout.ts:48` | Idempotency key changes at each minute boundary, so it does not cover the two-tab / impatient-retry case it was added for. |
+| **6** | `lib/rate-limit.ts:107` | Read-modify-write is **not atomic**. 100 concurrent requests all read `hits=0`, all pass, and all write `hits=1`. The excess is unbounded, not "give or take the concurrency". |
+| **7** | `api/subscribe/route.ts:65,:75` | `tag` has no length or allow-list; **any** truthy object is copied into `merge_fields` and forwarded to the shared live Mailchimp audience. |
+| **8** | `ContactForm.tsx:42`, `CommunityJoinForm.tsx:31`, `DiscoveryForm.tsx:59` | The limiter protects **only** `/api/subscribe`. The other **three** public forms POST directly from the browser to Formspree, bypassing every server-side control. §5's "every public form" rule is not met. |
+
+### Should-fix
+
+| # | Location | Issue |
+|---|---|---|
+| **9** | `lib/auth/safe-origin.ts:29` | The `-86400-s-projects` suffix is a **naming convention, not ownership**. Vercel assigns `.vercel.app` names first-come. Deferrable only with an explicit Vercel-only ingress constraint. |
+| **10** | `public-pages.spec.ts:29,:153`, `content.spec.ts:7`, `stripe-webhook.spec.ts:13`, `money-paths.spec.ts:12` | `/privacy` and `/terms` omitted from `PUBLIC_ROUTES`; the social-image assertion is conditional and passes when the tag is missing; several claimed closures have no red→green spec. **Cannot be deferred past S5.1b.** |
+
+### Verified sound
+
+D-30's load-bearing claim holds — every gated route authorises independently of middleware. `lockedModules()` strips all paid data; worksheets sit outside `public/` behind an entitlement check. `safeNext()` resisted protocol-relative, backslash, encoded and cross-origin forms. Production CSP contains no `vercel.live`. No RLS or env-boundary weakening. Migration 0003 additive, reversible, default-deny.
+
+### Confirmed outstanding
+
+S4.3/S4.5 sprint records absent and S4.5 tracker rows stale; migration 0003 unapplied to Production; the dispatch-only parity project did not run at this head, so the non-vacuous `book_downloads` RLS proof and the eight write-side specs remain outstanding.

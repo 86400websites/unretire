@@ -104,33 +104,42 @@ export async function checkRateLimit(
     const admin = createAdminClient();
     const bucket = bucketFor(callerIp(headers), endpoint);
 
-    // Read-modify-write. Two simultaneous requests can read the same count and
-    // both be allowed, so the effective limit is "limit, give or take the
-    // concurrency". That is an accepted trade: this exists to stop scripted
-    // floods, not to meter billing to the exact request.
-    const { data, error: readError } = await admin
-      .from("rate_limits")
-      .select("hits")
-      .eq("bucket", bucket)
-      .eq("window_start", windowStart.toISOString())
-      .maybeSingle();
+    // ATOMIC increment — pre-launch review Finding 6 (Blocking).
+    //
+    // This used to read the count, add one, and write it back: three round
+    // trips with no lock, so N concurrent requests all read the same value, all
+    // passed the check, and all wrote the same number. A hundred simultaneous
+    // requests read hits=0, were ALL admitted, and stored hits=1. The original
+    // comment called that "the limit, give or take the concurrency"; the excess
+    // is in fact unbounded, which made the control close to useless against the
+    // scripted flood it exists to stop.
+    //
+    // increment_rate_limit (migration 0004) does it in ONE statement, so
+    // Postgres serialises callers on the row lock and each gets a distinct,
+    // correct count. Execute is granted to service_role only — verified that
+    // both anon and authenticated get "permission denied", so a signed-in user
+    // cannot drive someone else's bucket up to lock them out.
+    const { data: hits, error: rpcError } = await admin.rpc(
+      "increment_rate_limit",
+      {
+        p_bucket: bucket,
+        p_window_start: windowStart.toISOString(),
+      },
+    );
 
-    if (readError) throw readError;
+    if (rpcError) throw rpcError;
+    if (typeof hits !== "number") {
+      throw new Error("increment_rate_limit returned a non-numeric count");
+    }
 
-    const hits = (data?.hits ?? 0) + 1;
+    // The decision uses the count the DATABASE returned for THIS caller, not a
+    // value read a moment earlier and possibly shared with others.
     if (hits > limit) return { limited: true, retryAfter };
 
-    const { error: writeError } = await admin
-      .from("rate_limits")
-      .upsert(
-        { bucket, window_start: windowStart.toISOString(), hits },
-        { onConflict: "bucket,window_start" },
-      );
-
-    if (writeError) throw writeError;
-
-    // Housekeeping, deliberately AFTER the decision and in its own guard — see
-    // sweepExpired().
+    // Housekeeping, after the decision and in its own guard — see sweepExpired().
+    // (Re-added: the Finding 6 rewrite of this function dropped the call, which
+    // would have quietly restored the unbounded-growth problem it was written
+    // to solve. Caught by lint reporting sweepExpired as unused.)
     await sweepExpired(admin, windowStart.getTime() - windowMs * 10);
 
     return { limited: false, retryAfter };
