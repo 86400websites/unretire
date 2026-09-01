@@ -6,13 +6,17 @@ import { test, expect } from "../fixtures";
  *
  * These are the two halves of the email-capture contract that can be proved
  * WITHOUT writing anything: a malformed address must not submit, and a failed
- * submission must not be reported as a success. The write-side lines (FM-002,
- * FM-003, FM-005, FM-006, FM-007) create real Mailchimp contacts and real
- * Formspree emails, so they live in tests/e2e/parity/ under D-25 and never run
- * on a pull request.
+ * submission must not be reported as a success.
  *
- * FM-009 (raw Mailchimp `detail` returned to the browser, Known issue 44) is a
- * 🔴 line and belongs to the S4.5 fix sprint.
+ * Updated in S4.5c. The rest of the family is no longer "deferred to parity":
+ *   • FM-004 / PR-004 — server-side validation, the tag shape check and the
+ *     merge-field allow-list: tests/e2e/forms/subscribe-payload.spec.ts.
+ *   • FM-005 / FM-006 — the three Formspree forms now posting to /api/form:
+ *     tests/e2e/forms/form-proxy.spec.ts.
+ *   • FM-009 (Known issue 44) — S4.5 was supposed to close it and did not. The
+ *     leak is fixed in S4.5c and asserted in subscribe-payload.spec.ts.
+ * What genuinely still needs a real write — FM-002, FM-003, FM-007 delivery —
+ * stays in tests/e2e/parity/ under D-25 and never runs on a pull request.
  */
 
 /** A page that carries the shared EmailCaptureBand (src/app/about/page.tsx). */

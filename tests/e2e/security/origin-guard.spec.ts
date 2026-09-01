@@ -14,10 +14,19 @@ import { isAllowedHost, safeOrigin } from "../../../src/lib/auth/safe-origin";
 const SITE = "https://www.unretireproject.com";
 const FALLBACK = SITE;
 
+/**
+ * Every variable isAllowedHost() reads is reset here, not just some of them.
+ * The first version cleared VERCEL_ENV and VERCEL_URL and left VERCEL_BRANCH_URL
+ * and VERCEL_PROJECT_PRODUCTION_URL set, so a value assigned by one test stayed
+ * visible to the next and the hostile-host test could have been passing because
+ * of what a different test happened to leave behind (S4.5c).
+ */
 test.beforeEach(() => {
   process.env.NEXT_PUBLIC_SITE_URL = SITE;
   delete process.env.VERCEL_ENV;
   delete process.env.VERCEL_URL;
+  delete process.env.VERCEL_BRANCH_URL;
+  delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
 });
 
 test("AC-014 — a forged host never becomes a link in our e-mail", () => {

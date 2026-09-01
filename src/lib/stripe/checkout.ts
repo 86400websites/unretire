@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { getStripe } from "@/lib/stripe/server";
 
 /**
@@ -52,10 +53,25 @@ export async function createCheckoutSession(opts: {
   // a minute boundary produced two DIFFERENT keys and therefore two payable
   // sessions. An idempotency key should identify one operation, not one moment.
   //
-  // The key is now stable for a given buyer and product. Stripe replays the
-  // original response for 24 h, so a double-click, a retry, or a second tab all
-  // land on the SAME Checkout Session and only one of them can be paid.
-  const idempotencyKey = `checkout:${opts.userId}:${opts.product}:v2`;
+  // The key is stable for a given buyer and product, so a double-click, a
+  // retry, or a second tab all land on the SAME Checkout Session and only one
+  // of them can be paid.
+  //
+  // …AND ON THE PARAMETERS. Added in S4.5c after the first parity run that
+  // actually reached Stripe. `success_url` and `cancel_url` embed
+  // `opts.origin`, so the same buyer arriving from a different origin — a new
+  // Preview deployment, apex instead of www — produced the same key with
+  // DIFFERENT parameters. Stripe rejects that outright ("keys for idempotent
+  // requests can only be used with the same parameters"), the route 500s, and
+  // the buyer cannot pay at all. An idempotency key must identify one
+  // operation *including its inputs*; keying on the buyer alone was only half
+  // the identity. Two tabs on the same origin still share a key, which is the
+  // case Known issue 40 is about.
+  const paramsFingerprint = (payload: unknown) =>
+    createHash("sha256")
+      .update(JSON.stringify(payload))
+      .digest("hex")
+      .slice(0, 16);
 
   // Extracted so the self-heal below can re-issue the IDENTICAL parameters;
   // Stripe rejects a reused idempotency key whose payload differs.
@@ -107,25 +123,41 @@ export async function createCheckoutSession(opts: {
     cancel_url: `${opts.origin}${config.cancelPath}?checkout=cancelled`,
   };
 
-  const session = await getStripe().checkout.sessions.create(params, {
+  const idempotencyKey = `checkout:${opts.userId}:${opts.product}:${paramsFingerprint(params)}`;
+
+  /**
+   * A stable key means Stripe may replay a session created earlier. If that
+   * session is no longer open — already completed, or expired after 24 h — it
+   * carries NO url at all (verified against the sandbox: every session whose
+   * status is not `open` returns `url: null`), so the buyer must be given a
+   * genuinely new one, keyed on the stale session they were just handed.
+   *
+   * THIS IS A LOOP, and that matters. The first version healed exactly once:
+   * `key:after:<A>` is itself deterministic, so as soon as that second session
+   * also completed, the replay returned it with a null url and the route threw
+   * — a buyer who had reached that state could never pay again, for ever.
+   * Caught on 2026-08-31 when the parity suite bought Premium twice in an hour
+   * and the second attempt 500'd. Each stale session has a distinct id, so
+   * chaining on it terminates; the bound is belt and braces against a Stripe
+   * behaviour change, and exhausting it is a real error rather than a silent
+   * dead link.
+   */
+  const stripe = getStripe();
+  let session = await stripe.checkout.sessions.create(params, {
     idempotencyKey,
   });
 
-  // A stable key means Stripe may replay a session created earlier. If that
-  // session is no longer open — already completed, or expired after 24 h — its
-  // URL is useless, so ask for a genuinely new one keyed on the stale session.
-  // Without this, a buyer whose first attempt expired would be handed a dead
-  // link and could never pay.
-  if (session.status && session.status !== "open") {
-    const replacement = await getStripe().checkout.sessions.create(params, {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (!session.status || session.status === "open") break;
+    session = await stripe.checkout.sessions.create(params, {
       idempotencyKey: `${idempotencyKey}:after:${session.id}`,
     });
-    if (!replacement.url) {
-      throw new Error("Stripe did not return a checkout URL");
-    }
-    return replacement.url;
   }
 
-  if (!session.url) throw new Error("Stripe did not return a checkout URL");
+  if (!session.url) {
+    throw new Error(
+      `Stripe returned no checkout URL for ${opts.product} (last session status: ${session.status ?? "unknown"})`,
+    );
+  }
   return session.url;
 }

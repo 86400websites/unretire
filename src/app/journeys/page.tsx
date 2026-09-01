@@ -6,49 +6,42 @@ const journeys = [
     desc: "Rediscover your reason to rise",
     stages: "6 stages · ~8 weeks",
     access: "free",
-    href: "/journeys/purpose",
   },
   {
     title: "The Vitality Journey",
     desc: "Build a body that matches your ambitions",
     stages: "5 stages · ~6 weeks",
     access: "premium",
-    href: "/journeys/health",
   },
   {
     title: "The Connection Journey",
     desc: "Deepen the relationships that truly matter",
     stages: "5 stages · ~8 weeks",
     access: "premium",
-    href: "/journeys/relationships",
   },
   {
     title: "The Contribution Journey",
     desc: "Find your way of giving back with impact",
     stages: "5 stages · ~6 weeks",
     access: "premium",
-    href: "/journeys/contribution",
   },
   {
     title: "The Adventure Journey",
     desc: "Embrace exploration in your next chapter",
     stages: "5 stages · ~6 weeks",
     access: "premium",
-    href: "/journeys/adventure",
   },
   {
     title: "The Life Design Journey",
     desc: "Architect the days you actually want to live",
     stages: "6 stages · ~10 weeks",
     access: "premium",
-    href: "/journeys/design",
   },
   {
     title: "The Mindset Journey",
     desc: "Rewire the beliefs that hold you back",
     stages: "5 stages · ~8 weeks",
     access: "premium",
-    href: "/journeys/mindset",
   },
 ];
 
@@ -105,11 +98,16 @@ export default function JourneysPage() {
                 <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">
                   {j.desc}
                 </p>
-                {j.access === "free" ? (
-                  <Link href={j.href} className="pill-link">
-                    Begin Journey →
-                  </Link>
-                ) : (
+                {/*
+                  Known issue 4 / decision D-3, resolved by the owner
+                  2026-09-01: REMOVE, not complete. The free journey's
+                  "Begin Journey" call to action pointed at a journey page that
+                  has never existed — a 404 on the only action this page
+                  offered. No journey page exists yet, so no card links
+                  anywhere; the premium cards already said as much. Restore
+                  this branch when the journeys are built.
+                */}
+                {j.access === "free" ? null : (
                   <span className="text-[12px] font-bold tracking-[0.08em] uppercase text-[#888888]">
                     🔒 Premium Members Only
                   </span>

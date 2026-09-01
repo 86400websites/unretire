@@ -1,6 +1,10 @@
 import { test, expect } from "../fixtures";
 import { storageStatePath } from "../helpers/auth";
 import {
+  ALREADY_OWNED_ACCEPTED,
+  alreadyOwnedMessage,
+} from "../helpers/purchase-proof";
+import {
   assertOrigin,
   completeStripeCheckout,
   expectEntitled,
@@ -46,6 +50,9 @@ test("P4/P5 — a Course purchase on the Preview reaches Stripe sandbox and gran
 
   if ((await alreadyOwned.count()) > 0) {
     await expectEntitled(page, "Course");
+    // S4.5c: this used to `return` silently, so the spec reported PASS for a
+    // purchase it had not made. See tests/e2e/helpers/purchase-proof.ts.
+    expect(ALREADY_OWNED_ACCEPTED, alreadyOwnedMessage("Course")).toBe(true);
     return;
   }
 

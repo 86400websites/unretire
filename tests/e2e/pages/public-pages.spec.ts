@@ -46,6 +46,11 @@ const PUBLIC_ROUTES = [
   "/podcast",
   "/practice",
   "/premium",
+  // Added by S4.5 (af092f3) and missed by this list until the pre-launch
+  // review's Finding 10 — the two pages you cannot lawfully take payment
+  // without (Known issue 3) had no coverage of any kind.
+  "/privacy",
+  "/terms",
   "/signup",
   "/speaking",
   "/start",
@@ -139,28 +144,46 @@ test("PG-004 — a wrong URL shows the site's own branded 404", async ({
   ).toBeVisible();
 });
 
-test("PG-011 — social and canonical URLs are absolute and not localhost", async ({
+test("PG-011 — the social image exists, is absolute, and is not localhost", async ({
   page,
   baseURL,
 }) => {
-  // metadataBase resolves og:* against the deployment's own origin, so a local
-  // self-check legitimately produces localhost URLs. The assertion that matters
-  // — "never localhost" — is therefore made only against a deployed target
-  // (Known issue 19's failure mode was Production resolving to localhost).
-  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(baseURL ?? "");
-
+  // Renamed and rewritten by the pre-launch review's Finding 10. Two faults:
+  //
+  //  1. The whole body sat inside `if (await ogImage.count())`, so deleting the
+  //     og:image tag — the exact regression this is for — turned the test into
+  //     a no-op that reported PASS. The tag's EXISTENCE is now the first
+  //     assertion, and everything else follows from it.
+  //  2. It was titled "social and canonical URLs" and asserted no canonical.
+  //     The app emits none (there is no `alternates` in the root metadata), so
+  //     the title promised coverage that did not exist. Canonical belongs to
+  //     LAUNCH-CHECKLIST.md:29 and is recorded there as an S5.2 item; this test
+  //     now claims only what it proves.
   await page.goto("/");
-  const ogImage = page.locator('meta[property="og:image"]');
 
-  if (await ogImage.count()) {
-    const image = await ogImage.first().getAttribute("content");
-    expect(image, "og:image must be absolute").toMatch(/^https?:\/\//);
-    if (!isLocal) {
-      expect(
-        image,
-        "a deployed og:image must not resolve to localhost",
-      ).not.toMatch(/localhost/);
-    }
+  const ogImage = page.locator('meta[property="og:image"]');
+  await expect(
+    ogImage,
+    "the home page must carry an og:image or every share renders blank",
+  ).toHaveCount(1);
+
+  const image = await ogImage.getAttribute("content");
+  expect(image, "og:image must be absolute").toMatch(/^https?:\/\//);
+
+  // metadataBase resolves og:* against the deployment's own origin, so a local
+  // self-check legitimately produces localhost URLs. The "never localhost" half
+  // is therefore asserted only against a deployed target — Known issue 19's
+  // failure mode was Production itself resolving to localhost.
+  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(baseURL ?? "");
+  if (!isLocal) {
+    expect(
+      image,
+      "a deployed og:image must not resolve to localhost",
+    ).not.toMatch(/localhost/);
+    // og:url has the same failure mode and the same fix.
+    const ogUrl = page.locator('meta[property="og:url"]');
+    await expect(ogUrl).toHaveCount(1);
+    expect(await ogUrl.getAttribute("content")).not.toMatch(/localhost/);
   }
 });
 

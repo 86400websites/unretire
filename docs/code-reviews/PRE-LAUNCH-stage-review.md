@@ -128,3 +128,51 @@ D-30's load-bearing claim holds — every gated route authorises independently o
 ### Confirmed outstanding
 
 S4.3/S4.5 sprint records absent and S4.5 tracker rows stale; migration 0003 unapplied to Production; the dispatch-only parity project did not run at this head, so the non-vacuous `book_downloads` RLS proof and the eight write-side specs remain outstanding.
+
+
+---
+
+## Remediation record — Finding 10 (Sprint S4.5c, 2026-08-31)
+
+> ⚠ **Note on where this landed.** S4.5 was merged to `master` as **PR #24** (`a7a2540`) and
+> **PR #25** (`0afbef2`) **while this verdict still read REQUEST CHANGES and Finding 10 was
+> still open**, and GitHub deleted the branch on merge. The reviewed range `baa1d92..8fc94ad`
+> is therefore on `master` already. S4.5c lands on `claude/s4.5c-test-integrity`, branched
+> from the merged `master`, and the re-review should be pinned to `0afbef2..<its head>`.
+
+Findings **1–9** were fixed in `231b637` and recorded in `docs/sprint-prompts/S4.5-launch-floor.md`.
+Finding **10** was left open and is closed here. Sprint record:
+`docs/sprint-prompts/S4.5c-test-integrity.md`.
+
+### The three clauses of Finding 10
+
+| Clause | Disposition |
+|---|---|
+| *"`/privacy` and `/terms` omitted from `PUBLIC_ROUTES`"* | **Fixed.** Both added. Confirmed: the two pages S4.5 shipped had no coverage of any kind — not a route check, not a link check, nothing. |
+| *"the social-image assertion is conditional and passes when the tag is missing"* | **Fixed.** PG-011's entire body was inside `if (await ogImage.count())`. The tag's existence is now the first assertion. The test was also titled *"social and canonical URLs"* while asserting no canonical — and the app emits none — so it was retitled to what it proves; canonical is recorded against `LAUNCH-CHECKLIST.md` for S5.2. |
+| *"several claimed closures have no red→green spec"* | **Fixed, and it was worse than "several."** Mapping every fix in the range to its spec: of the nine review findings, **exactly one (F9) had a spec that would go red against the pre-fix code.** Issues 3, 8, 9 and 46 had none either. |
+
+### What the reviewer could not have seen from the range alone
+
+Writing the missing specs surfaced three live defects:
+
+1. **Known issue 44 was never fixed.** It was S4.5 scope (`ROADMAP.md:77`), the tracker still read `Open — S4.5`, and `/api/subscribe` still returned Mailchimp's `detail` string to anonymous callers and logged the whole response body. Fixed here.
+2. **Known issue 9 was closed on two of its three pages.** `/stories` still displayed *"Placeholders below — swap in real, named stories as they're gathered."* Fixed here.
+3. **The parity checkout helper could no longer complete a purchase.** S3.1 moved the `success_url` to `/account?checkout=success`; `helpers/parity.ts` still waited for the pre-S3.1 `/unretire/account`. Fixed here.
+
+### On Hunt-list item 7 ("assertions that cannot fail")
+
+The reviewer counted five such tests in this range. Five more were found and fixed:
+
+- Both **paid-checkout parity specs had stopped exercising a purchase** once the fixture owned the product, while still reporting PASS for *"a purchase reaches Stripe sandbox and grants access"* — vacuous since S2.5, and the reason defect 3 above went unnoticed for two sprints. They now fail with instructions unless the reduced proof is explicitly accepted.
+- **AC-012's bundle scan** silently skipped any chunk it could not fetch, so before S5.1a's bypass fix it would have declared the paid course safe having read nothing.
+- **IN-005** counted `button:not([disabled])` across the whole page, matching the site's own header chrome — it could not reach zero on any page.
+- **A CI run with no fixture password** dropped every access-boundary, paid-content, money-path and logout spec and reported green. The config now refuses to run a partial suite in CI.
+- **`origin-guard.spec.ts`** reset two of the four environment variables it sets, leaking state between tests.
+
+### Still outstanding at this head
+
+- ~~**Migrations 0003 and 0004 are not on `unretire-prod`** — verified, `list_migrations` returns empty.~~ **CLEARED 2026-08-31** — the owner applied both to `unretire-prod`, verified read-only: RLS on with zero policies, both indexes present, `increment_rate_limit` `SECURITY INVOKER` with execute to `service_role` only. *(Original, retained:)* Since Finding 8 the limiter also guards `/api/form`, so a Production deploy today leaves **all four public forms refusing every visitor**. Raised to a Blocker in `PROJECT-STATUS.md` §5. Owner action.
+- **Known issue 4** — eight dead links, measured rather than estimated, blocked on **D-3**.
+- The **eight write-side parity specs** and the non-vacuous **`book_downloads` RLS proof** still need a dispatch-only run.
+- **This range has not been re-reviewed.** The standing verdict is REQUEST CHANGES; a re-run at the new head is required before S5.1b.

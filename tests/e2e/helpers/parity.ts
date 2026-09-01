@@ -98,11 +98,20 @@ const TEST_CARD = {
 
 /**
  * Complete Stripe's hosted Checkout with the test card and wait for the redirect back to
- * the deployment under test. The redirect target is the stale success_url
- * `/unretire/account?checkout=success` (Known issue 2, fixed in S3.1) — a 404 on this
- * codebase today — so the URL is asserted and nothing on that page is. The bypass header
- * never reaches checkout.stripe.com: the shared fixture attaches it to same-origin
- * requests only.
+ * the deployment under test.
+ *
+ * THE TARGET IS `/account?checkout=success` — src/lib/stripe/checkout.ts:106.
+ *
+ * It used to be the stale `/unretire/account?checkout=success`, and this helper was
+ * written against that: "the redirect target is the stale success_url (Known issue 2)".
+ * S3.1 fixed the success_url and did not update this file, so from that sprint onward the
+ * helper waited sixty seconds for a URL the site would never produce and then threw. It
+ * was never noticed because the two specs that call it stopped calling it — see the
+ * already-owned note in checkout-course.spec.ts — so the money path's only real proof was
+ * broken and silent at the same time. Found by the S4.5c audit, not by a run.
+ *
+ * The bypass header never reaches checkout.stripe.com: the shared fixture attaches it to
+ * same-origin requests only.
  */
 export async function completeStripeCheckout(
   page: Page,
@@ -111,7 +120,12 @@ export async function completeStripeCheckout(
   await page.waitForURL(/^https:\/\/checkout\.stripe\.com\//, {
     timeout: 30_000,
   });
-  await page.waitForLoadState("networkidle").catch(() => undefined);
+  // Bounded explicitly. Stripe's hosted page keeps long-lived connections open,
+  // so "networkidle" is not guaranteed to arrive at all; without a timeout of
+  // its own this wait is bounded only by the test budget and eats it silently.
+  await page
+    .waitForLoadState("networkidle", { timeout: 10_000 })
+    .catch(() => undefined);
 
   // If Stripe offers its Link wallet for the pre-filled e-mail, decline it and pay as a guest.
   const noLink = page.getByRole("button", {
@@ -119,8 +133,57 @@ export async function completeStripeCheckout(
   });
   if (await noLink.count()) await noLink.first().click();
 
+  /**
+   * SAY WHAT STRIPE ACTUALLY SHOWED.
+   *
+   * The Course checkout timed out here on 2026-08-31 (parity run 33414598959)
+   * while the Premium one completed in 22 s through this same helper. All the
+   * run could report was a bare 180 s test timeout, which says nothing about
+   * why — and the parity project deliberately records neither screenshot nor
+   * trace, because credentials are typed in it. So the card form's absence is
+   * now reported as a named failure listing WHICH of Stripe's landmarks were
+   * present, rather than as a bare timeout.
+   *
+   * No money moves before this point: the card has not been filled yet, so a
+   * failure here means nothing was charged.
+   */
   const cardNumber = page.locator("#cardNumber");
-  await cardNumber.waitFor({ state: "visible", timeout: 30_000 });
+  try {
+    await cardNumber.waitFor({ state: "visible", timeout: 45_000 });
+  } catch {
+    // STRUCTURE ONLY — never the page's text. Stripe pre-fills the customer's
+    // e-mail on this page, and the fixture e-mails are Actions secrets; dumping
+    // innerText here would write one into the run log, which is exactly the
+    // shape of Known issues 49 and 51. Reporting WHICH landmarks exist is
+    // enough to tell a Link-wallet screen from a still-loading one, and leaks
+    // nothing.
+    const landmarks = [
+      ["link-wallet screen", '[data-testid="link-authenticate"], #linkOTP'],
+      ["a card option to choose", '[data-testid="card-accordion-item-button"]'],
+      ["a payment-method tab list", '[data-testid="payment-method-tabs"]'],
+      ["the submit button", '[data-testid="hosted-payment-submit-button"]'],
+      ["an error/alert", '[role="alert"]'],
+    ] as const;
+
+    const present: string[] = [];
+    for (const [label, selector] of landmarks) {
+      if (
+        await page
+          .locator(selector)
+          .count()
+          .catch(() => 0)
+      ) {
+        present.push(label);
+      }
+    }
+
+    throw new Error(
+      "Stripe's card form (#cardNumber) never appeared, so no card was submitted " +
+        "and NOTHING WAS CHARGED. " +
+        `Present on the page: ${present.length ? present.join(", ") : "none of the known landmarks"}. ` +
+        `(${await safeWhereAmI(page)})`,
+    );
+  }
   await cardNumber.fill(TEST_CARD.number);
   await page.locator("#cardExpiry").fill(TEST_CARD.expiry);
   await page.locator("#cardCvc").fill(TEST_CARD.cvc);
@@ -143,7 +206,7 @@ export async function completeStripeCheckout(
   // validation / processing error. Fail fast with that error text (never a silent 60 s wait).
   const backOnOrigin = (url: URL) =>
     url.origin === origin &&
-    url.pathname === "/unretire/account" &&
+    url.pathname === "/account" &&
     url.searchParams.get("checkout") === "success";
   const deadline = Date.now() + 60_000;
   while (Date.now() < deadline) {

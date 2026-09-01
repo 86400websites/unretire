@@ -21,8 +21,17 @@ type GrantOutcome = "granted" | "ignored" | "retry";
  * checkout.session.async_payment_succeeded so the two cannot drift — the async
  * path exists precisely because the first one may fire before funds settle
  * (pre-launch review Finding 2).
+ *
+ * EXPORTED FOR TESTING, and for the same reason `safeNext` and `isAllowedHost`
+ * are (pre-launch review Finding 10). Every branch below is reached only after
+ * a valid Stripe signature, and the harness holds no endpoint signing secret —
+ * so an HTTP-level spec stops at the 400 and cannot tell a fixed handler from a
+ * broken one. The decision is therefore asserted directly against its real
+ * inputs by tests/e2e/integrations/webhook-fulfilment.spec.ts, which passes a
+ * recording stub in place of the admin client. `admin` was already the first
+ * parameter; nothing about the production path changes.
  */
-async function grantFromSession(
+export async function grantFromSession(
   admin: ReturnType<typeof createAdminClient>,
   session: Stripe.Checkout.Session,
   eventId: string,
@@ -122,8 +131,10 @@ async function grantFromSession(
  * treated as "the grant has not landed yet" and returns retry, so Stripe
  * redelivers until it can be applied. A subscription that is not ours still
  * matches nothing and is ignored, so no foreign event can loop.
+ *
+ * Exported for the same reason as grantFromSession above.
  */
-async function syncSubscription(
+export async function syncSubscription(
   admin: ReturnType<typeof createAdminClient>,
   sub: Stripe.Subscription,
   eventId: string,
@@ -268,17 +279,21 @@ export async function POST(request: NextRequest) {
        * customer.subscription.updated is the authoritative status feed, so it
        * is what we follow.
        *
-       * A NOTE ON past_due, which is deliberate and not an oversight. The
-       * production CHECK constraint admits exactly three values — 'active',
-       * 'canceled', 'expired' (supabase/migrations/0001_entitlements.sql) — so
-       * there is no state for "paying, but this month's charge bounced". We
-       * therefore leave past_due members ACTIVE: Stripe is still retrying the
-       * card, and cutting off a paying customer over a bank decline they have
-       * not yet had a chance to fix would be worse than a few days' grace. When
-       * dunning finally fails Stripe moves the subscription to unpaid or
-       * canceled, and the line below revokes. Representing past_due properly
-       * would mean altering a Production constraint — an owner decision, not a
-       * side effect of this sprint.
+       * A NOTE ON past_due. The production CHECK constraint admits exactly
+       * three values — 'active', 'canceled', 'expired'
+       * (supabase/migrations/0001_entitlements.sql) — so there is no state for
+       * "paying, but this month's charge bounced". The first version of this
+       * handler therefore left past_due members ACTIVE and waited for Stripe to
+       * move them to unpaid or canceled.
+       *
+       * That was wrong, and pre-launch review Finding 3 said so: Stripe's
+       * terminal dunning action can be configured to LEAVE a subscription
+       * past_due for ever, in which case the wait never ends and access is free
+       * from then on. syncSubscription() above now bounds the grace by the
+       * customer's own paid period — see its FINDING 3 note. Access is retained
+       * while the period they paid for is still running and revoked once it has
+       * elapsed unpaid, which needs no new column and no assumption about the
+       * owner's Dashboard settings.
        */
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
@@ -305,7 +320,6 @@ export async function POST(request: NextRequest) {
         break;
       }
 
-      // Premium subscription ended or was cancelled → revoke access.
       // Premium subscription ended or was cancelled → revoke access.
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
