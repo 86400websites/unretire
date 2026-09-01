@@ -227,7 +227,10 @@ if (process.env.CI && !rolesEnabled) {
 const parityProject = {
   name: "parity-chromium",
   testMatch: "**/parity/*.spec.ts",
-  dependencies: ["setup:course", "setup:premium"],
+  // setup:signed-in added in S5.1b: the declined-card/idempotency specs
+  // (checkout-declined.spec.ts) run as the un-entitled fixture, because the
+  // course/premium fixtures own their products and never reach Stripe.
+  dependencies: ["setup:signed-in", "setup:course", "setup:premium"],
   use: { ...desktop, trace: "off" as const, screenshot: "off" as const },
 };
 
