@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 const mindsets = [
   {
     num: "01",
@@ -37,37 +35,30 @@ const practices = [
   {
     title: "Ignite",
     desc: "Reignite your curiosity, creativity, and sense of aliveness.",
-    href: "/framework/practice-ignite",
   },
   {
     title: "Move",
     desc: "Build a body that supports the life you want to live.",
-    href: "/framework/practice-move",
   },
   {
     title: "Connect",
     desc: "Deepen the relationships that truly matter.",
-    href: "/framework/practice-connect",
   },
   {
     title: "Contribute",
     desc: "Find your way of giving back with lasting impact.",
-    href: "/framework/practice-contribute",
   },
   {
     title: "Explore",
     desc: "Embrace discovery — inward and outward.",
-    href: "/framework/practice-explore",
   },
   {
     title: "Grow",
     desc: "Keep learning, stretching, and becoming.",
-    href: "/framework/practice-grow",
   },
   {
     title: "Optimise",
     desc: "Design your days, energy, and environment intentionally.",
-    href: "/framework/practice-optimize",
   },
 ];
 
@@ -192,20 +183,26 @@ export default function FrameworkPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/*
+              Known issue 4 / decision D-3, resolved by the owner 2026-09-01:
+              REMOVE, not complete. These seven cards linked to
+              /framework/practice-ignite, -move, -connect, -contribute,
+              -explore, -grow and -optimize — pages that have never existed, so
+              every one of them 404'd. The practice content itself is real and
+              approved, so it stays; only the dead links and the "Explore →"
+              affordance they promised are gone. Restoring them is a one-line
+              change per card if the pages are ever built.
+            */}
             {practices.map((p) => (
-              <Link
+              <div
                 key={p.title}
-                href={p.href}
-                className="group rounded-2xl bg-white/[0.04] border border-white/10 p-7 block transition-colors hover:border-[#D05D11] hover:bg-white/[0.07]"
+                className="rounded-2xl bg-white/[0.04] border border-white/10 p-7 block"
               >
                 <h3 className="text-xl text-white mb-2">{p.title}</h3>
-                <p className="text-[13px] text-white/55 leading-[1.7] mb-4">
+                <p className="text-[13px] text-white/55 leading-[1.7]">
                   {p.desc}
                 </p>
-                <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-[#E8A77E] group-hover:text-white transition-colors">
-                  Explore →
-                </span>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

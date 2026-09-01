@@ -46,28 +46,21 @@ const REDIRECTS_WHEN_SIGNED_OUT = new Set([
 ]);
 
 /**
- * KNOWN ISSUE 4, still open and blocked on decision D-3.
+ * KNOWN ISSUE 4 — CLOSED. Decision **D-3** resolved by the owner on 2026-09-01:
+ * REMOVE the dead links, not complete the pages.
  *
- * These eight links are live on the site today and every one of them 404s.
- * They are listed rather than tolerated, and the listing is a RATCHET: the
- * per-page tests below fail on any dead link that is not one of these, and the
- * last test fails if one of these starts resolving without the list being
- * updated. The count can only go down, and never silently.
+ * This list held eight links that were live on the site and every one of which
+ * 404'd — seven `/framework/practice-*` and `/journeys/purpose`. It was written
+ * as a two-way ratchet precisely so that fixing them could not pass silently:
+ * a ninth dead link failed the crawl, and so did any of the eight starting to
+ * resolve while this list still named it. That second direction is what fired
+ * when the links were removed, which is the ratchet doing its job.
  *
- * D-3 decides whether the seven practice pages and the journey page get built
- * or the links get removed. Neither is this sprint's call: both need approved
- * copy or an owner instruction, and S4.5c is a test-integrity sprint.
+ * It is now EMPTY, and deliberately kept rather than deleted: an empty list
+ * states the property plainly — this site has no known dead internal links —
+ * and the crawl below now fails on the first one that appears.
  */
-const KNOWN_DEAD = [
-  "/framework/practice-connect",
-  "/framework/practice-contribute",
-  "/framework/practice-explore",
-  "/framework/practice-grow",
-  "/framework/practice-ignite",
-  "/framework/practice-move",
-  "/framework/practice-optimize",
-  "/journeys/purpose",
-];
+const KNOWN_DEAD: string[] = [];
 
 /**
  * ONE test over the DEDUPED union of every entry point's links.
@@ -141,31 +134,27 @@ test("PG-002 — every internal link on the main pages resolves", async ({
   );
 });
 
-test("PG-002 — Known issue 4 is still exactly the eight links on record", async ({
+test("PG-002 — the known-dead list is empty, and stays empty", async ({
   api,
 }) => {
-  // The other direction of the ratchet. If one of the eight starts resolving,
-  // the exception list is out of date and the tracker needs updating. A test
-  // that quietly kept passing while its own exception list rotted would be the
-  // same failure this sprint exists to fix.
-  //
-  // Same documented budget as the crawl above, for the same reason: each of
-  // these is a route the server has never compiled, and a 404 still costs a
-  // compile against `next dev`.
-  test.setTimeout(120_000);
-
-  const results = await Promise.all(
-    KNOWN_DEAD.map(async (path) => ({
-      path,
-      status: (await api.get(path, { failOnStatusCode: false })).status(),
-    })),
-  );
-  const stillDead = results
-    .filter(({ status }) => status >= 400)
-    .map(({ path }) => path);
-
+  // The other direction of the ratchet, now that Known issue 4 is closed. If a
+  // future change reintroduces a dead link, the per-page crawl above fails; if
+  // someone re-adds an entry here without a matching tracker row, this fails.
+  // The list can only stay empty or be re-opened deliberately.
   expect(
-    stillDead,
-    "Known issue 4 has changed — update KNOWN_DEAD here and PROJECT-STATUS §10",
-  ).toEqual(KNOWN_DEAD);
+    KNOWN_DEAD,
+    "Known issue 4 was closed by decision D-3 — an entry here needs a PROJECT-STATUS §10 row to match",
+  ).toEqual([]);
+
+  // And the eight that used to 404 are genuinely gone from the site rather than
+  // merely absent from this list: nothing should link to them any more, which
+  // the crawl proves, and requesting one directly still 404s because the pages
+  // were never built.
+  const res = await api.get("/framework/practice-ignite", {
+    failOnStatusCode: false,
+  });
+  expect(
+    res.status(),
+    "the practice pages were never built — D-3 removed the links, not added the pages",
+  ).toBe(404);
 });
