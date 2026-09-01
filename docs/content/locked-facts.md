@@ -7,7 +7,7 @@ in this folder.
 
 | Fact | Exact approved wording | Source in code | Status |
 |---|---|---|---|
-| Brand name | (Un)Retire | `src/app/page.tsx` (Guest Preview banner: "the (Un)Retire Exclusive Guest Preview"); `src/app/book/page.tsx` metadata | LOCKED |
+| Brand name | (Un)Retire | ~~`src/app/page.tsx` (Guest Preview banner: "the (Un)Retire Exclusive Guest Preview")~~ *(banner removed 2026-09-01, D-32)* `src/app/UnRetireFooter.tsx` (copyright line); `src/app/book/page.tsx` metadata | LOCKED |
 | Tagline (primary) | Reboot. Don't Mute. | `src/app/page.tsx` hero eyebrow; `src/app/book/page.tsx` cover alt text | LOCKED |
 | Tagline (signature quote) | Aging is inevitable. Diminishing is optional. | `src/app/page.tsx` signature-quote section, attributed "— Maher Kaddoura" | LOCKED |
 | Author | Maher Kaddoura | `src/app/page.tsx` hero lede + quote attribution; `src/app/book/page.tsx` metadata | LOCKED |
@@ -53,10 +53,12 @@ them without an owner decision, and do not lock them.
    `src/app/community/page.tsx` (lines 4–5) claims these numbers; no source verifies
    them. Owner must confirm real figures or remove the claim (Known issue 9).
 
-4. **Guest Preview banner is date-sensitive: "until 31 August".**
-   The home-page banner (`src/app/page.tsx`, top of page) says "This private preview is
-   available to selected guests until 31 August." — it expires 31 August 2026.
+4. **Guest Preview banner is date-sensitive: "until 31 August".** — **CLOSED: banner
+   REMOVED 2026-09-01 (Sprint S5.1b, owner decision D-32).**
+   ~~The home-page banner (`src/app/page.tsx`, top of page) says "This private preview is
+   available to selected guests until 31 August." — it expires 31 August 2026.~~
    ~~what happens then is Open decision D-10 (Known issue 12)~~ **D-10 was RESOLVED
    2026-08-25** (owner: the banner expires on its own date as originally designed — no code
-   change; Known issue 12 closed on that basis). The date stays flagged, not locked; this
-   note was synchronized 2026-08-26 (stage-gate Round 4, Finding 5).
+   change; Known issue 12 closed on that basis). The date stayed flagged, not locked; this
+   note was synchronized 2026-08-26 (stage-gate Round 4, Finding 5). The preview period
+   ended on its own date; the band was deleted for launch under D-32.

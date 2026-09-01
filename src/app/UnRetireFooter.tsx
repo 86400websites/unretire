@@ -50,19 +50,9 @@ export default function UnRetireFooter() {
             <p className="text-[14px] leading-relaxed text-white/55 max-w-[280px] mb-3">
               Reboot. Don&apos;t Mute.
             </p>
-            <p className="text-[14px] italic leading-relaxed text-white/45 max-w-[280px] mb-6">
+            <p className="text-[14px] italic leading-relaxed text-white/45 max-w-[280px]">
               &ldquo;Aging is inevitable. Diminishing is optional.&rdquo;
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] uppercase text-white/55 hover:text-white transition-colors border border-white/15 rounded-full px-3.5 py-1.5"
-            >
-              <span className="relative inline-block w-3 h-3 rounded-full overflow-hidden flex-shrink-0">
-                <span className="absolute left-0 top-0 w-1/2 h-full bg-white" />
-                <span className="absolute right-0 top-0 w-1/2 h-full bg-[#D05D11]" />
-              </span>
-              Part of Half a Life
-            </Link>
           </div>
 
           {/* Link columns */}
@@ -113,7 +103,7 @@ export default function UnRetireFooter() {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-7">
           <p className="text-[12px] text-white/35">
-            © 2026 (Un)Retire · Maher Kaddoura · Part of Half a Life
+            © 2026 (Un)Retire · Maher Kaddoura
           </p>
           <div className="flex gap-6">
             <Link

@@ -97,24 +97,6 @@ const paths = [
 export default function UnRetirePage() {
   return (
     <>
-      {/* ── GUEST PREVIEW BANNER ─────────────────────────────── */}
-      <div className="bg-[#232F3F] text-center px-5 py-3.5">
-        <p className="text-[14px] sm:text-[15px] font-bold text-white leading-snug tracking-[0.01em]">
-          Welcome to the (Un)Retire Exclusive Guest Preview
-        </p>
-        <p className="text-[13px] sm:text-[14px] italic text-white/70 leading-snug mt-1">
-          This private preview is available to selected guests until 31 August.
-        </p>
-      </div>
-
-      {/* Fixed "back to Half a Life" pill */}
-      <Link
-        href="/"
-        className="fixed bottom-5 right-5 z-[60] inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm border border-[#E5E5E5] text-[#444444] hover:text-[#D05D11] text-[11px] font-bold tracking-[0.1em] uppercase rounded-full px-4 py-2 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.25)] transition-colors"
-      >
-        ← Half a Life
-      </Link>
-
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">

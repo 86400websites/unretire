@@ -331,13 +331,6 @@ export default function UnRetireNav({
               >
                 {userEmail ? "Account" : "Log in"}
               </Link>
-              <Link
-                href="/"
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 text-[12px] font-bold tracking-[0.12em] uppercase text-[#666666] hover:text-[#D05D11] transition-colors"
-              >
-                ← Back to Half a Life
-              </Link>
             </div>
           </div>
         </div>
