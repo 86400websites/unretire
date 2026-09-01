@@ -37,26 +37,43 @@ permissions:
   contents: read
   deployments: read
 concurrency:
-  # Keyed on the COMMIT under test, because the SHA is the only value both triggers
-  # share — and they must share a lane. The previous key fell back to github.run_id
-  # for any non-PR event, and a run_id is unique per run, so the `pull_request` and
-  # `deployment_status` runs of the SAME commit landed in different groups and ran
-  # CONCURRENTLY against the same three fixture accounts. AC-002 signs a fixture out,
-  # and `supabase.auth.signOut()` (src/app/auth/actions.ts:178) takes the library's
-  # default `global` scope, which revokes that user's session everywhere — so one run
-  # signed the other run out mid-test. Observed on PR #20, 2026-08-30: run #96 was
-  # 105/1 (clean) while its twin #97 was 104/2, the extra failure being AC-002 unable
-  # to find the signed-in heading. Fixed by S5.1a.
+  # ONE LANE FOR EVERY RUN, because there is only ONE set of fixture accounts.
   #
-  # `cancel-in-progress: false` so the second trigger QUEUES rather than cancelling
-  # the first: both finish and both report green. Cancelling would leave a grey
-  # "cancelled" check beside a green one on every PR, which reads as a problem when
-  # it isn't. The suite runs in well under a minute, so serialising costs little.
+  # The resource this protects is not a commit — it is the three shared fixture
+  # accounts in `unretire-test`. AC-002 signs one out, and
+  # `supabase.auth.signOut()` (src/app/auth/actions.ts:178) takes the library's
+  # default `global` scope, which revokes that user's session EVERYWHERE. So any
+  # two runs that overlap can sign each other out mid-test, whatever commit they
+  # are testing.
   #
-  # The parity input gets its own lane: a manual `parity: on` dispatch writes real
-  # data (a signup, two Stripe SANDBOX payments, one live Mailchimp contact — D-25),
-  # so it must never be queued behind, or interleaved with, an ordinary run.
-  group: e2e-preview-${{ github.event.pull_request.head.sha || github.event.deployment.sha || inputs.sha || github.sha }}-${{ inputs.parity || 'off' }}
+  # History, because this key has now been wrong twice in the same way:
+  #   1. Originally it fell back to `github.run_id` for non-PR events, so the
+  #      `pull_request` and `deployment_status` runs of the SAME commit landed in
+  #      different groups and raced. PR #20, 2026-08-30: run #96 was 105/1 while
+  #      its twin #97 was 104/2. S5.1a keyed the group on the SHA to fix it.
+  #   2. Keying on the SHA fixed same-commit races and left DIFFERENT-commit races
+  #      wide open. Two commits pushed a minute apart start two runs in two groups,
+  #      and they overlap. Observed in S5.1b, 2026-09-01: run 33501412653
+  #      (`3ddc78a`, 11:13:58–11:16:55) overlapped run 33501489016 (`84372f0`,
+  #      11:14:51–11:18:00) for two minutes; the second failed PY-003 and PY-004
+  #      because its signed-in fixture had been signed out by the first. The two
+  #      commits differed by one markdown paragraph — the site could not have
+  #      caused it.
+  #
+  # The general fix is to name the RESOURCE rather than the run: one static group,
+  # so every run of this workflow queues behind every other. `cancel-in-progress:
+  # false` makes them queue rather than cancel — a cancelled run leaves a grey
+  # check beside a green one, which reads as a problem when it isn't. The suite
+  # takes ~2 minutes, so serialising costs little and buys a result that cannot be
+  # corrupted by whatever else happens to be running.
+  #
+  # This deliberately puts a `parity: on` dispatch in the SAME lane. The previous
+  # comment gave parity its own lane so it would never be "queued behind, or
+  # interleaved with, an ordinary run" — but a separate lane is what PERMITS
+  # interleaving; queueing is what prevents it. A parity run buys real products
+  # and rewrites the fixtures' entitlements, so it is the run that least tolerates
+  # a neighbour.
+  group: e2e-preview-fixtures
   cancel-in-progress: false
 jobs:
   e2e-preview:
