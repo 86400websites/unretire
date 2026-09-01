@@ -558,6 +558,104 @@ the Codex review from `docs/code-reviews/S2.5-environment-parity-review.md` once
 
 ---
 
+## PART 7 — Clean up the Stripe **sandbox** subscriptions · S5.1b (added 2026-09-01) · ~10 minutes
+
+**This is Known issue 34.** Every test run that buys Premium leaves a **live sandbox subscription**
+behind. **Five** have accumulated (the fifth was created by the launch-gate run on 2026-09-01). They are
+all in the **Sandbox account** — no real money, no real customer — but they are set to renew yearly on a
+test card, so left alone they will start generating failed-renewal noise in a dashboard you will be
+relying on to spot real problems.
+
+> **You cannot break anything real here.** The sandbox is a **separate Stripe account**
+> (`acct_1TsJbSFWySZWCfsj`), not a test toggle inside your live one. Nothing in this section can touch a
+> real customer, a real payment, or your live products. If a screen ever shows **The Singapore Way**, or the
+> webhook **brilliant-splendor**, you are in the LIVE account — back out and switch accounts.
+
+### Do this AFTER the launch-gate test run, not before
+
+The test run needs those subscriptions to exist. **Wait until I tell you the S5.1b run is finished**, then
+do this. It is not urgent and it does not block launch.
+
+### 7.1 — Turn the sandbox webhook off first ⚠️ do not skip this step
+
+- [ ] **7.1** In the **Sandbox** account → **Developers → Webhooks** → click the endpoint named
+      **`captivating-triumph`** → **Disable**.
+
+**Why this step exists, in plain English.** When you cancel a subscription, Stripe *announces* it to our
+website. Our website looks up which customer it belongs to — and for three of these four subscriptions
+the answer is "nobody any more", because a later test replaced them. Our code treats "I should cancel
+someone's access but I can't find them" as *a problem worth shouting about*, so it returns an error and
+Stripe keeps re-announcing it for about three days. Nothing breaks, but your webhook log fills with red
+that looks exactly like a real fault — and the next time something genuinely goes wrong, that red is what
+you will have to read past. Switching the endpoint off for ten minutes avoids the whole thing.
+
+It also means the test accounts keep working afterwards, which we want.
+
+### 7.2 — Cancel the four subscriptions
+
+- [ ] **7.2** Still in the **Sandbox** account → **Billing → Subscriptions**. Set the filter to **Active**.
+
+You are looking for subscriptions billed to **`thefalafeltheory+ur-e2e-premium@gmail.com`** — the test
+buyer. Expect up to **five**, all "(Un)Retire Premium, $199.00 / year":
+
+| Created | How to recognise it |
+|---|---|
+| 2026-08-28, ~18:09 | the oldest one |
+| 2026-08-31, ~16:34 | |
+| 2026-08-31, later | |
+| 2026-08-31, 17:28 | `sub_1UAYzxFWySZWCfsjPfRnbY3J` |
+| **2026-09-01, 11:05** | **`sub_1UApVPFWySZWCfsjQOaGd7ff`** — created by the launch-gate run; customer `cus_VBBtRmCILCXVSy`. **This is the one the test accounts currently point at**, so cancel it last |
+
+For **each** one: open it → **Actions** (top right) → **Cancel subscription** → choose **Immediately** →
+confirm. Do this for **all** of them, including the last.
+
+- [ ] **7.2a** All five cancelled.
+
+**Leave these alone:**
+
+- The **Course** payments ($99). Those are one-time payments, not subscriptions — there is nothing to
+  cancel, and refunding them would prove nothing. There is no "Subscriptions" entry for them at all.
+- The **six older payments** from the guest-preview era. Same reason — payments, not subscriptions.
+- The **products and prices** (`Course (Test)`, `Premium (Test)`). The test suite needs them.
+- Anything labelled **"Delete all test data"** — that would wipe the products too. Do not use it.
+
+### 7.3 — Turn the webhook back on
+
+- [ ] **7.3** **Developers → Webhooks → `captivating-triumph` → Enable.** Confirm it shows **Enabled**.
+
+This matters: with it off, a future test purchase would complete at Stripe and never grant access, and
+the test suite would report a failure that has nothing to do with the website.
+
+### 7.4 — Tell me when it is done
+
+- [ ] **7.4** Just say "sandbox cleaned". I will record it against Known issue 34 and confirm the test
+      database is still in the state the suite expects.
+
+### What to expect afterwards
+
+- **The test accounts keep their access.** Because the webhook was off, our test database never heard
+  about the cancellations, so the Premium test account still shows as entitled and the everyday test suite
+  keeps passing. That is intended.
+- **The next full payment test run needs a reset anyway.** Before any future `parity: on` run, both test
+  entitlement rows get cleared so the run can buy for real — that was already the documented procedure.
+- **This will recur.** Every future payment test run leaves one more sandbox subscription. Worth repeating
+  this section after any run that buys Premium — it takes two minutes once you have done it once.
+
+### The live account — nothing to cancel, one thing to remember
+
+There is **no live subscription** and there has been **no live payment**. The only live object waiting on
+you is the **100%-off coupon** you created for the launch test purchase. When you run that test after
+launch (`MN-003`), the checklist reminds you to **deactivate the coupon immediately afterwards** and to
+delete the $0 subscription it creates — a 100%-off subscription collects no card, so it is guaranteed to
+fail its first real renewal. That is the *original* meaning of Known issue 34 and it is still open.
+
+⚠️ One honest note on that test: a 100%-off checkout proves the *wiring* (session → webhook → access
+granted) but it is **not a real payment** — no card is charged, so it does not exercise the card form,
+3-D Secure, capture, receipts, or payout. `docs/ENVIRONMENT-PARITY.md` §6 C14 recommends a temporary
+**$1 real charge, then refunded**, as the stronger check. Your call which one you run.
+
+---
+
 ## What I need back from you
 
 *(The original four asks are all received — struck for the record. Current asks, updated 2026-08-28 — **Part 6

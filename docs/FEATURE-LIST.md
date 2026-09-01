@@ -141,8 +141,34 @@ charge — the parity project, D-25), **FM-002/FM-003/FM-007** (need a real writ
 **MN-001…MN-004** (manual by definition), **PR-003/PR-006** (need a database read the
 harness does not have).
 
+> ⚠ **Two corrections to the paragraph above, found by the S5.1b coverage audit (2026-09-01).**
+> **(1) It omitted PY-005.** The declined-card line had no spec either, and its absence from
+> this list made it read as covered when nothing tested it — the exact failure mode Finding 10
+> was about, one level up in the record rather than in a spec.
+> **(2) "PY-001/PY-002/PY-006 without a spec" was true only of the pull_request suite** —
+> PY-001 and PY-002 have had dispatch-only parity specs since S2.5. The distinction that
+> matters is *which trigger runs them*, not whether they exist.
+
+## Coverage record — 2026-09-01 (Sprint S5.1b)
+
+The verdict sprint. Both remaining money-path gaps closed, and run for the first time.
+
+| Line | Was | Now asserted by |
+|---|---|---|
+| **PY-005** | uncovered, and mis-recorded as deliberate above | `tests/e2e/parity/checkout-declined.spec.ts` — a real Stripe decline card is submitted; the customer is told, the success redirect is never reached, and the fixture still owns nothing afterwards. **First run 2026-09-01** (dispatch 33500462380, 16.8 s) |
+| **PY-006** | uncovered — the fix existed but nothing asserted the one-charge property | `tests/e2e/parity/checkout-declined.spec.ts` — two rapid `/api/checkout` calls must return the **same** session URL, so only one can ever be paid. **First run 2026-09-01** (4.7 s) |
+| PG-002 | 🔴 #4, "blocked on D-3, exactly eight dead links" | **Row now stale in the S4.5c record above and corrected here:** D-3 resolved REMOVE on 2026-09-01 and `24efcb5` deleted all eight. `KNOWN_DEAD` is an empty list, the ratchet asserts it stays empty, and a companion test confirms the practice pages still 404 when requested directly — so "the links are gone" cannot be misread as "the pages were built". **Known issue 4 CLOSED** |
+
+Still without any assertion after S5.1b, and stated plainly rather than left to inference:
+**PR-003** (login throttling — presumed to be Supabase's built-in control, never verified; the
+planned `tests/e2e/protection/` folder was never created) and **IN-004** (whether the three
+Formspree forms actually deliver to the owner's inbox — the posting half is proven by
+`forms/form-proxy.spec.ts`, the delivery half by nothing). Both are owner-verifiable in minutes
+and are listed as post-launch actions in `docs/test-reports/2026-09-01-test-report.md`.
+
 ## Change log
 
 Approved lines are never silently edited. Every later addition or change: [DATE — ID — what changed — re-approved by].
 
 - 2026-08-30 — initial draft from head `ec6c7b7` — awaiting owner approval.
+- 2026-09-01 — S5.1b — **no approved line was edited.** Two coverage records appended (2026-08-31, 2026-08-30 corrections) and two mis-statements in the S4.5c record corrected at source: PY-005's omission from the "deliberately without a spec" list, and PG-002's row still describing the pre-D-3 state. Recorded by Claude Code; the 56 approved lines and their wording are untouched.
