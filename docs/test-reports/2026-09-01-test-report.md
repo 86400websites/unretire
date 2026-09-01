@@ -249,3 +249,10 @@ which are yours and are recorded as decisions rather than as passes.
 
 *Verdict: **GO** · 1 September 2026 · Full-run report: this file · Version tested: `f8702f1`*
 *Test runs: GitHub Actions 33499770687, 33499791411 (214 each) and 33500462380 (221, payments included)*
+
+> **A note for anyone checking this against the code.** Writing this report necessarily adds
+> commits *after* the version it certifies, so the branch tip will not equal `f8702f1` — that is
+> expected, not drift. The rule for verifying it: `git diff --name-only f8702f1..<tip>` must
+> return **only files under `docs/`**. If it ever returns anything else, the code has moved past
+> what was tested and this verdict no longer covers it — re-run the gate rather than trusting
+> this page.
