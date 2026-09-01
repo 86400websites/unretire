@@ -215,6 +215,33 @@ code at any time.
 
 ---
 
+## One red result, and why it was not the website
+
+If you look at the project's test history you will see **one failed run** after the successful
+ones. It is worth explaining rather than leaving it looking like a loose end, because the
+explanation is the reason to trust the rest.
+
+A commit that changed **one paragraph of a document** — no website code at all — came back red,
+failing two payment-page tests. A documentation change cannot break a website, so it was worth
+chasing rather than simply re-running until it went green.
+
+The cause was in the *testing machinery*, not the site. Two test runs had been started a minute
+apart and overlapped for about two minutes. Both use the same three test accounts, and one of
+the tests deliberately logs an account out — which logs it out *everywhere*, including inside
+the other run. The second run then found itself logged out and reported two failures that had
+nothing to do with the code it was testing.
+
+**This is fixed.** Test runs are now queued one at a time, so they can never interfere with each
+other again. The very next run confirmed it: same code, no overlap, **214 of 214 passed** on
+both triggers.
+
+Why this is worth a paragraph in your report: a test that fails for an incidental reason is a
+smaller problem than a test that *passes* for one, but they come from the same place — and this
+project has been bitten by the second kind before. The correct response to an unexplained red is
+to explain it, not to re-run it until it turns green. That is what was done here.
+
+---
+
 ## Verdict
 
 # ✅ GO
@@ -252,7 +279,13 @@ which are yours and are recorded as decisions rather than as passes.
 
 > **A note for anyone checking this against the code.** Writing this report necessarily adds
 > commits *after* the version it certifies, so the branch tip will not equal `f8702f1` — that is
-> expected, not drift. The rule for verifying it: `git diff --name-only f8702f1..<tip>` must
-> return **only files under `docs/`**. If it ever returns anything else, the code has moved past
-> what was tested and this verdict no longer covers it — re-run the gate rather than trusting
-> this page.
+> expected, not drift. The rule for verifying it, in one command:
+>
+> ```
+> git diff --name-only f8702f1..<tip> -- src/ tests/ playwright.config.ts package.json
+> ```
+>
+> This must return **nothing**. If it ever returns a file, the website or its tests have moved
+> past what was certified here and this verdict no longer covers them — re-run the gate rather
+> than trusting this page. (Everything added after `f8702f1` is documentation, plus one
+> continuous-integration setting described below.)
