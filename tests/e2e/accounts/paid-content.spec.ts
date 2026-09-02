@@ -202,4 +202,41 @@ test.describe("AC-011 — an entitled member DOES get the content", () => {
       "an entitled member should receive the paid lesson data",
     ).toBeGreaterThan(0);
   });
+
+  // Regression for the em-dash Content-Disposition crash (S5.1c). Every spec in
+  // this file asserted only the DENIED worksheet paths (403 for anon and for a
+  // signed-in non-buyer), so the entitled success path — the one a paying
+  // customer actually uses — was never exercised, and it 500'd in production:
+  // the approved filenames carry an em-dash (U+2014), the web Headers
+  // constructor rejects any byte > 255, and that throw escaped the route's
+  // try/catch. The launch gate stayed green because nothing here downloaded a
+  // worksheet as a buyer. This test does, for every worksheet key.
+  test("AC-011 the allowed half: a buyer can actually download each worksheet", async ({
+    api,
+  }) => {
+    for (const doc of ["m1-intro", "m1-l1", "m1-l2", "m1-l3"]) {
+      const res = await api.get(`/api/course-worksheet?doc=${doc}`, {
+        failOnStatusCode: false,
+      });
+      expect(
+        res.status(),
+        `worksheet ${doc} must be served to an entitled member, not error`,
+      ).toBe(200);
+      expect(
+        res.headers()["content-type"],
+        `worksheet ${doc} must be a PDF`,
+      ).toContain("application/pdf");
+      // The header that used to crash: it must exist and be a valid, ASCII-safe
+      // value (proof the byte > 255 no longer reaches the response headers).
+      const disposition = res.headers()["content-disposition"] ?? "";
+      expect(disposition, `worksheet ${doc} must carry a filename`).toContain(
+        "filename",
+      );
+      const body = await res.body();
+      expect(
+        body.length,
+        `worksheet ${doc} must return a non-empty PDF`,
+      ).toBeGreaterThan(1000);
+    }
+  });
 });
