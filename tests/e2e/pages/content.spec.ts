@@ -11,23 +11,29 @@ import { test, expect } from "../fixtures";
  * tests/e2e/pages/links-and-copy.spec.ts, together with PG-002 and PG-003.
  */
 
-test("PG-005 — home shows the course and Premium offers at the prices /premium states", async ({
-  page,
-}) => {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  // Both offers appear on the home page at their approved prices.
-  await expect(page.getByText("$99", { exact: false }).first()).toBeVisible();
-  await expect(page.getByText("$199", { exact: false }).first()).toBeVisible();
+test(
+  "PG-005 — home shows the course and Premium offers at the prices /premium states",
+  { tag: "@morning" },
+  async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    // Both offers appear on the home page at their approved prices.
+    await expect(page.getByText("$99", { exact: false }).first()).toBeVisible();
+    await expect(
+      page.getByText("$199", { exact: false }).first(),
+    ).toBeVisible();
 
-  // The same two numbers must appear on /premium. A price that disagrees
-  // between the landing page and the sales page is a conversion defect, and
-  // LAUNCH-CHECKLIST.md:20 requires every exact claim to be identical site-wide.
-  await page.goto("/premium", { waitUntil: "domcontentloaded" });
-  await expect(page.getByText("$199", { exact: false }).first()).toBeVisible();
+    // The same two numbers must appear on /premium. A price that disagrees
+    // between the landing page and the sales page is a conversion defect, and
+    // LAUNCH-CHECKLIST.md:20 requires every exact claim to be identical site-wide.
+    await page.goto("/premium", { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByText("$199", { exact: false }).first(),
+    ).toBeVisible();
 
-  await page.goto("/learn/course", { waitUntil: "domcontentloaded" });
-  await expect(page.getByText("$99", { exact: false }).first()).toBeVisible();
-});
+    await page.goto("/learn/course", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("$99", { exact: false }).first()).toBeVisible();
+  },
+);
 
 test("PG-008 — the blog lists posts and every listed post opens", async ({
   page,
@@ -69,36 +75,39 @@ test("PG-008 — the blog lists posts and every listed post opens", async ({
   expect(broken, "these listed posts do not open").toEqual([]);
 });
 
-test("PG-009 — an unpaid visitor sees ten locked modules and a buy CTA", async ({
-  page,
-}) => {
-  await page.goto("/learn/course");
+test(
+  "PG-009 — an unpaid visitor sees ten locked modules and a buy CTA",
+  { tag: "@morning" },
+  async ({ page }) => {
+    await page.goto("/learn/course");
 
-  const moduleLinks = page.locator('a[href^="/learn/course/module-"]');
-  await expect(
-    moduleLinks.first(),
-    "the curriculum list should render",
-  ).toBeVisible();
-  expect(await moduleLinks.count(), "the course should list ten modules").toBe(
-    10,
-  );
+    const moduleLinks = page.locator('a[href^="/learn/course/module-"]');
+    await expect(
+      moduleLinks.first(),
+      "the curriculum list should render",
+    ).toBeVisible();
+    expect(
+      await moduleLinks.count(),
+      "the course should list ten modules",
+    ).toBe(10);
 
-  // Not signed in and not entitled → every module shows the locked affordance,
-  // never the open-arrow one.
-  await expect(
-    page.locator('svg[aria-label="Locked"]').first(),
-    "modules should show the locked icon to an unpaid visitor",
-  ).toBeVisible();
-  expect(
-    await page.locator('svg[aria-label="Open"]').count(),
-    "no module should show the unlocked icon to an unpaid visitor",
-  ).toBe(0);
+    // Not signed in and not entitled → every module shows the locked affordance,
+    // never the open-arrow one.
+    await expect(
+      page.locator('svg[aria-label="Locked"]').first(),
+      "modules should show the locked icon to an unpaid visitor",
+    ).toBeVisible();
+    expect(
+      await page.locator('svg[aria-label="Open"]').count(),
+      "no module should show the unlocked icon to an unpaid visitor",
+    ).toBe(0);
 
-  // And the page must actually offer the purchase.
-  await expect(
-    page.getByRole("button", { name: /buy the course/i }).first(),
-  ).toBeVisible();
-});
+    // And the page must actually offer the purchase.
+    await expect(
+      page.getByRole("button", { name: /buy the course/i }).first(),
+    ).toBeVisible();
+  },
+);
 
 /**
  * PG-010 — the marketing pages render real content, not scaffolding.

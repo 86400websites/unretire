@@ -21,7 +21,7 @@ function collectErrors(page: Page): string[] {
 
 test(
   "the homepage loads with no errors",
-  { tag: "@smoke" },
+  { tag: ["@smoke", "@morning"] },
   async ({ page }) => {
     const errors = collectErrors(page);
 
