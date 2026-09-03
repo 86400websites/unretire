@@ -24,4 +24,24 @@ jobs:
       - name: Production build succeeds
         run: pnpm build
       - name: No critical known vulnerabilities
-        run: pnpm audit --prod --audit-level=critical
+        # Fails on a critical advisory. Does NOT fail when npm's advisory service is
+        # unreachable — that is an outage, not a finding, and on 2026-09-04 it blocked
+        # every merge in the repo for hours (decision D-39). An unreachable service now
+        # produces a visible ::warning and NO verdict; a real advisory still exits non-zero,
+        # even when retries preceded it.
+        shell: bash
+        run: |
+          set +e
+          pnpm audit --prod --audit-level=critical 2>&1 | tee audit.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -eq 0 ]; then exit 0; fi
+          if grep -qiE "vulnerabilit(y|ies) found|^Severity:" audit.log; then
+            echo "::error title=Critical advisory::pnpm audit found a critical advisory — see the table above."
+            exit "$rc"
+          fi
+          if grep -qE "advisories/bulk|TimeoutError|ETIMEDOUT|ECONNRESET|ENOTFOUND|ERR_PNPM_AUDIT" audit.log; then
+            echo "::warning title=Audit had no verdict::npm's advisory service was unreachable, so this run checked NOTHING for vulnerabilities. Re-run the workflow once the service recovers (D-39)."
+            exit 0
+          fi
+          exit "$rc"

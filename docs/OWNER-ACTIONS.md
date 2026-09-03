@@ -656,7 +656,102 @@ granted) but it is **not a real payment** — no card is charged, so it does not
 
 ---
 
+## PART 8 — 🚀 Launch sprint S5.2 · the morning check and the last checklist lines (added 2026-09-04) · ~15 minutes of clicks + a few decisions
+
+> Everything a builder can do is done in the branch `claude/s5.2-launch` (~~uncommitted until you say so~~
+> **committed and pushed 2026-09-04 on your authorisation**).
+> The site is live and was checked line by line on 3 September — `docs/test-reports/2026-09-03-launch-report.md`
+> is the plain-English write-up. What is left needs **your** hands: a few GitHub clicks, two decisions, and the
+> manual checks only a real person with a real inbox and a real phone can do. **Nothing here is a site defect.**
+>
+> **✅ ANSWERED 2026-09-04 — 8.1 Approved · 8.2 Done · 8.3 Done · 8.4 Yes proceed · 8.5 declined (D-37).**
+> Your words: *"8.1 Approved / 8.2 Done / 8.3 Done / 8.4 Yes proceed / 8.5 No need please - dont want to waste
+> time, if we are all set then lets proceed further no need to fail deliberately at this moment now"*.
+> Items 8.6–8.9 stay open and are not urgent. The one thing still to decide is **D-38**, the independent review
+> — see the note under 8.4.
+
+### 8.1 Approve the seven morning tests · 1 minute
+
+The morning check re-runs these against the live site every day at 07:00 IST and e-mails you only if one fails.
+All seven are read-only — no signup, no purchase, no form, no e-mail. Reply **"approved"**, or strike any you
+do not want:
+
+1. The home page loads with no browser errors (the existing smoke test)
+2. Home, `/premium` and `/learn/course` still show $99 and $199 (PG-005)
+3. A visitor who has not paid sees ten locked modules and a Buy button (PG-009)
+4. The live response carries every required security header (PR-005)
+5. A stranger asking for any worksheet is refused with 403 (AC-012)
+6. `/account` sends a stranger to `/login` (AC-010)
+7. `sitemap.xml`, `robots.txt` and the Google verification file answer on the www host, and nothing says `noindex` (SEO)
+
+- [x] **8.1** Reply in writing: "approved" (or your edits). Your reply is the approval the acceptance criterion requires. — ✅ **"8.1 Approved", 2026-09-04.** All seven, unedited. That is the written owner approval the S5.2 acceptance criterion requires, and it is what makes the set "owner-approved" in `docs/FEATURE-LIST.md`.
+
+### 8.2 Two repository variables · 2 minutes · no secrets
+
+GitHub → the `unretire` repo → **Settings → Secrets and variables → Actions → Variables** tab → **New repository variable**:
+
+- [x] **8.2a** Name `PRODUCTION_URL` · Value `https://www.unretireproject.com` (exactly that — no trailing slash; the harness accepts no other host for a morning run) — ✅ done 2026-09-04, and **verified from the GitHub API**: the stored value is an exact match, so `resolveTarget()` accepts it. Simulated with the real value under `E2E_MORNING=1 CI=1`: target accepted, 14 tests select.
+- [x] **8.2b** Name `MORNING_CHECK_ENABLED` · Value `true` — ✅ done 2026-09-04, verified from the API.
+
+That is all. No test account, no password, no secret — the seven tests are anonymous by design, so the template's
+`MORNING_TEST_EMAIL` / `MORNING_TEST_PASSWORD` secrets are **not** needed and are not referenced by the workflow.
+
+### 8.3 Make sure the failure e-mail can reach you · 1 minute
+
+- [x] **8.3** GitHub → your avatar → **Settings → Notifications → Actions**: tick **"Only notify for failed workflows"** and make sure e-mail is a channel. — ✅ done 2026-09-04 (owner-confirmed). Note that this is the *setting*; whether an e-mail actually lands is what 8.5 would have proven, and 8.5 was declined — see **D-37**.
+
+### 8.4 Authorise the branch · then I do the rest
+
+- [x] **8.4** Reply **"Commit: YES, Push: YES for `claude/s5.2-launch`"**. I then commit, push, open the PR, dispatch **Morning Check** from the branch (Actions → Morning Check → Run workflow → branch `claude/s5.2-launch`; expect 14 passed), pin the review brief to the head, and hand you the review prompt. You merge on APPROVE; the schedule then fires at 01:30 UTC (07:00 IST) and I report the first scheduled run — that closes S5.2 and the five-stage plan. — ✅ **"8.4 Yes proceed", 2026-09-04.** Committed and pushed; PR open.
+
+> **One correction you should have before you merge — decision D-38.** You asked whether the independent
+> review can be skipped "since we did not changed anything in codes". Not quite: this branch changes **no
+> `src/` file**, so no page, route or behaviour a visitor can reach is touched — but it is **not**
+> documentation-only. It rewrites the test harness's target rule, adds three test files, and changes a CI
+> workflow. That rule is the thing that decides **where the Vercel bypass secret may be sent**, and the
+> workflow is a scheduled job that will hit the live site every day. Skipping the review is your call and
+> there is precedent for it (S5.1a was waived for a zero-`src/` branch; D-31 waived S4.5c), but if you do,
+> it gets recorded as a **waiver**, not as a passed review. My recommendation is to run it: the brief is
+> already written, and the last two reviews each caught something I had missed.
+
+### ~~8.5 Verify the failure e-mail once · after merge · 3 minutes~~ — DECLINED 2026-09-04 (D-37)
+
+~~An alert channel that has never fired is the same as no alert channel. The safe way to test it needs no code change:~~
+
+- [ ] ~~**8.5a** Temporarily set `PRODUCTION_URL` to `https://unretireproject.com` (the apex — the harness refuses it), run **Morning Check** manually from the Actions tab, and watch it go red.~~
+- [ ] ~~**8.5b** Confirm the failure e-mail arrived, then set `PRODUCTION_URL` back to `https://www.unretireproject.com` and run it once more — green.~~
+
+**Your call, recorded as D-37:** *"no need to fail deliberately at this moment now"*. What that means in
+practice, stated plainly rather than buried: the whole design is **silence means green**, so if the
+notification does not actually reach you, a genuine failure looks exactly like a healthy day. You have set the
+setting (8.3), you can see every run in the Actions tab, and the two-minute test stays available in
+`docs/POST-LAUNCH-BACKLOG.md` whenever you want it. Revisit the moment a run goes red and no e-mail arrives.
+
+### 8.6 Two decisions to record · `docs/PROJECT-STATUS.md` §8
+
+- [ ] **8.6a — D-35 · the one number that means "this worked".** My proposal: *paid enrollments per month* (course + Premium), read from the live Stripe dashboard and cross-checked as active rows in the `entitlements` table. You add the target and the window. Accept, or name your own.
+- [ ] **8.6b — D-36 · six pre-launch lines that are open, none a site defect** (each is also a Parked row in `docs/POST-LAUNCH-BACKLOG.md`): (a) the QA checklist was never run in full on `master`; (b) no database-restore rehearsal was ever done; (c) images/alt text not audited; (d) page speed not measured; (e) no uptime monitor and no recorded domain-renewal alert; (f) whether the YouTube embeds need a cookie-consent gate for your audience. For each: **accept for now** (I record the date), or **schedule** (a/c/d = Sprint S4.1; b/e = a small ops sprint; f = your call).
+
+### 8.7 The manual checks only you can do · when convenient
+
+- [ ] **8.7a** Send one real message through the contact form from an **outside** address; confirm it lands in your inbox (not spam) **and** in the Formspree dashboard (IN-004 / MN-002).
+- [ ] **8.7b** On the live site: request a password reset for your account and confirm the link in the e-mail starts with `https://www.unretireproject.com/` (mind the 2-per-hour cap, D-33).
+- [ ] **8.7c** Phone pass: home, `/learn/course`, and one blog article on your iPhone — anything off?
+- [ ] **8.7d** Tell me whether the 2 September **Course** purchase was a real $99 charge (charge ID from the Stripe dashboard) — that satisfies the "one real non-zero purchase" line; if both were $0 codes, the line stays open until a $1-and-refund test.
+- [ ] **8.7e** Stripe live dashboard: `charges_enabled` / `payouts_enabled` on, nothing in "requirements due", payout bank verified; and on the `brilliant-splendor` webhook, both `checkout.session.completed` and `customer.subscription.deleted` ticked.
+- [ ] **8.7f** One real `/assess` (Wheel of Life) submission from your own address, then check in Mailchimp that the scores landed in the merge fields and the `wheel-of-life` tag started the journey (Known issue 53); archive the contact afterwards.
+- [ ] **8.7g** The client's written launch sign-off, dated — or confirm that your 1 September instruction stands as it.
+
+### 8.8 Housekeeping
+
+- [ ] **8.8** **Pull request #30** (`feat/live-9` → `master`, title "description") is open with **zero files changed**. Close it, or tell me what it is for.
+- [ ] **8.9** Known issue 59: apply the `FREE` code on the **Course** checkout once (no need to complete) and tell me whether Stripe accepts it — MN-003 depends on it.
+
+---
+
 ## What I need back from you
+
+*(Updated 2026-09-04 — **the current asks are Part 8.1–8.4 above** (the morning check and the branch), then 8.5–8.9 when convenient. Earlier, retained:)*
 
 *(The original four asks are all received — struck for the record. Current asks, updated 2026-08-28 — **Part 6
 items 6.1–6.4 first**, then the Commit/Push decision for `claude/s2.5-environment-parity`; earlier list retained:)*

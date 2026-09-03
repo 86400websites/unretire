@@ -31,37 +31,39 @@ const REQUIRED_CSP_DIRECTIVES = [
   "form-action 'self'",
 ];
 
-test("PR-005 — the deployed response carries every required security header", async ({
-  page,
-}) => {
-  const response = await page.goto("/");
-  expect(response, "the home page must respond").not.toBeNull();
-  const headers = response!.headers();
+test(
+  "PR-005 — the deployed response carries every required security header",
+  { tag: "@morning" },
+  async ({ page }) => {
+    const response = await page.goto("/");
+    expect(response, "the home page must respond").not.toBeNull();
+    const headers = response!.headers();
 
-  // Present, and with the value §6 names — not merely present.
-  expect(headers["x-content-type-options"]).toBe("nosniff");
-  expect(headers["x-frame-options"]?.toUpperCase()).toMatch(
-    /^(DENY|SAMEORIGIN)$/,
-  );
-  expect(
-    headers["referrer-policy"],
-    "a referrer policy that leaks the full URL cross-origin is not a policy",
-  ).toMatch(/no-referrer|same-origin|strict-origin/);
+    // Present, and with the value §6 names — not merely present.
+    expect(headers["x-content-type-options"]).toBe("nosniff");
+    expect(headers["x-frame-options"]?.toUpperCase()).toMatch(
+      /^(DENY|SAMEORIGIN)$/,
+    );
+    expect(
+      headers["referrer-policy"],
+      "a referrer policy that leaks the full URL cross-origin is not a policy",
+    ).toMatch(/no-referrer|same-origin|strict-origin/);
 
-  // Permissions-Policy must actually deny something; an empty header is a
-  // header, not a control.
-  expect(
-    headers["permissions-policy"],
-    "Permissions-Policy is missing",
-  ).toBeTruthy();
-  expect(headers["permissions-policy"]).toMatch(/=\(\)/);
+    // Permissions-Policy must actually deny something; an empty header is a
+    // header, not a control.
+    expect(
+      headers["permissions-policy"],
+      "Permissions-Policy is missing",
+    ).toBeTruthy();
+    expect(headers["permissions-policy"]).toMatch(/=\(\)/);
 
-  const csp = headers["content-security-policy"];
-  expect(csp, "Content-Security-Policy is missing").toBeTruthy();
-  for (const directive of REQUIRED_CSP_DIRECTIVES) {
-    expect(csp, `CSP is missing "${directive}"`).toContain(directive);
-  }
-});
+    const csp = headers["content-security-policy"];
+    expect(csp, "Content-Security-Policy is missing").toBeTruthy();
+    for (const directive of REQUIRED_CSP_DIRECTIVES) {
+      expect(csp, `CSP is missing "${directive}"`).toContain(directive);
+    }
+  },
+);
 
 test("PR-005 — the policy allows only origins this site actually loads", async ({
   page,
@@ -104,11 +106,11 @@ test("PR-005 — the policy allows only origins this site actually loads", async
   ).not.toContain("formspree");
 
   // vercel.live is a build-time tool, permitted on preview builds only. The
-  // deployment under test IS a preview (playwright.config.ts refuses any other
-  // target), so its presence here is expected and its absence in Production is
-  // asserted by the production probe recorded in PROJECT-STATUS §6 — a spec
-  // cannot check Production because the harness must never point at it.
-  expect(baseURL, "the harness must only ever target a preview host").toMatch(
+  // deployment under test IS a preview or a local build: the harness points at
+  // Production only in the S5.2 morning lane, and this test is deliberately not
+  // in that lane (its allow-list names preview-only origins). Its absence in
+  // Production is asserted by the production probe recorded in PROJECT-STATUS §6.
+  expect(baseURL, "this test never runs against the production host").toMatch(
     /vercel\.app|localhost|127\.0\.0\.1/,
   );
 });

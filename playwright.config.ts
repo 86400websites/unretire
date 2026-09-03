@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveTarget } from "./tests/e2e/helpers/target";
 
 /**
  * (Un)Retire — Playwright harness (Sprint S2.3).
@@ -8,55 +9,23 @@ import { defineConfig, devices } from "@playwright/test";
  * GitHub's Deployments API — a deployment of a named commit whose environment
  * starts with "Preview" — because a Vercel hostname alone cannot prove
  * "Preview" (a Production deployment shares the unretire-<hash>-… shape).
- * The check below is therefore a coarse guard, not a Preview proof: it keeps
- * a bypass-bearing run off third-party hosts, the custom Production domain
- * and the production-branch alias, and allows plain http://localhost only
- * for a credential-free local self-check. When VERCEL_AUTOMATION_BYPASS_SECRET
- * is present (GitHub Actions secrets only — never a local file) it is attached
- * only to same-origin requests by tests/e2e/fixtures.ts — never context-wide.
+ * The target check (tests/e2e/helpers/target.ts, asserted by
+ * tests/e2e/security/target-guard.spec.ts) is therefore a coarse guard, not a
+ * Preview proof: it keeps a bypass-bearing run off third-party hosts, the
+ * custom Production domain and the production-branch alias, and allows plain
+ * http://localhost only for a credential-free local self-check. Since S5.2 it
+ * admits ONE more target — https://www.unretireproject.com, for the daily
+ * `@morning` check (E2E_MORNING=1, set only by
+ * .github/workflows/morning-check.yml) — and only while no bypass secret is
+ * present. When VERCEL_AUTOMATION_BYPASS_SECRET is present (GitHub Actions
+ * secrets only — never a local file) it is attached only to same-origin
+ * requests by tests/e2e/fixtures.ts — never context-wide.
  * Values are read from process.env by name and the specs never log, title or
  * report them. Playwright's OWN step titles do include typed values
  * (`Fill "<value>"`), and the HTML reporter embeds those titles for passing tests
  * — which is why the workflow never uploads playwright-report/ (S2.5, Known
  * issue 51); the local report is gitignored.
  */
-
-const PROJECT_HOST = /^unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$/;
-// The production branch's alias shares the project-host shape; refuse it outright.
-const PRODUCTION_BRANCH_ALIAS = /^unretire-git-master-/;
-const LOCAL_HOST = /^(localhost|127\.0\.0\.1)$/;
-
-function resolveTarget(raw: string | undefined, bypassPresent: boolean) {
-  if (!raw) {
-    throw new Error(
-      "PLAYWRIGHT_BASE_URL is not set. In CI the E2E — Preview workflow resolves it " +
-        "from GitHub's Deployments API; locally use http://localhost:3000 for a self-check.",
-    );
-  }
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new Error(`PLAYWRIGHT_BASE_URL is not an absolute URL: ${raw}`);
-  }
-  const isProjectHost =
-    url.protocol === "https:" &&
-    PROJECT_HOST.test(url.hostname) &&
-    !PRODUCTION_BRANCH_ALIAS.test(url.hostname);
-  const isLocal = url.protocol === "http:" && LOCAL_HOST.test(url.hostname);
-  if (bypassPresent ? !isProjectHost : !(isProjectHost || isLocal)) {
-    throw new Error(
-      `Refusing to test ${url.origin}: the harness only targets this project's ` +
-        "Vercel hosts (https://unretire-*-86400-s-projects.vercel.app, never the " +
-        "production-branch alias)" +
-        (bypassPresent
-          ? " while a bypass secret is present — the secret must never be sent anywhere else."
-          : ", or http://localhost for a local self-check. Production is never a target."),
-    );
-  }
-  // Origin only: no path or query can ride along into every request.
-  return url.origin;
-}
 
 // Playwright attaches a failure-time ARIA snapshot of the page (error-context.md)
 // that renders form field values — including a filled password field. This is
@@ -68,7 +37,13 @@ if (!process.env.PLAYWRIGHT_NO_COPY_PROMPT) {
 }
 
 const bypassPresent = Boolean(process.env.VERCEL_AUTOMATION_BYPASS_SECRET);
-const baseURL = resolveTarget(process.env.PLAYWRIGHT_BASE_URL, bypassPresent);
+// S5.2: the daily read-only check against Production. Set by the morning
+// workflow only; it unlocks the production host and nothing else.
+const morningRun = process.env.E2E_MORNING === "1";
+const baseURL = resolveTarget(process.env.PLAYWRIGHT_BASE_URL, {
+  bypassPresent,
+  morningRun,
+});
 
 const desktop = devices["Desktop Chrome"];
 
@@ -216,11 +191,33 @@ const rolesEnabled = Boolean(process.env.E2E_FIXTURE_PASSWORD);
  * is fine locally, where a credential-free self-check is the whole point, and
  * it is never acceptable in CI, where the secrets are supposed to be present.
  */
-if (process.env.CI && !rolesEnabled) {
+if (process.env.CI && !rolesEnabled && !morningRun) {
   throw new Error(
     "E2E_FIXTURE_PASSWORD is not set in CI, so the role, payment and logout " +
       "projects would be skipped and the run would report green having never " +
       "asserted a single access boundary. Refusing to run a partial suite.",
+  );
+}
+
+/**
+ * The morning check (S5.2) is the one run that is MEANT to be partial: the
+ * owner-approved `@morning` subset — anonymous and read-only — against
+ * Production, where no fixture account exists because the fixtures live in
+ * unretire-test. So E2E_MORNING=1 is exempt from the guard above, and carries
+ * the opposite one: it must hold no secret at all. A morning run that finds
+ * the fixture password, the parity switch or the bypass secret in its
+ * environment is a workflow misconfiguration that would type test-project
+ * credentials into the live site, and it refuses to start. (The target check
+ * already refuses Production while a bypass is present; this closes the other
+ * two.) The selection itself cannot be empty: Playwright exits 1 on "No tests
+ * found", and `pnpm exec playwright test --grep "@morning" --list` is the
+ * proof of what it holds.
+ */
+if (morningRun && (rolesEnabled || parityEnabled || bypassPresent)) {
+  throw new Error(
+    "E2E_MORNING=1 is the read-only daily check against Production and must " +
+      "carry no secret: unset VERCEL_AUTOMATION_BYPASS_SECRET, E2E_FIXTURE_PASSWORD " +
+      "and E2E_PARITY. Refusing to run.",
   );
 }
 
