@@ -9,13 +9,15 @@ export const metadata = {
 };
 
 export default function BlogPage() {
-  const cards = articles.map(({ slug, title, excerpt, category, readingMinutes }) => ({
-    slug,
-    title,
-    excerpt,
-    category,
-    readingMinutes,
-  }));
+  const cards = articles.map(
+    ({ slug, title, excerpt, category, readingMinutes }) => ({
+      slug,
+      title,
+      excerpt,
+      category,
+      readingMinutes,
+    }),
+  );
 
   return (
     <>
@@ -28,8 +30,9 @@ export default function BlogPage() {
           </h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
           <p className="lede max-w-[58ch] mx-auto">
-            Brief, practical essays you can read in five minutes and use the same day. One idea, one
-            story, one small move — drawn from the framework and from life.
+            Brief, practical essays you can read in five minutes and use the
+            same day. One idea, one story, one small move — drawn from the
+            framework and from life.
           </p>
         </div>
       </section>

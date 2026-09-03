@@ -1,6 +1,6 @@
 # Launch Checklist
 
-Three phases that take (Un)Retire from "feature-complete" to "live on `https://unretireproject.com` (D-2 resolved 2026-08-25) and verified".
+Three phases that take (Un)Retire from "feature-complete" to "live on `https://www.unretireproject.com` (D-2 resolved 2026-08-25; amended 2026-08-27 — canonical is the www host, apex redirects to it) and verified".
 Launch is a checklist, not an event — nothing goes live on a feeling.
 
 ---
@@ -60,15 +60,15 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
 
 ## Phase 2 — LAUNCH DAY
 
-- [ ] Connect `unretireproject.com` (registrar: GoDaddy, where DNS is parked today — Known issue 27) to `Vercel`; add only the provider-specified DNS records.
+- [x] Connect `unretireproject.com` (registrar: GoDaddy; ~~where DNS is parked today — Known issue 27~~ DNS live on Vercel since 2026-08-27 — Known issue 27 resolved) to `Vercel`; add only the provider-specified DNS records. — done 2026-08-27: `https://www.unretireproject.com` serves the app; apex 308-redirects to www.
 - [ ] Email-based conversions: add the sending domain's **SPF, DKIM, and DMARC** DNS records alongside the host records.
-- [ ] Wait for DNS to propagate and SSL to issue — the padlock must be valid before you announce anything.
-- [ ] Decide www vs apex as canonical; configure the other to 301-redirect to it.
-- [ ] Update the site-URL env var in Production to the real domain, then redeploy
-      (env changes do not take effect without a redeploy).
-- [ ] If auth is in use: add the new domain to the auth provider's redirect allow-list —
-      KEEP the old domain listed for a grace period so existing email links still resolve.
-- [ ] Verify security headers on the LIVE domain response (`curl -I https://unretireproject.com`) —
+- [x] Wait for DNS to propagate and SSL to issue — the padlock must be valid before you announce anything. — done 2026-08-27: `https://www.unretireproject.com` serves over HTTPS (HTTP 200, `Server: Vercel`).
+- [x] Decide www vs apex as canonical; configure the other to 301-redirect to it. — decided 2026-08-27: canonical = `www`; the apex 308-redirects to it (D-2 amended).
+- [x] Update the site-URL env var in Production to the real domain, then redeploy
+      (env changes do not take effect without a redeploy). — done 2026-08-27 (OWNER-ACTIONS Part 4B L1 + L4; the served `og:url` is `https://www.unretireproject.com`, no trailing slash).
+- [x] If auth is in use: add the new domain to the auth provider's redirect allow-list —
+      KEEP the old domain listed for a grace period so existing email links still resolve. — `www` and apex entries present since 2026-08-25; Site URL moved to `www` 2026-08-27 (Part 4B L2); `unretire.vercel.app/**` kept as the grace-period entry. *(The delivered-email proof that links land on `www` is still owed — S2.5.)*
+- [ ] Verify security headers on the LIVE domain response (`curl -I https://www.unretireproject.com`) —
       config reading is not deployed reality. ⚠ Requires Known issue 46 (no headers configured yet) to be
       closed first — S4.5.
 
@@ -76,7 +76,7 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
 
 ## Phase 3 — POST-LAUNCH SMOKE TEST (on the real domain, same day)
 
-- [ ] Every page loads over https on `https://unretireproject.com` — click through the full sitemap.
+- [ ] Every page loads over https on `https://www.unretireproject.com` — click through the full sitemap.
 - [ ] Primary conversion flow end-to-end as a real visitor: form validates, submits, confirmation shows.
 - [ ] Forms actually deliver: send a REAL test submission from an **external** address and confirm it arrives **in the inbox (not spam)** AND that the **second capture path** also recorded it.
 - [ ] Mobile pass on a real phone: home, conversion page, one deep page.
@@ -84,7 +84,36 @@ Launch is a checklist, not an event — nothing goes live on a feeling.
 - [ ] Relaunch only: spot-check the **301/410 redirect map** on the live domain — the top old URLs land on their new destinations, never a bare 404.
 - [ ] Search console: property added, ownership verified, sitemap submitted.
 - [ ] No accidental `noindex` anywhere — check the live HTML head and response headers.
-- [ ] Auth (if in use): sign up / sign in / reset on the live domain; email links land on `https://unretireproject.com`.
+- [ ] Auth (if in use): sign up / sign in / reset on the live domain; email links land on `https://www.unretireproject.com`.
+
+### Parity residuals — what no Preview can prove (`docs/ENVIRONMENT-PARITY.md` §6 / §7; added by S2.5, 2026-08-28)
+
+A green Preview suite proves the application logic and the wiring of the test-mode dependencies. Each line below
+covers something only the real site can show; none may be ticked from a Preview result.
+
+- [ ] **One real purchase at a NON-ZERO amount** — a temporary $1 price, a real card, refunded afterwards — confirmed by
+      a success in the **live** Stripe dashboard **and** the `entitlements` row appearing in `unretire-prod` **and** the
+      member reaching the content. A 100%-off code does **not** satisfy this line: it skips the card, 3-D Secure,
+      capture and payout entirely, and for Premium collects no payment method at all (§6 C14; §9 row 3).
+- [ ] **Live Stripe account readiness** (§6 C15), dated by the owner: `charges_enabled` = true, `payouts_enabled` =
+      true, `requirements.currently_due` empty, a verified payout destination, business/tax details complete.
+- [ ] **Live webhook endpoint read off the dashboard** (§6 C16): `brilliant-splendor`'s URL is
+      `https://www.unretireproject.com/api/stripe/webhook`, **both** `checkout.session.completed` and
+      `customer.subscription.deleted` are subscribed, and its API version is recorded.
+- [ ] **One real `/assess` submission, end to end** (Known issue 53; added by S2.5 Round 2, 2026-08-30) — the
+      audience's thirteen merge tags are proven to **exist** (ENVIRONMENT-PARITY §5.4, verbatim owner read), but no
+      test posts them: submit the Wheel of Life once, then confirm in Mailchimp that `WEAKEST`, `WEAKLOW`,
+      `BRIGHTEST`, `SCORE` and all eight `S_*` fields hold the submitted values and that the `wheel-of-life` tag
+      started the intended Customer Journey. `/api/subscribe` swallows a failed tag call, so a silent no-op here
+      is invisible from the response.
+- [ ] **Prod-vs-test schema and policy diff re-run and empty** (proof P8, §5.6) — the committed
+      `supabase/migrations/` files are the intent; the diff is the proof both databases still match them.
+- [ ] **Production has no deployment protection; Preview does** (proof P10): `https://www.unretireproject.com` answers
+      200 with no bypass; a Preview URL without the bypass does not.
+- [ ] **Auth smoke on the real domain** (§6 C6): sign in, sign out, the session survives a refresh, and a password reset
+      requested on the live site resolves to `https://www.unretireproject.com/…` (proof P13's email half).
+- [ ] **Manual bot-check negative on Production** once abuse controls exist (§6 C10; S4.5): the real widget rejects a
+      scripted submission, and the server-side verification-failure path fails closed.
 
 ### The 48-hour watch
 - [ ] Monitor errors (host logs / error tracker) and form deliveries for 48 hours.

@@ -7,7 +7,7 @@ description: Launch Gate operator for (Un)Retire. Use to build and run the whole
 
 You are the **Launch Gate operator**. You prove, with evidence, that every feature of this site works before launch — and you speak to the owner only in plain English. The owner never reads code, logs, or stack traces; you translate everything.
 
-This skill uses **Playwright the test framework**, installed in this repo as a dev dependency (`tests/e2e/`). It is not the global Playwright MCP / Agent Browser from `docs/BROWSER-TOOLS.md` — those remain the exploratory/visual tools for `/browser-qa`. This suite is the permanent, versioned test asset of the repo.
+This skill uses **Playwright the test framework** — installed as a dev dependency, with its `tests/e2e/` directory, by **Sprint S2.3 (this skill's Phase 0)**; neither exists in the repo until that sprint lands (wording corrected 2026-08-27, stage-gate Round 6 Finding 2). It is not the global Playwright MCP / Agent Browser from `docs/BROWSER-TOOLS.md` — those remain the exploratory/visual tools for `/browser-qa`. Once installed, this suite is the permanent, versioned test asset of the repo.
 
 Read, don't restate — these bind every phase:
 - `docs/testing-setup/TESTING-GUIDE.md` — the promises made to the owner. Never break them.

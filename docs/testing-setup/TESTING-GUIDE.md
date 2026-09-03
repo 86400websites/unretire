@@ -1,5 +1,23 @@
 # Testing Guide — How the Launch Gate Works
 
+> ## ⚠ (Un)Retire project state — added 2026-08-27 (Sprint S1.6); the SOP body below is unchanged
+>
+> This guide is the Website-Development-System SOP copy, written in the present tense for a site whose
+> Launch Gate is already installed. **In this repository it is not installed yet.** Read every
+> present-tense sentence below — above all *"Playwright here is the permanent test suite that lives in
+> the repo forever"* — as describing the state **after Sprint S2.3**:
+>
+> | Piece | State today (2026-08-27) |
+> |---|---|
+> | `@playwright/test` dev dependency + `playwright.config` | ~~**Do not exist** — installed by **S2.3**~~ **Landed 2026-08-28 in Sprint S2.3** (`@playwright/test` 1.62.1, `playwright.config.ts`) — on `master` since PR #16 merged 2026-08-28 (Codex APPROVE at `b54c776`) |
+> | `tests/e2e/` and any spec in it | ~~**Does not exist** — created by **S2.3**~~ **Landed 2026-08-28 in S2.3**: one `@smoke` homepage spec + three auth-setup projects + a shared fixture that scopes the bypass header (same status) |
+> | `docs/FEATURE-LIST.md` | **Does not exist** — produced by **S5.1** (`/activate-testing` Phase 1, owner-approved) |
+> | `.github/workflows/morning-check.yml` | ~~**Does not exist** — added **disabled** in S2.3~~ **Added DISABLED 2026-08-28 in S2.3** (schedule commented out + guarded by the `MORNING_CHECK_ENABLED` variable), enabled only in **S5.2** |
+> | Any automated test run / GO verdict | **None yet** — the first full run is **S5.1** *(S2.3's smoke passed on the deployed Preview on 2026-08-28 — PR #16, head `8111884` — and locally 2/2; a smoke is not a GO)* |
+>
+> Nothing in this repo may cite a passing test, a spec file, or a GO verdict until those sprints land.
+> The gates that *are* live today are the independent Codex review and hand-run local checks.
+
 Written for the owner. No jargon survives past this line without being explained.
 
 ---

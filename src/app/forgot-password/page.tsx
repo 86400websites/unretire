@@ -14,7 +14,8 @@ export default function ForgotPasswordPage() {
           <h1 className="text-3xl sm:text-4xl">Reset your password</h1>
           <span className="rule mt-6 mx-auto" aria-hidden="true" />
           <p className="lede mt-6">
-            Enter your email and we&apos;ll send you a link to set a new password.
+            Enter your email and we&apos;ll send you a link to set a new
+            password.
           </p>
         </div>
         <div className="card p-8 sm:p-10">

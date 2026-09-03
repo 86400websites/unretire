@@ -11,16 +11,17 @@ env inlining, auth origins, and integrations all behave differently deployed.
 ## Part 1 — LOCAL (before opening the PR)
 
 ### Build health
-- [ ] Typecheck passes: `pnpm exec tsc --noEmit`.
+- [ ] Typecheck passes: ~~`pnpm exec tsc --noEmit`~~ `pnpm typecheck` (2026-08-27, S2.1 — `pnpm exec tsc --noEmit` remains equivalent; the script is canonical).
 - [ ] Lint passes: `pnpm lint`.
+- [ ] Format passes: `pnpm format:check` (added 2026-08-27, S2.1).
 - [ ] Tests pass: N/A — no automated suite yet. This project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module (Sprint S2.3 setup, then /activate-testing) (state the reason for N/A).
 - [ ] Production build passes: `pnpm build` — do not skip it because dev "looks fine".
-- [ ] These are the same checks the **Code Check** enforces on the PR (`docs/TECHNICAL-INTEGRITY.md`); a green Code Check on the current head satisfies the boxes above — and red never merges.
+- [ ] These are the same checks the **Code Check** enforces on the PR (`docs/TECHNICAL-INTEGRITY.md`); a green Code Check on the current head satisfies the boxes above — and **red never merges: the check has been a Required status on `master` since 2026-08-27**. ~~⚠ **Not live until Sprint S2.1** (the workflow file does not exist yet): until then, tick these boxes only from **hand-run** local checks whose exact results are recorded in the sprint record.~~ **2026-08-27:** the workflow is installed by Sprint S2.1 and runs on every PR from its merge; ~~the required-status check on `master` (the "red never merges" half) is an **owner action, pending** — until it is recorded a red PR can still be merged by hand~~ **the required-status check on `master` was enabled by the owner 2026-08-27** **— done 2026-08-27 and verified from the GitHub API: the `master` ruleset requires the check `code-check` (`strict: false`), and it passed on PR #12. Red cannot reach `master`.** Tick these boxes from the green Code Check, and from **hand-run** local checks whose exact results are recorded in the sprint record where it did not.
 
 ### Automated tests (proportional to the change)
 - [ ] If the project has no automated suite, record the architecture-approved reason and the manual coverage used; do not silently skip behavior checks. **"No suite" is permitted only for a fully static site** — a project with auth, gated content, a database, or payments must have an automated suite (this is a blocking gate, not a preference).
 - [ ] New or changed behavior has regression coverage at the right layer: unit for logic, integration for handlers/data, and end-to-end for critical user flows.
-- [ ] The standard end-to-end suite is the Launch Gate's whole-site suite (`docs/testing-setup/`, specs in `tests/e2e/`): sprints extend it — new features get new feature-list lines and specs there, and `/handle-error` regression tests land there too.
+- [ ] The standard end-to-end suite is the Launch Gate's whole-site suite (`docs/testing-setup/`, specs in `tests/e2e/`): sprints extend it — new features get new feature-list lines and specs there, and `/handle-error` regression tests land there too. ⚠ **`tests/e2e/` does not exist yet**: the Playwright harness arrives in Sprint **S2.3** and the suite itself in **S5.1**. Until S2.3 there is nothing to extend — record the intended spec in the sprint record instead, and mark this box N/A with that reason.
 - [ ] 🔴 Auth, access, or database changes test both allowed **and denied** states for every affected role — at least one denied-state assertion per protected boundary. Manual Preview clicking is not a substitute for an automated denied-state test on an authorization boundary.
 
 ### Every touched page

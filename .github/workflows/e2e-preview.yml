@@ -1,0 +1,183 @@
+name: E2E — Preview
+# Runs the Playwright suite against a deployed Vercel Preview (Sprint S2.3, decision D-23).
+# This is the ONLY surface that holds the Protection Bypass secret and the fixture
+# credentials — as GitHub Actions secrets, referenced by name. It is not a required
+# status on `master`; the Code Check remains the only required check.
+#
+# Three ways in, ONE way to a URL: no trigger accepts a URL. Each trigger names a
+# commit SHA, and the job resolves that commit's Vercel deployment through GitHub's
+# Deployments API, accepting only a deployment whose environment starts with
+# "Preview" and whose latest status is "success" — then tests its recorded
+# environment_url. A Vercel hostname cannot prove "Preview" (Production deployments
+# share the unretire-<hash>-…vercel.app shape), so the environment recorded by
+# GitHub is the authority (Round-2 review, Finding 1).
+#   - pull_request     — the PR's own check; SHA = the PR head. Re-runs on every push.
+#   - workflow_dispatch — manual; input = a full commit SHA (the button appears only
+#                        once this file is on the default branch).
+#   - deployment_status — automatic on a successful Preview deployment; SHA = the
+#                        deployed commit.
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Full 40-character commit SHA whose Vercel PREVIEW deployment to test (copy it from the PR's commit list)"
+        required: true
+        type: string
+      parity:
+        description: "Also run the S2.5 parity specs (tests/e2e/parity/) — they create a signup in unretire-test, two Stripe SANDBOX payments and ONE contact in the live Mailchimp audience (D-22/D-25). Manual runs only."
+        required: false
+        default: "off"
+        type: choice
+        options:
+          - "off"
+          - "on"
+  deployment_status:
+permissions:
+  contents: read
+  deployments: read
+concurrency:
+  # ONE LANE FOR EVERY RUN, because there is only ONE set of fixture accounts.
+  #
+  # The resource this protects is not a commit — it is the three shared fixture
+  # accounts in `unretire-test`. AC-002 signs one out, and
+  # `supabase.auth.signOut()` (src/app/auth/actions.ts:178) takes the library's
+  # default `global` scope, which revokes that user's session EVERYWHERE. So any
+  # two runs that overlap can sign each other out mid-test, whatever commit they
+  # are testing.
+  #
+  # History, because this key has now been wrong twice in the same way:
+  #   1. Originally it fell back to `github.run_id` for non-PR events, so the
+  #      `pull_request` and `deployment_status` runs of the SAME commit landed in
+  #      different groups and raced. PR #20, 2026-08-30: run #96 was 105/1 while
+  #      its twin #97 was 104/2. S5.1a keyed the group on the SHA to fix it.
+  #   2. Keying on the SHA fixed same-commit races and left DIFFERENT-commit races
+  #      wide open. Two commits pushed a minute apart start two runs in two groups,
+  #      and they overlap. Observed in S5.1b, 2026-09-01: run 33501412653
+  #      (`3ddc78a`, 11:13:58–11:16:55) overlapped run 33501489016 (`84372f0`,
+  #      11:14:51–11:18:00) for two minutes; the second failed PY-003 and PY-004
+  #      because its signed-in fixture had been signed out by the first. The two
+  #      commits differed by one markdown paragraph — the site could not have
+  #      caused it.
+  #
+  # The general fix is to name the RESOURCE rather than the run: one static group,
+  # so every run of this workflow queues behind every other. `cancel-in-progress:
+  # false` makes them queue rather than cancel — a cancelled run leaves a grey
+  # check beside a green one, which reads as a problem when it isn't. The suite
+  # takes ~2 minutes, so serialising costs little and buys a result that cannot be
+  # corrupted by whatever else happens to be running.
+  #
+  # This deliberately puts a `parity: on` dispatch in the SAME lane. The previous
+  # comment gave parity its own lane so it would never be "queued behind, or
+  # interleaved with, an ordinary run" — but a separate lane is what PERMITS
+  # interleaving; queueing is what prevents it. A parity run buys real products
+  # and rewrites the fixtures' entitlements, so it is the run that least tolerates
+  # a neighbour.
+  group: e2e-preview-fixtures
+  cancel-in-progress: false
+jobs:
+  e2e-preview:
+    # PR and manual runs always; deployment_status runs only for a SUCCESSFUL Preview
+    # deployment — never Production.
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' &&
+       startsWith(github.event.deployment_status.environment, 'Preview'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Test the harness at the exact commit that was deployed.
+          ref: ${{ github.event.pull_request.head.sha || github.event.deployment.sha || inputs.sha || github.sha }}
+      - name: Resolve the deployed Preview URL from GitHub's Deployments API
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_SHA: ${{ inputs.sha }}
+          EVENT_SHA: ${{ github.event.deployment.sha }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          sha="${INPUT_SHA:-${EVENT_SHA:-$PR_SHA}}"
+          if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Expected a full 40-character commit SHA, got '$sha'"
+            exit 1
+          fi
+          # A pull_request run may arrive before Vercel has deployed the head: wait up to
+          # 10 minutes. Manual and deployment_status runs refer to a deployment that must
+          # already exist, so they get one look and no waiting.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then attempts=40; else attempts=1; fi
+          url=""
+          for attempt in $(seq 1 "$attempts"); do
+            id=$(gh api "repos/$GITHUB_REPOSITORY/deployments?sha=$sha&per_page=20" \
+              --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty')
+            if [ -n "$id" ]; then
+              state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" \
+                --jq '.[0].state // empty')
+              case "$state" in
+                success)
+                  url=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=20" \
+                    --jq '[.[] | select(.state == "success")][0].environment_url // empty')
+                  ;;
+                failure | error)
+                  echo "::error::Vercel reported the Preview deployment of $sha as $state"
+                  exit 1
+                  ;;
+              esac
+            fi
+            [ -n "$url" ] && break
+            if [ "$attempt" -lt "$attempts" ]; then
+              echo "Preview deployment of $sha not ready yet (attempt $attempt/$attempts)"
+              sleep 15
+            fi
+          done
+          if [ -z "$url" ]; then
+            echo "::error::No successful Vercel PREVIEW deployment is recorded for commit $sha"
+            exit 1
+          fi
+          url="${url%/}"
+          # Sanity check on what GitHub recorded: https on this project's Vercel hosts, no path.
+          # (Shape only — the Preview environment above is what makes it a Preview.)
+          if ! [[ "$url" =~ ^https://unretire-[a-z0-9-]+-86400-s-projects\.vercel\.app$ ]]; then
+            echo "::error::Refusing to test '$url' — not an https URL on this project's Vercel hosts"
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Testing $url (Preview deployment of $sha)"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Run the e2e suite against the deployed Preview
+        run: pnpm exec playwright test
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
+          # Skip Playwright's failure-time page snapshot (error-context.md): it would render
+          # form field values. Belt and braces with the config default and the auth helper.
+          PLAYWRIGHT_NO_COPY_PROMPT: "1"
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          E2E_FIXTURE_PASSWORD: ${{ secrets.E2E_FIXTURE_PASSWORD }}
+          E2E_SIGNED_IN_EMAIL: ${{ secrets.E2E_SIGNED_IN_EMAIL }}
+          E2E_COURSE_EMAIL: ${{ secrets.E2E_COURSE_EMAIL }}
+          E2E_PREMIUM_EMAIL: ${{ secrets.E2E_PREMIUM_EMAIL }}
+          # S2.5 (D-25): the parity project exists only when this is "1", and only the manual
+          # `parity: on` input sets it — pull_request and deployment_status runs never do.
+          E2E_PARITY: ${{ inputs.parity == 'on' && '1' || '' }}
+          E2E_OWNER_MAILBOX: ${{ secrets.E2E_OWNER_MAILBOX }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          # test-results/ ONLY. Playwright's HTML report (playwright-report/) embeds every step title,
+          # and a fill step is titled with the typed value — so a report of a PASSING sign-in carries
+          # the fixture password. It is never uploaded (S2.5, Known issue 51). test-results/ holds
+          # smoke screenshots on failure and the parity specs' deliberate plus-tag attachments; the
+          # failure-time page snapshot is disabled (PLAYWRIGHT_NO_COPY_PROMPT) and no trace is
+          # recorded while a bypass secret is present (Known issue 49).
+          name: test-results
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore

@@ -3,7 +3,8 @@ import EmailCaptureBand from "../EmailCaptureBand";
 
 export const metadata = {
   title: "The Wheel of Life",
-  description: "A two-minute, no-signup check across the eight dimensions of a full life. See where you've started muting yourself.",
+  description:
+    "A two-minute, no-signup check across the eight dimensions of a full life. See where you've started muting yourself.",
 };
 
 export default function AssessPage() {
@@ -21,7 +22,8 @@ export default function AssessPage() {
             For the first time in decades, your calendar answers to you.
           </p>
           <p className="lede max-w-[60ch] mx-auto mb-9">
-            Spend two minutes of it finding out which parts of your life are asking for attention.
+            Spend two minutes of it finding out which parts of your life are
+            asking for attention.
           </p>
           <a href="#wheel" className="btn btn-crimson">
             Spend 2 minutes well
@@ -30,7 +32,10 @@ export default function AssessPage() {
       </section>
 
       {/* ── THE WHEEL (client island) ────────────────────────── */}
-      <section id="wheel" className="bg-[#FBF5F2] border-y border-[#ECECEC] scroll-mt-24">
+      <section
+        id="wheel"
+        className="bg-[#FBF5F2] border-y border-[#ECECEC] scroll-mt-24"
+      >
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <WheelOfLife />
         </div>
@@ -45,9 +50,11 @@ export default function AssessPage() {
             A full life isn&apos;t a high score. It&apos;s a round wheel.
           </p>
           <p className="prose-body text-[17px] leading-[1.85]">
-            A wheel with one flat spoke doesn&apos;t roll well — and neither does a life. The point
-            isn&apos;t to max out every dimension. It&apos;s to notice which spokes have gone quiet, and
-            to give them a little attention. That noticing is the whole beginning of the practice.
+            A wheel with one flat spoke doesn&apos;t roll well — and neither
+            does a life. The point isn&apos;t to max out every dimension.
+            It&apos;s to notice which spokes have gone quiet, and to give them a
+            little attention. That noticing is the whole beginning of the
+            practice.
           </p>
         </div>
       </section>

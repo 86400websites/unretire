@@ -27,7 +27,10 @@ export default function CheckoutButton({
 
   if (owned) {
     return (
-      <button onClick={() => router.push("/learn/course")} className={className}>
+      <button
+        onClick={() => router.push("/learn/course")}
+        className={className}
+      >
         Go to your course →
       </button>
     );

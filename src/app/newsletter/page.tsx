@@ -7,9 +7,18 @@ export const metadata = {
 };
 
 const points = [
-  { title: "One idea, every Monday", desc: "A single thought on mindset, purpose, or practice — drawn from the framework and from real life." },
-  { title: "Practical, never preachy", desc: "No hustle, no clichés about slowing down. Just one small move you can make the same day." },
-  { title: "A five-minute read", desc: "Short enough to read with your morning coffee, useful enough to change the afternoon." },
+  {
+    title: "One idea, every Monday",
+    desc: "A single thought on mindset, purpose, or practice — drawn from the framework and from real life.",
+  },
+  {
+    title: "Practical, never preachy",
+    desc: "No hustle, no clichés about slowing down. Just one small move you can make the same day.",
+  },
+  {
+    title: "A five-minute read",
+    desc: "Short enough to read with your morning coffee, useful enough to change the afternoon.",
+  },
 ];
 
 export default function NewsletterPage() {
@@ -23,8 +32,9 @@ export default function NewsletterPage() {
           </h1>
           <span className="rule mt-7 mb-7 mx-auto" aria-hidden="true" />
           <p className="lede max-w-[56ch] mx-auto">
-            Every Monday morning, a short letter on designing the life you were made for — at any age.
-            No noise, no selling. Just one idea worth carrying into the week.
+            Every Monday morning, a short letter on designing the life you were
+            made for — at any age. No noise, no selling. Just one idea worth
+            carrying into the week.
           </p>
         </div>
       </section>
@@ -43,14 +53,19 @@ export default function NewsletterPage() {
                   {i + 1}
                 </span>
                 <h3 className="text-xl mb-3">{p.title}</h3>
-                <p className="prose-body text-[15px] text-[#666666] leading-[1.75]">{p.desc}</p>
+                <p className="prose-body text-[15px] text-[#666666] leading-[1.75]">
+                  {p.desc}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <EmailCaptureBand heading="Begin Your Next Chapter" blurb="Join the (Un)Retire newsletter. One idea, every Monday — plus the free 14-Day Starter Plan when you sign up." />
+      <EmailCaptureBand
+        heading="Begin Your Next Chapter"
+        blurb="Join the (Un)Retire newsletter. One idea, every Monday — plus the free 14-Day Starter Plan when you sign up."
+      />
     </>
   );
 }

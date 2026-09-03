@@ -31,8 +31,8 @@ Before checking anything, scope the run to the actual change:
 Run top to bottom. For each item give **PASS / FAIL / N/A** + the evidence (command output, file:line, or the owner's confirmation). Where a check depends on something you cannot see (provider dashboard, host env, the Preview result), **ask the owner — never assume**.
 
 ### 1. Build & local checks
-- The repo's exact commands from `docs/TECH-ARCHITECTURE.md` — `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm build` — all green. Paste any failure verbatim; do not hand-wave or skip the build.
-- Tests: N/A — no automated suite yet (this project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module — Sprint S2.3 setup, then /activate-testing); if the project has no test script, record N/A with the reason — the verification set is then typecheck + lint + build + the CI secret scan (e.g. gitleaks) + deployed Preview QA. Record the built route count (an unexpected ±1 flags an accidental route add/delete).
+- The repo's exact commands from `docs/TECH-ARCHITECTURE.md` — `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm build` (canonical from 2026-08-27, Sprint S2.1; `pnpm exec tsc --noEmit` remains equivalent) — all green. Paste any failure verbatim; do not hand-wave or skip the build.
+- Tests: N/A — no automated suite yet (this project has auth + payments, so per docs/TECH-ARCHITECTURE.md an e2e suite is REQUIRED before launch; it arrives with the Launch Gate module — Sprint S2.3 setup, then /activate-testing); if the project has no test script, record N/A with the reason — the verification set is then typecheck + lint + format:check + build + the Code Check's `pnpm audit --prod --audit-level=critical` (no CI secret scan is installed as of 2026-08-27 — the by-hand diff scan in §2 below is the control) + deployed Preview QA. Record the built route count (an unexpected ±1 flags an accidental route add/delete).
 
 ### 2. Git hygiene
 - On a **task branch** (`claude/[SPRINT_ID]-slug` or `claude/fix-slug`), not `master`.
