@@ -55,9 +55,42 @@ this site's apex→www redirect exactly.
 6. Verified. **Leave the TXT record in place forever** — removing it un-verifies the property.
 
 > **Alternative if DNS is not available:** the **URL-prefix property** for `https://www.unretireproject.com` with the
-> **HTML tag** method (a `<meta name="google-site-verification">` in `<head>`). This project prefers the Domain
-> property, so the HTML-tag route is a fallback only — if ever used, the tag goes in `src/app/layout.tsx` `metadata`
-> and ships as a normal code change, never hand-edited on the server.
+> **HTML tag** method (a `<meta name="google-site-verification">` in `<head>`). If ever used, the tag goes in
+> `src/app/layout.tsx` `metadata`, never hand-edited on the server.
+
+### 2b. The method actually used for this project — HTML file (recorded 2026-09-03)
+
+The owner chose the **URL-prefix property** `https://www.unretireproject.com/` with the **HTML file** method.
+Google supplies a file named `google<token>.html` whose entire body is one line
+(`google-site-verification: google<token>.html`) and requires it to answer at the site root.
+
+**🔴 The one thing that makes this fail: where the file lives.** This is a Next.js App Router project, so a file
+committed at the **repository root is not served at all** — only `public/` is published as static assets. The
+verification file therefore belongs at:
+
+```
+public/google<token>.html      →  served at  https://www.unretireproject.com/google<token>.html
+```
+
+For this project the file is **`public/google777f049a86d5990c.html`** (moved there from the repo root in S5.1c,
+2026-09-03 — at the root it would have 404'd and verification would have failed with no obvious reason why).
+
+Two consequences worth knowing:
+
+- **It only works after a deploy.** The file ships in the build, so Google cannot fetch it until the branch is
+  merged and Production has redeployed. Verify in Search Console *after* the deploy, not before.
+- **Never delete it.** Google re-checks periodically; removing the file un-verifies the property. It is committed
+  to the repo, so it survives every future deploy on its own.
+
+Confirm it is live before pressing **VERIFY**:
+
+```bash
+curl -s https://www.unretireproject.com/google777f049a86d5990c.html
+# expected, exactly:  google-site-verification: google777f049a86d5990c.html
+```
+
+`robots.txt` allows this path (only `/api/` and `/account` are disallowed), so nothing blocks Google from
+fetching it.
 
 ## 3. Submit the sitemap (~2 min, after §2)
 
@@ -132,7 +165,8 @@ manual approval on writes.
 
 - [ ] Canonical domain confirmed; `NEXT_PUBLIC_SITE_URL` set Production-scoped and deployed.
 - [ ] `sitemap.xml` and `robots.txt` return correct content on the live domain (§5).
-- [ ] GSC **Domain property** added and **verified** via the DNS TXT record (§2); TXT record left in place.
+- [ ] Ownership **verified** — either the Domain property via DNS TXT (§2), or the URL-prefix property via the
+      HTML file in **`public/`**, confirmed live with `curl` after the deploy (§2b). Never remove the proof.
 - [ ] Sitemap **submitted** and reads **Success** with the expected URL count (§3).
 - [ ] Key pages **Request Indexing**-ed (§4).
 - [ ] No accidental `noindex` anywhere (§5).
