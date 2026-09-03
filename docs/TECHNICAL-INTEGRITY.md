@@ -88,7 +88,27 @@ jobs:
       - name: Production build succeeds
         run: pnpm build
       - name: No critical known vulnerabilities
-        run: pnpm audit --prod --audit-level=critical
+        # Fails on a critical advisory. Does NOT fail when npm's advisory service is
+        # unreachable — that is an outage, not a finding, and on 2026-09-04 it blocked
+        # every merge in the repo for hours (decision D-39). An unreachable service now
+        # produces a visible ::warning and NO verdict; a real advisory still exits non-zero,
+        # even when retries preceded it.
+        shell: bash
+        run: |
+          set +e
+          pnpm audit --prod --audit-level=critical 2>&1 | tee audit.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -eq 0 ]; then exit 0; fi
+          if grep -qiE "vulnerabilit(y|ies) found|^Severity:" audit.log; then
+            echo "::error title=Critical advisory::pnpm audit found a critical advisory — see the table above."
+            exit "$rc"
+          fi
+          if grep -qE "advisories/bulk|TimeoutError|ETIMEDOUT|ECONNRESET|ENOTFOUND|ERR_PNPM_AUDIT" audit.log; then
+            echo "::warning title=Audit had no verdict::npm's advisory service was unreachable, so this run checked NOTHING for vulnerabilities. Re-run the workflow once the service recovers (D-39)."
+            exit 0
+          fi
+          exit "$rc"
 ```
 
 > **Node version — corrected 2026-08-27 (Sprint S2.1, first CI run).** The block originally pinned `node-version: 20`.
@@ -96,6 +116,21 @@ jobs:
 > (the pinned package manager) requires Node ≥ 22.13** (`npm view pnpm@11.3.0 engines`), and Node 20 reached end of
 > life on 2026-04-30. The pin is now **24** — the active LTS line and the version the local checks were run on
 > (v24.15.0); Next 16.2.7 needs only ≥ 20.9. The workflow file and this block stay byte-identical.
+>
+> **Audit step — hardened 2026-09-04 (Sprint S5.2, decision D-39).** The step was a bare
+> `pnpm audit --prod --audit-level=critical`, and it is the tail of the **only required status on `master`**. On
+> 2026-09-04 npm's advisory endpoint (`registry.npmjs.org/-/npm/v1/security/advisories/bulk`) went down while the
+> rest of the registry stayed up; pnpm retried three times and threw `TimeoutError`, the step exited 1, and **every
+> merge in the repository was blocked for hours for a reason unrelated to any code** — typecheck, lint, format,
+> tests and build had all passed. Confirmed independently from the builder's machine, not inferred from the log. The
+> step now distinguishes the two outcomes that a single exit code had conflated: a **real critical advisory** still
+> fails the check (an `::error` annotation, exit non-zero — including when retries preceded the report), while an
+> **unreachable advisory service** passes with a visible `::warning` that says plainly the run checked *nothing* for
+> vulnerabilities. That is a conscious, recorded trade: on an outage day a critical advisory published that same
+> day would not block a merge. The compensating controls are the warning annotation on the PR (never a silent
+> pass), GitHub's own Dependabot alerts on the repository, and the next healthy run. pnpm's built-in
+> `--ignore-registry-errors` was considered and not used because it makes the same trade *silently*. The workflow
+> file and this block stay byte-identical.
 
 The contract behind it: `package.json` defines the scripts `typecheck` (`tsc --noEmit`), `lint`, `format:check` (`prettier --check .`), `build`, and optionally `test:unit` — Claude Code sets these up once during the Setup Gate. ~~⚠ **Today `package.json` defines only `dev`, `build`, `start` and `lint`; `typecheck` and `format:check` (and the Prettier config `format:check` needs) are added by S2.1.** Until then the equivalent commands are run directly: `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm build`.~~ ⚠ **2026-08-27: done on `master` since the S2.1 merge (PR #11, 2026-08-27)** — `typecheck` = `tsc --noEmit`, `format:check` = `prettier --check .`, `lint` = `eslint .`, `"packageManager": "pnpm@11.3.0"`, plus the Prettier config (house standard item 3). The canonical local verification commands are now `pnpm typecheck` · `pnpm lint` · `pnpm format:check` · `pnpm build` (CI additionally runs `pnpm audit --prod --audit-level=critical` and `pnpm run --if-present test:unit`); `pnpm exec tsc --noEmit` remains equivalent, but the script is canonical. `CLAUDE.md`'s Verification section was updated to match on the branch.
 
