@@ -29,7 +29,10 @@ export default function ForgotPasswordForm() {
     return (
       <div className="text-center">
         <p className="prose-body leading-[1.7] mb-6">{message}</p>
-        <Link href="/login" className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]">
+        <Link
+          href="/login"
+          className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]"
+        >
           Back to log in
         </Link>
       </div>
@@ -39,19 +42,37 @@ export default function ForgotPasswordForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className={label} htmlFor="email">Email address</label>
-        <input id="email" name="email" type="email" autoComplete="email" required className={field} />
+        <label className={label} htmlFor="email">
+          Email address
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          className={field}
+        />
       </div>
 
-      {error && <p className="text-[13px] text-[#8B1A1A] leading-[1.5]">{error}</p>}
+      {error && (
+        <p className="text-[13px] text-[#8B1A1A] leading-[1.5]">{error}</p>
+      )}
 
-      <button type="submit" disabled={pending} className="btn btn-crimson w-full">
+      <button
+        type="submit"
+        disabled={pending}
+        className="btn btn-crimson w-full"
+      >
         {pending ? "Sending…" : "Send reset link"}
       </button>
 
       <p className="text-[14px] text-[#666666] text-center pt-2">
         Remembered it?{" "}
-        <Link href="/login" className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]">
+        <Link
+          href="/login"
+          className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]"
+        >
           Back to log in
         </Link>
       </p>

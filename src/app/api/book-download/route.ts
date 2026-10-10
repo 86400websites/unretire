@@ -10,13 +10,24 @@ export const runtime = "nodejs";
 
 // The un-watermarked masters live OUTSIDE /public so they can never be fetched
 // clean by a URL. Only this server route reads them.
+// Known issue 1: these pointed at src/app/unretire/account/_book/, a path left
+// behind by the promote-to-root refactor. The files have always been at
+// src/app/account/_book/, so readFile threw for every request and route.ts's
+// catch returned 500 + JSON — EVERY Premium download failed. Verified against
+// the deployed Preview by spec AC-015 (S5.1a, 2026-08-30).
 const MASTERS = {
   book: {
-    path: path.join(process.cwd(), "src/app/unretire/account/_book/unretire-book-master.pdf"),
+    path: path.join(
+      process.cwd(),
+      "src/app/account/_book/unretire-book-master.pdf",
+    ),
     label: "book",
   },
   workbook: {
-    path: path.join(process.cwd(), "src/app/unretire/account/_book/unretire-workbook-master.pdf"),
+    path: path.join(
+      process.cwd(),
+      "src/app/account/_book/unretire-workbook-master.pdf",
+    ),
     label: "workbook",
   },
 } as const;
@@ -37,7 +48,10 @@ export async function POST(request: NextRequest) {
   //    they hold a real 'premium' entitlement).
   const { userId, products } = await getAccess();
   if (!userId || !ownsProduct("premium", products)) {
-    return NextResponse.json({ error: "Premium access required." }, { status: 403 });
+    return NextResponse.json(
+      { error: "Premium access required." },
+      { status: 403 },
+    );
   }
 
   // 2. Get and validate the name + which document.
@@ -48,12 +62,16 @@ export async function POST(request: NextRequest) {
     name = cleanName(String(body?.name ?? ""));
     const t = String(body?.type ?? "book");
     if (t === "book" || t === "workbook") type = t;
-    else return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    else
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
   if (!name) {
-    return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Please enter your name." },
+      { status: 400 },
+    );
   }
 
   // 2b. One download per user per document. Check whether they've already
@@ -154,10 +172,36 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Known issue 43. Every OTHER insert failure used to fall through to the
+  // download, on the reasoning that the user had legitimately asked for it. But
+  // the row is the ONLY thing enforcing "once": if the insert keeps failing —
+  // an RLS denial, a connection error, the table missing — the limit does not
+  // degrade, it disappears, and the document can be fetched without end.
+  //
+  // docs/SECURITY-CHECKLIST.md §5 requires a control that cannot be recorded to
+  // fail CLOSED. The customer is told plainly it is a retryable failure rather
+  // than being accused of having already downloaded it, and only a safe
+  // identifier is logged — never the upstream body.
+  if (insertError) {
+    console.error(
+      `book_downloads insert failed for doc_type=${type}: ${insertError.code ?? "unknown"} — refusing the download so the one-time limit cannot be bypassed.`,
+    );
+    return NextResponse.json(
+      {
+        error:
+          "We could not record your download just now, so we have not sent the file. Please try again in a moment.",
+      },
+      { status: 503 },
+    );
+  }
+
   // 5. Stream it back as a download.
   const prefix = type === "workbook" ? "UnRetire-Workbook" : "UnRetire";
   const safeFile =
-    prefix + "-" + name.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "") + ".pdf";
+    prefix +
+    "-" +
+    name.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "") +
+    ".pdf";
 
   return new NextResponse(Buffer.from(out), {
     status: 200,

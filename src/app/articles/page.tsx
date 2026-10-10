@@ -13,8 +13,8 @@ export default function UnRetireArticlesPage() {
             </h1>
             <span className="rule mt-7 mb-7" aria-hidden="true" />
             <p className="lede max-w-[58ch]">
-              Essays on mindset, identity, purpose, and the practices that turn retirement from a
-              finish line into a beginning.
+              Essays on mindset, identity, purpose, and the practices that turn
+              retirement from a finish line into a beginning.
             </p>
           </div>
         </div>

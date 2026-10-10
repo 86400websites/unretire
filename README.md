@@ -2,7 +2,7 @@
 
 Website for Maher Kaddoura (author) — a standalone marketing + membership website for the (Un)Retire book, course, and premium membership, a retirement-life-design product built on the "5 Mindsets × 7 Practices" framework, serving people approaching or in retirement.
 Primary goal: Sell the (Un)Retire book, course, and Premium membership; capture emails. Primary conversion: paid enrollment via Stripe Checkout — course purchase ($99 one-time) or Premium subscription ($199/yr).
-Live at: production domain **`https://unretireproject.com`** (D-2 resolved 2026-08-25) — ⚠ DNS is still parked at the registrar (Known issue 27), so the application currently serves at **`https://unretire.vercel.app`** (production deploys from `master`).
+Live at: **`https://www.unretireproject.com`** since 2026-08-27 (D-2 resolved 2026-08-25, amended 2026-08-27: canonical is the www host; the apex `https://unretireproject.com` 308-redirects to it; Known issue 27 resolved). `https://unretire.vercel.app` remains the Vercel default alias as a fallback (production deploys from `master`).
 
 ## Stack
 
@@ -14,15 +14,16 @@ If the code and docs disagree, report the mismatch; update docs only in an autho
 ## Local development
 
 ```bash
-pnpm install             # install dependencies (pnpm; version pin lands in Sprint S2.1)
+pnpm install             # install dependencies (pnpm; pinned via `packageManager` pnpm@11.3.0)
 pnpm dev                 # dev server → http://localhost:3000
 ```
 
 Checks (run before reporting a change ready — all applicable commands must pass):
 
 ```bash
-pnpm exec tsc --noEmit   # typecheck (Sprint S2.1 adds a `pnpm typecheck` script)
+pnpm typecheck           # typecheck (tsc --noEmit)
 pnpm lint                # lint
+pnpm format:check        # formatting
 # tests: N/A — no automated suite yet; auth + payments make an e2e suite REQUIRED
 #        before launch (Launch Gate module: Sprint S2.3 setup, then /activate-testing)
 pnpm build               # production build

@@ -16,13 +16,21 @@ export default function EmailCaptureBand({
         <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] text-white leading-tight">
           {heading}
         </h2>
-        <span className="block w-12 h-[3px] bg-white/80 rounded-full mx-auto mt-6 mb-6" aria-hidden="true" />
-        <p className="text-white/90 text-[16px] leading-[1.7] mb-9 max-w-md mx-auto">{blurb}</p>
+        <span
+          className="block w-12 h-[3px] bg-white/80 rounded-full mx-auto mt-6 mb-6"
+          aria-hidden="true"
+        />
+        <p className="text-white/90 text-[16px] leading-[1.7] mb-9 max-w-md mx-auto">
+          {blurb}
+        </p>
         <EmailCaptureForm />
         {showFaq && (
           <p className="mt-6 text-[13px] text-white/80">
             Have a question?{" "}
-            <Link href="/contact" className="font-bold underline underline-offset-2 hover:text-white">
+            <Link
+              href="/contact"
+              className="font-bold underline underline-offset-2 hover:text-white"
+            >
               Browse the FAQ →
             </Link>
           </p>

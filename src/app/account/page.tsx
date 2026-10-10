@@ -20,13 +20,36 @@ export default async function AccountPage({
   return (
     <section className="bg-white">
       <div className="max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-        {checkout === "success" && (
-          <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
-            <p className="text-[15px] text-[#232F3F] leading-[1.6]">
-              <span className="font-bold">Payment successful.</span> Welcome — your access is ready below.
-            </p>
-          </div>
-        )}
+        {/*
+          Known issue 45. This banner used to render from `?checkout=success`
+          alone, so it claimed "your access is ready" even when no entitlement
+          existed — which is exactly what made Known issue 22 invisible: the
+          webhook silently failed to grant access and the customer was
+          reassured anyway. The claim is now tied to the entitlement actually
+          read from the database.
+
+          The pending branch is not cosmetic: Stripe's webhook lands a moment
+          after the browser redirect, so a genuinely-successful payment can
+          arrive here before the entitlement is written. Saying nothing at all
+          in that window would look like the payment vanished.
+        */}
+        {checkout === "success" &&
+          (hasCourse ? (
+            <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
+              <p className="text-[15px] text-[#232F3F] leading-[1.6]">
+                <span className="font-bold">Payment successful.</span> Welcome —
+                your access is ready below.
+              </p>
+            </div>
+          ) : (
+            <div className="card p-6 mb-8 bg-[#FAF5F0] border-[#E7D9CC]">
+              <p className="text-[15px] text-[#232F3F] leading-[1.6]">
+                <span className="font-bold">Payment received.</span> We&apos;re
+                activating your access now — this usually takes a few seconds.
+                Refresh this page in a moment.
+              </p>
+            </div>
+          ))}
 
         <div className="mb-8">
           <p className="eyebrow mb-5">Your account</p>
@@ -45,9 +68,13 @@ export default async function AccountPage({
           <div className="flex items-center gap-3 mb-3">
             <p className="eyebrow">Your access</p>
             {hasPremium ? (
-              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">Premium</span>
+              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">
+                Premium
+              </span>
             ) : hasCourse ? (
-              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">Course</span>
+              <span className="px-3 py-1 rounded-full bg-[#F6EDE6] text-[#8B1A1A] text-[11px] font-bold uppercase tracking-wide">
+                Course
+              </span>
             ) : null}
           </div>
 
@@ -65,19 +92,26 @@ export default async function AccountPage({
           ) : (
             <>
               <p className="prose-body text-[15px] leading-[1.7] mb-6">
-                You don&apos;t have course access yet. Unlock the full course, or go Premium for the
-                course plus the book, workbook, and monthly letter.
+                You don&apos;t have course access yet. Unlock the full course,
+                or go Premium for the course plus the book, workbook, and
+                monthly letter.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/premium" className="btn btn-crimson">Explore Premium</Link>
-                <Link href="/learn/course" className="btn btn-outline">Buy the course</Link>
+                <Link href="/premium" className="btn btn-crimson">
+                  Explore Premium
+                </Link>
+                <Link href="/learn/course" className="btn btn-outline">
+                  Buy the course
+                </Link>
               </div>
             </>
           )}
         </div>
 
         <form action={logout}>
-          <button type="submit" className="btn btn-outline">Log out</button>
+          <button type="submit" className="btn btn-outline">
+            Log out
+          </button>
         </form>
       </div>
     </section>

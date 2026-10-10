@@ -25,7 +25,9 @@ export default function BookDownload() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Something went wrong. Please try again.");
+        throw new Error(
+          data?.error || "Something went wrong. Please try again.",
+        );
       }
       // Turn the streamed PDF into a download.
       const blob = await res.blob();
@@ -50,7 +52,10 @@ export default function BookDownload() {
 
   return (
     <div>
-      <label className="block text-[13px] font-semibold text-[#4A443B] mb-2" htmlFor="wm-name">
+      <label
+        className="block text-[13px] font-semibold text-[#4A443B] mb-2"
+        htmlFor="wm-name"
+      >
         Your name (printed on every page of your copy)
       </label>
       <div className="flex flex-col sm:flex-row gap-3">
@@ -72,11 +77,13 @@ export default function BookDownload() {
           {busy ? "Preparing…" : "Download my copy"}
         </button>
       </div>
-      {error && <p className="text-[13px] text-[#8B1A1A] leading-[1.5] mt-3">{error}</p>}
+      {error && (
+        <p className="text-[13px] text-[#8B1A1A] leading-[1.5] mt-3">{error}</p>
+      )}
       {done && (
         <p className="text-[13px] text-[#4A443B] leading-[1.5] mt-3">
-          Your personalised copy has downloaded. It&apos;s watermarked with your name — please keep
-          it to yourself.
+          Your personalised copy has downloaded. It&apos;s watermarked with your
+          name — please keep it to yourself.
         </p>
       )}
     </div>
