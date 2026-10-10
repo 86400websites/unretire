@@ -185,6 +185,45 @@ export default function UnRetirePage() {
         </div>
       </section>
 
+      {/* ── WEBINAR PROMO ────────────────────────────────────────
+          Campaign band for the free live webinar. Movable — the team can
+          relocate this whole <section> wherever they prefer on the page. */}
+      <section className="bg-[#232F3F]">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-14 sm:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            <div className="lg:col-span-7 order-2 lg:order-1 text-center lg:text-left">
+              <p className="eyebrow mb-4">Free Live Webinar</p>
+              <h2 className="text-white text-2xl sm:text-3xl lg:text-[2.1rem] leading-[1.15]">
+                What&apos;s still ahead&hellip; when work is behind you?
+              </h2>
+              <p className="text-white/80 text-[15px] sm:text-[16px] leading-[1.7] mt-4 max-w-[52ch] mx-auto lg:mx-0">
+                A free live conversation with Maher Kaddoura —{" "}
+                <span className="font-bold text-white">
+                  Wednesday 4 November 2026, 19:00 SAST
+                </span>
+                . One session only. Your joining link follows closer to the day.
+              </p>
+              <div className="flex justify-center lg:justify-start mt-7">
+                <Link href="/webinar" className="btn btn-crimson">
+                  Reserve your seat →
+                </Link>
+              </div>
+            </div>
+            <div className="lg:col-span-5 order-1 lg:order-2">
+              <div className="relative w-full max-w-[360px] mx-auto aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+                <Image
+                  src="/assets/unretire/images/webinar/unretire-webinar.png"
+                  alt="What's still ahead when work is behind you — a free live webinar with Maher Kaddoura"
+                  fill
+                  sizes="(min-width: 1024px) 360px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── THE FRAMEWORK ────────────────────────────────────── */}
       <section className="bg-[#FBF5F2] border-b border-[#ECECEC]">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
