@@ -11,20 +11,27 @@ listed; the three content images and their alt text are.
 
 ---
 
-## 1. Guest Preview banner
+## 1. Guest Preview banner — REMOVED 2026-09-01 (Sprint S5.1b, owner decision D-32)
 
 > **Note:** date-sensitive — the preview ends 31 August 2026. ~~what happens then is Open
 > decision **D-10**~~ **D-10 RESOLVED 2026-08-25**: the banner expires on its own date as
 > originally designed — no code change (Known issue 12 closed). Do not treat the date as
 > locked copy. *(Synchronized 2026-08-26, stage-gate Round 4 Finding 5.)*
+> **REMOVED 2026-09-01 (D-32):** the preview period ended on its own date and the owner
+> instructed the band be removed for launch. There was no code behind it — the band was
+> static JSX with no gating logic — so deleting the markup deactivates it entirely.
 
-**Welcome to the (Un)Retire Exclusive Guest Preview**
+~~**Welcome to the (Un)Retire Exclusive Guest Preview**~~
 
-*This private preview is available to selected guests until 31 August.*
+~~*This private preview is available to selected guests until 31 August.*~~
 
-## 2. Fixed pill (bottom-right, fixed position)
+## 2. Fixed pill (bottom-right, fixed position) — REMOVED 2026-09-01 (Sprint S5.1b, owner decision D-32)
 
-- Link text: `← Half a Life` → href `/`
+- ~~Link text: `← Half a Life` → href `/`~~ **Removed with the rest of the "Half a Life"
+  chrome (D-32): this pill, the mobile-nav "← Back to Half a Life" link, the footer's
+  "Part of Half a Life" pill, the plain-text "· Part of Half a Life" copyright suffix,
+  and the share image's "part of Half a Life" caption. All three links pointed at `/` —
+  this site's own home — a relic of when (Un)Retire lived under the Half a Life site.**
 
 ## 3. Hero
 

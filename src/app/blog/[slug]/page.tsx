@@ -7,18 +7,30 @@ export function generateStaticParams() {
   return articles.map((a) => ({ slug: a.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const a = getArticle(slug);
   if (!a) return { title: "Article" };
   return {
     title: a.metaTitle,
     description: a.metaDescription,
-    openGraph: { title: a.metaTitle, description: a.metaDescription, type: "article" },
+    openGraph: {
+      title: a.metaTitle,
+      description: a.metaDescription,
+      type: "article",
+    },
   };
 }
 
-export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const a = getArticle(slug);
   if (!a) notFound();
@@ -27,7 +39,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <>
       {/* ── ARTICLE ─────────────────────────────────────────── */}
       <article className="bg-white">
-      <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
           <Link href="/blog" className="pill-link mb-6 inline-block">
             ← All articles
           </Link>
@@ -36,7 +48,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <span className="px-3 py-1 rounded-full bg-[#FAF3EE] text-[#D05D11] text-[12px] font-semibold tracking-wide uppercase">
               {a.category}
             </span>
-            <span className="text-[13px] text-[#9A9080]">{a.readingMinutes} min read</span>
+            <span className="text-[13px] text-[#9A9080]">
+              {a.readingMinutes} min read
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] leading-[1.12] text-[#14110D]">
@@ -48,7 +62,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <div>
             {a.body.map((b, i) =>
               b.type === "h2" ? (
-                <h2 key={i} className="text-2xl sm:text-[1.6rem] text-[#232F3F] leading-snug mt-9 mb-4">
+                <h2
+                  key={i}
+                  className="text-2xl sm:text-[1.6rem] text-[#232F3F] leading-snug mt-9 mb-4"
+                >
                   {b.text}
                 </h2>
               ) : (
@@ -57,7 +74,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   className="prose-body text-[17px] leading-[1.85] mb-6"
                   dangerouslySetInnerHTML={{ __html: b.html }}
                 />
-              )
+              ),
             )}
           </div>
 

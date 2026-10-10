@@ -2,17 +2,28 @@
 
 import { useState } from "react";
 
-const ENDPOINT = "https://formspree.io/f/mgogyqey";
+// Pre-launch review Finding 8. This used to POST straight to Formspree from
+// the browser, which meant no rate limit and no server-side validation — the
+// endpoint was in the page source and could be hit directly, bypassing the
+// site entirely. It now goes through /api/form, which applies the same
+// abuse control as every other public write.
+const ENDPOINT = "/api/form";
 
 export default function CommunityJoinForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "done" | "failed">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "failed">(
+    "idle",
+  );
 
   if (status === "done") {
     return (
       <div className="rounded-2xl bg-white p-8 text-center" role="status">
-        <p className="text-[#D05D11] font-bold text-[1.05rem] mb-1">✓ Request received!</p>
-        <p className="prose-body text-[15px] text-[#444444]">We&apos;ll be in touch soon.</p>
+        <p className="text-[#D05D11] font-bold text-[1.05rem] mb-1">
+          ✓ Request received!
+        </p>
+        <p className="prose-body text-[15px] text-[#444444]">
+          We&apos;ll be in touch soon.
+        </p>
       </div>
     );
   }
@@ -24,11 +35,11 @@ export default function CommunityJoinForm() {
     try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          ...form,
-          _subject: `Community join request — ${form.name}`,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ form: "community", ...form }),
       });
       setStatus(res.ok ? "done" : "failed");
     } catch {
@@ -36,12 +47,16 @@ export default function CommunityJoinForm() {
     }
   };
 
-  const label = "block text-[11px] font-bold tracking-[0.1em] uppercase text-[#232F3F] mb-2";
+  const label =
+    "block text-[11px] font-bold tracking-[0.1em] uppercase text-[#232F3F] mb-2";
   const field =
     "w-full rounded-xl border border-[#E5E5E5] bg-white px-4 py-3 text-[#232F3F] placeholder-[#888888] outline-none focus:border-[#D05D11] focus:ring-2 focus:ring-[#D05D11]/20 transition-colors";
 
   return (
-    <form onSubmit={onSubmit} className="rounded-2xl bg-white p-7 sm:p-8 space-y-5">
+    <form
+      onSubmit={onSubmit}
+      className="rounded-2xl bg-white p-7 sm:p-8 space-y-5"
+    >
       <div>
         <label htmlFor="ur-join-name" className={label}>
           Your Name
@@ -82,12 +97,17 @@ export default function CommunityJoinForm() {
           className={`${field} min-h-[110px] resize-y`}
         />
       </div>
-      <button type="submit" disabled={status === "sending"} className="btn bg-[#232F3F] text-white hover:bg-black w-full">
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        className="btn bg-[#232F3F] text-white hover:bg-black w-full"
+      >
         {status === "sending" ? "Sending…" : "Send Request"}
       </button>
       {status === "failed" && (
         <p className="text-[13px] text-[#8B1A1A] leading-[1.5]" role="alert">
-          Sorry — we couldn&apos;t send that just now. Please email us at unretire86400@gmail.com.
+          Sorry — we couldn&apos;t send that just now. Please email us at
+          unretire86400@gmail.com.
         </p>
       )}
     </form>
