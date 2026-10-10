@@ -172,6 +172,22 @@ export default function UnRetirePage() {
         </div>
       </section>
 
+      {/* ── WEBINAR ANNOUNCEMENT BAND (under the hero, BF-style) ──── */}
+      <section className="bg-[#D05D11]">
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-3 px-5 py-5 text-center sm:flex-row sm:gap-5 sm:px-6 lg:px-8">
+          <p className="text-white font-bold text-[15px] sm:text-[16px] leading-snug">
+            Free live webinar &middot; 4 November — What&apos;s still
+            ahead&hellip; when work is behind you?
+          </p>
+          <Link
+            href="/webinar"
+            className="inline-flex items-center whitespace-nowrap rounded-full bg-[#232F3F] px-5 py-2.5 text-[13px] font-bold tracking-[0.04em] text-white transition-colors hover:bg-[#1A2430]"
+          >
+            Reserve your seat →
+          </Link>
+        </div>
+      </section>
+
       {/* ── SIGNATURE QUOTE ──────────────────────────────────── */}
       <section className="bg-white border-y border-[#ECECEC]">
         <div className="max-w-3xl mx-auto px-6 py-14 sm:py-16 text-center">
