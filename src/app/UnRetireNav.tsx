@@ -16,13 +16,41 @@ const navItems: NavItem[] = [
     label: "Resources",
     href: "/practice",
     children: [
-      { label: "The 5 Mindsets", href: "/practice#mindsets", desc: "How you think — five belief shifts." },
-      { label: "The 7 Practices", href: "/practice#practices", desc: "What you do — seven daily practices." },
-      { label: "14-Day Starter Plan", href: "/practice#tools", desc: "One small move a day for two weeks." },
-      { label: "The Toolkit", href: "/tools", desc: "28 experiments across the 7 practices." },
-      { label: "Podcast", href: "/podcast", desc: "Conversations with people who refused to fade." },
-      { label: "Blog", href: "/blog", desc: "Short, practical notes on living fully." },
-      { label: "Stories", href: "/stories", desc: "Real people, real next chapters." },
+      {
+        label: "The 5 Mindsets",
+        href: "/practice#mindsets",
+        desc: "How you think — five belief shifts.",
+      },
+      {
+        label: "The 7 Practices",
+        href: "/practice#practices",
+        desc: "What you do — seven daily practices.",
+      },
+      {
+        label: "14-Day Starter Plan",
+        href: "/practice#tools",
+        desc: "One small move a day for two weeks.",
+      },
+      {
+        label: "The Toolkit",
+        href: "/tools",
+        desc: "28 experiments across the 7 practices.",
+      },
+      {
+        label: "Podcast",
+        href: "/podcast",
+        desc: "Conversations with people who refused to fade.",
+      },
+      {
+        label: "Blog",
+        href: "/blog",
+        desc: "Short, practical notes on living fully.",
+      },
+      {
+        label: "Stories",
+        href: "/stories",
+        desc: "Real people, real next chapters.",
+      },
     ],
   },
   { label: "Premium", href: "/premium" },
@@ -37,17 +65,27 @@ const chevron = (open: boolean) => (
     viewBox="0 0 24 24"
     aria-hidden="true"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2.5}
+      d="M19 9l-7 7-7-7"
+    />
   </svg>
 );
 
-export default function UnRetireNav({ userEmail }: { userEmail: string | null }) {
+export default function UnRetireNav({
+  userEmail,
+}: {
+  userEmail: string | null;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileSub, setMobileSub] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname() ?? "/";
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -74,7 +112,11 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-[70px] gap-4">
           {/* Logo */}
-          <Link href="/" aria-label="(Un)Retire — home" className="flex items-center flex-shrink-0">
+          <Link
+            href="/"
+            aria-label="(Un)Retire — home"
+            className="flex items-center flex-shrink-0"
+          >
             <Image
               src="/assets/unretire/logo-color.png"
               alt="(Un)Retire"
@@ -86,7 +128,10 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2" aria-label="(Un)Retire">
+          <nav
+            className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
+            aria-label="(Un)Retire"
+          >
             {navItems.map((item) => {
               const active = isActive(item.href);
               if (!item.children) {
@@ -96,7 +141,9 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={`whitespace-nowrap px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
-                      active ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
+                      active
+                        ? "bg-[#FAF3EE] text-[#D05D11]"
+                        : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
                     }`}
                   >
                     {item.label}
@@ -105,21 +152,32 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
               }
               const open = openMenu === item.label;
               return (
-                <div key={item.href} className="relative" onMouseEnter={() => openNow(item.label)} onMouseLeave={closeSoon}>
+                <div
+                  key={item.href}
+                  className="relative"
+                  onMouseEnter={() => openNow(item.label)}
+                  onMouseLeave={closeSoon}
+                >
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     aria-expanded={open}
                     onFocus={() => openNow(item.label)}
                     className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3.5 py-2 rounded-full text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
-                      active || open ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
+                      active || open
+                        ? "bg-[#FAF3EE] text-[#D05D11]"
+                        : "text-[#444444] hover:text-[#D05D11] hover:bg-[#FBF5F2]"
                     }`}
                   >
                     {item.label}
                     {chevron(open)}
                   </Link>
                   {open && (
-                    <div className="absolute left-0 top-full pt-2 w-[300px]" onMouseEnter={() => openNow(item.label)} onMouseLeave={closeSoon}>
+                    <div
+                      className="absolute left-0 top-full pt-2 w-[300px]"
+                      onMouseEnter={() => openNow(item.label)}
+                      onMouseLeave={closeSoon}
+                    >
                       <div className="rounded-2xl bg-white border border-[#ECECEC] shadow-[0_22px_44px_-22px_rgba(17,17,17,0.28)] p-2">
                         {item.children.map((c) => (
                           <Link
@@ -128,8 +186,12 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
                             onClick={() => setOpenMenu(null)}
                             className="block rounded-xl px-4 py-3 hover:bg-[#FBF5F2] transition-colors"
                           >
-                            <span className="block text-[13px] font-bold text-[#232F3F]">{c.label}</span>
-                            <span className="block text-[12px] text-[#666666] leading-snug mt-0.5">{c.desc}</span>
+                            <span className="block text-[13px] font-bold text-[#232F3F]">
+                              {c.label}
+                            </span>
+                            <span className="block text-[12px] text-[#666666] leading-snug mt-0.5">
+                              {c.desc}
+                            </span>
                           </Link>
                         ))}
                       </div>
@@ -152,30 +214,55 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
 
             {/* Mobile toggle */}
             <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-            aria-controls="ur-mobile-menu"
-            className="lg:hidden p-2 -mr-2 text-[#232F3F]"
-          >
-            {mobileOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="ur-mobile-menu"
+              className="lg:hidden p-2 -mr-2 text-[#232F3F]"
+            >
+              {mobileOpen ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div id="ur-mobile-menu" className="lg:hidden border-t border-[#ECECEC] bg-white">
+        <div
+          id="ur-mobile-menu"
+          className="lg:hidden border-t border-[#ECECEC] bg-white"
+        >
           <div className="px-5 sm:px-6 py-4 space-y-1">
             {navItems.map((item) => {
               const active = isActive(item.href);
@@ -187,7 +274,9 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
                     onClick={() => setMobileOpen(false)}
                     aria-current={active ? "page" : undefined}
                     className={`block px-3 py-3 rounded-xl text-[12px] font-bold tracking-[0.1em] uppercase transition-colors ${
-                      active ? "bg-[#FAF3EE] text-[#D05D11]" : "text-[#232F3F] hover:bg-[#FBF5F2]"
+                      active
+                        ? "bg-[#FAF3EE] text-[#D05D11]"
+                        : "text-[#232F3F] hover:bg-[#FBF5F2]"
                     }`}
                   >
                     {item.label}
@@ -242,14 +331,6 @@ export default function UnRetireNav({ userEmail }: { userEmail: string | null })
               >
                 {userEmail ? "Account" : "Log in"}
               </Link>
-              <Link
-                href="/"
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 text-[12px] font-bold tracking-[0.12em] uppercase text-[#666666] hover:text-[#D05D11] transition-colors"
-              >
-                ← Back to Half a Life
-              </Link>
-              
             </div>
           </div>
         </div>

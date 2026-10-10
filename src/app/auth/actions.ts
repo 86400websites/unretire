@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { safeOrigin } from "@/lib/auth/safe-origin";
 import { createClient } from "@/lib/supabase/server";
 import {
   createCheckoutSession,
@@ -20,9 +21,17 @@ async function getOrigin(): Promise<string> {
   const h = await headers();
   const forwardedHost = h.get("x-forwarded-host");
   const host = forwardedHost ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "https";
-  if (host) return `${proto}://${host}`;
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const proto = h.get("x-forwarded-proto");
+  // Known issue 42. This is the origin that ends up INSIDE password-reset and
+  // confirmation e-mails, so a forged x-forwarded-host would put an attacker's
+  // link, carrying a valid token, into the victim's inbox from our own domain.
+  // safeOrigin() refuses any host that is not one of ours and falls back to the
+  // configured site URL rather than echoing the caller's.
+  return safeOrigin(
+    host,
+    proto,
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  );
 }
 
 export type Intent = PaidProduct | "account";
@@ -88,7 +97,9 @@ async function continueByIntent(
 }
 
 export async function register(formData: FormData): Promise<AuthResult> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const password = String(formData.get("password") ?? "");
   const intent = readIntent(formData);
 
@@ -112,7 +123,10 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
   if (error) {
     const msg = error.message.toLowerCase();
-    if (msg.includes("already registered") || msg.includes("already been registered")) {
+    if (
+      msg.includes("already registered") ||
+      msg.includes("already been registered")
+    ) {
       return { exists: true };
     }
     return { error: error.message };
@@ -136,7 +150,12 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   revalidatePath("/", "layout");
-  return continueByIntent(supabase, intent, data.user.id, data.user.email ?? email);
+  return continueByIntent(
+    supabase,
+    intent,
+    data.user.id,
+    data.user.email ?? email,
+  );
 }
 
 export async function login(formData: FormData): Promise<AuthResult> {
@@ -155,7 +174,12 @@ export async function login(formData: FormData): Promise<AuthResult> {
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  return continueByIntent(supabase, intent, data.user.id, data.user.email ?? email);
+  return continueByIntent(
+    supabase,
+    intent,
+    data.user.id,
+    data.user.email ?? email,
+  );
 }
 
 export async function logout(): Promise<void> {
@@ -168,12 +192,16 @@ export async function logout(): Promise<void> {
 /**
  * Step 1 of password reset: email the user a recovery link. The link lands
  * on /auth/confirm (which exchanges the recovery token for a session), then
- * forwards to /unretire/reset-password where they set a new password.
+ * forwards to /reset-password where they set a new password.
  * Always returns a generic success message — we never reveal whether an
  * email is registered (enumeration protection).
  */
-export async function requestPasswordReset(formData: FormData): Promise<AuthResult> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+export async function requestPasswordReset(
+  formData: FormData,
+): Promise<AuthResult> {
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { error: "Please enter a valid email address." };
   }
@@ -182,7 +210,10 @@ export async function requestPasswordReset(formData: FormData): Promise<AuthResu
   const origin = await getOrigin();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/confirm?next=/unretire/reset-password`,
+    // Known issue 2: this was `next=/unretire/reset-password`, removed by the
+    // promote-to-root refactor — so the reset link authenticated the user and
+    // then dropped them on a 404, with no way to set a new password.
+    redirectTo: `${origin}/auth/confirm?next=/reset-password`,
   });
 
   // Don't leak whether the address exists; show the same message either way.

@@ -1,6 +1,7 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/auth/safe-redirect";
 
 /**
  * Email callback for BOTH sign-up confirmation and password recovery.
@@ -16,9 +17,7 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
 
-  // Only allow same-origin relative redirects, and default somewhere safe.
-  const nextParam = searchParams.get("next") ?? "/account";
-  const next = nextParam.startsWith("/") ? nextParam : "/account";
+  const next = safeNext(searchParams.get("next"), request.url);
 
   const supabase = await createClient();
 

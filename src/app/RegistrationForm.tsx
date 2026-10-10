@@ -8,16 +8,31 @@ type Intent = "course" | "premium" | "account";
 
 /** Common email-domain typos → the domain the user almost certainly meant. */
 const DOMAIN_FIXES: Record<string, string> = {
-  "gmial.com": "gmail.com", "gamil.com": "gmail.com", "gmal.com": "gmail.com",
-  "gnail.com": "gmail.com", "gmaill.com": "gmail.com", "gmail.co": "gmail.com",
-  "gmail.cm": "gmail.com", "gmail.con": "gmail.com", "gmail.om": "gmail.com",
-  "hotmial.com": "hotmail.com", "hotmal.com": "hotmail.com", "hotmai.com": "hotmail.com",
-  "hotmail.co": "hotmail.com", "hotmail.con": "hotmail.com",
-  "yaho.com": "yahoo.com", "yahooo.com": "yahoo.com", "yahoo.co": "yahoo.com",
+  "gmial.com": "gmail.com",
+  "gamil.com": "gmail.com",
+  "gmal.com": "gmail.com",
+  "gnail.com": "gmail.com",
+  "gmaill.com": "gmail.com",
+  "gmail.co": "gmail.com",
+  "gmail.cm": "gmail.com",
+  "gmail.con": "gmail.com",
+  "gmail.om": "gmail.com",
+  "hotmial.com": "hotmail.com",
+  "hotmal.com": "hotmail.com",
+  "hotmai.com": "hotmail.com",
+  "hotmail.co": "hotmail.com",
+  "hotmail.con": "hotmail.com",
+  "yaho.com": "yahoo.com",
+  "yahooo.com": "yahoo.com",
+  "yahoo.co": "yahoo.com",
   "yahoo.con": "yahoo.com",
-  "outlok.com": "outlook.com", "outloook.com": "outlook.com",
-  "outlook.co": "outlook.com", "outlook.con": "outlook.com",
-  "iclould.com": "icloud.com", "icoud.com": "icloud.com", "icloud.co": "icloud.com",
+  "outlok.com": "outlook.com",
+  "outloook.com": "outlook.com",
+  "outlook.co": "outlook.com",
+  "outlook.con": "outlook.com",
+  "iclould.com": "icloud.com",
+  "icoud.com": "icloud.com",
+  "icloud.co": "icloud.com",
   "icloud.con": "icloud.com",
 };
 
@@ -61,7 +76,9 @@ export default function RegistrationForm({
 
     if (res?.exists) {
       setMode("login");
-      setNotice("Good news — you already have an account. Enter your password to continue.");
+      setNotice(
+        "Good news — you already have an account. Enter your password to continue.",
+      );
       setPending(false);
       return;
     }
@@ -99,7 +116,9 @@ export default function RegistrationForm({
       )}
 
       <div>
-        <label className={label} htmlFor="reg-email">Email address</label>
+        <label className={label} htmlFor="reg-email">
+          Email address
+        </label>
         <input
           id="reg-email"
           name="email"
@@ -121,8 +140,8 @@ export default function RegistrationForm({
         )}
         {mode === "register" && (
           <p className="text-[12px] text-[#9A9080] mt-2 leading-[1.5]">
-            Double-check your email — it&apos;s how you&apos;ll log in, and where your
-            receipt goes.
+            Double-check your email — it&apos;s how you&apos;ll log in, and
+            where your receipt goes.
           </p>
         )}
       </div>
@@ -130,38 +149,58 @@ export default function RegistrationForm({
       <div>
         <PasswordField
           id="reg-password"
-          autoComplete={mode === "register" ? "new-password" : "current-password"}
+          autoComplete={
+            mode === "register" ? "new-password" : "current-password"
+          }
           minLength={mode === "register" ? 8 : undefined}
         />
         {mode === "register" && (
-          <p className="text-[12px] text-[#9A9080] mt-2">At least 8 characters.</p>
+          <p className="text-[12px] text-[#9A9080] mt-2">
+            At least 8 characters.
+          </p>
         )}
       </div>
 
-      {error && <p className="text-[13px] text-[#8B1A1A] leading-[1.5]">{error}</p>}
+      {error && (
+        <p className="text-[13px] text-[#8B1A1A] leading-[1.5]">{error}</p>
+      )}
 
-      <button type="submit" disabled={pending} className="btn btn-crimson w-full">
+      <button
+        type="submit"
+        disabled={pending}
+        className="btn btn-crimson w-full"
+      >
         {pending
-          ? mode === "register" ? "Creating account…" : "Logging in…"
+          ? mode === "register"
+            ? "Creating account…"
+            : "Logging in…"
           : mode === "register"
             ? REGISTER_CTA[intent]
-            : paid ? "Log in & continue to checkout" : "Log in"}
+            : paid
+              ? "Log in & continue to checkout"
+              : "Log in"}
       </button>
 
       <p className="text-[14px] text-[#666666] text-center pt-2">
         {mode === "register" ? (
           <>
             Already have an account?{" "}
-            <button type="button" onClick={() => switchMode("login")}
-              className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]">
+            <button
+              type="button"
+              onClick={() => switchMode("login")}
+              className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]"
+            >
               Log in
             </button>
           </>
         ) : (
           <>
             Need an account?{" "}
-            <button type="button" onClick={() => switchMode("register")}
-              className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]">
+            <button
+              type="button"
+              onClick={() => switchMode("register")}
+              className="text-[#D05D11] font-semibold hover:text-[#8B1A1A]"
+            >
               Create one
             </button>
           </>

@@ -45,7 +45,7 @@ Every fix travels: `BUG-FIX-PROMPT-TEMPLATE.md` → branch → local checks → 
 
 ## The regression rule — no exceptions
 
-A fix is not done until a test exists that **reproduces this exact bug** — failing before the fix, passing after — added to `tests/e2e/` with a matching new/updated line in `docs/FEATURE-LIST.md` (owner approves list additions, per the testing module). If the incident is critical-path, propose adding its test to the `@morning` set. This is the compounding loop: every incident permanently strengthens the launch gate.
+A fix is not done until a test exists that **reproduces this exact bug** — failing before the fix, passing after — added to `tests/e2e/` with a matching new/updated line in `docs/FEATURE-LIST.md` (owner approves list additions, per the testing module). ⚠ **Before Sprint S2.3 there is no `tests/e2e/` and no Playwright harness** (and `docs/FEATURE-LIST.md` arrives with S5.1): until then, write the exact reproduction steps and the intended spec into the incident record, and carry it as an explicit debt line so the test is added the moment the harness exists — never close an incident as if the regression test already ran. If the incident is critical-path, propose adding its test to the `@morning` set. This is the compounding loop: every incident permanently strengthens the launch gate.
 
 ## Close the loop — always with the human
 

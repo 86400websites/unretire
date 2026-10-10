@@ -50,7 +50,9 @@ export default function BookDownloadModal({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Something went wrong. Please try again.");
+        throw new Error(
+          data?.error || "Something went wrong. Please try again.",
+        );
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -78,7 +80,10 @@ export default function BookDownloadModal({
     <>
       <button
         type="button"
-        onClick={() => { setOpen(true); setError(undefined); }}
+        onClick={() => {
+          setOpen(true);
+          setError(undefined);
+        }}
         className="btn btn-crimson mt-4"
       >
         {buttonLabel}
@@ -96,18 +101,29 @@ export default function BookDownloadModal({
             className="w-full max-w-md rounded-2xl bg-white p-7 sm:p-8 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-[1.4rem] text-[#14110D] leading-snug mb-3">{heading}</h3>
-            <p className="prose-body text-[14px] text-[#4A443B] leading-[1.7] mb-2">{intro}</p>
+            <h3 className="text-[1.4rem] text-[#14110D] leading-snug mb-3">
+              {heading}
+            </h3>
             <p className="prose-body text-[14px] text-[#4A443B] leading-[1.7] mb-2">
-              This copy has been prepared especially for you and is intended for your personal use.
+              {intro}
             </p>
-            <p className="text-[13px] text-[#837A6E] leading-[1.6] mb-4">{copyright}</p>
+            <p className="prose-body text-[14px] text-[#4A443B] leading-[1.7] mb-2">
+              This copy has been prepared especially for you and is intended for
+              your personal use.
+            </p>
+            <p className="text-[13px] text-[#837A6E] leading-[1.6] mb-4">
+              {copyright}
+            </p>
 
             <p className="text-[13px] font-semibold text-[#8B1A1A] leading-[1.6] mb-5">
-              You can download this once, so please make sure your name is correct before you continue.
+              You can download this once, so please make sure your name is
+              correct before you continue.
             </p>
 
-            <label className="block text-[13px] font-semibold text-[#4A443B] mb-2" htmlFor="modal-name">
+            <label
+              className="block text-[13px] font-semibold text-[#4A443B] mb-2"
+              htmlFor="modal-name"
+            >
               Your name
             </label>
             <input
@@ -120,7 +136,11 @@ export default function BookDownloadModal({
               autoFocus
               className={field}
             />
-            {error && <p className="text-[13px] text-[#8B1A1A] leading-[1.5] mt-3">{error}</p>}
+            {error && (
+              <p className="text-[13px] text-[#8B1A1A] leading-[1.5] mt-3">
+                {error}
+              </p>
+            )}
 
             <div className="flex flex-wrap gap-3 mt-6">
               <button

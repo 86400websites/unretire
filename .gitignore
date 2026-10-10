@@ -47,3 +47,12 @@ stripe.exe
 # The ingested, project-specific copies live in docs/ and .claude/ and ARE committed.
 # The owner keeps the master copy outside this repo.
 Website-Development-System/
+
+# Playwright harness (Sprint S2.3, 2026-08-28) — runner artefacts and stored test sessions are never committed
+qa-evidence/
+/test-results/
+/playwright-report/
+/blob-report/
+/tests/e2e/.auth/
+# The Playwright MCP (docs/BROWSER-TOOLS.md) writes snapshots/console logs into the cwd on every navigate
+.playwright-mcp/

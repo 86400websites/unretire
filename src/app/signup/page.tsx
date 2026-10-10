@@ -4,7 +4,8 @@ import RegistrationForm from "../RegistrationForm";
 
 export const metadata = {
   title: "Create your account",
-  description: "Create your (Un)Retire account to access the course and Premium.",
+  description:
+    "Create your (Un)Retire account to access the course and Premium.",
 };
 
 const COPY = {

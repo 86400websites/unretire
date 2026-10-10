@@ -11,10 +11,17 @@ type Card = {
   readingMinutes: number;
 };
 
-export default function BlogIndex({ cards, categories }: { cards: Card[]; categories: string[] }) {
+export default function BlogIndex({
+  cards,
+  categories,
+}: {
+  cards: Card[];
+  categories: string[];
+}) {
   const [active, setActive] = useState<string>("All");
   const tabs = ["All", ...categories];
-  const shown = active === "All" ? cards : cards.filter((c) => c.category === active);
+  const shown =
+    active === "All" ? cards : cards.filter((c) => c.category === active);
 
   return (
     <section className="bg-[#FBF5F2] border-y border-[#ECECEC]">
@@ -51,9 +58,13 @@ export default function BlogIndex({ cards, categories }: { cards: Card[]; catego
                 <span className="px-3 py-1 rounded-full bg-[#FAF3EE] text-[#D05D11] text-[11px] font-semibold tracking-wide uppercase">
                   {c.category}
                 </span>
-                <span className="text-[12px] text-[#9A9080]">{c.readingMinutes} min</span>
+                <span className="text-[12px] text-[#9A9080]">
+                  {c.readingMinutes} min
+                </span>
               </div>
-              <h2 className="text-[1.3rem] leading-snug text-[#14110D] mb-3">{c.title}</h2>
+              <h2 className="text-[1.3rem] leading-snug text-[#14110D] mb-3">
+                {c.title}
+              </h2>
               <p className="prose-body text-[14px] text-[#666666] leading-[1.7] mb-6 flex-1">
                 {c.excerpt}
               </p>
