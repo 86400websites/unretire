@@ -18,6 +18,101 @@ export type Article = {
 
 export const articles: Article[] = [
   {
+    slug: "second-career-after-retirement",
+    title: "The Second Career Nobody Tells You About",
+    metaTitle: "The Second Career Nobody Tells You About | (Un)Retire",
+    metaDescription:
+      "Many retirees find they never disliked work, only its conditions. How to shape a second career on your own terms, built around what you enjoy.",
+    excerpt:
+      "Many retirees find they never disliked work, only its conditions. How to shape a second career on your own terms, built around what you enjoy.",
+    keyword: "second career",
+    category: "Purpose",
+    readingMinutes: 5,
+    body: [
+      {
+        type: "p",
+        html: "Retirement is supposed to be the end of work. For a growing number of people, it turns out to be the start of a different kind.",
+      },
+      {
+        type: "p",
+        html: "Not the old job. Not the commute, the targets or the meetings that could have been an email.",
+      },
+      {
+        type: "p",
+        html: "Something smaller, freer and far more your own.",
+      },
+      {
+        type: "h2",
+        text: "Work on Your Own Terms",
+      },
+      {
+        type: "p",
+        html: "For most of your career, work came as a package. Fixed hours, a fixed place, a fixed role, and a boss deciding what mattered.",
+      },
+      {
+        type: "p",
+        html: "Retirement removes the package. What many people discover is that they never disliked working. They disliked the conditions.",
+      },
+      {
+        type: "p",
+        html: "Take those away, and work can look surprisingly appealing again. A few mornings a week consulting in your old field. A small business built around something you enjoy. Teaching, tutoring or advising. Paid work, part-time work or simply useful work, chosen rather than required.",
+      },
+      {
+        type: "h2",
+        text: "Why It Matters More Than the Money",
+      },
+      {
+        type: "p",
+        html: "Some people return to work for the income, and that is perfectly sensible. But many describe benefits that have little to do with money.",
+      },
+      {
+        type: "p",
+        html: "A reason to get dressed and leave the house. Conversations with people of different ages. The quiet satisfaction of solving a problem and being thanked for it. A sense that your experience still counts for something.",
+      },
+      {
+        type: "p",
+        html: "Those are the very things retirement can quietly take away. A second career, on your own terms, can give them back.",
+      },
+      {
+        type: "p",
+        html: "What did you enjoy about work, once you strip away everything you didn't?",
+      },
+      {
+        type: "h2",
+        text: "Three Ways to Shape a Second Career",
+      },
+      {
+        type: "p",
+        html: "<strong>One:</strong> Start with what you enjoyed, not what you were paid for. Your job title may have been finance manager, but perhaps the part you loved was mentoring young staff. Build around the enjoyable part.",
+      },
+      {
+        type: "p",
+        html: "<strong>Two:</strong> Set the boundaries first. Decide how many days, how many hours and how much travel suits you before you say yes to anything. Freedom is the point, so protect it from the start.",
+      },
+      {
+        type: "p",
+        html: "<strong>Three:</strong> Test it small. Take on one project, one client or one short contract. See how it fits your energy and your week before you expand.",
+      },
+      {
+        type: "h2",
+        text: "A Portfolio, Not a Position",
+      },
+      {
+        type: "p",
+        html: "The most contented second-career retirees rarely have a single job. They have a portfolio. A little paid work, some volunteering, a creative project, time for family and plenty of time for rest.",
+      },
+      {
+        type: "p",
+        html: "Each piece is chosen. Each piece can be adjusted. And together they create a week with variety, purpose and room to breathe.",
+      },
+      {
+        type: "p",
+        html: "That is what unretiring really means. Not going back to the grind, but going forward into work that fits the person you are now.",
+      },
+    ],
+    cta: "<strong>Ready to design work that fits your next chapter? </strong>The (Un)Retire book and Life Design Workbook help you shape a week that blends purpose, freedom and the work you actually enjoy.",
+  },
+  {
     slug: "why-retirement-feels-like-drift",
     title: "Why Retirement Feels Like Drift (And What Quietly Causes It)",
     metaTitle: "Why Retirement Feels Like Drift (And What Quietly Causes It)",
