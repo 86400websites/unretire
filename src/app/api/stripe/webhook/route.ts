@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
@@ -5,6 +6,52 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { STRIPE_APP_ID } from "@/lib/stripe/checkout";
 
 export const runtime = "nodejs";
+
+/**
+ * Tag a member "premium" in Mailchimp so they receive the monthly Premium
+ * Letter. Completely fail-safe and side-channel: it no-ops when Mailchimp
+ * isn't configured, never throws, and is only ever awaited AFTER the paid
+ * entitlement has been written — so nothing here can affect a payment or a
+ * grant. If Mailchimp is slow or down, the tag is simply skipped and logged.
+ */
+async function tagPremiumMember(
+  email: string | null | undefined,
+): Promise<void> {
+  try {
+    if (!email) return;
+    const apiKey = process.env.MAILCHIMP_API_KEY;
+    const listId = process.env.MAILCHIMP_LIST_ID;
+    if (!apiKey || !listId) return; // not configured — skip silently
+    const dc = apiKey.split("-")[1];
+    if (!dc) return;
+    const base = `https://${dc}.api.mailchimp.com/3.0`;
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
+    const hash = crypto
+      .createHash("md5")
+      .update(email.toLowerCase().trim())
+      .digest("hex");
+    // Upsert the contact (status_if_new avoids resurrecting unsubscribes)...
+    await fetch(`${base}/lists/${listId}/members/${hash}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({
+        email_address: email,
+        status_if_new: "subscribed",
+      }),
+    });
+    // ...then apply the "premium" tag (idempotent; triggers the letter send).
+    await fetch(`${base}/lists/${listId}/members/${hash}/tags`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ tags: [{ name: "premium", status: "active" }] }),
+    });
+  } catch (err) {
+    console.error("Mailchimp premium tag failed (non-blocking):", err);
+  }
+}
 
 /**
  * Stripe webhook. Stripe (not the browser) calls this after a payment.
@@ -106,6 +153,14 @@ export async function grantFromSession(
     );
     return "retry";
   }
+  if (product === "premium") {
+    // Non-blocking: the entitlement is already written above, so a Mailchimp
+    // failure here can never undo a paid grant.
+    await tagPremiumMember(
+      session.customer_details?.email ?? session.customer_email ?? null,
+    );
+  }
+
   return "granted";
 }
 
