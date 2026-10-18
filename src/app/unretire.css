@@ -269,6 +269,9 @@
 .ur-site .mt-1 {
   margin-top: 0.25rem;
 }
+.ur-site .mt-14 {
+  margin-top: 3.5rem;
+}
 .ur-site .mt-2 {
   margin-top: 0.5rem;
 }
@@ -293,6 +296,9 @@
 .ur-site .mt-9 {
   margin-top: 2.25rem;
 }
+.ur-site .mt-auto {
+  margin-top: auto;
+}
 .ur-site .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -300,6 +306,10 @@
 .ur-site .my-3 {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
+}
+.ur-site .my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 .ur-site .my-7 {
   margin-top: 1.75rem;
@@ -373,6 +383,9 @@
 }
 .ur-site .pt-7 {
   padding-top: 1.75rem;
+}
+.ur-site .pt-8 {
+  padding-top: 2rem;
 }
 .ur-site .px-2 {
   padding-left: 0.5rem;
@@ -450,6 +463,9 @@
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
 }
+.ur-site .space-y-10 > * + * {
+  margin-top: 2.5rem;
+}
 .ur-site .space-y-1 > * + * {
   margin-top: 0.25rem;
 }
@@ -481,6 +497,9 @@
   }
   .ur-site .sm\:p-12 {
     padding: 3rem;
+  }
+  .ur-site .sm\:p-6 {
+    padding: 1.5rem;
   }
   .ur-site .sm\:p-8 {
     padding: 2rem;

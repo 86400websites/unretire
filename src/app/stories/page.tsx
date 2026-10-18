@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
+import StoriesGrid, { type Story } from "./StoriesGrid";
 
 export const metadata = {
   title: "Stories",
@@ -8,48 +9,87 @@ export const metadata = {
     "Real people who refused to fade — artists, mentors, athletes, and change-makers who rebooted instead of muting.",
 };
 
-const stories = [
+const stories: Story[] = [
   {
-    img: "mentor",
+    slug: "murelle-harrison",
+    img: "murelle-harrison",
     kind: "Practice",
     tag: "Contribute",
-    title: "The Mentor",
-    desc: "Spent forty years building companies. Now spends mornings building people — one founder, one coffee, one hard question at a time.",
+    title: "The Professor Who Became the Support System",
+    name: "Murelle Harrison",
+    country: "USA",
+    closing: "The classroom ended. The contribution didn't.",
+    body: [
+      "After 40 years as a university professor, 15 of them chairing Southern University's psychology department, she retired in 2011. Instead of stepping back, she became Executive Director of the Gardere Initiative, expanding its work with children and families in Baton Rouge.",
+    ],
   },
   {
-    img: "artist",
-    kind: "Mindset",
-    tag: "Evolution",
-    title: "The Beginner at 68",
-    desc: "Picked up a paintbrush for the first time the year she retired. Three exhibitions later, she's not slowing down — she's just getting started.",
-  },
-  {
-    img: "run",
+    slug: "paul-tasner",
+    img: "paul-tasner",
     kind: "Practice",
-    tag: "Move",
-    title: "The Athlete Who Never Quit",
-    desc: "Everyone told him to take it easy. He ran his first marathon at 71 instead — and proved that age doesn't limit vitality. Habits do.",
+    tag: "Ignite",
+    title: "The First-Time Founder at 66",
+    name: "Paul Tasner",
+    country: "USA",
+    closing: "His corporate career ended. His contribution didn't.",
+    body: [
+      "His 40-year career in supply chain management ended at 64. After two years of consulting, he knew he wanted to build something of his own. At 66 he co-founded PulpWorks, making biodegradable packaging from waste materials to replace disposable plastic.",
+    ],
   },
   {
-    img: "connect",
-    kind: "Practice",
-    tag: "Connect",
-    title: "The Reconnected",
-    desc: "Retirement shrank his circle to almost nothing. So he rebuilt it — on purpose, one weekly call at a time — and found a community that lifts him.",
-  },
-  {
-    img: "teach",
+    slug: "jim-ansara",
+    img: "jim-ansara",
     kind: "Practice",
     tag: "Contribute",
-    title: "The Grandparent with a Second Act",
-    desc: "She thought her teaching days were over. Now she runs a reading circle for her whole neighbourhood — wisdom shared without the lecture.",
+    title: "The Builder Who Couldn't Stay Retired",
+    name: "Jim Ansara",
+    country: "USA",
+    closing:
+      "He retired from building a company. Then he built healthcare instead.",
+    body: [
+      "He grew Shawmut into one of America's largest design-build companies, then retired and sold it to its employees in 2006. Helping design a hospital in Haiti pulled him back in, and in 2014 he co-founded Build Health International, which has completed more than 200 healthcare projects.",
+    ],
   },
   {
-    img: "travel",
+    slug: "kevin-kelly",
+    img: "kevin-kelly",
     kind: "Practice",
     tag: "Explore",
-    title: "The Late Explorer",
-    desc: "After decades of predictable routines, he said yes to the unfamiliar — a new language, a new city, a new self. Curiosity put him back in charge.",
+    title: "The Optimist Imagining the Next Hundred Years",
+    name: "Kevin Kelly",
+    country: "USA",
+    closing:
+      "He left the editor's chair. He never stopped asking what comes next.",
+    body: [
+      "He helped launch WIRED in 1993 and left the editor's chair in 1999, but never left the future behind. He went on to build Cool Tools, help start the Quantified Self movement and work with the Long Now Foundation. At 74, he is imagining a desirable 100-year future.",
+    ],
+  },
+  {
+    slug: "nadja-piatka",
+    img: "nadja-piatka",
+    kind: "Mindset",
+    tag: "Relevance",
+    title: "The Baker Who Found a New Audience at 75",
+    name: "Nadja Piatka",
+    country: "Canada",
+    closing:
+      "At 75, she didn't disappear from view. She found a whole new audience.",
+    body: [
+      "After losing her job, she started baking with $100 and grew a food business supplying McDonald's, Subway and Tim Hortons. She retired at 75 and soon found she wasn't good at stepping away. She began sharing food, movement and healthy aging online, and hundreds of thousands followed.",
+    ],
+  },
+  {
+    slug: "chip-conley",
+    img: "chip-conley",
+    kind: "Mindset",
+    tag: "Evolution",
+    title: "The Modern Elder",
+    name: "Chip Conley",
+    country: "USA",
+    closing: "He sold the company. He didn't sell his curiosity.",
+    body: [
+      "At 52, he sold the boutique hotel company he had run for 24 years. Then Airbnb called, and he joined as Head of Global Hospitality at twice the average age of its staff. Becoming a beginner again led him to co-found Modern Elder Academy in 2018.",
+    ],
   },
 ];
 
@@ -153,65 +193,12 @@ export default function StoriesPage() {
               People who unretired
             </h2>
             <span className="rule mt-6 mb-6 mx-auto" aria-hidden="true" />
-            {/*
-              Known issue 9 / FEATURE-LIST PG-007 — RESTORED, and the reasoning
-              matters more than the sentence.
-
-              S4.5c first DELETED the "Placeholders below" half of this
-              paragraph, on the theory that S4.5 had removed the equivalent
-              admission from /book and had simply missed this page. That was
-              wrong, and it made the page worse.
-
-              What S4.5 actually did on /book was delete the invented
-              CONTENT (book/page.tsx:84-94 records it). Here the invented
-              content is the six archetypes above — "The Mentor", "The Artist" —
-              and the page's own metadata calls them "Real people who refused to
-              fade". Removing the label while leaving them is exactly the state
-              Known issue 9 describes as "strictly worse than the labelled state
-              it replaced": it is what PR #7 did, and what S1.7 was created to
-              revert. So this is back as it was.
-
-              The real fix is the owner's call, not this sprint's, and it is the
-              same decision they already made for /book: either replace these
-              with real, attributable stories, or remove the grid. Until then the
-              honest posture is the labelled one. Tracked as Known issue 9;
-              asserted by tests/e2e/pages/links-and-copy.spec.ts, which now
-              checks that this page is EITHER real-named OR labelled — never
-              invented-and-unlabelled.
-            */}
-            <p className="text-[14px] text-[#888888] italic">
-              Each card links to a full profile. Placeholders below — swap in
-              real, named stories as they&apos;re gathered.
+            <p className="prose-body text-[15px] text-[#666666]">
+              Click any story to read it in full.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {stories.map((s) => (
-              <article
-                key={s.title}
-                className="card overflow-hidden flex flex-col"
-              >
-                <div className="relative aspect-[4/3] bg-white border-b border-[#ECECEC]">
-                  <Image
-                    src={`/assets/unretire/images/stories/${s.img}.png`}
-                    alt={s.title}
-                    fill
-                    sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
-                    className="object-contain p-4"
-                  />
-                </div>
-                <div className="p-7 flex flex-col flex-1">
-                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-[#D05D11] mb-3">
-                    {s.kind} · {s.tag}
-                  </p>
-                  <h3 className="text-[1.3rem] leading-snug mb-3">{s.title}</h3>
-                  <p className="prose-body text-[14px] text-[#666666] leading-[1.7]">
-                    {s.desc}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
+          <StoriesGrid stories={stories} />
         </div>
       </section>
 
