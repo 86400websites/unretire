@@ -8,6 +8,7 @@ import {
 import UnRetireNav from "./UnRetireNav";
 import UnRetireFooter from "./UnRetireFooter";
 import { createClient } from "@/lib/supabase/server";
+import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import "./unretire.css";
 
@@ -117,6 +118,7 @@ export default async function RootLayout({
           <main>{children}</main>
           <UnRetireFooter />
         </div>
+        <Analytics />
       </body>
     </html>
   );
