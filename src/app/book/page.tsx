@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import EmailCaptureBand from "../EmailCaptureBand";
+import ReviewsSection from "./ReviewsSection";
 
 export const metadata = {
   title: "The Book",
@@ -281,6 +282,9 @@ export default function BookPage() {
           </div>
         </div>
       </section>
+
+      {/* ── WHAT READERS SAY ─────────────────────────────────── */}
+      <ReviewsSection />
 
       {/* ── CHOOSE YOUR EDITION ──────────────────────────────── */}
       <section
