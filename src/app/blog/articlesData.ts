@@ -18,6 +18,192 @@ export type Article = {
 
 export const articles: Article[] = [
   {
+    slug: "be-a-beginner-again",
+    title: "Be a Beginner Again: Why Learning Keeps Your Mind Young",
+    metaTitle: "Be a Beginner Again: Learning Keeps You Young | (Un)Retire",
+    metaDescription:
+      "Learning something new keeps the mind sharp. Why the awkward beginner stage is worth it, and three ways to start learning again in retirement.",
+    excerpt:
+      "Learning something new keeps the mind sharp. Why the awkward beginner stage is worth it, and three ways to start learning again in retirement.",
+    keyword: "lifelong learning",
+    category: "Health",
+    readingMinutes: 4,
+    body: [
+      {
+        type: "p",
+        html: "When was the last time you were truly bad at something?",
+      },
+      {
+        type: "p",
+        html: "For many people, the honest answer is decades ago. Over a long career, you became skilled, experienced and good at what you did. Being a beginner was something you left behind long ago.",
+      },
+      {
+        type: "p",
+        html: "Retirement offers a rare invitation to go back there. And your brain will thank you for accepting it.",
+      },
+      {
+        type: "h2",
+        text: "Why Your Brain Loves Something New",
+      },
+      {
+        type: "p",
+        html: "Research shows that learning new and challenging skills helps keep the mind sharp as we age. Familiar routines are comfortable, but they ask very little of us. Something new makes the brain build fresh connections.",
+      },
+      {
+        type: "p",
+        html: "Learning a language, an instrument, a craft or a sport does exactly that. So does mastering new technology, studying a subject you never had time for or taking up a game that demands strategy.",
+      },
+      {
+        type: "p",
+        html: "The challenge is the point. A little struggle is a sign that the learning is working.",
+      },
+      {
+        type: "h2",
+        text: "The Awkward Part",
+      },
+      {
+        type: "p",
+        html: "Here is the catch. Being a beginner can feel uncomfortable, especially after years of being the person who knew the answers.",
+      },
+      {
+        type: "p",
+        html: "You fumble. You forget. Younger people in the class pick things up faster. And a small voice suggests that perhaps this is not for you.",
+      },
+      {
+        type: "p",
+        html: "That voice is simply unfamiliar with being a beginner. Ignore it. Every expert you have ever admired started exactly where you are now.",
+      },
+      {
+        type: "p",
+        html: "What have you always wanted to learn, but never had the time to start?",
+      },
+      {
+        type: "h2",
+        text: "Three Ways to Start Learning Again",
+      },
+      {
+        type: "p",
+        html: "<strong>One:</strong> Choose something genuinely new. Brushing up an old skill is pleasant, but stretching into unfamiliar territory gives the brain a real workout. Pick something that makes you slightly nervous.",
+      },
+      {
+        type: "p",
+        html: "<strong>Two:</strong> Learn with other people. A class, a club or a study group adds friendship, accountability and encouragement. It also makes the awkward stage far more fun.",
+      },
+      {
+        type: "p",
+        html: "<strong>Three:</strong> Measure progress, not perfection. Keep a simple record of what you could not do a month ago and can do now. Small gains add up to glorious results over a year.",
+      },
+      {
+        type: "h2",
+        text: "Curiosity as a Lifelong Habit",
+      },
+      {
+        type: "p",
+        html: "People who keep learning in retirement often describe feeling more alive, more confident and more interesting to be around. They have new things to talk about, new people to meet and new goals to work toward.",
+      },
+      {
+        type: "p",
+        html: "Being a beginner keeps you humble, curious and engaged with the world. That is a wonderful way to spend a chapter of life.",
+      },
+      {
+        type: "p",
+        html: "So pick something. Sign up. Be terrible at it for a while. And enjoy every step of getting better.",
+      },
+    ],
+    cta: "<strong>Ready to fill your next chapter with growth? </strong>The (Un)Retire book and Life Design Workbook help you build learning and curiosity into a life with direction.",
+  },
+  {
+    slug: "downsizing-without-downsizing-your-life",
+    title: "Downsizing Your Home Without Downsizing Your Life",
+    metaTitle: "Downsizing Your Home, Not Your Life | (Un)Retire",
+    metaDescription:
+      "Moving to a smaller home can feel like an ending. Three questions that help you choose a home that fits the life you want next.",
+    excerpt:
+      "Moving to a smaller home can feel like an ending. Three questions that help you choose a home that fits the life you want next.",
+    keyword: "downsizing in retirement",
+    category: "Mindset",
+    readingMinutes: 5,
+    body: [
+      {
+        type: "p",
+        html: "At some point, the question arrives. Do we still need all this space?",
+      },
+      {
+        type: "p",
+        html: "The children have long since left. Rooms sit empty. The garden takes more effort every season. And the idea of something smaller, simpler and closer to the things you love starts to make sense.",
+      },
+      {
+        type: "p",
+        html: "Then you open the first cupboard and realize this is about far more than space.",
+      },
+      {
+        type: "h2",
+        text: "More Than a Move",
+      },
+      {
+        type: "p",
+        html: "A home holds decades of life. Birthday parties, late-night conversations, school projects, quiet mornings. Every room carries a story.",
+      },
+      {
+        type: "p",
+        html: "So when people talk about downsizing, they often feel an unexpected heaviness. It can seem like an admission that life is getting smaller.",
+      },
+      {
+        type: "p",
+        html: "It is worth questioning that idea. The size of your home and the size of your life are two completely different measurements. Many people find that a smaller home leads to a much bigger life.",
+      },
+      {
+        type: "h2",
+        text: "What a Smaller Home Can Give You",
+      },
+      {
+        type: "p",
+        html: "Think about what a large home quietly asks of you. Time spent cleaning rooms nobody uses. Weekends spent on maintenance. Money tied up in space rather than experiences.",
+      },
+      {
+        type: "p",
+        html: "A smaller, well-chosen home can hand much of that back. More time for the things you enjoy. Easier travel, because locking up is simple. Perhaps a location closer to family, friends, shops or the activities you want to do more of.",
+      },
+      {
+        type: "p",
+        html: "What would you do with the time and energy your home currently takes?",
+      },
+      {
+        type: "h2",
+        text: "Three Questions Before You Decide",
+      },
+      {
+        type: "p",
+        html: "<strong>One:</strong> What do you want close by? Make a list of what you want within easy reach in the years ahead. People, services, nature, culture, healthcare. Let that list guide where you go, not only what you can get for your current home.",
+      },
+      {
+        type: "p",
+        html: "<strong>Two:</strong> Which belongings truly matter? Keep what carries real meaning or real use. Photograph the rest, share the stories with your family and let the objects go to people who will use them. The memories travel with you.",
+      },
+      {
+        type: "p",
+        html: "<strong>Three:</strong> What will a typical day look like? Imagine an ordinary Wednesday in the new home. Where do you walk? Who do you see? What do you do? If the picture excites you, you are on the right track.",
+      },
+      {
+        type: "h2",
+        text: "Moving Toward Something",
+      },
+      {
+        type: "p",
+        html: "The happiest moves in retirement share one thing. People move toward something, rather than simply away from too much space.",
+      },
+      {
+        type: "p",
+        html: "Toward a community. Toward a simpler routine. Toward freedom, adventure or the people they love.",
+      },
+      {
+        type: "p",
+        html: "When you see downsizing that way, it stops being an ending and becomes a design decision. You are not shrinking your life to fit a smaller house. You are choosing a home that fits the life you want next.",
+      },
+    ],
+    cta: "<strong>Ready to design the next chapter, wherever you live it? </strong>The (Un)Retire book and Life Design Workbook help you make the big decisions with clarity about what matters most.",
+  },
+  {
     slug: "second-career-after-retirement",
     title: "The Second Career Nobody Tells You About",
     metaTitle: "The Second Career Nobody Tells You About | (Un)Retire",
