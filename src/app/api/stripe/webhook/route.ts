@@ -4,6 +4,8 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { STRIPE_APP_ID } from "@/lib/stripe/checkout";
+import { addTags } from "@/lib/mailchimp/client";
+import { CAMPAIGN } from "@/lib/webinar/config";
 
 export const runtime = "nodejs";
 
@@ -159,6 +161,32 @@ export async function grantFromSession(
     await tagPremiumMember(
       session.customer_details?.email ?? session.customer_email ?? null,
     );
+  }
+
+  // Sprint S6.1 — mark the buyer `purchased-course`, so the webinar's sales
+  // e-mails skip people who have already bought. Premium includes the course,
+  // so both products are marked.
+  //
+  // A side-channel in the same sense as the block above: it runs only after
+  // the entitlement is written, and nothing it does can reach the return
+  // value. It is a TAGS-ONLY call — no member upsert — so a buyer who is not
+  // in the audience is never added to it by paying; Mailchimp answers non-2xx
+  // and the tag is skipped. `addTags` makes no request at all when the address
+  // is missing or either Mailchimp value is unset, limits the request with a
+  // timeout, and returns false rather than throwing. The try/catch is the
+  // second layer: whatever that module becomes, a paid grant is never failed
+  // by a tag. Only the error's NAME is logged — its message can quote the
+  // request URL, which contains the audience id.
+  if (product === "course" || product === "premium") {
+    try {
+      await addTags(session.customer_details?.email ?? session.customer_email, [
+        CAMPAIGN.tags.purchased,
+      ]);
+    } catch (err) {
+      console.error(
+        `Mailchimp purchase tag failed (non-blocking): ${err instanceof Error ? err.name : "unknown"}.`,
+      );
+    }
   }
 
   return "granted";

@@ -1,3 +1,5 @@
+import { CAMPAIGN } from "@/lib/webinar/config";
+
 /**
  * Validation for the public newsletter/e-mail-capture endpoint.
  *
@@ -57,6 +59,28 @@ const MAX_MERGE_VALUE = 100;
  */
 const TAG = /^[A-Za-z0-9_-]{1,40}$/;
 
+/**
+ * Sprint S6.1 — tags that only the SERVER may apply.
+ *
+ * The shape check above lets an anonymous caller name any well-formed tag, and
+ * these three decide who receives which webinar e-mail: the first two start
+ * the flows that send the join link and the Toolkit, and the third marks a
+ * buyer so the sales e-mails skip them. A stranger who could apply them here
+ * could put any address into a flow, or take one out of the sales e-mails,
+ * without registering or paying. They are applied by POST /api/conversation
+ * and by the Stripe webhook, and by nothing else.
+ *
+ * Compared without regard to case: a tag is refused here whatever its
+ * capitals, so the refusal does not depend on how Mailchimp matches names.
+ */
+const RESERVED_TAGS: ReadonlySet<string> = new Set(
+  [
+    CAMPAIGN.tags.registered,
+    CAMPAIGN.tags.toolkit,
+    CAMPAIGN.tags.purchased,
+  ].map((name) => name.toLowerCase()),
+);
+
 export type SubscribeRejection = { ok: false; error: string };
 export type SubscribeAccepted = {
   ok: true;
@@ -99,6 +123,10 @@ export function validateSubscribePayload(body: unknown): SubscribeValidation {
     return { ok: false, error: "Name is too long" };
   }
   if (tag !== undefined && (typeof tag !== "string" || !TAG.test(tag))) {
+    return { ok: false, error: "Invalid request" };
+  }
+  // A reserved tag gets the same answer as a malformed one — see RESERVED_TAGS.
+  if (typeof tag === "string" && RESERVED_TAGS.has(tag.toLowerCase())) {
     return { ok: false, error: "Invalid request" };
   }
 
