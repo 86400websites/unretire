@@ -1,5 +1,6 @@
 import { test, expect } from "../fixtures";
 import { validateSubscribePayload } from "../../../src/lib/forms/subscribe-payload";
+import { CAMPAIGN } from "../../../src/lib/webinar/config";
 
 /**
  * Sprint S4.5c — the red→green proof for pre-launch review Finding 7 (Blocking)
@@ -213,5 +214,86 @@ test.describe("FM-009 — a form error never shows the provider's own words", ()
       expect(message).not.toContain("script");
       expect(message).not.toContain("DROP TABLE");
     }
+  });
+});
+
+test.describe("PR-009 — nobody can give themselves a webinar or buyer tag", () => {
+  /**
+   * Sprint S6.1. Typed out here on purpose rather than read from the config:
+   * these are the names the Mailchimp flows and saved segments are built on,
+   * so a renamed constant must turn this red instead of quietly following it.
+   */
+  const RESERVED = ["conv1-registered", "conv1-toolkit", "purchased-course"];
+
+  test("PR-009 the three reserved tags are refused with the existing tag error", () => {
+    // THE HOLE. The shape check accepts any short plain identifier, and all
+    // three of these are one. Without the refusal an anonymous POST could start
+    // the join-link flow for any address, or mark any address as a buyer so
+    // the sales e-mails skip it — no registration and no payment needed.
+    for (const tag of RESERVED) {
+      expect(
+        validateSubscribePayload({ email: "reader@example.com", tag }),
+        `tag "${tag}" must be refused`,
+      ).toEqual({ ok: false, error: "Invalid request" });
+    }
+  });
+
+  test("PR-009 an otherwise perfect payload does not carry a reserved tag through", () => {
+    for (const tag of RESERVED) {
+      const parsed = validateSubscribePayload({
+        email: "reader@example.com",
+        firstName: "Maher",
+        tag,
+        mergeFields: { WEAKEST: "Health", SCORE: 42 },
+      });
+      expect(parsed.ok, `tag "${tag}" must be refused`).toBe(false);
+    }
+  });
+
+  test("PR-009 capitals do not get a reserved tag through", () => {
+    for (const tag of [
+      "CONV1-REGISTERED",
+      "Conv1-Registered",
+      "conv1-Toolkit",
+      "CONV1-TOOLKIT",
+      "Purchased-Course",
+      "PURCHASED-COURSE",
+    ]) {
+      expect(
+        validateSubscribePayload({ email: "reader@example.com", tag }),
+        `tag "${tag}" must be refused`,
+      ).toEqual({ ok: false, error: "Invalid request" });
+    }
+  });
+
+  test("PR-009 every tag the campaign defines is one of the refused ones", () => {
+    // A fourth campaign tag added later must be reserved in the same change;
+    // this is the line that says so.
+    expect(Object.values(CAMPAIGN.tags).sort()).toEqual([...RESERVED].sort());
+    for (const tag of Object.values(CAMPAIGN.tags)) {
+      expect(
+        validateSubscribePayload({ email: "reader@example.com", tag }).ok,
+        `campaign tag "${tag}" must be refused`,
+      ).toBe(false);
+    }
+  });
+
+  test("PR-009 the tags the site really sends, and near misses, still pass", () => {
+    // The counterweight: a refusal that matched by prefix or by substring
+    // would pass everything above and silently break a real capture form.
+    for (const tag of [
+      "starter-plan",
+      "wheel-of-life",
+      "conv1",
+      "conv1-registered-2",
+      "xconv1-toolkit",
+      "purchased",
+      "purchased-course_",
+      "course",
+    ]) {
+      expect(accept({ email: "reader@example.com", tag }).tag).toBe(tag);
+    }
+    // And a request with no tag at all is untouched.
+    expect(accept({ email: "reader@example.com" }).tag).toBeUndefined();
   });
 });

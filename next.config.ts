@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
+import { assertWebinarEnv } from "./src/lib/webinar/env";
 
 /**
  * Security headers — Known issue 46, SECURITY-CHECKLIST §6 and §9 invariant I8.
@@ -110,4 +112,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// S6.1: a WEBINAR_* value that is set but malformed stops `next build`, so a
+// typing mistake in Vercel fails that deployment and the previous one keeps
+// serving. Build phase only: `next dev` and the running server never throw
+// here. The error names the variable, never its value.
+export default function config(phase: string): NextConfig {
+  if (phase === PHASE_PRODUCTION_BUILD) assertWebinarEnv(process.env);
+  return nextConfig;
+}

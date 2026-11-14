@@ -176,4 +176,149 @@ test.describe("PR-001/PR-002 — the public write endpoints are guarded", () => 
     const body = await res.json();
     expect(body.error).toBe("A valid email address is required");
   });
+
+  /**
+   * PR-007 — POST /api/conversation, the webinar sign-up (Sprint S6.1).
+   *
+   * A bucket of its own (endpoint "conversation"), with /api/subscribe's
+   * allowance — src/app/api/conversation/route.ts. Nothing above touches it,
+   * and nothing else in the suite does either: the page spec answers its form
+   * submissions in the browser, and its one real POST is refused before the
+   * limiter runs.
+   *
+   * ⚠ THE SAME RULE AS /api/form ABOVE, AND IT MATTERS MORE HERE. A payload
+   * this route ACCEPTS writes a contact into the one live Mailchimp audience
+   * (D-22) and tags it, and the tag starts a real e-mail flow. So every
+   * payload below is invalid by its `form` value or by the SHAPE of its
+   * address — the two things the validator checks before the route reads its
+   * Mailchimp configuration, let alone fetches. The filled anti-spam field is
+   * asserted too, but it is never what keeps a payload safe: that payload's
+   * address is malformed as well.
+   */
+  const CONVERSATION_LIMIT = 10;
+
+  /** The route's fixed sentences for a refused payload — the approved copy. */
+  const CONVERSATION_REFUSALS = [
+    "Invalid request",
+    "A valid email address is required",
+  ];
+
+  /**
+   * With no webinar start configured the whole funnel is switched off and
+   * this route answers 404 before it does any work — there is no limiter and
+   * no validation to assert. So each test below first asks for the page with
+   * a GET, which costs the bucket nothing, and skips, visibly, on a 404.
+   */
+  const DORMANT_SKIP =
+    "the webinar funnel is dormant on this deployment; /api/conversation answers 404 to everything";
+
+  test("PR-007 an invalid sign-up is answered by the app, not by a failed control", async ({
+    api,
+  }) => {
+    const funnel = await api.get("/conversation", { failOnStatusCode: false });
+    test.skip(funnel.status() === 404, DORMANT_SKIP);
+
+    // The fail-closed tripwire again, for this bucket: 400 means the limiter
+    // let the request through to the validator; 429 on the FIRST request
+    // means the control could not be applied and nobody can register.
+    const res = await api.post("/api/conversation", {
+      data: { form: "no-such-form" },
+      failOnStatusCode: false,
+    });
+
+    expect(
+      res.status(),
+      "429 here means the abuse control is failing closed and the sign-up form is dead",
+    ).toBe(400);
+    expect((await res.json()).error).toBe("Invalid request");
+  });
+
+  test("PR-007 /api/conversation refuses anything it was not asked for", async ({
+    api,
+  }) => {
+    const funnel = await api.get("/conversation", { failOnStatusCode: false });
+    test.skip(funnel.status() === 404, DORMANT_SKIP);
+
+    // Six requests, so with the one above the burst below still starts inside
+    // the allowance. Never a complete, well-formed sign-up — see the note above.
+    const rejected = [
+      { form: "no-such-form", email: "e2e@example.test" }, // unknown form
+      { form: "register" }, // no address
+      { form: "register", firstName: "E2E", email: "not-an-email" }, // bad address
+      { form: "toolkit", firstName: "E2E", email: "nope@" }, // bad address
+      // A filled anti-spam field gets the same 400 — never a fake success.
+      // The address is malformed too, so this cannot be accepted either way.
+      { form: "register", email: "not-an-email", topic: "filled by a script" },
+      // A caller cannot name a tag; and this address is malformed as well.
+      { form: "register", email: "not-an-email", tag: "purchased-course" },
+    ];
+
+    for (const data of rejected) {
+      const res = await api.post("/api/conversation", {
+        data,
+        failOnStatusCode: false,
+      });
+      const body = await res.text();
+
+      // The app's own 400 — not the limiter's 429, and not a success.
+      expect(
+        res.status(),
+        `unexpected status for ${JSON.stringify(data)}`,
+      ).toBe(400);
+      expect(
+        body,
+        "a payload in this list was ACCEPTED and sent to Mailchimp",
+      ).not.toContain('"ok":true');
+      // One of the fixed sentences, and nothing else in the answer.
+      const parsed = JSON.parse(body) as Record<string, unknown>;
+      expect(Object.keys(parsed)).toEqual(["error"]);
+      expect(CONVERSATION_REFUSALS).toContain(parsed.error);
+      // Never the provider's words, never the meeting's address.
+      expect(body.toLowerCase()).not.toContain("mailchimp");
+      expect(body.toLowerCase()).not.toContain("zoom");
+    }
+  });
+
+  test("PR-007 a burst of sign-ups past the limit is refused, and says when to come back", async ({
+    api,
+  }) => {
+    const funnel = await api.get("/conversation", { failOnStatusCode: false });
+    test.skip(funnel.status() === 404, DORMANT_SKIP);
+
+    // Seven requests are already spent. The loop is bounded: a limiter that
+    // never fires fails the test rather than hanging.
+    let limited: { retryAfter: string | null; body: string } | null = null;
+
+    for (
+      let attempt = 0;
+      attempt < CONVERSATION_LIMIT * 3 && !limited;
+      attempt += 1
+    ) {
+      const res = await api.post("/api/conversation", {
+        data: { form: "no-such-form" },
+        failOnStatusCode: false,
+      });
+      if (res.status() === 429) {
+        limited = {
+          retryAfter: res.headers()["retry-after"] ?? null,
+          body: await res.text(),
+        };
+      } else {
+        // Until the limit is reached, the validator is what answers.
+        expect(res.status()).toBe(400);
+      }
+    }
+
+    expect(
+      limited,
+      `no 429 after ${CONVERSATION_LIMIT * 3} extra requests — the sign-up endpoint is not rate limited`,
+    ).not.toBeNull();
+    expect(
+      Number(limited!.retryAfter),
+      "a refused caller must be told when to come back",
+    ).toBeGreaterThan(0);
+    expect(limited!.body.toLowerCase()).not.toContain("mailchimp");
+    expect(limited!.body.toLowerCase()).not.toContain("zoom");
+    expect(limited!.body).not.toContain('"ok":true');
+  });
 });
