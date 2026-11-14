@@ -67,12 +67,14 @@ About the four Preview values:
 - [x] The two flows, built with your HTML files and switched on: `conv1-01` and `conv1-02`.
 - [x] The test on the Preview: "You're in" and "Your Toolkit is here" both arrived, and the check read your two test contacts back in the right Segments. Your words: *"I received both the emails so I think toolkit is fixed as well"*.
 
+- [x] The Codex review: APPROVE, no findings.
+
 **Still to do, in this order.**
 
-1. Run the Codex review with the prompt I hand you, and paste the result back to me.
-2. When the review says APPROVE and I tell you the checks are green, merge the pull request.
-3. Wait for my message **"staging is ready"**, then make one pretend purchase — §8. 5 minutes.
-4. Switch the funnel on: the go-live checklist — §9. About 90 minutes.
+1. When I tell you the checks are green, merge the pull request.
+2. Wait for my message **"staging is ready"**, then make one pretend purchase — §8. 5 minutes.
+3. Optional: let your team try it first. Add `WEBINAR_STARTS_AT` for **Production** with a stand-in start such as `2026-12-10T16:00:00+02:00` (§3.2), Redeploy, and share your page "Webinar Automation". When they are done, remove the value and Redeploy again.
+4. Switch the funnel on for the real webinar: the go-live checklist — §9. About 90 minutes.
 
 The same list, with the decisions behind it, is `docs/OWNER-ACTIONS.md` Part 9.
 

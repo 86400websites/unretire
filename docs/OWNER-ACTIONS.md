@@ -790,7 +790,7 @@ setting (8.3), you can see every run in the Actions tab, and the two-minute test
 
 ### 9.3 The Codex review, then the merge · a few minutes
 
-- [ ] **9.3a** Run the Codex review with the prompt I hand you (sent 2026-11-14 with my message **"ready for the Codex review"**), and paste the result back to me.
+- [x] **9.3a** The Codex review — ✅ APPROVE, no findings (2026-11-14). The record is in `docs/code-reviews/S6.1-webinar-funnel-review.md`.
 - [ ] **9.3b** When the review says APPROVE and I tell you the checks are green, merge the pull request on GitHub.
 
 ### 9.4 After the merge — one pretend purchase · 5 minutes
