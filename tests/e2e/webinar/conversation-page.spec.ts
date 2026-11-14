@@ -417,9 +417,14 @@ test.describe("PG-012 — while registration is open, the page is there to read"
       await expect(formRoot).toContainText(COPY.form.consent);
 
       // The anti-spam field: out of the tab order, hidden from assistive
-      // technology, never autofilled, and under a name no browser recognises.
+      // technology, and under a name no browser recognises. It must be a
+      // CHECKBOX: as a hidden text box it was filled by a real visitor's
+      // browser autofill (2026-11-14) and that visitor was refused.
       const trap = formRoot.locator(`input[name="${HONEYPOT_FIELD}"]`);
       await expect(trap).toHaveCount(1);
+      await expect(trap).toHaveAttribute("type", "checkbox");
+      await expect(trap).not.toBeChecked();
+      await expect(formRoot.locator('input[type="text"]')).toHaveCount(1);
       await expect(trap).toHaveAttribute("tabindex", "-1");
       await expect(trap).toHaveAttribute("autocomplete", "off");
       await expect(trap).toHaveAttribute("aria-hidden", "true");

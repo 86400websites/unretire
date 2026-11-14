@@ -115,7 +115,8 @@ the emails for the record only — it is never page text.
 | Consent line under each form (the same line under both) | We’ll email you about this webinar: reminders before it, then the replay and an offer for our course. Unsubscribe anytime. | NEW — needs owner approval | Must cover Emails 3–6 (reminders) and Emails 7–9 (replay and offer). "Unsubscribe anytime." echoes the shipped "No spam. Unsubscribe anytime." (`src/app/DownloadGate.tsx:140`). |
 
 > **Note:** the hidden anti-spam field has no visible text and no label; it is hidden from
-> screen readers and from the keyboard.
+> screen readers and from the keyboard. Since 2026-11-14 it is a checkbox, not a text box: a visitor's
+> browser autofill filled the hidden text box on the Preview and the visitor was refused.
 
 ## 8. Register form
 

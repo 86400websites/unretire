@@ -70,7 +70,7 @@ export function SignupForm({
 }: SignupFormProps) {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
-  const [trap, setTrap] = useState("");
+  const [trap, setTrap] = useState(false);
   const [sending, setSending] = useState(false);
   const [firstNameError, setFirstNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -121,7 +121,7 @@ export function SignupForm({
           form,
           firstName: checked.firstName,
           email: checked.email,
-          [HONEYPOT_FIELD]: trap,
+          [HONEYPOT_FIELD]: trap ? "on" : "",
         }),
       });
       const data: unknown = await response.json().catch(() => null);
@@ -224,23 +224,29 @@ export function SignupForm({
 
       {/*
         Anti-spam field. No label and no visible text; off-screen, out of the
-        tab order and hidden from assistive technology, with a name
-        (HONEYPOT_FIELD) no browser autofills. A person never reaches it; a
-        script that fills every input does, and the server answers that
+        tab order and hidden from assistive technology. A person never reaches
+        it; a script that ticks every box does, and the server answers that
         request with the same 400 as any other invalid payload.
+
+        It is a CHECKBOX on purpose. As a hidden text box it was filled in by a
+        real visitor's browser autofill on the Preview (2026-11-14): the box
+        has no label of its own, a browser guesses one from the text before it,
+        and that text is the consent line, which says "email". The visitor was
+        refused with "Invalid request". Browser autofill and password managers
+        fill text boxes; they do not tick a box they know nothing about.
       */}
       <div
         aria-hidden="true"
         className="absolute left-[-9999px] h-0 w-0 overflow-hidden"
       >
         <input
-          type="text"
+          type="checkbox"
           name={HONEYPOT_FIELD}
           tabIndex={-1}
           autoComplete="off"
           aria-hidden="true"
-          value={trap}
-          onChange={(event) => setTrap(event.target.value)}
+          checked={trap}
+          onChange={(event) => setTrap(event.target.checked)}
         />
       </div>
     </form>

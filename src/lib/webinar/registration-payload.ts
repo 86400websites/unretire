@@ -39,6 +39,13 @@ export type RegistrationForm = (typeof REGISTRATION_FORMS)[number];
  * contact, address or payment detail, and still reads to a form-filling script
  * like a field worth completing. The form sets autocomplete off, tabindex -1
  * and aria-hidden on it as well.
+ *
+ * A good name is not enough for a TEXT box: on 2026-11-14 a real visitor's
+ * browser autofill filled the hidden box anyway (it took the consent line
+ * before it, which says "email", for the box's label) and the visitor was
+ * refused. So the form renders it as a checkbox, which autofill never
+ * touches, and sends "on" when it is ticked and "" when it is not. This
+ * validator is unchanged: absent or empty is still the only acceptable value.
  */
 export const HONEYPOT_FIELD = "topic";
 
