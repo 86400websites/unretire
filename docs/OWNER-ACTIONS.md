@@ -780,19 +780,17 @@ setting (8.3), you can see every run in the Actions tab, and the two-minute test
 - [x] **9.1d** The four Preview-only Vercel values `WEBINAR_STARTS_AT`, `WEBINAR_OFFER_ENDS_AT`, `WEBINAR_OFFER_CODE` and `WEBINAR_REPLAY_URL` — ✅ added by you for **Preview**, 2026-11-14 (your screenshot). Leave them there for good. Leave all four **empty in Production**. No Redeploy is needed: my next push builds a new Preview and it picks them up. What each one is for: runbook §2.4.
 - [x] **9.1e** The three privacy-page sentences — webinar sign-ups, Zoom, and the hidden `purchased-course` label a buyer gets if they are already on your email list — ✅ approved by you, 2026-11-14. Your words: *"privacy ok"*. The record is `docs/content/page-copy/privacy.md`, section 13 (**D-48**). They are on the privacy page in this branch, word for word, and reach the live site with the merge. "Last updated" reads 14 November 2026; if the merge lands on a later day, I set it to that day first.
 
-### 9.2 Gate B/C — build the Mailchimp side and test it · about 75 minutes
+### 9.2 Gate B/C — build the Mailchimp side and test it · ✅ done 2026-11-14
 
-Start when I tell you **"Mailchimp is ready"**. Not before: the tags have to exist first.
-
-- [ ] **9.2-first** *(added 2026-11-14 — you gave me nine HTML email files, and they replace the plain-text bodies)* The 1-minute try: check on the draft `conv1-03` that Mailchimp lets you paste your own HTML — runbook §5.0 · 1 minute. If it does not, stop and send me a screenshot. Paste from the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads, never from your originals.
-- [ ] **9.2a** ~~Build the two flows — runbook §5 · 20 minutes.~~ Build the two flows with your HTML files — runbook §5 (read §5.0 once, then §5.2 and §5.3) · 20 minutes. (You may do 9.2b first; `docs/WEBINAR-CHECKLIST.md` lists it first.)
-- [ ] **9.2b** ~~Paste the seven email bodies — runbook §6 · 25 minutes.~~ Paste your seven HTML files into the drafts — runbook §6 · 25 minutes.
-- [ ] **9.2c** Run the test on the Preview — runbook §7 · 30 minutes.
-- [ ] **9.2d** Reply **"pass"**, or tell me what looked wrong.
+- [x] **9.2-first** The 1-minute try on the draft `conv1-03` — ✅ Mailchimp let you paste your own HTML.
+- [x] **9.2a** The two flows, built with your HTML files and switched on — ✅ `conv1-01` and `conv1-02`.
+- [x] **9.2b** Your seven HTML files, pasted into the drafts — ✅ the check read them back.
+- [x] **9.2c** The test on the Preview — ✅ "You're in" and "Your Toolkit is here" both arrived. The test found one fault: your browser's autofill filled a hidden anti-spam box, so the Toolkit form said "Invalid request". I fixed it the same day.
+- [x] **9.2d** ✅ Your words: *"I received both the emails so I think toolkit is fixed as well"*.
 
 ### 9.3 The Codex review, then the merge · a few minutes
 
-- [ ] **9.3a** Wait for my message **"ready for the Codex review"**. Run the review with the prompt I hand you, as for the earlier sprints, and paste the result back to me.
+- [ ] **9.3a** Run the Codex review with the prompt I hand you (sent 2026-11-14 with my message **"ready for the Codex review"**), and paste the result back to me.
 - [ ] **9.3b** When the review says APPROVE and I tell you the checks are green, merge the pull request on GitHub.
 
 ### 9.4 After the merge — one pretend purchase · 5 minutes
@@ -803,7 +801,7 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 - [ ] **9.4b** Do runbook §8, then reply **"bought"**.
 - [ ] **9.4c** I show you two clean-up statements for that one test account. Approve them and I run them.
 
-### 9.5 Later — when the real webinar has a date · about 90 minutes · not part of this sprint
+### 9.5 Switch it on — the go-live checklist · about 90 minutes · not part of this sprint
 
 - [ ] **9.5** Runbook §9, the go-live checklist, from top to bottom. *(Added 2026-11-14:)* for the emails (runbook §9.5) the easy way is to send me the real date, time and offer details; I return nine final files and you paste each one again.
 

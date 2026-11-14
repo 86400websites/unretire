@@ -4,7 +4,7 @@
 > Written for the owner. One action per line. Copy the names; do not retype them.
 > Companions: your nine HTML email files (§5.0 — since 2026-11-14 they are the bodies of the nine emails),
 > `docs/content/email-copy/conv1.md` ("the paste sheet" — each email's Mailchimp name, subject, preview text,
-> link addresses and send rule), `docs/WEBINAR-CHECKLIST.md` (the whole job on one page, with tick boxes),
+> link addresses and send rule), your own one-page summary "Webinar Automation" (kept outside this repository),
 > `docs/content/page-copy/conversation.md` (every word on the page), `docs/OWNER-ACTIONS.md` Part 9
 > (what this sprint needs from you, in order). Built in Sprint S6.1 (`docs/sprint-prompts/S6.1-webinar-funnel.md`).
 >
@@ -52,7 +52,7 @@ One more, since 2026-11-14: **HTML file** = one finished email — its design an
 - [x] Your answers to my questions (Gate 0 and Gate A), 2026-11-13. Your reply is quoted in full in `docs/OWNER-ACTIONS.md` Part 9.
 - [x] The four Preview-only values `WEBINAR_STARTS_AT`, `WEBINAR_OFFER_ENDS_AT`, `WEBINAR_OFFER_CODE` and `WEBINAR_REPLAY_URL`. You added them in Vercel for **Preview** on 2026-11-14 (your screenshot). Your words the day before: *"if they are essential then I have no issues - I'll add the details then redeploy"*.
 - [x] The three new privacy-page sentences (webinar sign-ups, Zoom, the tag added when someone buys). You approved them on 2026-11-14. Your words: *"privacy ok"*. They are in `docs/content/page-copy/privacy.md`, section 13, and they reach the live page when this work is merged.
-- [x] Your nine HTML email files. You gave them to me on 2026-11-14. My ready-to-paste copies are in the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads. What I changed in them, and what I left: §5.0.
+- [x] Your nine HTML email files. You gave them to me on 2026-11-14. My ready-to-paste copies were in the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads; you pasted them on 2026-11-14 and the folder has since gone. I make it again with the final files (§9.5). What I changed in them, and what I left: §5.0.
 
 About the four Preview values:
 
@@ -60,25 +60,19 @@ About the four Preview values:
 - You do not need to Redeploy for them. My next push builds a new Preview, and it picks them up.
 - If one is in the wrong shape, that build stops and names it (§3.3). I will tell you which one.
 
+**Done on 2026-11-14.**
+
+- [x] My message "Mailchimp is ready": the three tags, the three Segments and the seven empty drafts in your account.
+- [x] Your seven HTML files, pasted into the drafts. The check read them back.
+- [x] The two flows, built with your HTML files and switched on: `conv1-01` and `conv1-02`.
+- [x] The test on the Preview: "You're in" and "Your Toolkit is here" both arrived, and the check read your two test contacts back in the right Segments. Your words: *"I received both the emails so I think toolkit is fixed as well"*.
+
 **Still to do, in this order.**
 
-1. ~~Wait for my message **"Mailchimp is ready"**.~~ Sent on 2026-11-14. The three tags, the three Segments and the seven empty drafts are in your Mailchimp account.
-2. Try the HTML route once, on the draft `conv1-03` — §5.0. 1 minute. If Mailchimp does not offer it, stop and send me a screenshot.
-3. Paste your seven HTML files into the drafts — §6. 25 minutes.
-4. Build the two flows with your HTML files — §5. 20 minutes.
-5. Run the test — §7. 30 minutes.
-6. Reply **"pass"**.
-7. Wait for my message **"ready for the Codex review"**.
-8. Run the review with the prompt I hand you, as for the earlier sprints.
-9. Paste the result back to me.
-10. When the review says APPROVE and I tell you the checks are green, merge the pull request.
-11. Wait for my message **"staging is ready"**.
-12. Make one pretend purchase — §8. 5 minutes.
-13. Later, when the real webinar has a date: the go-live checklist — §9. About 90 minutes.
-
-Items 3 and 4 can be done in either order. This is the order `docs/WEBINAR-CHECKLIST.md` uses.
-
-The same list with tick boxes, on one page, is `docs/WEBINAR-CHECKLIST.md`.
+1. Run the Codex review with the prompt I hand you, and paste the result back to me.
+2. When the review says APPROVE and I tell you the checks are green, merge the pull request.
+3. Wait for my message **"staging is ready"**, then make one pretend purchase — §8. 5 minutes.
+4. Switch the funnel on: the go-live checklist — §9. About 90 minutes.
 
 The same list, with the decisions behind it, is `docs/OWNER-ACTIONS.md` Part 9.
 
