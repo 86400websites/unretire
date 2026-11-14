@@ -774,7 +774,7 @@ setting (8.3), you can see every run in the Actions tab, and the two-minute test
 
 ### 9.1 Already done · nothing to do
 
-- [x] **9.1a** The two GitHub secrets `MAILCHIMP_API_KEY` and `MAILCHIMP_LIST_ID` — ✅ added by you, 2026-11-13. *(I cannot list secret names with my access; the first "Webinar Funnel" run on the pull request is what proves them — D-43.)*
+- [x] **9.1a** The two GitHub secrets `MAILCHIMP_API_KEY` and `MAILCHIMP_LIST_ID` — ✅ added by you, 2026-11-13. ~~*(I cannot list secret names with my access; the first "Webinar Funnel" run on the pull request is what proves them — D-43.)*~~ **Proved 2026-11-14:** both names are listed, and the "Webinar Funnel" run on pull request #43 is green. Mailchimp refused the first key (HTTP 401), so you replaced the secret's value that day.
 - [x] **9.1b** The Vercel value `WEBINAR_ZOOM_URL`, for Production, Preview and Development — ✅ added by you, 2026-11-13.
 - [x] **9.1c** Gate 0 and Gate A — ✅ answered 2026-11-13 (quoted above).
 - [x] **9.1d** The four Preview-only Vercel values `WEBINAR_STARTS_AT`, `WEBINAR_OFFER_ENDS_AT`, `WEBINAR_OFFER_CODE` and `WEBINAR_REPLAY_URL` — ✅ added by you for **Preview**, 2026-11-14 (your screenshot). Leave them there for good. Leave all four **empty in Production**. No Redeploy is needed: my next push builds a new Preview and it picks them up. What each one is for: runbook §2.4.

@@ -39,7 +39,7 @@ Two more: **Preview** = a private test copy of the site. **Dormant** = switched 
 
 **Done. Do not do these again.**
 
-- [x] The two GitHub secrets `MAILCHIMP_API_KEY` and `MAILCHIMP_LIST_ID`. You added them on 2026-11-13.
+- [x] The two GitHub secrets `MAILCHIMP_API_KEY` and `MAILCHIMP_LIST_ID`. You added them on 2026-11-13. You replaced the key's value on 2026-11-14, after Mailchimp refused the first one.
 - [x] `WEBINAR_ZOOM_URL` in Vercel, for Production, Preview and Development. You added it on 2026-11-13.
 - [x] Your answers to my questions (Gate 0 and Gate A), 2026-11-13. Your reply is quoted in full in `docs/OWNER-ACTIONS.md` Part 9.
 - [x] The four Preview-only values `WEBINAR_STARTS_AT`, `WEBINAR_OFFER_ENDS_AT`, `WEBINAR_OFFER_CODE` and `WEBINAR_REPLAY_URL`. You added them in Vercel for **Preview** on 2026-11-14 (your screenshot). Your words the day before: *"if they are essential then I have no issues - I'll add the details then redeploy"*.
@@ -53,7 +53,7 @@ About the four Preview values:
 
 **Still to do, in this order.**
 
-1. Wait for my message **"Mailchimp is ready"**.
+1. ~~Wait for my message **"Mailchimp is ready"**.~~ Sent on 2026-11-14. The three tags, the three Segments and the seven empty drafts are in your Mailchimp account.
 2. Build the two flows — §5. 20 minutes.
 3. Paste the seven email bodies — §6. 25 minutes.
 4. Run the test — §7. 30 minutes.
