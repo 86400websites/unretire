@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { test, expect } from "../fixtures";
 import { CAMPAIGN } from "../../../src/lib/webinar/config";
 
@@ -21,6 +22,10 @@ import { CAMPAIGN } from "../../../src/lib/webinar/config";
  *
  * Nothing here runs the script or makes a request. What the script DOES
  * against Mailchimp is proven by the "Webinar Funnel" workflow run.
+ *
+ * The last group is the one exception to "read as TEXT": it imports the script
+ * for its pure helpers (importing it does nothing) and holds them to the rule
+ * that an email with a "{{…}}" placeholder left in it cannot pass launch-check.
  */
 
 const ROOT = path.join(__dirname, "..", "..", "..");
@@ -279,6 +284,163 @@ test.describe("S6.1 funnel script — what it cannot do", () => {
     expect(script).toContain('"http://127.0.0.1:"');
     expect(script).toContain('url.hostname === "127.0.0.1"');
     expect(workflow).not.toContain("MAILCHIMP_API_BASE_FOR_TESTS");
+  });
+});
+
+type Link = { kind: string; token?: string; host?: string; path?: string };
+
+type FunnelHelpers = {
+  visibleText(html: string): string;
+  findBlanks(text: string): string[];
+  findPlaceholders(text: string): string[];
+  extractLinks(html: string): string[];
+  classifyLink(href: string, siteOrigin: string): Link;
+};
+
+/** The script's pure helpers. Importing the script runs nothing and makes no request. */
+function helpers(): Promise<FunnelHelpers> {
+  return import(
+    pathToFileURL(path.join(ROOT, "scripts", "webinar-funnel.mjs")).href
+  );
+}
+
+test.describe("S6.1 funnel script — a placeholder left in an email", () => {
+  const SITE = "https://www.example.com";
+
+  test("a link that is still {{…}} is its own kind, named only when it is a bare name", async () => {
+    const { classifyLink } = await helpers();
+    expect(classifyLink("{{ZOOM_URL}}", SITE)).toEqual({
+      kind: "placeholder",
+      token: "{{ZOOM_URL}}",
+    });
+    // Percent-encoded curly brackets, in either case, are the same placeholder.
+    expect(classifyLink("%7B%7BCOURSE_URL%7D%7D", SITE)).toEqual({
+      kind: "placeholder",
+      token: "{{COURSE_URL}}",
+    });
+    expect(classifyLink("%7b%7bREPLAY_URL%7d%7d", SITE)).toEqual({
+      kind: "placeholder",
+      token: "{{REPLAY_URL}}",
+    });
+    // Anything more than a bare name is never given back: it may hold an address.
+    for (const href of [
+      "http://{{ZOOM_URL}}",
+      "https://us02web.zoom.us/j/1?pwd={{PASSWORD}}",
+      "https://www.example.com/{{COURSE_URL}}",
+      "{{https://us02web.zoom.us/j/1}}",
+      "{{zoom url}}",
+      "{{ZOOM_URL}}?e=*|EMAIL|*",
+      "{{ZOOM_URL",
+      "ZOOM_URL}}",
+    ]) {
+      expect(classifyLink(href, SITE), href).toEqual({ kind: "placeholder" });
+    }
+  });
+
+  test("merge tags, mailto and ordinary links are sorted exactly as before", async () => {
+    const { classifyLink } = await helpers();
+    for (const href of ["*|UNSUB|*", "*|ARCHIVE|*", "*|UPDATE_PROFILE|*"]) {
+      expect(classifyLink(href, SITE), href).toEqual({ kind: "skipped" });
+    }
+    expect(classifyLink("mailto:hello@example.net", SITE)).toEqual({
+      kind: "skipped",
+    });
+    expect(classifyLink("https://www.example.com/start?x=1", SITE)).toEqual({
+      kind: "internal",
+      path: "/start?x=1",
+    });
+    expect(classifyLink("https://www.youtube.com/watch?v=abc", SITE)).toEqual({
+      kind: "external",
+      host: "www.youtube.com",
+    });
+    expect(classifyLink("https://us02web.zoom.us/j/1?pwd=x", SITE)).toEqual({
+      kind: "zoom",
+    });
+    expect(classifyLink("https://example.com/start", SITE)).toEqual({
+      kind: "wrong-origin",
+    });
+    expect(classifyLink("[link]", SITE)).toEqual({ kind: "blank" });
+    expect(classifyLink("not a web address", SITE)).toEqual({
+      kind: "unreadable",
+    });
+  });
+
+  test("{{…}} in a text is found: a bare name is listed, anything else is hidden", async () => {
+    const { findPlaceholders, findBlanks } = await helpers();
+    expect(findPlaceholders("Join at {{ZOOM_URL}} on {{ date }}.")).toEqual([
+      "{{ZOOM_URL}}",
+      "{{…}}",
+    ]);
+    expect(findPlaceholders("{{https://us02web.zoom.us/j/1}}")).toEqual([
+      "{{…}}",
+    ]);
+    expect(findPlaceholders("Replace all {{...}} before sending")).toEqual([
+      "{{…}}",
+    ]);
+    expect(findPlaceholders("one {{ left open")).toEqual(["{{…}}"]);
+    expect(findPlaceholders("one closed }} alone")).toEqual(["{{…}}"]);
+    // Mailchimp merge tags, square brackets and single curly brackets are not placeholders.
+    expect(findPlaceholders("Hi *|FNAME|*, at [time] {see you}")).toEqual([]);
+    expect(findPlaceholders(undefined as unknown as string)).toEqual([]);
+    // …and a placeholder is not also reported as a "[" blank.
+    expect(findBlanks("Join at {{ZOOM_URL}}")).toEqual([]);
+  });
+
+  test("comments, styles, the head and the title never count; the text and the links do", async () => {
+    const {
+      visibleText,
+      findBlanks,
+      findPlaceholders,
+      extractLinks,
+      classifyLink,
+    } = await helpers();
+    const html = [
+      "<html><head><title>{{TITLE}} at [time]</title>",
+      "<!--[if mso]><xml><o:PixelsPerInch>96</o:PixelsPerInch></xml><![endif]-->",
+      "<style>a[x-apple-data-detectors]{color:inherit} .x{{}}</style></head><body>",
+      "<!-- Replace all {{...}} URL placeholders and all [square-bracket] content. -->",
+      '<!--[if mso]><table role="presentation"><tr><td><![endif]-->',
+      "<p>We start at [time]. {{START_TIME}} &#123;&#123;HOST_NAME&#125;&#125;</p>",
+      '<a href="{{ZOOM_URL}}">Join on Zoom</a>',
+      '<a href="https://www.example.com/start">Starter Plan</a>',
+      '<a href="*|UNSUB|*">Unsubscribe</a>',
+      "<!--[if mso]></td></tr></table><![endif]-->",
+      "</body></html>",
+    ].join("\n");
+    const text = visibleText(html);
+    expect(findBlanks(text)).toEqual(["[time]"]);
+    expect(findPlaceholders(text)).toEqual(["{{START_TIME}}", "{{HOST_NAME}}"]);
+    expect(
+      extractLinks(html).map((href) => classifyLink(href, SITE).kind),
+    ).toEqual(["placeholder", "internal", "skipped"]);
+  });
+
+  test("launch-check fails on a placeholder; check only lists it", () => {
+    // The link: decided before the address is parsed, and never a bare note.
+    const classify = script.slice(
+      script.indexOf("export function classifyLink("),
+      script.indexOf("function normalise("),
+    );
+    expect(classify.indexOf('kind: "placeholder"')).toBeGreaterThan(-1);
+    expect(classify.indexOf('kind: "placeholder"')).toBeLessThan(
+      classify.indexOf("new URL(href)"),
+    );
+    expect(script).toMatch(
+      /\} else if \(link\.kind === "placeholder"\) \{\n {6}const line = link\.token\n[\s\S]{0,300}?\n {6}if \(strict\) fail\(line\);\n {6}else fact\(line\);\n {4}\} else if \(link\.kind === "unreadable"\) \{/,
+    );
+    // The text: subject, preview text and body, each failed when strict.
+    expect(script).toMatch(
+      /function reportPlaceholders\(where, placeholders, strict\) \{\n {2}if \(placeholders\.length === 0\) return;\n[\s\S]{0,300}?\n {2}if \(strict\) fail\(line\);\n {2}else fact\(line\);\n\}/,
+    );
+    for (const call of [
+      'reportPlaceholders("  subject", findPlaceholders(found.subject), strict);',
+      'reportPlaceholders("  preview text", findPlaceholders(found.preview), strict);',
+      'reportPlaceholders("  body", findPlaceholders(text), strict);',
+    ]) {
+      expect(script, call).toContain(call);
+    }
+    // No report line is ever built from a link's own address.
+    expect(script).not.toContain("${href}");
   });
 });
 

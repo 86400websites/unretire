@@ -4,6 +4,17 @@
 - **Drafted:** 2026-11-13 (Sprint S6.1)
 - **Status:** APPROVED by the owner on 2026-11-13 (Gate A). The nine emails stay exactly as he wrote them; in his words, *"Its fine - dont worry about the email content - they will bechnaged later to fit the actual webinar"*. One blank was filled on his answer: the course's name in Email 7 is "The (Un)Retire Course". The emails are sent from the Mailchimp account's default sender. Every question put to him, with his answer, is under "Owner's answers (2026-11-13)" at the end. The PASTE VERSION blocks are what gets pasted into Mailchimp; every square bracket still in them is to be replaced before go-live.
 
+> **Note (2026-11-14) — the bodies now come from the owner's HTML files.** On 2026-11-14 the owner gave the builder nine
+> finished HTML email files, and those files are what goes into Mailchimp as the body of each email (runbook
+> `docs/WEBINAR-FUNNEL.md` §5.0, §5.2 and §6). This sheet stays the source for the Mailchimp names, the
+> subjects, the preview texts, the link addresses (the "Buttons and links" tables) and the send rules. The
+> Body blocks of the PASTE VERSION are now the fallback route only (runbook §5.5), for the case where
+> Mailchimp does not offer its "Code your own" option. Where a line in this file says the owner pastes the
+> PASTE VERSION, read it together with this note. The HTML files differ from the PASTE VERSION bodies in
+> places — most sample dates are not in square brackets, and the files add labels and footer lines — so the
+> words to check before go-live on the HTML route are listed in runbook §9.5, not in the "Replace before
+> go-live" tables below.
+
 **What this file is.** The nine webinar emails, each shown twice: once exactly as the owner
 wrote it (SOURCE), and once ready to paste into Mailchimp (PASTE VERSION). The owner pastes
 the PASTE VERSION. Nobody rewrites his wording here: where something looks off it is listed

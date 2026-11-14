@@ -2,7 +2,9 @@
 
 > Everything you need to build the Mailchimp side, test it, and later run a real webinar — without help.
 > Written for the owner. One action per line. Copy the names; do not retype them.
-> Companions: `docs/content/email-copy/conv1.md` (the nine emails — "the paste sheet"),
+> Companions: your nine HTML email files (§5.0 — since 2026-11-14 they are the bodies of the nine emails),
+> `docs/content/email-copy/conv1.md` ("the paste sheet" — each email's Mailchimp name, subject, preview text,
+> link addresses and send rule), `docs/WEBINAR-CHECKLIST.md` (the whole job on one page, with tick boxes),
 > `docs/content/page-copy/conversation.md` (every word on the page), `docs/OWNER-ACTIONS.md` Part 9
 > (what this sprint needs from you, in order). Built in Sprint S6.1 (`docs/sprint-prompts/S6.1-webinar-funnel.md`).
 >
@@ -10,6 +12,10 @@
 > against that vendor's own help page on **2026-11-13**, and nine of those pages were read again on
 > **2026-11-14**; the pages are listed in §15. Where a label could not be confirmed it says
 > **(label not confirmed — look for something similar)**.
+>
+> **The HTML steps are new.** The Mailchimp pages behind §5.0, §5.2 part D, §5.4 and §6 were read on
+> **2026-11-14**, through a tool that summarises pages. Nobody has seen those labels on your screen yet.
+> Check each one against your screen on the first email, and send me a screenshot when one differs.
 >
 > **Short on time?** "Where you are today" in §0 is the whole list: what is done, and what is next.
 
@@ -28,12 +34,14 @@
 
 Two more: **Preview** = a private test copy of the site. **Dormant** = switched off: the page answers "not found".
 
+One more, since 2026-11-14: **HTML file** = one finished email — its design and its words together — saved as a file on your computer (§5.0).
+
 **Four rules. Never break them.**
 
 1. **A changed Vercel value does nothing until you Redeploy.** Edit the value, then Redeploy. Always both.
 2. **Never paste a Preview address into Mailchimp.** One Mailchimp audience serves the live site and every test, so emails go to real people. Every link in an email starts with `https://www.unretireproject.com`.
 3. **Use a new plus-address for every test.** An address that was used before does not get Email 1 again (§7).
-4. **Never paste the Zoom link into an email, a chat or a document.** It goes into Vercel only. Emails link to `https://www.unretireproject.com/conversation/join`, which forwards to Zoom.
+4. **Never paste the Zoom link into an email, an email file, a chat or a document.** It goes into Vercel only. Emails link to `https://www.unretireproject.com/conversation/join`, which forwards to Zoom.
 
 ### Where you are today (written 2026-11-14)
 
@@ -44,6 +52,7 @@ Two more: **Preview** = a private test copy of the site. **Dormant** = switched 
 - [x] Your answers to my questions (Gate 0 and Gate A), 2026-11-13. Your reply is quoted in full in `docs/OWNER-ACTIONS.md` Part 9.
 - [x] The four Preview-only values `WEBINAR_STARTS_AT`, `WEBINAR_OFFER_ENDS_AT`, `WEBINAR_OFFER_CODE` and `WEBINAR_REPLAY_URL`. You added them in Vercel for **Preview** on 2026-11-14 (your screenshot). Your words the day before: *"if they are essential then I have no issues - I'll add the details then redeploy"*.
 - [x] The three new privacy-page sentences (webinar sign-ups, Zoom, the tag added when someone buys). You approved them on 2026-11-14. Your words: *"privacy ok"*. They are in `docs/content/page-copy/privacy.md`, section 13, and they reach the live page when this work is merged.
+- [x] Your nine HTML email files. You gave them to me on 2026-11-14. My ready-to-paste copies are in the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads. What I changed in them, and what I left: §5.0.
 
 About the four Preview values:
 
@@ -54,17 +63,22 @@ About the four Preview values:
 **Still to do, in this order.**
 
 1. ~~Wait for my message **"Mailchimp is ready"**.~~ Sent on 2026-11-14. The three tags, the three Segments and the seven empty drafts are in your Mailchimp account.
-2. Build the two flows — §5. 20 minutes.
-3. Paste the seven email bodies — §6. 25 minutes.
-4. Run the test — §7. 30 minutes.
-5. Reply **"pass"**.
-6. Wait for my message **"ready for the Codex review"**.
-7. Run the review with the prompt I hand you, as for the earlier sprints.
-8. Paste the result back to me.
-9. When the review says APPROVE and I tell you the checks are green, merge the pull request.
-10. Wait for my message **"staging is ready"**.
-11. Make one pretend purchase — §8. 5 minutes.
-12. Later, when the real webinar has a date: the go-live checklist — §9. About 90 minutes.
+2. Try the HTML route once, on the draft `conv1-03` — §5.0. 1 minute. If Mailchimp does not offer it, stop and send me a screenshot.
+3. Paste your seven HTML files into the drafts — §6. 25 minutes.
+4. Build the two flows with your HTML files — §5. 20 minutes.
+5. Run the test — §7. 30 minutes.
+6. Reply **"pass"**.
+7. Wait for my message **"ready for the Codex review"**.
+8. Run the review with the prompt I hand you, as for the earlier sprints.
+9. Paste the result back to me.
+10. When the review says APPROVE and I tell you the checks are green, merge the pull request.
+11. Wait for my message **"staging is ready"**.
+12. Make one pretend purchase — §8. 5 minutes.
+13. Later, when the real webinar has a date: the go-live checklist — §9. About 90 minutes.
+
+Items 3 and 4 can be done in either order. This is the order `docs/WEBINAR-CHECKLIST.md` uses.
+
+The same list with tick boxes, on one page, is `docs/WEBINAR-CHECKLIST.md`.
 
 The same list, with the decisions behind it, is `docs/OWNER-ACTIONS.md` Part 9.
 
@@ -83,8 +97,8 @@ The same list, with the decisions behind it, is `docs/OWNER-ACTIONS.md` Part 9.
 
 | I do (the builder) | You do |
 |---|---|
-| The page, the two forms, the join link, the calendar file, the replay page | Build the two flows in Mailchimp — §5 |
-| Create the tags, the three Segments and the seven empty drafts (the "Webinar Funnel" job) | Paste the seven email bodies into the drafts — §6 |
+| The page, the two forms, the join link, the calendar file, the replay page | Build the two flows in Mailchimp, each with its HTML file — §5 |
+| Create the tags, the three Segments and the seven empty drafts (the "Webinar Funnel" job) | Paste your seven HTML files into the drafts — §6 |
 | The check that reads Mailchimp and reports what is wrong — §4 | Run the test and reply "pass" — §7 |
 | The purchase tag that keeps buyers out of Emails 8 and 9 | Set the Vercel values and Redeploy — §3 |
 | Any change to the page's wording (a small developer change) | The Zoom meeting and the Stripe code — §9 |
@@ -129,8 +143,9 @@ All times are South African time (SAST). "Start" is the webinar's start.
 | `conv1-08` | Email 8 · Your questions, answered | Scheduled email | `Conv1 - Registered, not bought` | Start date + 4 days, at 09:00 |
 | `conv1-09` | Email 9 · Last day | Scheduled email | `Conv1 - Registered, not bought` | Offer-end date, at 09:00 |
 
-The words of each email, its subject, its preview text and its buttons are in the paste sheet:
-`docs/content/email-copy/conv1.md`. This runbook never repeats them.
+Since 2026-11-14 the words and the design of each email are in your nine HTML files (§5.0).
+Each email's Mailchimp name, subject, preview text, link addresses and send rule are in the paste sheet:
+`docs/content/email-copy/conv1.md`. This runbook does not repeat the emails. §9.5 lists only the words in them that change with the date.
 
 ### 2.4 The five Vercel values — what each one is for
 
@@ -178,7 +193,7 @@ Until go-live the first four answer "not found" on the live site. That is correc
 | Replay link | Vercel value `WEBINAR_REPLAY_URL`, then Redeploy | You | 2 minutes |
 | Offer deadline | Vercel value `WEBINAR_OFFER_ENDS_AT`, then Redeploy | You | 2 minutes |
 | Offer code | Vercel value `WEBINAR_OFFER_CODE`, then Redeploy — and the same word in Stripe (§9.3) | You | 2 minutes |
-| Dates, times and season wording in the nine emails | Edit the email in Mailchimp (§5.4 for Emails 1 and 2, §6 for 3 to 9) | You | A few minutes each |
+| Dates, times and season wording in the nine emails | Change the email's HTML file, then paste the whole file again (§5.4 for Emails 1 and 2, §6 for 3 to 9). §9.5 lists every such word, email by email. Or send me the new values and I return new files. | You | A few minutes each |
 | The title, any wording on the page, the session length, the "SAST" label | A small developer change: one reviewed pull request, not a sprint | Developer | — |
 | Adding the page to the sitemap; what the old `/webinar` page does | A small developer change | Developer | — |
 | A second webinar's tags | A small developer change — see §12 | Developer | — |
@@ -276,8 +291,8 @@ The job is a robot that looks at Mailchimp and tells you what is there. It can n
 
 | Mode | What it does | When you use it |
 |---|---|---|
-| `check` | Reads only. Reports the tags, the Segments, the seven emails with every blank still in them and every link, the test contacts, and — once the live page is on — the send-time table. | Any time. It changes nothing. |
-| `launch-check` | `check`, plus hard failures for anything that must stop a go-live. | Once, after you have scheduled the seven emails (§9.8). |
+| `check` | Reads only. Reports the tags, the Segments, the seven emails, the test contacts, and — once the live page is on — the send-time table. For each of the seven emails it lists every square-bracket blank and every `{{…}}` placeholder still in the subject, the preview text, the body or a link, and it lists every link. It does not know whether a date written in plain words is right (§9.5). | Any time. It changes nothing. |
+| `launch-check` | `check`, plus hard failures for anything that must stop a go-live. A `[` or a `{{` left in a subject, a preview text, a body or a link of Emails 3 to 9 is one of them (a `<title>` is not read). | Once, after you have scheduled the seven emails (§9.8). |
 | `setup` | Creates the tags and the three Segments if they are missing. | Only if `check` says one is missing. |
 | `drafts` | Creates the seven empty drafts if they are missing. | Only if `check` says one is missing. |
 | `selftest` | Creates five test contacts on your own address, proves the Segments, archives the five. | Rarely. I run it during the build. |
@@ -285,9 +300,96 @@ The job is a robot that looks at Mailchimp and tells you what is there. It can n
 
 **Emails 1 and 2 cannot be checked by any job.** Mailchimp does not let a program read a flow. You check those two by eye (§9.5).
 
+**No job can tell a sample date from a real one.** The job finds square brackets and double curly brackets. Words such as `Thursday 10 December`, `tomorrow` and `tonight` have neither, so the job passes them in every email. You check those by eye too (§9.5).
+
 ## 5. Build the two flows (20 minutes, once)
 
 Start only after I tell you **"Mailchimp is ready"**. The tags must exist first.
+
+### 5.0 Your HTML email files (read once)
+
+On 2026-11-14 you gave me nine finished HTML email files. From now on **the file is the email**: its words, its design and its buttons. You paste the file's code into Mailchimp. You no longer paste plain text.
+
+**Where the files are**
+
+| Folder in your Downloads | What it holds | Use it? |
+|---|---|---|
+| `UnRetire_Emails_READY_TO_PASTE` | My ready-to-paste copies of your nine files | **Yes. Always paste from this folder.** |
+| `UnRetire_All_9_Email_Templates` | Your nine originals and `START_HERE.txt` | No. Keep it as your backup. I never change it. |
+
+**What I changed in the ready-to-paste copies — two things, nothing else**
+
+First, I filled in the seven link placeholders that have a fixed address:
+
+| Placeholder in your original | In the ready-to-paste copy |
+|---|---|
+| `{{ZOOM_URL}}` | `https://www.unretireproject.com/conversation/join` |
+| `{{CALENDAR_URL}}` | `https://www.unretireproject.com/conversation/calendar.ics` |
+| `{{TOOLKIT_URL}}` | `https://www.unretireproject.com/tools` |
+| `{{REGISTRATION_URL}}` | `https://www.unretireproject.com/conversation` |
+| `{{REPLAY_URL}}` | `https://www.unretireproject.com/conversation/replay` |
+| `{{STARTER_PLAN_URL}}` | `https://www.unretireproject.com/start` |
+| `{{COURSE_URL}}` | `https://www.unretireproject.com/learn/course` |
+
+Second, I removed every `mc:edit="…"` attribute. Those mark regions that can be edited inside Mailchimp. One name was used twice in Email 2, and regions sat inside other regions. Both are against Mailchimp's rules.
+
+**What I left as it was**
+
+- `{{WORKBOOK_URL}}` in Email 7, behind "Download your workbook →". No workbook exists. At go-live you decide: give me a file, or the line comes out (§9.5).
+- Every word you wrote, every square-bracket blank such as `[time]`, and every sample date. They are replaced at go-live (§9.5).
+
+**Which file goes where**
+
+| File | Mailchimp name | Where it goes |
+|---|---|---|
+| `Email_1_Youre_in.html` | `conv1-01` | The flow `conv1-01` — §5.2 |
+| `Email_2_Your_free_Toolkit.html` | `conv1-02` | The flow `conv1-02` — §5.3 |
+| `Email_3_Join_us_on_Thursday.html` | `conv1-03` | The draft `conv1-03` — §6 |
+| `Email_4_See_you_tomorrow.html` | `conv1-04` | The draft `conv1-04` — §6 |
+| `Email_5_Starting_in_1_hour.html` | `conv1-05` | The draft `conv1-05` — §6 |
+| `Email_6_Were_live.html` | `conv1-06` | The draft `conv1-06` — §6 |
+| `Email_7_Replay_and_offer.html` | `conv1-07` | The draft `conv1-07` — §6 |
+| `Email_8_Your_questions_answered.html` | `conv1-08` | The draft `conv1-08` — §6 |
+| `Email_9_Last_day.html` | `conv1-09` | The draft `conv1-09` — §6 |
+
+**Four rules for these files**
+
+1. **The file is the master copy.** To change a word in an email, change it in the file, then paste the **whole** file again (drafts: §6; flows: §5.4). Or tell me the word and I send you a new file. Do not edit a piece of an email inside Mailchimp.
+2. **There are two preview lines, and both must be right at go-live.** For an email pasted as code, the line an inbox shows beside the subject comes from a hidden line inside the file. It does not come from Mailchimp's **Preview text** field. That is what Mailchimp's help page says about custom-coded emails. That the field is then left out — and not shown as well — is my reading of that page (not confirmed). So at go-live you correct both (§9.5).
+3. **Never the real Zoom link — not in a file, not in Mailchimp.** The Zoom buttons in the ready-to-paste copies already point at `https://www.unretireproject.com/conversation/join`. This is rule 4 in §0.
+4. **Do not follow steps 2, 3 and 4 of `START_HERE.txt`.**
+   - Step 2 says "Replace the marked link placeholders with your real URLs". That is done. And the real Zoom link must never go in.
+   - Step 3 says to replace `[time]`, `[date]` and the other blanks. Not now. They stay until go-live (§9.5).
+   - Step 4 says "Set the campaign subject and preview text below". Do **not** do that for the seven drafts. They already hold their subject and their preview text, square brackets included. The job (§4) needs those brackets to find what is still to replace.
+   - For the two flows, take the Subject and the Preview text from the paste sheet (§5.2, part C).
+
+**To look at an email**
+
+1. Double-click the file. It opens in your browser and shows the email as a reader sees it.
+
+**To copy a file's code** (once for each email)
+
+1. Open the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads.
+2. Do **not** double-click the file. Copying from the browser copies the picture of the email, not its code.
+3. Right-click the file.
+4. Choose **Open with**, then **Notepad**. (On a Windows computer. On a Mac, or if Notepad is not offered, stop and ask me.)
+5. Press **Ctrl+A**. Everything is selected.
+6. Press **Ctrl+C**. The code is copied.
+7. Close Notepad. Change nothing and save nothing.
+
+**Before anything else — the 1-minute try**
+
+Mailchimp's help pages, read on 2026-11-14, say that pasting your own HTML needs two things: a **Standard** plan or higher, and Mailchimp's older email builder, which it calls the legacy builder. I do not know whether your account has either. One try on one draft answers it.
+
+1. In Mailchimp, click **Campaigns**.
+2. Open the draft `conv1-03`: click its name. (Mailchimp's page says only "Open the draft email". Whether you click the name or an **Edit** button, and whether a sub-menu comes first: not confirmed — look for something similar.)
+3. In the **Content** section, click **Design Email**. (That is the label Mailchimp's help page gives for an email with no design yet. On a draft that a program created: not confirmed — look for something similar.)
+4. Look at the screen. Mailchimp's pages describe two possible screens:
+   - A pop-up headed **How do you want to design your email?** One of its choices is **Use HTML to code my own**.
+   - A page headed **Select a template**, with tabs. One of the tabs is **Code Your Own** (also written **Code your own**).
+5. **If you see one of them:** the HTML route is open to you. Choose nothing yet. Click **Campaigns** to leave. (If a pop-up is in the way, close it first.) You finish `conv1-03` with the other six in §6.
+6. **If Mailchimp asks you to upgrade your plan, at this step or any later one:** stop and send me a screenshot.
+7. **If you see neither, stop and send me a screenshot.** Do not pick another template. The plain-text route (§5.5) is still there, and I tell you whether to use it.
 
 ### 5.1 The two flows at a glance
 
@@ -300,7 +402,7 @@ Start only after I tell you **"Mailchimp is ready"**. The tags must exist first.
 
 **If your screen does not match a step** — a button has another name, or you cannot find a setting — stop there, take a screenshot and send it to me. I tell you what to click and correct this page. A few labels below are marked "not confirmed": Mailchimp's own help pages did not show them.
 
-Before you start, open the paste sheet `docs/content/email-copy/conv1.md` at the heading "conv1-01 — Email 1 · You’re in", part "PASTE VERSION". You copy three things from it: the Subject, the Preview text and the Body.
+Before you start, open the paste sheet `docs/content/email-copy/conv1.md` at the heading "conv1-01 — Email 1 · You’re in", part "PASTE VERSION". You copy two things from it: the Subject and the Preview text. The body is your file `Email_1_Youre_in.html` (§5.0). You do not use the sheet's Body.
 
 **A. Create the flow**
 
@@ -330,7 +432,120 @@ Before you start, open the paste sheet `docs/content/email-copy/conv1.md` at the
 9. Click **Save**.
 10. Leave **Schedule** as it is.
 
-**D. Paste the body**
+**D. Put your HTML file in**
+
+Mailchimp's help pages do not say whether a flow's email lets you paste code. They do describe saving a file as a template, and picking a saved template. So you save the file as a template first, and then you pick it.
+
+*First: save the file as a template.* Do it in a second browser tab, so the flow stays open in the first.
+
+1. Open Mailchimp in a new browser tab.
+2. Click **Campaigns**.
+3. Click **Email templates**.
+4. Select **Code your own**. (If you must click a button to start a new template first: label not confirmed — look for something similar.)
+5. Click **Continue**.
+6. If Mailchimp offers more than one way to bring the code in, choose the one for pasting. (Mailchimp's page heads it **Paste in code**; the others are **Import HTML** and **Import ZIP**.)
+7. Copy the code of `Email_1_Youre_in.html` ("To copy a file's code" in §5.0).
+8. Click in the **Edit code** field.
+9. If the field already holds code, press **Ctrl+A**, then **Delete**.
+10. Press **Ctrl+V**. The whole file is in the field.
+11. Click **Save**.
+12. Click **Save and Exit**.
+13. Type the name `conv1-01`.
+14. Click **Save**.
+15. The template is now under the **Saved** tab of **Email templates**.
+
+*Then: pick the template in the flow.* Go back to the first tab.
+
+1. Click **Select a template**.
+2. If Mailchimp asks which builder, choose **Legacy Builder**.
+3. Click the tab **Saved templates** (also written **Saved Templates**). (Whether a flow's email shows this tab: not confirmed.)
+4. Click the template `conv1-01`. If clicking does nothing, hover over it and click **Apply**.
+5. The email shows as it does in your browser. Change nothing in it. The sample date and `[time]` stay for now. You replace them at go-live (§9.5).
+6. Send yourself a test email. (How, from inside a flow's email: not confirmed. In the legacy builder of an ordinary email it is the **Preview** drop-down, then **Send a test email**, then your address, then **Send Test** — look for something similar.)
+7. Read the test email in your inbox.
+8. Click **Save and return to flow**. (Mailchimp's page shows this label for another kind of flow. For an email made from your own code: label not confirmed — look for something similar.)
+
+**If there is no Saved templates tab** in step 3:
+
+1. Look for a tab **Code Your Own** (also written **Code your own**). (Whether a flow's email offers it: not confirmed.)
+2. If that tab is not there either, stop and send me a screenshot.
+3. If it is there, click it.
+4. Hover over **Paste in Code**.
+5. Click **Apply**.
+6. Click inside the code box, press **Ctrl+A**, then **Delete**.
+7. Press **Ctrl+V**.
+8. Click **Save**.
+9. Carry on at step 6 above.
+10. Tell me you did it this way. It is equally fine, and the saved template is then not used.
+
+One template for one email. Never use the same template for two emails.
+
+**E. Turn it on**
+
+1. Add **no** other step. No delay, no second email, no exit step.
+2. Open the flow's settings. (Where they open: not confirmed — look for something similar.)
+3. Make sure **Contacts can re-enter flow** is **off**. (Whether it starts off: not confirmed.)
+4. Click **Continue**.
+5. Click **Turn flow on**.
+
+### 5.3 Flow `conv1-02`
+
+Do §5.2 again with these four changes:
+
+1. Wherever §5.2 says `conv1-01`, use `conv1-02`: the flow's name, the email's name, the template's name and the template you pick.
+2. Tag: `conv1-toolkit`.
+3. Paste sheet heading: "conv1-02 — Email 2 · Your free Toolkit".
+4. File: `Email_2_Your_free_Toolkit.html`, saved as its own template named `conv1-02`.
+
+### 5.4 Edit a flow's email later
+
+1. Click **Automations**.
+2. Click **All flows**.
+3. Click the drop-down arrow for the flow.
+4. Choose **View flow**.
+5. Click **Pause & Edit**.
+6. In the pop-up, click **Pause**.
+7. Click the email.
+8. Click **Edit** in the **Subject** field. Change the Subject or the Preview text there. (To change the email's words, use the steps further down — not this.)
+9. Save.
+10. Click **Turn back on**.
+
+**Do not forget step 10.** While a flow is paused, nobody who signs up gets its email.
+
+**To change the words of Email 1 or Email 2.** The file is the master copy (§5.0, rule 1). You change the file, then the template, then you check the flow.
+
+1. Change the word in the file ("To change a word in a file" in §9.5). Or ask me for a new file.
+2. Pause the flow first: steps 1 to 6 at the top of this section. A changed template may reach the flow's email at once.
+2a. In Mailchimp, click **Campaigns**.
+3. Click **Email templates**.
+4. Click **Edit** on the template `conv1-01` (for Email 2: `conv1-02`).
+5. Click **Edit Code**.
+6. Click inside the code, press **Ctrl+A**, then **Delete**.
+7. Paste the whole file ("To copy a file's code" in §5.0).
+8. Click **Save**, at the lower left.
+9. Click **Save and Exit**, at the lower right.
+10. Open the flow's email: step 7 at the top of this section.
+11. Send yourself a test email from it. (How: not confirmed — see §5.2, part D.)
+12. Read the test. It must show the new words.
+13. If it still shows the old words, select the template again: open the email's design, click the tab **Saved templates**, and pick the same template. (Not confirmed. Mailchimp's pages disagree on whether a changed template reaches an email that already uses it. The button that opens a flow email's design is not on its help pages either — look for something similar.)
+14. Send yourself a test again and read it.
+15. Close the email. (Mailchimp's page says the **Send email** step has a **Close** button.)
+16. Click **Turn back on**.
+
+**If you pasted the code straight into the flow's email** (§5.2, "If there is no Saved templates tab"), there is no template to change:
+
+1. Do step 1 above, then step 10.
+2. Open the email's design. (The button: label not confirmed — look for something similar.)
+3. Click inside the code box, press **Ctrl+A**, then **Delete**.
+4. Paste the whole file.
+5. Click **Save**.
+6. Do steps 14 to 16 above.
+
+### 5.5 Plain-text route (only if Mailchimp does not offer Code your own)
+
+Use this only if the try in §5.0 failed and I told you to use it. It is the route this runbook gave before 2026-11-14. You paste plain words into a plain Mailchimp template. The words come from the paste sheet's "PASTE VERSION" blocks, not from your HTML files.
+
+**For a flow's email — in place of §5.2, part D:**
 
 1. Click **Select a template**.
 2. If Mailchimp asks, choose **New Builder**.
@@ -346,59 +561,77 @@ Before you start, open the paste sheet `docs/content/email-copy/conv1.md` at the
 12. Read the test email in your inbox.
 13. Save the email and go back to the flow. (The button is **Save and exit** in a regular email; inside a flow: label not confirmed — look for something similar.)
 
-**E. Turn it on**
+**For a draft — in place of §6, steps 7 to 24:**
 
-1. Add **no** other step. No delay, no second email, no exit step.
-2. Open the flow's settings. (Where they open: not confirmed — look for something similar.)
-3. Make sure **Contacts can re-enter flow** is **off**. (Whether it starts off: not confirmed.)
-4. Click **Continue**.
-5. Click **Turn flow on**.
+1. Open the **Content** section to design the email. (The button: label not confirmed — look for something similar.)
+2. Pick the same plain template as for the flow's email above.
+3. Open the paste sheet at the heading with the same name.
+4. Copy the **Body** of the "PASTE VERSION".
+5. Click the text block.
+6. Paste.
+7. Make each label-and-address pair a button or a link, and delete the address line (as in steps 6 and 7 for a flow's email, above).
+8. Make the lines that start with "- " a bulleted list.
+9. Click **Save and exit**.
+10. **Do not click Schedule. Do not click Send.**
 
-### 5.3 Flow `conv1-02`
-
-Do §5.2 again with these three changes:
-
-1. Name: `conv1-02`.
-2. Tag: `conv1-toolkit`.
-3. Paste sheet heading: "conv1-02 — Email 2 · Your free Toolkit".
-
-### 5.4 Edit a flow's email later
-
-1. Click **Automations**.
-2. Click **All flows**.
-3. Click the drop-down arrow for the flow.
-4. Choose **View flow**.
-5. Click **Pause & Edit**.
-6. In the pop-up, click **Pause**.
-7. Click the email.
-8. Click the **Edit** links to change the **Subject** or the content.
-9. Save.
-10. Click **Turn back on**.
-
-**Do not forget step 10.** While a flow is paused, nobody who signs up gets its email.
+**At go-live on this route**, the things to replace are the square brackets only. The paste sheet's "Replace before go-live" table under each email lists them and says what goes in each. The tables in §9.5 are for the HTML files and do not apply.
 
 ## 6. Finish the seven drafts (25 minutes, once)
 
-The seven drafts already exist. Each has its name, its Segment, its subject and its preview text. You add the body.
+The seven drafts already exist. Each has its name, its Segment, its subject and its preview text. You add the body: the code of your HTML file (§5.0).
+
+| Draft | File to paste |
+|---|---|
+| `conv1-03` | `Email_3_Join_us_on_Thursday.html` |
+| `conv1-04` | `Email_4_See_you_tomorrow.html` |
+| `conv1-05` | `Email_5_Starting_in_1_hour.html` |
+| `conv1-06` | `Email_6_Were_live.html` |
+| `conv1-07` | `Email_7_Replay_and_offer.html` |
+| `conv1-08` | `Email_8_Your_questions_answered.html` |
+| `conv1-09` | `Email_9_Last_day.html` |
 
 Do this for each of `conv1-03`, `conv1-04`, `conv1-05`, `conv1-06`, `conv1-07`, `conv1-08`, `conv1-09`:
 
 1. In Mailchimp, click **Campaigns**.
-2. Click the name of the draft.
+2. Click the name of the draft. (If the draft opens with a button beside its name instead: label not confirmed — look for something similar.)
 3. Look at the **To** section. It must show the Segment from the table in §2.3.
 4. If it shows anything else, fix it now with the steps under "Wrong Segment" below.
 5. Look at the **From** section. It should show your Mailchimp default sender. If it is empty, fill it with the steps under "Empty From" below.
-6. Leave the **Subject** section as it is. It already holds the subject and the preview text, brackets included.
-7. Open the **Content** section to design the email. (The button: label not confirmed — look for something similar.)
-8. Pick the same plain template as in §5.2.
-9. Open the paste sheet at the heading with the same name.
-10. Copy the **Body** of the "PASTE VERSION".
-11. Click the text block.
-12. Paste.
-13. Make each label-and-address pair a button or a link, and delete the address line (as in §5.2, part D, steps 6 and 7).
-14. Make the lines that start with "- " a bulleted list.
-15. Click **Save and exit**.
-16. **Do not click Schedule. Do not click Send.**
+6. Leave the **Subject** section as it is. It already holds the subject and the preview text, brackets included. Do not retype them from `START_HERE.txt`.
+7. In the **Content** section, click **Design Email**. (That is the label Mailchimp's help page gives for an email with no design yet. On these drafts: not confirmed — look for something similar.)
+8. Choose the code option. On a pop-up headed **How do you want to design your email?**, click **Use HTML to code my own**. On a page headed **Select a template**, click the tab **Code Your Own**. (Which of the two screens a draft shows: not confirmed. §5.0 describes both.)
+9. Hover over **Paste in Code**.
+10. Click **Apply**.
+11. If a pop-up asks whether to continue in the legacy builder, accept it. (The button: label not confirmed — look for something similar.)
+12. Copy the code of this draft's file ("To copy a file's code" in §5.0).
+13. Click inside Mailchimp's code box.
+14. Press **Ctrl+A**, then **Delete**. The box is empty.
+15. Press **Ctrl+V**. The whole file is in the box.
+16. Click **Save**.
+17. Click the **Preview** drop-down and choose **Enter preview mode**.
+18. Look at **Desktop**, then at **Mobile**. The email looks as the file does in your browser.
+19. Click **Close**.
+20. Click the **Preview** drop-down and choose **Send a test email**.
+21. Enter your own address.
+22. Click **Send Test**.
+23. Click **Continue**. You are back on the draft's checklist, and the draft is saved.
+24. **Do not click Schedule. Do not click Send.** For the next draft, start again at step 1. (A button that leaves the checklist: label not confirmed — look for something similar.)
+
+Change nothing in the code for now. The sample dates, `[time]` and the other blanks stay until go-live (§9.5).
+
+**To paste a file again later** (after you changed a word in it):
+
+1. Click **Campaigns**.
+2. Click the name of the draft.
+3. In the **Content** section, click **Edit design** (also written **Edit Design**).
+4. Click inside the code box.
+5. Press **Ctrl+A**, then **Delete**.
+6. Paste the whole file ("To copy a file's code" in §5.0).
+7. Click **Save**.
+8. Click **Continue**.
+9. Send yourself a test email and read it (§7.4).
+
+If the email is already scheduled, pause it first ("To change a scheduled email" in §9.8), and schedule it again afterwards.
 
 **Wrong Segment** (only if step 3 showed the wrong one):
 
@@ -418,7 +651,7 @@ When all seven are done, tell me. I run the check and confirm all seven are on t
 
 ## 7. The test run (30 minutes)
 
-You need: my message "Mailchimp is ready", both flows on (§5), all seven drafts pasted (§6), and the Preview address I gave you.
+You need: my message "Mailchimp is ready", both flows on (§5), all seven HTML files pasted into their drafts (§6), and the Preview address I gave you.
 
 **Your test addresses.**
 
@@ -451,21 +684,40 @@ You need: my message "Mailchimp is ready", both flows on (§5), all seven drafts
 1. Open your inbox. Look in spam and promotions too.
 2. Email 1 has arrived. Its subject starts "You’re in."
 3. Email 2 has arrived. Its subject is "Your Toolkit is here".
-4. Hover over every button and link in both. Each address must be the one in the paste sheet's "Buttons and links" table for that email.
+4. Click every button and link in both, except **Unsubscribe**. Each must open the address in §2.5, or in the paste sheet's "Buttons and links" table for that email. (Hovering may show a Mailchimp tracking address instead — not confirmed. That is normal.)
 5. The `/conversation` links open "not found" on the live site. **That is expected until go-live.** To see those pages, open the same path on the Preview address instead.
+6. Compare each email with its file. Double-click `Email_1_Youre_in.html`, then `Email_2_Your_free_Toolkit.html` (§5.0). Each email must look the same as its file and say the same words. The sample date and `[time]` are still in both. That is expected until go-live.
+7. Look at the line your inbox shows beside the subject. For Email 1 it should read "Your seat and your Zoom link." For Email 2 it should read "Plus one free hour that takes it further." Those are the hidden lines inside the files.
+8. If Email 2's line shows square brackets, tell me. Then the inbox is showing Mailchimp's **Preview text** field, and my reading in §5.0, rule 2, was wrong.
+9. Look at the foot of each email. Your postal address is there, and three links: **View in browser**, **Preferences**, **Unsubscribe**.
+10. Click **View in browser**. If it does not open the email, tell me. (Whether it works in a flow's email: not confirmed.)
+11. Do not finish an unsubscribe. It takes your test address off the list.
+12. If Mailchimp has added a second footer of its own under yours, go to §14.
 
 If an email did not arrive, go to §14.
 
 ### 7.4 Send yourself a test of each of the seven
 
-For each of `conv1-03` to `conv1-09`:
+You sent yourself a test of each draft in §6, steps 20 to 22. Use those. If one is missing, send it again:
 
 1. Click **Campaigns**.
 2. Click the name of the draft.
 3. Click **Send a Test Email** in the checklist.
 4. Enter your own address.
 5. Click **Send Test**.
-6. Read it against the paste sheet: subject, preview text, wording, every link.
+
+Then, for each of `conv1-03` to `conv1-09`, read the test email:
+
+1. Compare it with its file. Double-click the file (§5.0). The email must look the same and say the same words.
+2. The subject is the one in the paste sheet, square brackets included. That is expected until go-live. (Mailchimp may put a word such as "[Test]" in front of it — not confirmed. That is not a blank.)
+3. Click every button and link. Each must open the address in §2.5, or in the paste sheet's "Buttons and links" table for that email.
+4. One link cannot work yet: "Download your workbook →" in `conv1-07`. It is still the placeholder `{{WORKBOOK_URL}}` (§5.0).
+5. The sample dates and the blanks such as `[time]` are still there. That is expected until go-live (§9.5).
+
+**What a test email cannot show you:**
+
+- **The three links at the foot** — **View in browser**, **Preferences**, **Unsubscribe**. Mailchimp's help page says such tags "only work when emails are sent". **View in browser** has no page to open until the email is sent. Whether **Preferences** and **Unsubscribe** work in a test: not confirmed. You see all three work only in a real send (§7.6).
+- **A broken link.** Mailchimp's own link checker does not work on an email pasted as code. Your clicks in step 3 and the job (§4) are the check.
 
 A test email goes only to the address you type. It does not go to the Segment.
 
@@ -479,18 +731,18 @@ This is the whole "change a detail" job, done once so you have seen it.
 4. The page says "Use code PRACTICE1 at checkout."
 5. Now put it back. Edit the value to the code it held before (`TESTCODE`, if you used the one I recommended).
 6. Click **Save**.
-7. Redeploy the newest **Preview** deployment again.
+7. Redeploy the newest **Preview** deployment again. (Before the merge, pick the newest one whose branch is `claude/s6.1-webinar-funnel`: only that branch has these pages.)
 
 ### 7.6 Optional — one real send
 
-Only if you want to see a real send land. Skip it otherwise.
+Only if you want to see a real send land. Skip it otherwise. It is also the one way, before go-live, to see the three links at the foot of a scheduled email work.
 
 1. Ask me to run the check. For the Segment `Conv1 - Registered` it must say **"Every member is a test address."** If it says anything else, stop.
 2. Click **Campaigns**.
 3. Click the three-dot menu under **Actions** next to `conv1-04`.
 4. Choose **Replicate**.
-5. Rename the copy to `test-copy-04`. (Otherwise the check reports it as a "possible typo".)
-6. Send the copy now.
+5. Rename the copy to `test-copy-04`. (Otherwise the check reports it as a "possible typo". Where the name is changed: label not confirmed — look for something similar.)
+6. Look at the name at the top of the page. It must read `test-copy-04`. If it reads `conv1-04`, stop. Then send the copy. (The buttons: label not confirmed — look for something similar.)
 7. It arrives at your `+ur-test-seat1` address.
 
 Never send or schedule one of the seven real drafts during a test.
@@ -518,6 +770,10 @@ I then run the check and confirm that contact now carries `purchased-course` and
 ## 9. Go-live checklist — the real webinar (about 90 minutes, in this order)
 
 Do not skip ahead. Each step depends on the one before.
+
+**Do not announce the webinar, and give nobody the page's address, until every step of §9 is done.** From the moment the live page is on (§9.4), anyone who signs up gets Email 1 at once.
+
+**Before you start: send me the real details** (the list is in §9.5, Path A). I return the nine final files while you do §9.1 to §9.3.
 
 ### 9.1 The privacy page · 1 minute
 
@@ -591,6 +847,7 @@ Sandbox coupons and live coupons are separate. Making one does not make the othe
 
 Use §3.2. Tick **Production** only. Do not touch the **Preview** rows.
 
+- [ ] **Before you Redeploy:** the final Email 1 and Email 2 are already in their flows (§9.5), or both flows are paused (§5.4, steps 1 to 6). Until then the two flows still hold the sample date.
 - [ ] `WEBINAR_ZOOM_URL` — **Edit** the Production row. Paste the invite link from §9.2.
 - [ ] `WEBINAR_STARTS_AT` — add it. Shape: `2029-12-13T16:00:00+02:00`.
 - [ ] `WEBINAR_OFFER_ENDS_AT` — add it. **23:59 on the last day**, for example `2029-12-20T23:59:00+02:00`. Never `00:00` the next day: Email 9 goes out at 09:00 on the offer-end date, and it would then be scheduled after the offer had closed.
@@ -603,33 +860,258 @@ If the Redeploy fails, go to §3.3. The live site is unaffected.
 
 ### 9.5 Every blank in every email · 30 minutes
 
-A blank is anything still inside square brackets. If the words inside are right, delete the two brackets and keep the words.
+Your HTML files hold **three kinds of thing** that must be right before a real send.
 
-**Emails 3 to 9 — the job finds the blanks for you:**
+| Kind | What it looks like | Examples | Who finds it |
+|---|---|---|---|
+| **A blank** | Words inside square brackets | `[time]`, `[date]`, `[Benefit 1]` | The job, in Emails 3 to 9. You, in Emails 1 and 2. |
+| **A placeholder** | A name inside double curly brackets | `{{WORKBOOK_URL}}` — the only one left | The job, in Emails 3 to 9. |
+| **A sample word** | Ordinary words with **no brackets**, right for one webinar only | `Thursday 10 December`, `tomorrow`, `tonight`, `This festive season`, `workbook`, `60 minutes` | **Only you.** No job can see one. |
 
-- [ ] Run the job in mode `check` (§4). For each email it lists every blank left in the subject, the preview text and the body.
-- [ ] Fix each one in Mailchimp: click **Campaigns**, then the name of the email. The paste sheet's "Replace before go-live" table under each email says what goes in each blank.
-- [ ] Run `check` again. Repeat until every email says no `[` is left.
+- If the words inside a blank are right, delete the two brackets and keep the words. If they are wrong, type the right words in their place. If nothing belongs there (for example no workbook), delete the brackets and the words inside them.
+- If a sample word is already right for your webinar, leave it and tick it.
+- The job never reads Emails 1 and 2. They are in flows. All three kinds are by eye there.
+- If an email went in by the plain-text route (§5.5), none of this applies to it. Use the paste sheet's "Replace before go-live" table for that email.
 
-**Emails 1 and 2 — by eye, because no job can read a flow.** Open each flow's email (§5.4) and tick each blank. This list is for the emails as pasted; if you rewrote them, read every line for a `[` instead.
+There are two ways to do it. Path A is the easy one.
 
-Email 1 (`conv1-01`):
+**Path A — send me the real values (recommended)**
 
-- [ ] Subject: `[Thursday 10 December]`
-- [ ] Body: `[Thursday 10 December]`
-- [ ] Body: `[time]`
-- [ ] Body: `[60 minutes, plus 10 optional minutes of questions]`
-- [ ] Body: `[Your workbook arrives after the session.]`
-- [ ] Body: `[This hour]`
-- [ ] **Turn back on** clicked. The flow is running.
+- [ ] Send me these nine things in one message:
+  - the webinar's date
+  - the start time
+  - the day the offer ends
+  - one line on what the course is
+  - three benefits of the course
+  - the time the course takes each week
+  - the workbook: yes — with the file or its address — or no
+  - the last day the replay can be watched, or "it stays up"
+  - if the webinar is not in December: your own words in place of "This festive season" (Email 3) and the year-end sentence (Email 9)
+- [ ] I put the nine final files into the same folder, `UnRetire_Emails_READY_TO_PASTE`, under the same names, in place of the sample copies. Every blank, the placeholder and every sample word in them is done. With them I send you the ten lines for Mailchimp's own fields, ready to paste.
+- [ ] Double-click each file. It must show the real date before you paste it.
+- [ ] Paste each of the nine again, whole. Drafts: "To paste a file again later" in §6. Flows: §5.4.
+- [ ] Clear the square brackets in Mailchimp's own fields — the table "Mailchimp's own fields" below. Those are not in the files.
+- [ ] Run the job in mode `check` (§4). No email may show a line with `still to replace`, `placeholder` or `still has a blank` in it.
+- [ ] Both flows: **Turn back on** clicked. Both are running.
 
-Email 2 (`conv1-02`):
+The 30 minutes in the heading is for Path A. Path B takes longer.
 
-- [ ] Preview text: `[one free hour]`
-- [ ] Body: `[Thursday 10 December]`
-- [ ] Body: `[time]`
-- [ ] Body: `[60 minutes]`
-- [ ] **Turn back on** clicked. The flow is running.
+**Path B — by hand**
+
+Step 1 — Emails 3 to 9: let the job find the blanks and the placeholder.
+
+- [ ] Run the job in mode `check` (§4).
+- [ ] Under each email, find every line like these four:
+
+```text
+        subject: 2 blank(s) still to replace: [Tomorrow] [time]
+        preview text: 1 blank(s) still to replace: [tomorrow]
+        body: 1 blank(s) still to replace: [time]
+        link: an address is still the placeholder {{WORKBOOK_URL}}.
+```
+
+A placeholder can also show as one of these two lines:
+
+```text
+        link: an address still has a link placeholder (double curly brackets) in it.
+        body: 1 placeholder(s) in double curly brackets still to replace: {{WORKBOOK_URL}}
+```
+
+- [ ] A `subject` or `preview text` line: fix it in Mailchimp ("Mailchimp's own fields" below).
+- [ ] A `body` or `link` line: fix it in the file ("To change a word in a file" below), then paste the whole file again ("To paste a file again later" in §6).
+- [ ] Run `check` again. Repeat until no email shows a line with `still to replace`, `placeholder` or `still has a blank` in it. A clean body reads `body: no "[" left.` For placeholders the job prints nothing when none is left.
+
+In `launch-check` (§9.8) the same lines start with `FAIL`, and the run fails.
+
+**A clean `check` is not the end.** It means no `[` and no `{{` is left in the subject, preview text, body or links of Emails 3 to 9. It does not read a `<title>`, and it does not mean the dates are right.
+
+Step 2 — all nine emails: the sample words, by eye.
+
+- [ ] Go through the nine tables below, one email at a time. Tick each line when the email says the right thing.
+- [ ] Emails 1 and 2: the blanks are by eye too. They are in the same tables.
+
+Step 3 — put the changed files back.
+
+- [ ] Every file you changed is pasted again, whole. Drafts: "To paste a file again later" in §6. Flows: §5.4.
+- [ ] Both flows: **Turn back on** clicked. Both are running.
+
+**To change a word in a file**
+
+1. Open the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads.
+2. Right-click the file.
+3. Choose **Open with**, then **Notepad**.
+4. Press **Ctrl+F**.
+5. Type one word of what you are looking for, for example `Thursday`. Press **Enter**. Notepad shows the first place.
+6. Change the words there. Change nothing between a `<` and a `>`. (So the workbook link in Email 7 is not changed by hand — see the line under the Email 7 table.)
+7. Press **F3** for the next place. Go on until Notepad finds no more.
+8. Press **Ctrl+S**. Do not use **Save as**.
+9. Close Notepad.
+10. Double-click the file. It opens in your browser. Read the email once.
+11. Paste the whole file into Mailchimp again.
+
+Two places are not visible in the browser. Both are near the top of the code:
+
+- **The hidden preview line.** It is the line inboxes show beside the subject. Search for its first words.
+- **The `<title>`.** It is the line that starts `<title>`. A reader sees it only as the name of the browser tab, after clicking **View in browser**.
+
+Each file also has a note near the top of its code that starts `TEMPLATE SET`. Readers never see it. Leave it. A search for `[`, `{{` or a date also stops inside this note. Skip those places: nothing in the note is sent.
+
+**Mailchimp's own fields**
+
+These are typed into Mailchimp, not into a file. The job lists the ones in Emails 3 to 9. Nobody lists the two in the flows.
+
+- To change one in a draft: click **Campaigns**, then the name of the email, then the **Subject** section.
+- To change one in a flow: §5.4, steps 1 to 10.
+
+| ☐ | Email | Field | It holds now | It depends on |
+|---|---|---|---|---|
+| ☐ | `conv1-01` (flow) | Subject | `You’re in. [Thursday 10 December]` | The webinar's date |
+| ☐ | `conv1-02` (flow) | Preview text | `Plus [one free hour] that takes it further.` | The session length |
+| ☐ | `conv1-03` | Preview text | `[This Thursday’s] free webinar is for you.` | The webinar's weekday, and the email going out in the same week |
+| ☐ | `conv1-04` | Subject | `[Tomorrow] at [time]: what do you say now?` | The email going out the day before, and the start time |
+| ☐ | `conv1-04` | Preview text | `Your Zoom link for [tomorrow].` | The email going out the day before |
+| ☐ | `conv1-05` | Subject | `We start in [one hour]` | The email going out one hour before |
+| ☐ | `conv1-07` | Subject | `Your replay[, workbook] and free Starter Plan` | Whether there is a workbook |
+| ☐ | `conv1-07` | Preview text | `Plus The (Un)Retire Course, open until [Thursday].` | The weekday the offer ends |
+| ☐ | `conv1-08` | Preview text | `Straight answers before the offer closes [Thursday].` | The weekday the offer ends |
+| ☐ | `conv1-09` | Subject | `[Last day]: the offer closes [tonight]` | The email going out on the offer's last day |
+
+- [ ] Each **Preview text** field says the same as the hidden preview line in that email's file (§5.0, rule 2).
+
+**The nine emails, word by word**
+
+The tables list the ready-to-paste copies as I gave them to you. If you rewrote a file, read all of it instead.
+
+Words used in the tables:
+
+- **Header label** — the small capitals at the top right of the email.
+- **Line above the headline** — the small capitals just above the big headline.
+- **Navy panel** — the dark box.
+- **Hidden preview line** and **`<title>`** — in the code only. See "To change a word in a file" above.
+
+**Email 1 — `conv1-01` — `Email_1_Youre_in.html`.** The job reads none of it.
+
+| ☐ | It says now | Where it sits | It depends on |
+|---|---|---|---|
+| ☐ | `[time]` | Navy panel: "[time] SAST" | The start time |
+| ☐ | `Thursday` and `10 December`, on two lines | Navy panel | The webinar's date |
+| ☐ | `Thursday 10 December` | `<title>`: "You’re in. Thursday 10 December" | The webinar's date |
+| ☐ | `60 minutes` | Navy panel | The session length |
+| ☐ | `SAST` | Navy panel, after `[time]` | The webinar's time zone |
+| ☐ | `Plus 10 optional minutes of questions` | Navy panel, last line | How the session runs |
+| ☐ | `Your workbook arrives after the session.` | Body | Whether there is a workbook. None exists today. No workbook: delete the sentence. |
+| ☐ | `This hour is for you.` | Body, just above "The UnRetire team" | The session length |
+
+**Email 2 — `conv1-02` — `Email_2_Your_free_Toolkit.html`.** The job reads none of it.
+
+| ☐ | It says now | Where it sits | It depends on |
+|---|---|---|---|
+| ☐ | `[time]` | Navy panel: "[time] SAST" | The start time |
+| ☐ | `Thursday` and `10 December`, on two lines | Navy panel | The webinar's date |
+| ☐ | `SAST` | Navy panel, after `[time]` | The webinar's time zone |
+| ☐ | `60 minutes on Zoom` | Navy panel, last line | The session length |
+| ☐ | `Plus one free hour that takes it further.` | Hidden preview line | The session length |
+
+**Email 3 — `conv1-03` — `Email_3_Join_us_on_Thursday.html`**
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `[time]` | Navy panel: "[time] SAST" | The start time | Yes |
+| ☐ | `THURSDAY’S WEBINAR` | Header label | The webinar's weekday | No |
+| ☐ | `JOIN US ON THURSDAY` | Line above the headline | The webinar's weekday | No |
+| ☐ | `This festive season` | Body, third paragraph | The time of year | No |
+| ☐ | `this hour is for you` | Body, third paragraph | The session length | No |
+| ☐ | `On Thursday we look at` | Body, fourth paragraph | The webinar's weekday | No |
+| ☐ | `Thursday` and `10 December`, on two lines | Navy panel | The webinar's date | No |
+| ☐ | `SAST` | Navy panel, after `[time]` | The webinar's time zone | No |
+| ☐ | `Free · 60 minutes on Zoom` | Navy panel, last line | The session length | No |
+| ☐ | `Registration closes when we go live on Thursday.` | Body, under the button | The webinar's weekday | No |
+| ☐ | `This Thursday’s free webinar is for you.` | Hidden preview line | The webinar's weekday, and the email going out in the same week | No |
+
+**Email 4 — `conv1-04` — `Email_4_See_you_tomorrow.html`**
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `[time]` | Headline: "We go live tomorrow at [time]." | The start time | Yes |
+| ☐ | `[time]` | `<title>`: "Tomorrow at [time]: what do you say now?" | The start time | **No.** The job does not read a `<title>`. |
+| ☐ | `TOMORROW` | Header label | The email going out the day before | No |
+| ☐ | `SEE YOU TOMORROW` | Line above the headline | The email going out the day before | No |
+| ☐ | `tomorrow` | Headline: "We go live tomorrow at [time]." | The email going out the day before | No |
+| ☐ | `Tomorrow` | `<title>` | The email going out the day before | No |
+| ☐ | `Your Zoom link for tomorrow.` | Hidden preview line | The email going out the day before | No |
+| ☐ | `One hour` and `this hour` | Body: "One hour to work out…" and "this hour is for you" | The session length | No |
+
+**Email 5 — `conv1-05` — `Email_5_Starting_in_1_hour.html`.** No blank and no placeholder is in this file.
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `IN ONE HOUR` | Header label | The email going out one hour before the start | No |
+| ☐ | `STARTING IN 1 HOUR` | Line above the headline | The email going out one hour before the start | No |
+| ☐ | `One hour to go.` | Headline | The email going out one hour before the start | No |
+| ☐ | `We start in one hour` | `<title>` | The email going out one hour before the start | No |
+| ☐ | `Join a few minutes early` | Body | The email going out shortly before the start | No |
+
+**Email 6 — `conv1-06` — `Email_6_Were_live.html`.** No blank and no placeholder is in this file.
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `LIVE NOW` | Header label | The email going out exactly at the start | No |
+| ☐ | `WE’RE LIVE` | Line above the headline | The email going out exactly at the start | No |
+| ☐ | `We’ve started.` | Headline | The email going out exactly at the start | No |
+| ☐ | `The first question is on screen and the chat is open.` | Body | The email going out exactly at the start | No |
+| ☐ | `The first question is on screen.` | Hidden preview line | The email going out exactly at the start | No |
+| ☐ | `We’re live. Join now` | `<title>` | The email going out exactly at the start | No |
+| ☐ | `Join now` | The button | The email going out exactly at the start | No |
+
+All seven are right as long as Email 6 goes out exactly at the start. `launch-check` fails if it does not (§14).
+
+**Email 7 — `conv1-07` — `Email_7_Replay_and_offer.html`**
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `{{WORKBOOK_URL}}` | The address behind "Download your workbook →" | Whether there is a workbook. **Not changed by hand** — see the line under this table. | Yes |
+| ☐ | `Download your workbook →` and `Every exercise from the session, ready for you to work through at home.` | Body | Whether there is a workbook | No |
+| ☐ | `workbook` | Headline: "Your replay, workbook and free Starter Plan." | Whether there is a workbook | No |
+| ☐ | `workbook` | `<title>` | Whether there is a workbook | No |
+| ☐ | `[date]` | Body: "Available until [date]." | The last day the replay can be watched. If it stays up, delete the sentence. | Yes |
+| ☐ | `[Course name]` | Navy panel, heading | The course's name. Your answer of 2026-11-13: "The (Un)Retire Course". | Yes |
+| ☐ | `[Course name]` | Navy panel: "[Course name] turns one hour of thinking…" | The course's name | Yes |
+| ☐ | `[course name]` | Hidden preview line: "Plus [course name], open until Thursday." | The course's name | Yes |
+| ☐ | `[One line on what the course is.]` | Navy panel, after "…a life you’re building." | You write it | Yes |
+| ☐ | `[Benefit 1]`, `[Benefit 2]`, `[Benefit 3]` | Under the course sentence | You write them | Yes |
+| ☐ | `Thursday` | Hidden preview line: "open until Thursday" | The weekday the offer ends | No |
+| ☐ | `The offer closes Thursday 17 December at midnight.` | Body, under the button | The day and the time the offer ends. The site shows the deadline as 23:59, not "midnight". | No |
+| ☐ | `Thank you for joining us.` | Body, first line | The email going out after the session | No |
+| ☐ | `the full hour` | Body, first line | The session length | No |
+| ☐ | `one hour of thinking` | Navy panel | The session length | No |
+
+**The workbook link is the one thing you do not change by hand.** It sits inside the code, between a `<` and a `>`. Tell me yes (with the file or its address) or no, and I send you a new `Email_7_Replay_and_offer.html`. Then paste it whole.
+
+**Email 8 — `conv1-08` — `Email_8_Your_questions_answered.html`**
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `[Time commitment per week.]` | Body, the answer under "How much time does it take?" | The time the course takes each week | Yes |
+| ☐ | `The offer closes Thursday at midnight.` | Body, under the button | The day and the time the offer ends. The site shows the deadline as 23:59, not "midnight". | No |
+| ☐ | `Straight answers before the offer closes Thursday.` | Hidden preview line | The weekday the offer ends | No |
+
+**Email 9 — `conv1-09` — `Email_9_Last_day.html`.** No blank and no placeholder is in this file.
+
+| ☐ | It says now | Where it sits | It depends on | The job finds it |
+|---|---|---|---|---|
+| ☐ | `LAST DAY` | Header label, and the line above the headline | The email going out on the offer's last day | No |
+| ☐ | `The offer closes tonight at midnight.` | Headline | The email going out on the offer's last day, and the time the offer ends | No |
+| ☐ | `this festive season, at a year-end party, a family lunch or a New Year’s gathering` | Body, first paragraph | The time of year | No |
+| ☐ | `After midnight, the offer is gone.` | Body, under the button | The time the offer ends | No |
+| ☐ | `Last day: the offer closes tonight` | `<title>` | The email going out on the offer's last day | No |
+
+**Before you leave this step — on either path:**
+
+- [ ] Every file that changed is pasted again, whole (drafts: §6; flows: §5.4).
+- [ ] The Subject and Preview text fields of the seven drafts hold no square bracket ("Mailchimp's own fields" above).
+- [ ] The Subject of flow `conv1-01` and the Preview text of flow `conv1-02` hold no square bracket.
+- [ ] Both flows: **Turn back on** clicked. Both are running.
+- [ ] You sent yourself a test of each of the seven drafts again (§7.4) and read it against its file: the right email is in the right draft, and it says the real date.
 
 ### 9.6 Mark existing buyers · 10 minutes
 
@@ -654,8 +1136,8 @@ For each person who has bought the course or Premium:
 
 - [ ] On `https://www.unretireproject.com/conversation`, save a seat with a **new** test address (for example `+ur-test-live1`).
 - [ ] Ask for the Toolkit with another **new** test address (for example `+ur-test-live2`).
-- [ ] Email 1 arrives. It shows the **real** date and time. No square brackets.
-- [ ] Email 2 arrives. No square brackets.
+- [ ] Email 1 arrives. It shows the **real** date and time. No square brackets, and every line of its table in §9.5 is right for this webinar.
+- [ ] Email 2 arrives. No square brackets, and every line of its table in §9.5 is right for this webinar.
 - [ ] Click **Join on Zoom** in Email 1. It opens the **real** meeting.
 - [ ] If an email does not arrive: open its flow and turn it on (§5.4), then test again with a new address.
 
@@ -760,10 +1242,11 @@ If any of those five is missed, people get the wrong emails. When in doubt, use 
 
 - **It cannot match a buyer who used a different email.** A buyer who paid with another address, or who was not in your audience when they paid, still gets Emails 8 and 9 unless you mark them by hand (§9.6). You chose not to add anything for this, on 2026-11-13: *"ok no worries - and theres less chances that they will use different emails right? so lets not complicate"*.
 - **It never sends, schedules or writes an email.** You do all three.
-- **It cannot read your two flows.** Emails 1 and 2 are checked by eye.
+- **It cannot read your two flows.** Emails 1 and 2 are checked by eye: blanks, placeholders and sample words alike (§9.5).
+- **The check cannot see a wrong date written in plain words.** In Emails 3 to 9 it finds square brackets and double curly brackets, and nothing else. An email that still says `Thursday 10 December`, `tomorrow` or `tonight` passes. Nor does it read an email's `<title>`. Those are checked by eye, from the tables in §9.5.
 - **The join link is not a door.** Anyone who has `…/conversation/join` reaches the meeting, registered or not. The meeting's own settings are the control.
 - **It does not email people who unsubscribed.** They see a message on the page saying we can't send email to that address, and they are not resubscribed. One case is different: a contact **you archived** who signs up again is put back on the list, because they have just asked for the emails. If that person had unsubscribed before you archived them, Mailchimp is expected to refuse, and they see the same message; this one case has not been tried against your real account.
-- **It does not deliver a Toolkit file or a workbook.** Neither file exists yet. Email 2's link opens `/tools`.
+- **It does not deliver a Toolkit file or a workbook.** Neither file exists yet. Email 2's link opens `/tools`. Email 7's workbook link is still the placeholder `{{WORKBOOK_URL}}` for that reason.
 - **It does not count anything.** No analytics, no tracking links. That is a later sprint.
 - **It does not change the old `/webinar` page** or add the new page to the sitemap. Both are small developer changes at go-live.
 
@@ -788,9 +1271,15 @@ If any of those five is missed, people get the wrong emails. When in doubt, use 
 | The check says "no start configured — table skipped" | The live site has no start date yet, so there are no send times to work out | Nothing, until go-live. Then do §9.4 first. |
 | The replay page shows no offer | The replay link is not set yet, or `WEBINAR_OFFER_ENDS_AT` is empty | Set the missing value (§3.2), Redeploy |
 | `launch-check` fails on a `[` | A blank is still in a subject, a preview text or a body | Replace it (§9.5) |
+| `launch-check` fails on a `{{` | A placeholder in double curly brackets is still in a link, a subject, a preview text or a body. With the files as I gave them to you, that is `{{WORKBOOK_URL}}` in Email 7. | Put the real address in the file, or delete the line. Then paste the whole file again (§9.5). |
+| `launch-check` passes, but an email shows the wrong date | A sample word with no brackets, such as `Thursday 10 December`. The check cannot see those (§13). | Change it in the file from the tables in §9.5. Then paste the whole file again. |
+| Mailchimp does not offer **Code Your Own** or **Paste in Code** | Mailchimp's help pages say your own HTML needs a Standard plan or higher, and the legacy builder. Whether your account has them: not confirmed. | Stop. Send me a screenshot. The plain-text route (§5.5) still works. |
+| An email shows a second footer, added by Mailchimp | Mailchimp adds its own footer when it does not find the unsubscribe link in the code. A likely cause: part of the file was not pasted, or a piece of code was cut while editing. | Paste the whole file again (drafts: §6; flows: §5.4). If the footer is still there, send me a screenshot. |
+| An email shows odd characters where a quote mark or an apostrophe should be | The file was saved in another text format | Ask me for a fresh copy of the file. Paste the whole file again. |
+| The line an inbox shows beside the subject is wrong | For an email pasted as code, that line comes from the hidden preview line in the file, not from the **Preview text** field (§5.0, rule 2) | Change the hidden preview line in the file (§9.5). Then paste the whole file again. |
 | `launch-check` fails on a send time | Email 5 is not exactly 1 hour before, Email 6 is not exactly at the start, or another email is on the wrong side of the start, the end of the session or the deadline | Reschedule from the `Send times` table (§9.8) |
 | `launch-check` says fewer than seven emails are scheduled | One or more of the seven is still a draft | Schedule it (§9.8) |
-| `launch-check` says a link "does not answer 200" | A link in an email points at a page that is not there | Correct the link in that email. The right addresses are in the paste sheet. |
+| `launch-check` says a link "does not answer 200" | A link in an email points at a page that is not there | Correct the link in that email's file, then paste the whole file again. The right addresses are in §2.5 and in the paste sheet. |
 | `launch-check` says the join address "does not forward" | The live funnel is off, or the Zoom value is missing | §9.4, then Redeploy |
 | "Join on Zoom" opens the wrong meeting | An old link in `WEBINAR_ZOOM_URL` | Edit the Production value, Redeploy |
 | A buyer got Email 8 or 9 | A different email, or not in the audience when they paid (§13) | Add `purchased-course` by hand (§9.6) |
@@ -812,6 +1301,8 @@ Archive, never delete: a deleted contact cannot be added back.
 
 Nine of these pages were read again on 2026-11-14 and the steps above still match them: the two Mailchimp flow pages (create, and pause and edit), Mailchimp's schedule, tag and archive pages, Vercel's "Managing environment variables", GitHub's "Run a workflow by hand", Zoom's "Share a cloud recording" and Stripe's coupons page. One label changed in §9.3 as a result: Stripe's page says to open the **Products** page.
 
+The pages under "Mailchimp — the HTML route" were read on 2026-11-14 — all but two of them for the first time — through a tool that summarises pages. Mailchimp's own pages spell some labels two ways (**Paste in Code** and **Paste in code**, **Code Your Own** and **Code your own**, **Edit design** and **Edit Design**, **Select a template** and **Select a Template**). None showed the date it was last updated.
+
 **Mailchimp**
 
 - Create a flow, Build from scratch, Turn flow on — <https://mailchimp.com/help/create-customer-journey/>
@@ -829,6 +1320,30 @@ Nine of these pages were read again on 2026-11-14 and the steps above still matc
 - Add a tag to one contact — <https://mailchimp.com/help/create-add-remove-tags/>
 - Archive a contact — <https://mailchimp.com/help/archive-unarchive-contacts/>
 - Deleted contacts cannot be added back — <https://mailchimp.com/help/delete-contacts/>
+
+**Mailchimp — the HTML route (read 2026-11-14)**
+
+- Paste in HTML, starting from a new email: **Use HTML to code my own**, **Paste in Code**, **Apply**, **Save**, **Edit design**, **Continue**; the Standard plan; the legacy builder — <https://mailchimp.com/help/paste-in-html-to-create-an-email/> and <https://mailchimp.com/en-gb/help/paste-in-html-to-create-an-email/>
+- Create a regular email — <https://mailchimp.com/help/create-and-send-regular-email/>
+- **Design Email**; the **Saved templates** tab; using a saved template — <https://mailchimp.com/help/save-use-email-template/>
+- The legacy builder — <https://mailchimp.com/help/design-an-email-classic-builder/>
+- Preview mode and test emails (also in the list above) — <https://mailchimp.com/help/preview-and-test-your-email-campaign/>
+- Preview text in a custom-coded email (also in the list above) — <https://mailchimp.com/help/edit-your-emails-subject-preview-text-from-name-or-from-email-address/>
+- About preview text — <https://mailchimp.com/help/about-preview-text/>
+- Save a file as a template: **Email templates**, **Code your own**, **Edit code**, **Save and Exit** — <https://mailchimp.com/help/import-a-custom-html-template/>
+- Change a template's code: **Edit**, **Edit Code** — <https://mailchimp.com/help/where-to-edit-template-code/>
+- Kinds of template — <https://mailchimp.com/help/types-of-templates/>
+- Switching templates erases content — <https://mailchimp.com/help/switch-templates-in-the-campaign-builder/>
+- The rules for `mc:edit` regions — <https://mailchimp.com/help/create-editable-content-areas-with-mailchimps-template-language/>, <https://mailchimp.com/help/getting-started-with-mailchimps-template-language/> and <https://templates.mailchimp.com/getting-started/template-language/>
+- Which builder does what; who has the legacy builder — <https://mailchimp.com/help/compare-mailchimps-email-builders/> and <https://mailchimp.com/help/about-mailchimps-email-builders/>
+- **Save and return to flow** — <https://mailchimp.com/help/create-abandoned-cart-customer-journey/>
+- About flows; the plan a flow needs — <https://mailchimp.com/help/about-customer-journeys/>
+- The tags at the foot of an email — <https://mailchimp.com/help/all-the-merge-tags-cheat-sheet/>
+- The footer Mailchimp adds by itself — <https://mailchimp.com/help/about-campaign-footers/> and <https://mailchimp.com/help/the-unsubscribe-merge-tag/>
+- Tags in a test email; broken links — <https://mailchimp.com/help/troubleshooting-merge-tags/> and <https://mailchimp.com/help/troubleshoot-broken-links/>
+- Emails made by a program (it does not say how such a draft opens on your screen) — <https://mailchimp.com/developer/marketing/api/campaigns/>
+
+Four pages that are not Mailchimp's were also looked at, for the saved-template steps and for `mc:edit`: <https://www.litmus.com/blog/how-to-mailchimp-email-templates/>, <https://www.emailonacid.com/blog/article/email-development/mailchimp-templates/>, <https://terradocs.netlify.app/marketing/mailchimp/emails> and <https://birthday-app.zendesk.com/hc/en-us/articles/6885331014429-How-to-set-up-your-Birthday-email-campaign-in-MailChimp> (this last one could not be opened). Where a step would rest on one of them alone, it is marked "not confirmed".
 
 **Vercel**
 
@@ -860,5 +1375,25 @@ Nine of these pages were read again on 2026-11-14 and the steps above still matc
 - The test card — <https://docs.stripe.com/testing>
 
 **What the vendor pages did not confirm** (each is marked in the steps above): the name of the tag box inside the "Tag added" trigger; where a flow's settings open and whether "Contacts can re-enter flow" starts off; the button that saves a flow's email and returns to the flow; the button that opens the designer from a draft's **Content** section; the plain template's name; Vercel's "Ready" status word and the title of the Redeploy window for a Preview; Zoom's per-meeting mute check box and its copy-invite-link button; the label of the promotion-code box on Stripe's payment page. Vercel's pages describe a failed build as an errored deployment but have no single sentence saying the previous deployment keeps serving; that follows from a deployment being "the result of a successful build" and is how this project has always behaved.
+
+**What the vendor pages did not confirm for the HTML route** (each is marked in the steps above, or said in §5.0):
+
+- Whether your account is on a Standard plan or higher.
+- Whether your account can use the legacy builder at all. Mailchimp's pages tie it to the age of the account, and two copies of the page give two different dates.
+- What a draft made by a program shows when you click **Design Email**: the pop-up or the **Select a template** page. And which builder it opens in. No Mailchimp page covers such drafts.
+- The label of the button that continues in the legacy builder.
+- The label of the button that leaves a draft's checklist and keeps the draft.
+- Whether a flow's email offers **Code Your Own** and **Paste in Code**.
+- Whether a saved template can be picked inside a flow's email. Mailchimp's general builder pages list a **Saved templates** tab. No flow page does.
+- Whether a button comes before **Code your own** on the **Email templates** page.
+- How to send a test email from inside a flow's email.
+- The button that opens an email's design again from a flow's **Send email** step.
+- Whether **Save and return to flow** is the label after an email made from your own code. Another Mailchimp page writes **Turn On** where this runbook has **Turn flow on**.
+- Whether a changed template reaches an email that already uses it. Two Mailchimp pages disagree.
+- Preview text. Mailchimp says a custom-coded email needs special code before the **Preview text** field is used. That the field is then left out, and not shown as well, is my reading. Flow emails are not covered separately. Mailchimp's own preview shows the field either way, so only a real inbox shows the truth.
+- Whether **Unsubscribe** and **Preferences** work in a test email.
+- Whether **View in browser** works in a flow's email.
+- What Mailchimp does if the postal address is missing from the code. The extra-footer rule is written only for a missing unsubscribe link.
+- Whether Mailchimp hands the pasted code back to the job exactly as you pasted it. The first `check` after you paste shows it.
 
 Next step → `docs/OWNER-ACTIONS.md` Part 9 lists what this sprint needs from you, in order.

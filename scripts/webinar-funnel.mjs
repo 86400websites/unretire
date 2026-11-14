@@ -414,6 +414,8 @@ function decodeEntities(text) {
   return text
     .replace(/&(?:#0*91|#x0*5b|lbrack|lsqb);/gi, "[")
     .replace(/&(?:#0*93|#x0*5d|rbrack|rsqb);/gi, "]")
+    .replace(/&(?:#0*123|#x0*7b|lbrace|lcub);/gi, "{")
+    .replace(/&(?:#0*125|#x0*7d|rbrace|rcub);/gi, "}")
     .replace(/&(?:#0*38|#x0*26|amp);/gi, "&")
     .replace(/&nbsp;|&#0*160;/gi, " ");
 }
@@ -445,6 +447,24 @@ export function findBlanks(text) {
   return found;
 }
 
+/** A placeholder that is only a name, such as "{{ZOOM_URL}}". A name is never an address. */
+const PLACEHOLDER_NAME = /^\{\{[A-Z0-9_]{1,40}\}\}$/;
+
+/**
+ * Every "{{" or "}}" still in a text. A placeholder that is only a name is
+ * given as it stands; anything else is given as "{{…}}", so that an address
+ * typed between the curly brackets is never printed.
+ */
+export function findPlaceholders(text) {
+  const found = [];
+  const source = String(text ?? "");
+  const pattern = /\{\{[^{}]{0,60}(?:\}\})?|\}\}/g;
+  for (const match of source.matchAll(pattern)) {
+    found.push(PLACEHOLDER_NAME.test(match[0]) ? match[0] : "{{…}}");
+  }
+  return found;
+}
+
 /** The address of every link in an email's HTML. */
 export function extractLinks(html) {
   const links = [];
@@ -462,10 +482,18 @@ function isZoomHost(hostname) {
 /**
  * Sort one link into what the report does with it. Only a link to the site
  * itself is ever printed in full; for any other address the host alone is
- * shown, and a Zoom address is not shown at all.
+ * shown, and a Zoom address is not shown at all. A link that is still a
+ * "{{…}}" placeholder is decided before the address is read: it is named only
+ * when it is nothing but a name.
  */
 export function classifyLink(href, siteOrigin) {
   if (/\[|%5b/i.test(href)) return { kind: "blank" };
+  const braces = href.replace(/%7b/gi, "{").replace(/%7d/gi, "}");
+  if (braces.includes("{{") || braces.includes("}}")) {
+    return PLACEHOLDER_NAME.test(braces)
+      ? { kind: "placeholder", token: braces }
+      : { kind: "placeholder" };
+  }
   if (href === "" || href.startsWith("#")) return { kind: "skipped" };
   if (href.includes("*|")) return { kind: "skipped" };
   if (/^(mailto|tel|sms):/i.test(href)) return { kind: "skipped" };
@@ -1434,6 +1462,14 @@ function reportBlanks(where, blanks, strict) {
   else fact(line);
 }
 
+/** The same for "{{…}}" placeholders. It says nothing when there is none. */
+function reportPlaceholders(where, placeholders, strict) {
+  if (placeholders.length === 0) return;
+  const line = `${where}: ${placeholders.length} placeholder(s) in double curly brackets still to replace: ${placeholders.join(" ")}`;
+  if (strict) fail(line);
+  else fact(line);
+}
+
 async function inspectDraft(
   mc,
   campaign,
@@ -1461,7 +1497,9 @@ async function inspectDraft(
   }
 
   reportBlanks("  subject", findBlanks(found.subject), strict);
+  reportPlaceholders("  subject", findPlaceholders(found.subject), strict);
   reportBlanks("  preview text", findBlanks(found.preview), strict);
+  reportPlaceholders("  preview text", findPlaceholders(found.preview), strict);
 
   const content = await request(
     mc,
@@ -1486,6 +1524,7 @@ async function inspectDraft(
     return;
   }
   reportBlanks("  body", findBlanks(text), strict);
+  reportPlaceholders("  body", findPlaceholders(text), strict);
 
   const links = [...new Set(extractLinks(html))];
   let skipped = 0;
@@ -1496,6 +1535,12 @@ async function inspectDraft(
     } else if (link.kind === "blank") {
       const line =
         "  link: an address still has a blank (a square bracket) in it.";
+      if (strict) fail(line);
+      else fact(line);
+    } else if (link.kind === "placeholder") {
+      const line = link.token
+        ? `  link: an address is still the placeholder ${link.token}.`
+        : "  link: an address still has a link placeholder (double curly brackets) in it.";
       if (strict) fail(line);
       else fact(line);
     } else if (link.kind === "unreadable") {

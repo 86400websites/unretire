@@ -784,8 +784,9 @@ setting (8.3), you can see every run in the Actions tab, and the two-minute test
 
 Start when I tell you **"Mailchimp is ready"**. Not before: the tags have to exist first.
 
-- [ ] **9.2a** Build the two flows — runbook §5 · 20 minutes.
-- [ ] **9.2b** Paste the seven email bodies — runbook §6 · 25 minutes.
+- [ ] **9.2-first** *(added 2026-11-14 — you gave me nine HTML email files, and they replace the plain-text bodies)* The 1-minute try: check on the draft `conv1-03` that Mailchimp lets you paste your own HTML — runbook §5.0 · 1 minute. If it does not, stop and send me a screenshot. Paste from the folder `UnRetire_Emails_READY_TO_PASTE` in your Downloads, never from your originals.
+- [ ] **9.2a** ~~Build the two flows — runbook §5 · 20 minutes.~~ Build the two flows with your HTML files — runbook §5 (read §5.0 once, then §5.2 and §5.3) · 20 minutes. (You may do 9.2b first; `docs/WEBINAR-CHECKLIST.md` lists it first.)
+- [ ] **9.2b** ~~Paste the seven email bodies — runbook §6 · 25 minutes.~~ Paste your seven HTML files into the drafts — runbook §6 · 25 minutes.
 - [ ] **9.2c** Run the test on the Preview — runbook §7 · 30 minutes.
 - [ ] **9.2d** Reply **"pass"**, or tell me what looked wrong.
 
@@ -804,7 +805,7 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 
 ### 9.5 Later — when the real webinar has a date · about 90 minutes · not part of this sprint
 
-- [ ] **9.5** Runbook §9, the go-live checklist, from top to bottom.
+- [ ] **9.5** Runbook §9, the go-live checklist, from top to bottom. *(Added 2026-11-14:)* for the emails (runbook §9.5) the easy way is to send me the real date, time and offer details; I return nine final files and you paste each one again.
 
 ---
 
