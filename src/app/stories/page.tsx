@@ -114,7 +114,7 @@ const stories: Story[] = [
     country: "USA",
     closing: "She retired from PepsiCo. She didn't retire from contribution.",
     body: [
-      "After 24 years at PepsiCo, 12 of them as CEO, she retired as Chairman in 2019 and chose not to chase another top job. Instead, she began what she calls her \"giving-back phase\": joining boards, writing her memoir and advocating for better childcare, eldercare and workplace flexibility.",
+      'After 24 years at PepsiCo, 12 of them as CEO, she retired as Chairman in 2019 and chose not to chase another top job. Instead, she began what she calls her "giving-back phase": joining boards, writing her memoir and advocating for better childcare, eldercare and workplace flexibility.',
     ],
   },
   {

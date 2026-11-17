@@ -2019,7 +2019,7 @@ export const articles: Article[] = [
     body: [
       {
         type: "p",
-        html: "Nobody hands you a farewell card that says, \"You are about to lose most of your conversations.\"",
+        html: 'Nobody hands you a farewell card that says, "You are about to lose most of your conversations."',
       },
       {
         type: "p",
@@ -2094,7 +2094,8 @@ export const articles: Article[] = [
   },
   {
     slug: "retired-doesnt-mean-available",
-    title: "Retired Doesn't Mean Available: Protecting Your Time When Everyone Thinks You Have Plenty",
+    title:
+      "Retired Doesn't Mean Available: Protecting Your Time When Everyone Thinks You Have Plenty",
     metaTitle: "Protecting Your Time in Retirement | (Un)Retire",
     metaDescription:
       "Once you retire, everyone assumes you're free. How to stay generous with your time without giving away the freedom you worked for.",
@@ -2118,7 +2119,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "The \"You've Got Time\" Trap",
+        text: 'The "You\'ve Got Time" Trap',
       },
       {
         type: "p",
@@ -2162,7 +2163,7 @@ export const articles: Article[] = [
       },
       {
         type: "p",
-        html: "Three: Pause before you say yes. \"Let me check and come back to you\" is a complete answer. A short pause gives you the space to respond from choice, not guilt.",
+        html: 'Three: Pause before you say yes. "Let me check and come back to you" is a complete answer. A short pause gives you the space to respond from choice, not guilt.',
       },
       {
         type: "h2",
@@ -2308,7 +2309,7 @@ export const articles: Article[] = [
       },
       {
         type: "p",
-        html: "The difference is simple. A bucket list asks, \"What do I want to see?\" A good retirement also asks, \"Who do I want to be, most days?\"",
+        html: 'The difference is simple. A bucket list asks, "What do I want to see?" A good retirement also asks, "Who do I want to be, most days?"',
       },
       {
         type: "p",
@@ -2324,7 +2325,7 @@ export const articles: Article[] = [
       },
       {
         type: "p",
-        html: "One: Keep a \"do often\" list next to your bucket list. Alongside the things you want to do once, write down the things you want to do regularly. Learning, making, helping, moving. These shape your days far more than any single trip.",
+        html: 'One: Keep a "do often" list next to your bucket list. Alongside the things you want to do once, write down the things you want to do regularly. Learning, making, helping, moving. These shape your days far more than any single trip.',
       },
       {
         type: "p",
