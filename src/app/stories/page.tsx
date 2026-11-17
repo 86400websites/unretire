@@ -91,6 +91,58 @@ const stories: Story[] = [
       "At 52, he sold the boutique hotel company he had run for 24 years. Then Airbnb called, and he joined as Head of Global Hospitality at twice the average age of its staff. Becoming a beginner again led him to co-found Modern Elder Academy in 2018.",
     ],
   },
+  {
+    slug: "mahesh-phadnis",
+    img: "mahesh-phadnis",
+    kind: "Practice",
+    tag: "Ignite",
+    title: "The Creator Who Started at 56",
+    name: "Mahesh Phadnis",
+    country: "India",
+    closing: "He retired at 56. Then he became a creator.",
+    body: [
+      "He retired at 56 with interests he had always wanted to pursue more deeply: travel, photography and storytelling. So he started a YouTube channel, Journey Beyond 56, exploring people and communities rather than just places. New to content creation, he grew it to more than 40,000 subscribers within about a year.",
+    ],
+  },
+  {
+    slug: "indra-nooyi",
+    img: "indra-nooyi",
+    kind: "Practice",
+    tag: "Contribute",
+    title: "The CEO Who Chose Giving Back",
+    name: "Indra Nooyi",
+    country: "USA",
+    closing: "She retired from PepsiCo. She didn't retire from contribution.",
+    body: [
+      'After 24 years at PepsiCo, 12 of them as CEO, she retired as Chairman in 2019 and chose not to chase another top job. Instead, she began what she calls her "giving-back phase": joining boards, writing her memoir and advocating for better childcare, eldercare and workplace flexibility.',
+    ],
+  },
+  {
+    slug: "carla-harris",
+    img: "carla-harris",
+    kind: "Mindset",
+    tag: "Relevance",
+    title: "The Banker Who Went From Success to Significance",
+    name: "Carla Harris",
+    country: "USA",
+    closing: "The title changed. Her contribution didn't.",
+    body: [
+      "She spent 34 years at Morgan Stanley, rising to Vice Chairman of Wealth Management in an industry where very few Black women reached the top. In 2021 she stepped down from the vice-chair role, then widened her work through boards, books, speaking and leadership development, helping a new generation build their careers.",
+    ],
+  },
+  {
+    slug: "inga-beale",
+    img: "inga-beale",
+    kind: "Mindset",
+    tag: "Evolution",
+    title: "The Insurance Chief Who Moved Into Healthcare",
+    name: "Dame Inga Beale",
+    country: "United Kingdom",
+    closing: "Her industry changed. Her experience came with her.",
+    body: [
+      "In 2014 she became the first woman to lead Lloyd's of London, after senior roles across the insurance industry. She left in 2018, and in 2020, in the middle of the COVID-19 pandemic, became chair of Mediclinic International, a hospital group operating across Southern Africa, Switzerland and the United Arab Emirates.",
+    ],
+  },
 ];
 
 export default function StoriesPage() {
