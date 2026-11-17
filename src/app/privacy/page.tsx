@@ -22,6 +22,7 @@ export const metadata = {
  *   Mailchimp  src/app/api/subscribe       newsletter, assessment, downloads
  *   Formspree  Contact/Community/Enterprise forms
  *   YouTube    lesson and preview embeds
+ *   Zoom       /conversation/join forwards the visitor to the webinar (S6.1)
  *   Vercel     hosting and request logs
  *
  * Deliberately contains NO governing-law or jurisdiction clause: the owner
@@ -42,8 +43,9 @@ const sections: LegalSection[] = [
     ],
     list: [
       "**If you create an account:** your email address and a password you choose. The password is stored by our authentication provider as a cryptographic hash \u2014 we never see it and cannot recover it.",
-      "**If you buy the course or Premium:** a record that you own it, plus the customer and subscription identifiers our payment provider gives us. **We never see or store your card details.**",
+      "**If you buy the course or Premium:** a record that you own it, plus the customer and subscription identifiers our payment provider gives us. If you are already on our email list, we also add a tag there recording the purchase, so we stop sending you offers for something you own. **We never see or store your card details.**",
       "**If you join the newsletter, take the assessment, or download a free resource:** your email address, your first name if you give one, and a tag recording which of those it came from. The assessment also sends the scores you produced, so the results email can reflect them.",
+      "**If you register for a webinar, or ask for the Toolkit on the webinar page:** your email address, your first name if you give one, and a tag recording which of the two you asked for. We then send you what you asked for and email you about that webinar: reminders before it, then the replay and an offer for our course.",
       "**If you use the contact, community or enterprise form:** whatever you type into it \u2014 typically your name, email, and message.",
       "**If you download the book or workbook as a Premium member:** a record that you did, so the one-per-person limit can be applied, and the name you enter, which is stamped into your copy.",
       "**Automatically:** ordinary web-server request logs kept by our hosting provider, including IP address and browser type. We use these for security and to keep the site working.",
@@ -60,6 +62,7 @@ const sections: LegalSection[] = [
       "**Mailchimp** \u2014 email lists and the messages we send you.",
       "**Formspree** \u2014 delivery of the contact, community and enterprise forms to our inbox.",
       "**YouTube** \u2014 lesson and preview videos are embedded from YouTube, which may set its own cookies when a video loads.",
+      "**Zoom** — our webinars are held on Zoom. The link to join takes you to Zoom, a separate service that handles what you share there under its own privacy policy.",
       "**Vercel** \u2014 hosting and request logs.",
     ],
   },
@@ -109,7 +112,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="30 August 2026"
+      updated="14 November 2026"
       intro="This page explains what this site collects, why it needs it, and who else handles it. It is written to be read, not to be impressive."
       sections={sections}
       footer={

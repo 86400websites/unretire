@@ -28,6 +28,10 @@
 | PG-009 | `/learn/course` shows the ten modules, locked, to a visitor who has not paid | Ten module rows, padlock icon, buy CTA | ⚪ |
 | PG-010 | Marketing pages `/about` `/framework` `/practice` `/journeys` `/start` `/tools` `/speaking` `/podcast` `/newsletter` `/enterprise` `/articles` render their approved copy | Approved copy present per `docs/content/page-copy/` | ⚪ |
 | PG-011 | Page titles, descriptions and social-share images resolve to the live domain | `metadataBase` produces `https://www.unretireproject.com/...`, not `localhost` | ⚪ |
+| PG-012 | While registration is open, a visitor can open `/conversation` and read the webinar's title, date, time and what they will leave with | Page answers 200 with one `h1`; the date and time are rendered from the configured start, not typed; no `[placeholder]` text; zero console errors; no horizontal scroll at 320px | ⚪ |
+| PG-013 | From the moment the webinar starts, `/conversation` stops taking sign-ups and says so | Both forms are replaced by the approved closed text and a link to `/tools`; a link to `/conversation/replay` appears only once a replay address is set; `POST /api/conversation` answers 409 with the same text | ⚪ |
+| PG-014 | With no webinar start date set (Production today), nothing under `/conversation` exists | `/conversation`, `/conversation/join`, `/conversation/replay` and `/conversation/calendar.ics` each answer 404 and `POST /api/conversation` answers 404; `/webinar` renders as before | ⚪ |
+| PG-015 | A visitor who opens `/conversation/replay` sees the right thing for the moment | No replay address → the coming-soon text and no recording link; replay address set → the replay link; offer open → the offer block with the deadline, the code when one is set, and a button to `/learn/course`; offer ended → the offer-ended text, no code and no deadline | ⚪ |
 
 ## B. Accounts & access
 
@@ -57,6 +61,8 @@
 | FM-008 | A form failure tells the truth — it never shows success when nothing was sent | Honest error state, no false confirmation | ⚪ |
 | FM-009 | A form error never shows the visitor the upstream provider's own words | User-facing message is fixed; only a safe identifier is logged | 🔴 **#44** — raw Mailchimp `detail` is logged and returned to the browser |
 | FM-010 | Account emails actually arrive at real-world volume | The 3rd, 5th and 10th signup or reset in the same hour all receive their email | 🔴 **#50** — Production Supabase uses the built-in mailer, capped at **2 emails per hour project-wide** |
+| FM-011 | A visitor can save a seat on `/conversation` with a first name and an email address | The contact gets exactly the server-chosen tag `conv1-registered`; the thank-you state shows the join link, the Google Calendar link and the `.ics` link; a missing or malformed email shows a visible message and sends nothing; the button is disabled while sending; an address that cannot be emailed gets the not-emailable text instead of "Check your inbox"; a failed sign-up shows the fixed failure message, never a success | ⚪ |
+| FM-012 | A visitor can ask for the Toolkit on the same page | The contact gets exactly the tag `conv1-toolkit` and not `conv1-registered`; the toolkit-sent state shows; validation, the not-emailable text and the failure message behave as in FM-011 | ⚪ |
 
 ## D. Payments *(Stripe test mode only)*
 
@@ -83,6 +89,9 @@
 | PR-004 | Public endpoints reject junk input server-side, not just in the browser | Schema validation refuses malformed payloads | 🔴 **#5** — server-side validation is minimal |
 | PR-005 | The site sends the security headers the launch gate requires | CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy and Permissions-Policy present on the live response | 🔴 **#46** — `next.config.ts` is empty; only platform HSTS is returned |
 | PR-006 | A signed-in member can only ever read their own data | An attempt to read another user's entitlement row is denied by the database, not just by the app | ⚪ |
+| PR-007 | The webinar sign-up endpoint refuses abuse | A burst of requests to `POST /api/conversation` reaches 429 with `Retry-After`, and the limiter fails closed; an invalid payload gets the app's own 400, not 429; a filled anti-spam field gets the same 400 — never a fake success; no response carries a provider's words or the Zoom address | ⚪ |
+| PR-008 | The join link sends people only to the real Zoom meeting, and only while a webinar is configured | `GET /conversation/join` answers 307 with `Cache-Control: no-store` to an https address whose host is `zoom.us` or ends in `.zoom.us`; with no start date it answers 404; a build with a malformed or non-Zoom join address fails | ⚪ |
+| PR-009 | Nobody can give themselves a webinar or buyer tag through the newsletter endpoint | The `/api/subscribe` validator refuses `conv1-registered`, `conv1-toolkit` and `purchased-course` with its existing tag error | ⚪ |
 
 ## F. Integrations and everything else
 
@@ -94,6 +103,8 @@
 | IN-004 | All three Formspree forms deliver to the owner's address | Submission accepted for contact, community and enterprise | ⚪ — but see the cross-check below: all three post to the **same** endpoint, so the owner cannot tell them apart |
 | IN-005 | YouTube lesson videos play for an entitled member | Player loads for the `course` and `premium` roles | ⚪ |
 | IN-006 | Preview auth emails return to the Preview origin, never Production | The reset link host matches the environment under test | ⚪ |
+| IN-007 | A course or Premium purchase marks the buyer in Mailchimp so the sales emails stop — and can never break a paid grant | The webhook sends one tags-only request naming `purchased-course` for a course purchase and for a Premium purchase; with no email, a timeout or a thrown error the grant still returns "granted" | ⚪ |
+| IN-008 | A registrant can download a calendar file for the webinar | `GET /conversation/calendar.ics` answers 200 as `text/calendar` with a valid event: start and end from the configured start, CRLF line endings, the join address `/conversation/join` as location — never the Zoom address; 404 with no start date | ⚪ |
 
 ## G. Manual checks *(real but not robot-testable — still on the list, still need evidence)*
 
@@ -103,6 +114,11 @@
 | MN-002 | Email from the sending domain passes SPF, DKIM and DMARC | Send to an external address, check the received headers, screenshot |
 | MN-003 | A real end-to-end payment on the live domain grants real access | Owner runs one live purchase with the 100%-off coupon after launch, confirms access, then revokes the coupon |
 | MN-004 | The watermarked PDF is legible and carries the right identity | Owner opens a downloaded book and workbook and reads the watermark |
+| MN-005 | Email 1 arrives after a registration on the Preview | Owner registers on the Preview with `<his mailbox>+ur-test-seat1`; Email 1 (flow `conv1-01`) arrives in his inbox; every link shows the address listed in `docs/content/email-copy/conv1.md`; he replies "pass" |
+| MN-006 | Email 2 arrives after a Toolkit request on the Preview | Owner asks for the Toolkit on the Preview with `<his mailbox>+ur-test-kit1`; Email 2 (flow `conv1-02`) arrives; its links match the paste sheet; he replies "pass" |
+| MN-007 | The seven scheduled emails read correctly | Owner sends himself a test of each draft `conv1-03` … `conv1-09` from Mailchimp and checks the subject, preview text, wording and links against the paste sheet |
+| MN-008 | The Mailchimp setup exists and is correct | The "Webinar Funnel" GitHub Actions run is green at the reviewed head: three tags, three saved segments and seven empty drafts exist, each draft on its expected segment, and the self-test shows a tagged buyer leaves "Conv1 - Registered, not bought" |
+| MN-009 | The live funnel works before the real webinar is announced (go-live) | Owner registers and asks for the Toolkit on the live site with two test plus-addresses; Emails 1 and 2 arrive with the real date; "Join on Zoom" opens the real meeting; `launch-check` is green; `cleanup` is run afterwards |
 
 ---
 
@@ -175,3 +191,4 @@ Approved lines are never silently edited. Every later addition or change: [DATE 
 - 2026-09-03 — S5.1c — **no approved line was edited.** Coverage record: **AC-011** gains its first ALLOWED-half worksheet assertion (`tests/e2e/accounts/paid-content.spec.ts` — `a buyer can actually download each worksheet`), added because every prior worksheet assertion covered only the denied 403 halves and the production 500 (Known issue 57) shipped through the gate. Recorded by Claude (builder); no re-approval needed — no line text changed.
 - 2026-09-04 — S5.2 — **the seven-test morning set is OWNER-APPROVED in writing** ("8.1 Approved", 2026-09-04), unedited, which satisfies the "owner-approved" clause of the S5.2 acceptance criterion and of `docs/testing-setup/templates/MORNING-CHECK-TEMPLATE.md`. No approved feature line was edited by that approval; it names which existing tests run daily against Production.
 - 2026-09-03 — S5.2 — **no approved line was edited.** Coverage record, the morning check (`--grep "@morning"`, proposed set of **seven** for owner approval — OWNER-ACTIONS Part 8.1): the `@morning` tag is added to the `@smoke` homepage test, **PG-005**, **PG-009** and the first **PR-005** test; and `tests/e2e/smoke/gates-and-seo.spec.ts` restates the anonymous halves of **AC-010** and **AC-012** in a credential-free file (their originals live in the roles project, which needs the fixture password and so cannot run against Production) plus one **SEO** test with no feature-list ID — it asserts `docs/LAUNCH-CHECKLIST.md` lines (sitemap, robots, the Search Console token, no `noindex`), not an approved feature line. Also added, not a feature line: `tests/e2e/security/target-guard.spec.ts` (**HARNESS** — the harness's own target rule, moved to `tests/e2e/helpers/target.ts`, asserted). Recorded by Claude (builder); no re-approval needed — no line text changed.
+- 2026-11-13 — PG-012, PG-013, PG-014, PG-015, FM-011, FM-012, PR-007, PR-008, PR-009, IN-007, IN-008, MN-005, MN-006, MN-007, MN-008, MN-009 — added for S6.1 (the webinar funnel, `docs/sprint-prompts/S6.1-webinar-funnel.md`) — approved by the owner, 2026-11-13, in his reply to Gate A: *"all recommended"* … *"rest recommended"* (quoted in full in that file's status block; his exceptions, items 9–13, are about the e-mails and touch none of these lines). **No existing line was edited.** The new robot-testable lines start at ⚪ (untested); the new manual lines have not been run. Recorded by Claude (builder).

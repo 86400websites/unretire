@@ -1,0 +1,133 @@
+name: Webinar Funnel
+# Sets up and checks the Mailchimp side of the webinar funnel (Sprint S6.1) by running
+# scripts/webinar-funnel.mjs. This is the ONLY workflow that holds the Mailchimp key, and the
+# first GitHub Actions path to the one live audience (decision D-22; the owner allowed this job
+# on 2026-11-13, Gate 0 item 7 of docs/sprint-prompts/S6.1-webinar-funnel.md).
+#
+# What the script can do is fixed in the script itself, not here: it can create the tags, the
+# three saved segments and seven EMPTY, UNSCHEDULED email drafts; create, tag and archive the
+# owner's own plus-address test contacts; and read. It has no call that sets an email's body,
+# sends, test-sends, schedules, or permanently deletes a contact.
+#
+# Two ways in:
+#   - workflow_dispatch — the "Run workflow" button, with a mode. GitHub only shows that button
+#     for a workflow file that is already on the default branch.
+#   - pull_request      — only for a PR that changes the script or this file. That is how setup
+#     runs before the first merge. With a `paths` filter GitHub compares the WHOLE PR diff, so
+#     once a PR touches either file this workflow starts on every push to it. Each such run does
+#     setup → drafts → check (all three are safe to repeat: nothing existing is edited). The
+#     self-test, which creates five test contacts, runs only when the push that started the run
+#     itself changed one of the two files, or the PR was just opened.
+#
+# A re-run repeats the original commit and the original event. Evidence for a new head is the
+# run GitHub starts for that push.
+#
+# Owner-controlled, from GitHub → Settings → Secrets and variables → Actions, all read by NAME:
+#   MAILCHIMP_API_KEY, MAILCHIMP_LIST_ID   secrets — the live audience
+#   E2E_OWNER_MAILBOX                      secret — the owner's mailbox; test contacts are
+#                                          <mailbox>+ur-test-conv1-<run id>-<attempt>-<letter>
+#   PRODUCTION_URL                         variable — the live site, read (GET) only
+# They are given to the one step that runs the script and to no other step. Nothing is uploaded
+# as an artifact. Node pinned to 24, as in the other workflows.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to do. check and launch-check only read. setup and drafts create what is missing. selftest creates five test contacts and archives them. cleanup archives leftover test contacts."
+        required: true
+        default: check
+        type: choice
+        options:
+          - check
+          - launch-check
+          - setup
+          - drafts
+          - selftest
+          - cleanup
+  pull_request:
+    paths:
+      - scripts/webinar-funnel.mjs
+      - .github/workflows/webinar-funnel.yml
+permissions:
+  contents: read
+concurrency:
+  # One lane for every run: there is one audience, and two runs creating tags, segments or
+  # drafts at the same moment could each create the same thing. A run in progress is never
+  # cancelled — a run cancelled mid self-test could leave its test contacts un-archived.
+  # GitHub keeps only ONE waiting run per group, so a newer waiting run replaces an older
+  # one: if a run shows as cancelled, re-run it (a re-run keeps its original event).
+  group: webinar-funnel-mailchimp
+  cancel-in-progress: false
+jobs:
+  webinar-funnel:
+    # A pull request from a fork gets no secrets and must not reach this job at all.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Run the script exactly as it is at the PR head (not the merge with master), and
+          # fetch the history the "did this push change the script?" step needs.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Decide whether this push needs the self-test
+        id: selftest
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          # Default: run it. It is skipped only when this is a push to an open PR AND both ends
+          # of that push are known commits AND neither file differs between them. A PR that was
+          # just opened or reopened, a missing or all-zero "before", or a "before" that is not
+          # in the history (a force-push) all count as "changed".
+          run=true
+          reason="the pull request was opened or reopened, or the push could not be compared"
+          sha='^[0-9a-f]{40}$'
+          if [ "$EVENT_ACTION" = "synchronize" ] &&
+            [[ "$BEFORE" =~ $sha ]] && [[ "$AFTER" =~ $sha ]] &&
+            ! [[ "$BEFORE" =~ ^0+$ ]] &&
+            git cat-file -e "$BEFORE^{commit}" 2>/dev/null &&
+            git cat-file -e "$AFTER^{commit}" 2>/dev/null; then
+            if git diff --quiet "$BEFORE" "$AFTER" -- scripts/webinar-funnel.mjs .github/workflows/webinar-funnel.yml; then
+              run=false
+              reason="this push did not change the script or the workflow"
+            else
+              reason="this push changed the script or the workflow"
+            fi
+          fi
+          echo "Self-test: $run ($reason)"
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+      - name: Run the funnel script
+        shell: bash
+        env:
+          MAILCHIMP_API_KEY: ${{ secrets.MAILCHIMP_API_KEY }}
+          MAILCHIMP_LIST_ID: ${{ secrets.MAILCHIMP_LIST_ID }}
+          E2E_OWNER_MAILBOX: ${{ secrets.E2E_OWNER_MAILBOX }}
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+          MODE: ${{ inputs.mode }}
+          RUN_SELFTEST: ${{ steps.selftest.outputs.run }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            node scripts/webinar-funnel.mjs setup
+            node scripts/webinar-funnel.mjs drafts
+            node scripts/webinar-funnel.mjs check
+            if [ "$RUN_SELFTEST" = "true" ]; then
+              node scripts/webinar-funnel.mjs selftest
+            else
+              echo "Self-test not run: this push did not change the script or the workflow."
+            fi
+          else
+            node scripts/webinar-funnel.mjs "$MODE"
+          fi

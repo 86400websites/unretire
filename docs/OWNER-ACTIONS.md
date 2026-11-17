@@ -749,6 +749,64 @@ setting (8.3), you can see every run in the Actions tab, and the two-minute test
 
 ---
 
+## PART 9 — Webinar funnel · S6.1 (added 2026-11-14) · about 80 minutes of yours, in three sittings
+
+> The funnel is being built in the branch `claude/s6.1-webinar-funnel`: one page (`/conversation`) with two
+> forms, the Mailchimp tags, three Segments, seven email drafts, and a tag that keeps buyers out of the last two
+> sales emails. **It is switched off on the live site** until you give it a start date. Every click you need is
+> in **`docs/WEBINAR-FUNNEL.md`** ("the runbook"). This part is only the order. Do the items **in order**.
+> Nothing here needs code.
+>
+> **✅ ANSWERED 2026-11-13 — Gate 0 and Gate A.** Your words: *"all recommended - except for: 9. Its fine - dont
+> worry about the email content - they will bechnaged later to fit the actual webinar 10. same 11. same (for
+> offer) 12. ok no worries - and theres less chances that they will use different emails right? so lets not
+> complicate 13. yes mailchimp default rest recommended"*, and on the Vercel values: *"if they are essential
+> then I have no issues - I'll add the details then redeploy"*. Recorded in `docs/PROJECT-STATUS.md` §8:
+> **D-40** (the whole-stage review is waived; a review of pull requests #35 and #37–#42 is on the backlog),
+> **D-43** (the Mailchimp job may run on the pull request), **D-44** (the join address is public), **D-46** (I go
+> from one step to the next without waiting; every other stop stays), **D-47** (one update of the test copy of
+> the site after the merge), **D-48** (the privacy sentences — 9.1e below), **D-49** (three screenshots from my
+> machine), **D-50** (S5.2's records closed out here) and **D-51** (Commit and Push).
+>
+> **One thing I read into your reply — tell me if it is wrong (D-51).** You were asked "Commit: YES or NO, and
+> Push: YES or NO" and did not answer it by name. I read *"rest recommended"* as **Commit: YES and Push: YES, to
+> this branch only**. If you meant otherwise, say so and I stop.
+
+### 9.1 Already done · nothing to do
+
+- [x] **9.1a** The two GitHub secrets `MAILCHIMP_API_KEY` and `MAILCHIMP_LIST_ID` — ✅ added by you, 2026-11-13. ~~*(I cannot list secret names with my access; the first "Webinar Funnel" run on the pull request is what proves them — D-43.)*~~ **Proved 2026-11-14:** both names are listed, and the "Webinar Funnel" run on pull request #43 is green. Mailchimp refused the first key (HTTP 401), so you replaced the secret's value that day.
+- [x] **9.1b** The Vercel value `WEBINAR_ZOOM_URL`, for Production, Preview and Development — ✅ added by you, 2026-11-13.
+- [x] **9.1c** Gate 0 and Gate A — ✅ answered 2026-11-13 (quoted above).
+- [x] **9.1d** The four Preview-only Vercel values `WEBINAR_STARTS_AT`, `WEBINAR_OFFER_ENDS_AT`, `WEBINAR_OFFER_CODE` and `WEBINAR_REPLAY_URL` — ✅ added by you for **Preview**, 2026-11-14 (your screenshot). Leave them there for good. Leave all four **empty in Production**. No Redeploy is needed: my next push builds a new Preview and it picks them up. What each one is for: runbook §2.4.
+- [x] **9.1e** The three privacy-page sentences — webinar sign-ups, Zoom, and the hidden `purchased-course` label a buyer gets if they are already on your email list — ✅ approved by you, 2026-11-14. Your words: *"privacy ok"*. The record is `docs/content/page-copy/privacy.md`, section 13 (**D-48**). They are on the privacy page in this branch, word for word, and reach the live site with the merge. "Last updated" reads 14 November 2026; if the merge lands on a later day, I set it to that day first.
+
+### 9.2 Gate B/C — build the Mailchimp side and test it · ✅ done 2026-11-14
+
+- [x] **9.2-first** The 1-minute try on the draft `conv1-03` — ✅ Mailchimp let you paste your own HTML.
+- [x] **9.2a** The two flows, built with your HTML files and switched on — ✅ `conv1-01` and `conv1-02`.
+- [x] **9.2b** Your seven HTML files, pasted into the drafts — ✅ the check read them back.
+- [x] **9.2c** The test on the Preview — ✅ "You're in" and "Your Toolkit is here" both arrived. The test found one fault: your browser's autofill filled a hidden anti-spam box, so the Toolkit form said "Invalid request". I fixed it the same day.
+- [x] **9.2d** ✅ Your words: *"I received both the emails so I think toolkit is fixed as well"*.
+
+### 9.3 The Codex review, then the merge · a few minutes
+
+- [x] **9.3a** The Codex review — ✅ APPROVE, no findings (2026-11-14). The record is in `docs/code-reviews/S6.1-webinar-funnel-review.md`.
+- [ ] **9.3b** When the review says APPROVE and I tell you the checks are green, merge the pull request on GitHub.
+
+### 9.4 After the merge — one pretend purchase · 5 minutes
+
+No money moves: this is the test copy of the site and Stripe's test card. It proves a buyer drops out of Emails 8 and 9.
+
+- [ ] **9.4a** Wait for my message **"staging is ready"**. (I update the test copy of the site once — **D-47**.)
+- [ ] **9.4b** Do runbook §8, then reply **"bought"**.
+- [ ] **9.4c** I show you two clean-up statements for that one test account. Approve them and I run them.
+
+### 9.5 Switch it on — the go-live checklist · about 90 minutes · not part of this sprint
+
+- [ ] **9.5** Runbook §9, the go-live checklist, from top to bottom. *(Added 2026-11-14:)* for the emails (runbook §9.5) the easy way is to send me the real date, time and offer details; I return nine final files and you paste each one again.
+
+---
+
 ## What I need back from you
 
 *(Updated 2026-09-04 — **the current asks are Part 8.1–8.4 above** (the morning check and the branch), then 8.5–8.9 when convenient. Earlier, retained:)*

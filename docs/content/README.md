@@ -23,6 +23,7 @@ deck. Per the system's own retrofit rule (`Website-Development-System/developmen
 |---|---|
 | `page-copy/*.md` | Frozen per-page copy, extracted **verbatim** from the shipped pages (headings, body, CTAs, section order, alt text). Starts with `home.md`. |
 | `locked-facts.md` | Exact approved claims (prices, counts, taglines, names) with their source in code, each verified against the code before locking. Also carries the **Flagged** list of claims that must NOT be treated as locked. |
+| `email-copy/*.md` | Approved email copy that the site does **not** render: the "paste sheet" for emails the owner sends from Mailchimp. Each email is shown as the owner wrote it (SOURCE) and ready to paste (PASTE VERSION), with its Mailchimp name, subject, preview text, segment, send rule, every link in full, and a "Replace before go-live" table. Starts with `conv1.md` — the nine webinar emails (Sprint S6.1, approved by the owner 2026-11-13). Changes follow the same rule as page copy: the file first, with owner approval. |
 
 ## Extraction schedule
 

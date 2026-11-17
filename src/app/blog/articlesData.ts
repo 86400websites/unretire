@@ -2005,6 +2005,350 @@ export const articles: Article[] = [
     ],
     cta: "<strong>Ready to plan what you’re retiring to, not just from? </strong>The <em>(Un)Retire</em> book and Life Design Workbook give you the mindsets, practices, and step-by-step structure to prepare for the half of retirement money can’t buy.",
   },
+  {
+    slug: "friendships-after-retirement",
+    title: "The Friendships Work Was Quietly Giving You",
+    metaTitle: "Making Friends After Retirement | (Un)Retire",
+    metaDescription:
+      "Work filled your days with people without you trying. Why friendships fade after retirement, and three ways to build a circle that lasts.",
+    excerpt:
+      "Work filled your days with people without you trying. Why friendships fade after retirement, and three ways to build a circle that lasts.",
+    keyword: "friendships after retirement",
+    category: "Connection",
+    readingMinutes: 4,
+    body: [
+      {
+        type: "p",
+        html: "Nobody hands you a farewell card that says, \"You are about to lose most of your conversations.\"",
+      },
+      {
+        type: "p",
+        html: "But that is often what happens. The chat at the coffee machine. The colleague who knew how you took your tea and what kind of week you were having. The quick lunch that turned into an hour of real conversation.",
+      },
+      {
+        type: "p",
+        html: "Work did more than pay you. It filled your days with people.",
+      },
+      {
+        type: "h2",
+        text: "The Circle You Didn't Know You Had",
+      },
+      {
+        type: "p",
+        html: "For decades, work gave you a ready-made circle. You didn't have to plan it, phone anyone or make the first move. The people simply turned up.",
+      },
+      {
+        type: "p",
+        html: "Then retirement removes the building, and with it the reason to see each other. You promise to stay in touch. Most people mean it. Yet without a shared project, a shared office or a shared complaint about the boss, those friendships often thin out within months.",
+      },
+      {
+        type: "p",
+        html: "This isn't a sign that the friendships were fake. It's a sign that they were held together by the job itself. Take away the job, and they need a new reason to meet.",
+      },
+      {
+        type: "h2",
+        text: "Why It Matters More Than You Think",
+      },
+      {
+        type: "p",
+        html: "It's easy to brush this off as a small loss. It isn't. People who stay connected tend to stay sharper, more energetic and more interested in tomorrow. People who drift into isolation often notice the opposite. Fewer reasons to get dressed. Fewer stories to tell. Fewer people who would notice if they went quiet for a week.",
+      },
+      {
+        type: "p",
+        html: "Loneliness rarely arrives as a crisis. It creeps in. A cancelled plan here. A week with no real conversation there.",
+      },
+      {
+        type: "p",
+        html: "So here's a question worth asking: who did you speak to properly this week, and who started that conversation?",
+      },
+      {
+        type: "h2",
+        text: "Three Ways to Build Your Circle Again",
+      },
+      {
+        type: "p",
+        html: "One: Make the first move, and keep making it. At work, connection happened by default. Now it happens by decision. Send the message. Suggest the walk. Most people are waiting for someone else to go first.",
+      },
+      {
+        type: "p",
+        html: "Two: Join something with a rhythm. One-off events rarely create friends. Repetition does. A walking group, a choir, a volunteer shift, a class that meets every week. Anything that puts the same faces in front of you again and again.",
+      },
+      {
+        type: "p",
+        html: "Three: Make friends of all ages. If every friend you have is your age, your circle shrinks as life moves on. Spend time with people younger and older than you. You'll hear new ideas, and you'll have plenty to offer in return.",
+      },
+      {
+        type: "h2",
+        text: "Friendship Is Now a Practice",
+      },
+      {
+        type: "p",
+        html: "Earlier in life, friendships came as a by-product of school, work and raising children. In this chapter, they become something you build on purpose.",
+      },
+      {
+        type: "p",
+        html: "That may feel awkward at first. Starting over usually does. But the friendships you choose now, rather than inherit from an office, can be some of the most honest you'll ever have. Built on shared interests. Not shared deadlines.",
+      },
+    ],
+    cta: "<strong>Ready to fill your next chapter with people who matter?</strong> UnRetire and the Life Design Workbook help you design the relationships, routines and purpose that make the years ahead feel full.",
+  },
+  {
+    slug: "retired-doesnt-mean-available",
+    title: "Retired Doesn't Mean Available: Protecting Your Time When Everyone Thinks You Have Plenty",
+    metaTitle: "Protecting Your Time in Retirement | (Un)Retire",
+    metaDescription:
+      "Once you retire, everyone assumes you're free. How to stay generous with your time without giving away the freedom you worked for.",
+    excerpt:
+      "Once you retire, everyone assumes you're free. How to stay generous with your time without giving away the freedom you worked for.",
+    keyword: "time boundaries in retirement",
+    category: "Mindset",
+    readingMinutes: 4,
+    body: [
+      {
+        type: "p",
+        html: "It starts small. Can you fetch the kids from school? Would you mind waiting at home for the plumber? You'll join the committee, won't you?",
+      },
+      {
+        type: "p",
+        html: "After all, you're retired. You have time.",
+      },
+      {
+        type: "p",
+        html: "Except the time you finally won back can disappear faster than you'd believe.",
+      },
+      {
+        type: "h2",
+        text: "The \"You've Got Time\" Trap",
+      },
+      {
+        type: "p",
+        html: "Once you stop working, the people around you quietly start planning your days for you. Your children see a reliable babysitter. Friends see a free ride to the airport. Organizations see a volunteer who will say yes to everything.",
+      },
+      {
+        type: "p",
+        html: "Most of these requests come from love or trust. That's exactly what makes them hard to turn down. Saying no feels selfish, even unkind. So you say yes. And yes again.",
+      },
+      {
+        type: "p",
+        html: "Months later, you look at your calendar and realize it's full. Just not with anything you chose.",
+      },
+      {
+        type: "h2",
+        text: "Generosity Needs a Plan",
+      },
+      {
+        type: "p",
+        html: "There is nothing wrong with helping. Being needed is one of the great gifts of this season. Many people find real joy in time with grandchildren or in giving back to their community.",
+      },
+      {
+        type: "p",
+        html: "The problem isn't helping. It's helping without a plan. When every request gets an automatic yes, your own goals slip to the bottom of the pile. The course you meant to take. The project you've talked about for years. The plain freedom of a morning with nothing in it.",
+      },
+      {
+        type: "p",
+        html: "Ask yourself honestly: if someone looked at how you spend your week, would they know what matters to you?",
+      },
+      {
+        type: "h2",
+        text: "Three Ways to Protect Your Time",
+      },
+      {
+        type: "p",
+        html: "One: Decide what's yours first. Before the requests arrive, block out time for the things you care about. Your learning, your health, your projects. Treat those commitments as seriously as you once treated a meeting with your manager.",
+      },
+      {
+        type: "p",
+        html: "Two: Offer help on purpose, not on demand. Choose what you'd love to give. Perhaps one set day a week with the grandchildren, rather than whenever someone is stuck. Clear, regular offers are easier for everyone than constant last-minute rescues.",
+      },
+      {
+        type: "p",
+        html: "Three: Pause before you say yes. \"Let me check and come back to you\" is a complete answer. A short pause gives you the space to respond from choice, not guilt.",
+      },
+      {
+        type: "h2",
+        text: "Your Time Is Not Spare Time",
+      },
+      {
+        type: "p",
+        html: "For years, your time belonged to an employer. Retirement hands it back. That doesn't make it spare, leftover or free for anyone to take.",
+      },
+      {
+        type: "p",
+        html: "It makes it yours. Spend it generously, by all means. Just spend it deliberately. The people who love you will adapt, and they'll likely respect you more for it.",
+      },
+    ],
+    cta: "<strong>Ready to design a week that reflects what matters to you?</strong> UnRetire and the Life Design Workbook help you set priorities for this chapter, so your time goes where you want it to go.",
+  },
+  {
+    slug: "legacy-is-how-you-live-now",
+    title: "Legacy Isn't What You Leave Behind. It's How You Live Now.",
+    metaTitle: "Building Your Legacy in Retirement | (Un)Retire",
+    metaDescription:
+      "Legacy is more than a will and an inheritance. Why the things people remember are built now, and three ways to start building yours.",
+    excerpt:
+      "Legacy is more than a will and an inheritance. Why the things people remember are built now, and three ways to start building yours.",
+    keyword: "legacy in retirement",
+    category: "Purpose",
+    readingMinutes: 4,
+    body: [
+      {
+        type: "p",
+        html: "Ask most people about legacy and they'll talk about a will. The house. The savings. Who gets the dining room table.",
+      },
+      {
+        type: "p",
+        html: "Those things matter. But they're not the whole story. In fact, they're rarely the part people remember.",
+      },
+      {
+        type: "p",
+        html: "What people remember is you.",
+      },
+      {
+        type: "h2",
+        text: "More Than an Inheritance",
+      },
+      {
+        type: "p",
+        html: "Think about the people who shaped your life. A grandparent. A teacher. A first boss who saw something in you before you saw it yourself. Chances are, you don't remember what they owned. You remember how they made you feel, what they taught you, and the things they said that still come back to you decades later.",
+      },
+      {
+        type: "p",
+        html: "That is legacy. And it isn't something you hand over at the end. It's something you build every day you're here.",
+      },
+      {
+        type: "h2",
+        text: "Why Now Is the Moment",
+      },
+      {
+        type: "p",
+        html: "Working life rarely left room for this. You were busy earning, raising, managing, coping. Retirement offers something rare: time to think about what you want to pass on, and the space to actually do it.",
+      },
+      {
+        type: "p",
+        html: "Waiting is the risk. Stories go untold. Recipes, skills and lessons disappear with the people who carried them. Many families only realize what they've lost when it's too late to ask.",
+      },
+      {
+        type: "p",
+        html: "So here's something worth considering: if the people closest to you described your influence on their lives today, what would they say?",
+      },
+      {
+        type: "h2",
+        text: "Three Ways to Start Building Your Legacy",
+      },
+      {
+        type: "p",
+        html: "One: Write down your stories. Not a memoir. Just the moments that shaped you. The hard decisions, the lucky breaks, the mistakes that taught you the most. A few pages can mean more to a grandchild than any heirloom.",
+      },
+      {
+        type: "p",
+        html: "Two: Teach what you know. A skill, a craft, a way of handling money or people. Pass it on in person, while you can still answer the questions that come with it.",
+      },
+      {
+        type: "p",
+        html: "Three: Live the values you want to leave. Kindness. Curiosity. Courage. People learn far more from watching how you behave than from anything you tell them.",
+      },
+      {
+        type: "h2",
+        text: "Legacy Starts Today",
+      },
+      {
+        type: "p",
+        html: "It's tempting to treat legacy as a final chapter, something tidy you'll get around to later. But the most meaningful legacies are built quietly, in everyday conversations and small acts that add up over years.",
+      },
+      {
+        type: "p",
+        html: "You are writing yours right now. The only question is whether you're writing it on purpose.",
+      },
+    ],
+    cta: "<strong>Ready to shape what you'll pass on, starting today?</strong> UnRetire and the Life Design Workbook help you get clear on the values, stories and relationships you want this chapter to be remembered for.",
+  },
+  {
+    slug: "beyond-the-bucket-list",
+    title: "Beyond the Bucket List: Why Ticking Boxes Won't Fill Your Days",
+    metaTitle: "Beyond the Bucket List in Retirement | (Un)Retire",
+    metaDescription:
+      "A bucket list gives you highlights, not a life. Why the big trips can leave retirement feeling flat, and how to build days worth coming home to.",
+    excerpt:
+      "A bucket list gives you highlights, not a life. Why the big trips can leave retirement feeling flat, and how to build days worth coming home to.",
+    keyword: "retirement bucket list",
+    category: "Mindset",
+    readingMinutes: 4,
+    body: [
+      {
+        type: "p",
+        html: "Retirement often comes with a list. See the Northern Lights. Walk a famous hiking trail. Finally visit the places you pinned to the fridge years ago.",
+      },
+      {
+        type: "p",
+        html: "It's a wonderful list. Go and do it.",
+      },
+      {
+        type: "p",
+        html: "Just don't expect it to carry your whole retirement.",
+      },
+      {
+        type: "h2",
+        text: "The Problem With a List of Highlights",
+      },
+      {
+        type: "p",
+        html: "A bucket list is built for peak moments. The trip of a lifetime. The once-in-a-decade adventure. And those moments are glorious.",
+      },
+      {
+        type: "p",
+        html: "But big moments are, by nature, rare. Even the most ambitious list covers a few weeks a year. Then the suitcase is unpacked, the photos are shared, and you're home again, with the same days stretching out in front of you as before you left.",
+      },
+      {
+        type: "p",
+        html: "Many people find this surprisingly flat. They worked hard for the big experience, and when it's over, they're not sure what comes next. So they plan the next trip. And the next. Each one a little less satisfying than the last.",
+      },
+      {
+        type: "h2",
+        text: "Highlights Versus a Life",
+      },
+      {
+        type: "p",
+        html: "The difference is simple. A bucket list asks, \"What do I want to see?\" A good retirement also asks, \"Who do I want to be, most days?\"",
+      },
+      {
+        type: "p",
+        html: "Experiences give you memories. Purpose, growth and connection give you a reason to get up when there's no trip on the horizon. You need both. Most people plan only the first.",
+      },
+      {
+        type: "p",
+        html: "So consider this: if you took away every holiday on your calendar, what would your year look like?",
+      },
+      {
+        type: "h2",
+        text: "Three Ways to Go Beyond the List",
+      },
+      {
+        type: "p",
+        html: "One: Keep a \"do often\" list next to your bucket list. Alongside the things you want to do once, write down the things you want to do regularly. Learning, making, helping, moving. These shape your days far more than any single trip.",
+      },
+      {
+        type: "p",
+        html: "Two: Turn experiences into ongoing interests. Loved the hike? Join a walking club. Fell for the food on holiday? Take a cooking class. Let the highlight lead somewhere, instead of ending at the airport.",
+      },
+      {
+        type: "p",
+        html: "Three: Build something to look forward to into every week. It doesn't have to be a flight. A class, a project or a regular catch-up with friends can give each week its own highlight.",
+      },
+      {
+        type: "h2",
+        text: "A Life Worth Coming Home To",
+      },
+      {
+        type: "p",
+        html: "Travel and adventure are some of the great rewards of this chapter. Enjoy every one of them.",
+      },
+      {
+        type: "p",
+        html: "But build a life you're glad to return to as well. When the everyday feels meaningful, the highlights become a bonus, not the only thing you look forward to.",
+      },
+    ],
+    cta: "<strong>Ready to design a retirement that feels full between the highlights?</strong> UnRetire and the Life Design Workbook help you plan the everyday purpose, growth and connection that make every season worth living.",
+  },
 ];
 
 export const categories: string[] = Array.from(
