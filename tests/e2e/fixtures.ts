@@ -15,6 +15,60 @@ import {
  * whose origin equals the validated `baseURL` origin. Every spec and setup
  * imports `test` from this file, never from `@playwright/test` directly.
  */
+
+/** The request methods of an APIRequestContext. */
+const REQUEST_METHODS = new Set([
+  "get",
+  "post",
+  "put",
+  "patch",
+  "delete",
+  "head",
+  "fetch",
+]);
+
+/**
+ * Known issue 69 (found in S6.2, 2026-11-20). When one of Playwright's API
+ * requests fails — a timeout, a dropped connection, a test that runs out of
+ * time — its error message lists every request header, the bypass header of
+ * the `api` context below among them. That message is printed and written to
+ * error-context.md, which the "E2E — Preview" workflow uploads, and GitHub
+ * masks secrets in logs, not in uploaded files. So every request method of
+ * that context goes through this wrapper: a response that arrives (whatever
+ * its status) is returned untouched, and an error is replaced by the method,
+ * the path and the error's class name — never the headers.
+ */
+export function withQuietErrors(context: APIRequestContext): APIRequestContext {
+  return new Proxy(context, {
+    get(target, property, receiver) {
+      const value: unknown = Reflect.get(target, property, receiver);
+      if (typeof value !== "function") return value;
+      if (typeof property === "string" && REQUEST_METHODS.has(property)) {
+        return async (...args: unknown[]) => {
+          try {
+            return await value.apply(target, args);
+          } catch (err) {
+            let path = "a request";
+            if (typeof args[0] === "string") {
+              try {
+                path = new URL(args[0], "http://local.invalid").pathname;
+              } catch {
+                // Keep "a request".
+              }
+            }
+            throw new Error(
+              `${property.toUpperCase()} ${path} did not complete (${
+                err instanceof Error ? err.name : "unknown error"
+              }); the details are withheld because they list the request's headers (Known issue 69)`,
+            );
+          }
+        };
+      }
+      return value.bind(target);
+    },
+  });
+}
+
 export const test = base.extend<{ api: APIRequestContext }>({
   context: async ({ context, baseURL }, provide) => {
     const secret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
@@ -60,6 +114,8 @@ export const test = base.extend<{ api: APIRequestContext }>({
    *
    * With no secret set (a local self-check) the context is created without the
    * header, so `pnpm test:e2e` still runs against localhost with no credentials.
+   *
+   * Every request method is wrapped by withQuietErrors (Known issue 69).
    */
   api: async ({ baseURL }, provide) => {
     if (!baseURL) throw new Error("baseURL is not configured.");
@@ -70,7 +126,7 @@ export const test = base.extend<{ api: APIRequestContext }>({
         ? { "x-vercel-protection-bypass": secret }
         : undefined,
     });
-    await provide(apiContext);
+    await provide(withQuietErrors(apiContext));
     await apiContext.dispose();
   },
 });

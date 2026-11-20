@@ -12,8 +12,10 @@
  *
  * Every request the S6.2 specs make goes through guarded(): a response that
  * arrives is returned untouched, and an error is replaced by the request's
- * name and the error's class. The fixture itself is fixed separately (Known
- * issue 69). Not a spec: Playwright collects only *.spec.ts files.
+ * name and the error's class. The shared fixture now does the same for every
+ * spec (withQuietErrors in tests/e2e/fixtures.ts, owner decision D-64);
+ * guarded() stays as a second layer that also names the request. Not a spec:
+ * Playwright collects only *.spec.ts files.
  */
 export async function guarded<T>(
   what: string,

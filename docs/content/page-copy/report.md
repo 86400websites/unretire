@@ -79,7 +79,7 @@ record-keeping, not copy.
 |---|---|---|
 | Heading | Your numbers | NEW — needs owner approval |
 | Box 1 label | Counting from | NEW — needs owner approval |
-| Box 1 hint | The day your team starts posting. Visits and sign-ups before it are left out. Leave it empty to count everything. | NEW — needs owner approval |
+| Box 1 hint | The day your first link goes up. Visits and sign-ups before it are left out. Leave it empty to count everything. | NEW — needs owner approval |
 | Box 2 label | Showed up | NEW — needs owner approval |
 | Box 2 hint | After the webinar: the number of people in Zoom's participant report, each person counted once, without your team. | NEW — needs owner approval |
 | Button | Save | NEW — needs owner approval |

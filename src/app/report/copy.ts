@@ -50,7 +50,7 @@ export const REPORT_COPY = {
     heading: "Your numbers",
     countFrom: "Counting from",
     countFromHint:
-      "The day your team starts posting. Visits and sign-ups before it are left out. Leave it empty to count everything.",
+      "The day your first link goes up. Visits and sign-ups before it are left out. Leave it empty to count everything.",
     showedUp: "Showed up",
     showedUpHint:
       "After the webinar: the number of people in Zoom's participant report, each person counted once, without your team.",
