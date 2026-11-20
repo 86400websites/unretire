@@ -821,11 +821,13 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 
 ### 10.1 Before I can test · 5 minutes
 
-- [ ] **10.1a** Make up a **test** password: 12 or more letters and digits, no spaces. **Not** the one you will use on the live site: this one also goes to the test robot. Keep it in your password manager.
-- [ ] **10.1b** In Vercel, add `REPORT_PASSWORD` for **Preview** only, with that test password. Type: **Secret**. Steps: runbook §3.2, "To add a value that is not there yet" — but skip its step 6 (Redeploy): my next push builds a new Preview, and it picks the value up.
-- [ ] **10.1c** In Vercel, add `REPORT_SECRET` for **Preview** only: 40 or more random letters and digits from a password generator, used nowhere else. Type: **Secret**. Same steps, same skip. You never need it again, so you do not have to keep it.
-- [ ] **10.1d** In GitHub, add the repository secret `E2E_REPORT_PASSWORD`, with the same test password (steps below).
-- [ ] **10.1e** Tell me **"done"**. I check the GitHub secret by its name only. You tell me that `REPORT_PASSWORD` and `REPORT_SECRET` are listed for **Preview**. Never send me a value.
+- [x] **10.1a** Make up a **test** password: 12 or more letters and digits, no spaces. **Not** the one you will use on the live site: this one also goes to the test robot. Keep it in your password manager.
+- [x] **10.1b** In Vercel, add `REPORT_PASSWORD` for **Preview** only, with that test password. Type: **Secret**. Steps: runbook §3.2, "To add a value that is not there yet" — but skip its step 6 (Redeploy): my next push builds a new Preview, and it picks the value up.
+- [x] **10.1c** In Vercel, add `REPORT_SECRET` for **Preview** only: 40 or more random letters and digits from a password generator, used nowhere else. Type: **Secret**. Same steps, same skip. You never need it again, so you do not have to keep it.
+- [x] **10.1d** In GitHub, add the repository secret `E2E_REPORT_PASSWORD`, with the same test password (steps below).
+- [x] **10.1e** Tell me **"done"**. I check the GitHub secret by its name only. You tell me that `REPORT_PASSWORD` and `REPORT_SECRET` are listed for **Preview**. Never send me a value.
+
+> **✅ DONE 2026-11-20.** Your words: *"Ok done"*, with screenshots: Vercel lists `REPORT_PASSWORD` and `REPORT_SECRET` for **Preview**, both locked, and GitHub says "Repository secret added" for `E2E_REPORT_PASSWORD` (I checked it by name only).
 
 **10.1d, step by step:**
 
