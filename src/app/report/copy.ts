@@ -1,15 +1,17 @@
 import type { SourceKey } from "@/lib/webinar/sources";
 
 /**
- * Every string /report shows — Sprint S6.2.
+ * Every string /report shows — Sprint S6.2, as the owner simplified it at
+ * Gate B on 2026-11-20 (PROJECT-STATUS D-65).
  *
  * Copied character for character from docs/content/page-copy/report.md. Change
  * the copy file first, then this file to match — never the other way round.
  * The entries carry no comments on purpose: the copy file holds each string's
  * source and status.
  *
- * Tokens in braces are filled at request time: {weekday} and {date} from
- * WEBINAR_STARTS_AT, {count from} from the day the owner saves.
+ * The webinar's name under the heading is not here: it is the sign-up page's
+ * own title (COPY.hero.title in src/app/conversation/copy.ts), so the two can
+ * never differ.
  */
 export const REPORT_COPY = {
   meta: {
@@ -17,25 +19,21 @@ export const REPORT_COPY = {
   },
   header: {
     title: "Webinar report",
-    webinar: "For the webinar on {weekday} {date}",
-    countingFrom: "Counting from {count from}.",
-    countingFromStart: "Counting from the beginning.",
-    howItCounts:
-      "Each visit is counted once per browser tab, and each person once. Test sign-ups are left out.",
   },
   cards: {
     visits: "Visits to the sign-up page",
     registered: "Registered",
-    showedUp: "Showed up",
-    showedUpEmpty: "Add it after the webinar",
+    conversion: "Conversion",
   },
   table: {
     heading: "Where people came from",
     source: "Where from",
     visits: "Visits",
     registered: "Registered",
+    conversion: "Conversion",
     total: "Total",
   },
+  noConversion: "—",
   sources: {
     linkedin: "LinkedIn",
     instagram: "Instagram",
@@ -46,16 +44,13 @@ export const REPORT_COPY = {
     "linkedin-ads": "LinkedIn ads",
     other: "Other / unknown",
   } satisfies Record<SourceKey, string>,
-  inputs: {
-    heading: "Your numbers",
-    countFrom: "Counting from",
-    countFromHint:
-      "The day your first link goes up. Visits and sign-ups before it are left out. Leave it empty to count everything.",
-    showedUp: "Showed up",
-    showedUpHint:
-      "After the webinar: the number of people in Zoom's participant report, each person counted once, without your team.",
-    button: "Save",
-    saved: "Saved.",
+  reset: {
+    heading: "Start again for a new webinar",
+    intro:
+      "Type the report password and click the button. All visits and sign-ups are deleted, and counting starts again from zero.",
+    keep: "Want to keep these numbers? Take a screenshot first: a reset cannot be undone.",
+    button: "Reset the numbers",
+    done: "Done. Counting starts again from zero.",
   },
   login: {
     intro: "This page is private. Type the report password to open it.",
@@ -64,48 +59,39 @@ export const REPORT_COPY = {
   messages: {
     wrong: "That password didn't work. Try again.",
     busy: "Too many tries in a short time. Wait 10 minutes and try again.",
-    date: "That date doesn't look right. Pick a day from the calendar.",
-    number: "Type a whole number, for example 74.",
-    save: "That didn't save. Try again in a minute.",
     error: "Something went wrong. Try again in a minute.",
+    resetWrong: "That password didn't work, so nothing was reset.",
+    resetFailed: "That didn't reset. Try again in a minute.",
     off: "This report isn't switched on yet.",
     loadFailed: "The report couldn't load. Refresh the page in a minute.",
   },
 } as const;
 
-/** The codes a redirect may carry in ?e= — anything else is ignored. */
-export type ReportMessageCode =
-  | "wrong"
-  | "busy"
-  | "date"
-  | "number"
-  | "save"
-  | "error";
+/** What a sign-in redirect may carry in ?e= — anything else is ignored. */
+export type LoginMessageCode = "wrong" | "busy" | "error";
 
-const MESSAGE_CODES: readonly ReportMessageCode[] = [
-  "wrong",
-  "busy",
-  "date",
-  "number",
-  "save",
-  "error",
-];
+const LOGIN_CODES: readonly LoginMessageCode[] = ["wrong", "busy", "error"];
 
-export function isReportMessageCode(
-  value: unknown,
-): value is ReportMessageCode {
+export function isLoginMessageCode(value: unknown): value is LoginMessageCode {
   return (
     typeof value === "string" &&
-    (MESSAGE_CODES as readonly string[]).includes(value)
+    (LOGIN_CODES as readonly string[]).includes(value)
   );
 }
 
-/** Replace {token}s with their values; a token with no value stays as typed. */
-export function fillReport(
-  template: string,
-  values: Record<string, string>,
-): string {
-  return template.replace(/\{([a-z ]+)\}/g, (whole, name: string) =>
-    name in values ? values[name]! : whole,
+/** What a reset redirect may carry in ?r= — anything else is ignored. */
+export type ResetResultCode = "done" | "wrong" | "busy" | "error";
+
+const RESET_CODES: readonly ResetResultCode[] = [
+  "done",
+  "wrong",
+  "busy",
+  "error",
+];
+
+export function isResetResultCode(value: unknown): value is ResetResultCode {
+  return (
+    typeof value === "string" &&
+    (RESET_CODES as readonly string[]).includes(value)
   );
 }

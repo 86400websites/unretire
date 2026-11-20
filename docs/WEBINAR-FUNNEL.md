@@ -154,7 +154,7 @@ You asked where these are used. Here is every place.
 | `WEBINAR_OFFER_ENDS_AT` | The moment the offer closes | The deadline shown on the replay page, and the moment the offer block changes to "This offer has now closed." Empty = the replay page shows no offer at all. The offer also stays hidden until the replay link is set. | `2029-12-20T23:59:00+02:00` — always `23:59` on the last day, never `00:00` the next day | **Config** |
 | `WEBINAR_OFFER_CODE` | The discount code | Shown on the replay page as "Use code … at checkout." **It only shows the code.** The discount itself is the Stripe code you create in §9.3; the two must be the same word. | Letters, digits and hyphens only. 3 to 40 characters. Example: `TESTCODE` | **Config** |
 | `WEBINAR_REPLAY_URL` | The link to the recording | The "Watch the replay" link on the replay page. Empty = the replay page says "Coming Soon". | Starts with `https://` | **Config** |
-| `REPORT_PASSWORD` | The password of your report (§16.1). **Preview:** a test password. **Production:** your real one, used nowhere else. | The password box on `/report`. Together with `REPORT_SECRET` it is the report's on/off switch: if either is missing or too short, the report says "This report isn't switched on yet." Changing it signs everyone out, you included. | 12 or more letters and digits, no spaces. Never the same in Preview and Production. Keep it in your password manager: Vercel never shows it again. | **Secret** |
+| `REPORT_PASSWORD` | The password of your report (§16.1). **Preview:** a test password. **Production:** your real one, used nowhere else. | The password boxes on `/report` (to open it, and to confirm a reset). Together with `REPORT_SECRET` it is the report's on/off switch: if either is missing or too short, the report says "This report isn't switched on yet." Changing it signs everyone out, you included. | 12 or more letters and digits, no spaces. Never the same in Preview and Production. Keep it in your password manager: Vercel never shows it again. | **Secret** |
 | `REPORT_SECRET` | 40 or more random letters and digits from a password generator. A different one for Preview and for Production. | Nobody ever types it. It locks the report's sign-in, and it turns each sign-up's email address into a scrambled code, so each person is counted once without the address being kept. Changing it signs everyone out, and anyone who signs up again afterwards counts as a new person. Set it once and leave it. | 40 or more letters and digits, no spaces | **Secret** |
 
 **Config** = you can read the value again later. **Secret** = write-only; Vercel never shows it again.
@@ -806,7 +806,6 @@ Do not skip ahead. Each step depends on the one before.
 
 - [ ] The link is copied. It goes into Vercel in §9.4 and nowhere else.
 - [ ] Your Zoom plan allows more people than you expect to register.
-- [ ] For your report's **Showed up** number: the meeting's host has a **paid** Zoom licence before the webinar (§16.7, "Check once, before the webinar"). Upgrading afterwards does not make a report for a meeting already held.
 
 ### 9.3 The Stripe code · 10 minutes
 
@@ -1178,13 +1177,13 @@ For each person who has bought the course or Premium:
 4. Make your change.
 5. Schedule it again with the nine steps above.
 
-### 9.9 Your links go up: "Counting from", then the phone test · 10 minutes
+### 9.9 Reset your report, put your links up, then the phone test · 10 minutes
 
 Do these in order, as `docs/OWNER-ACTIONS.md` PART 10, item 10.4 lists them:
 
+- [ ] Reset your report, just before your first link goes up (§16.6). The reset deletes your team's practice visits and sign-ups, so the numbers start again from zero.
 - [ ] Put the links in your Instagram bio, one Instagram Story and one LinkedIn post (§16.4).
-- [ ] On your report, set **Counting from** to today, the day your first link went up (§16.6).
-- [ ] Do the phone test (10.4c to 10.4h). Your own checks today are in the numbers, a handful of visits; that is expected.
+- [ ] Do the phone test (10.4c to 10.4h). Your own taps stay in the numbers, a handful of visits; that is expected.
 - [ ] Only now give your team the links in §16.3, and only those.
 
 ## 10. Webinar week
@@ -1407,11 +1406,11 @@ Four pages that are not Mailchimp's were also looked at, for the saved-template 
 
 ## 16. Your report and tracking links (a few minutes at a time)
 
-Your report is a private page. For the current webinar it shows how many people visited the sign-up page, how many registered, how many showed up, and where they came from. Your team posts one fixed link per platform: that is how the report tells the platforms apart.
+Your report is a private page. For the current webinar it shows how many people visited the sign-up page, how many registered, the conversion (registered as a share of visits), and where they came from. Your team posts one fixed link per platform: that is how the report tells the platforms apart.
 
 Built in Sprint S6.2 (`docs/sprint-prompts/S6.2-webinar-report.md`). What that sprint needs from you, in order: `docs/OWNER-ACTIONS.md` PART 10.
 
-**Vendor screens change.** Every Meta, Instagram, LinkedIn and Zoom click path in this section, and every GitHub and Supabase click path in `docs/OWNER-ACTIONS.md` PART 10, was checked against that vendor's own help page on **2026-11-20**. The pages are listed at the end of this section. Where a label could not be confirmed it says **(label not confirmed — tell me if your screen differs)**.
+**Vendor screens change.** Every Meta, Instagram and LinkedIn click path in this section, and every GitHub and Supabase click path in `docs/OWNER-ACTIONS.md` PART 10, was checked against that vendor's own help page on **2026-11-20**. The pages are listed at the end of this section. Where a label could not be confirmed it says **(label not confirmed — tell me if your screen differs)**.
 
 **The report's own words are drafts** until you approve them (`docs/OWNER-ACTIONS.md` PART 10, item 10.2). This section quotes them as they are today. If you change one, I change this section to match.
 
@@ -1440,14 +1439,14 @@ What you may see instead:
 
 ### 16.2 What each number means · 3 minutes to read
 
-At the top, under the title: a line that starts "For the webinar on …" with the webinar's date, and a line that starts "Counting from" — the day the numbers start from (§16.6). Then:
+At the top, under the title: the webinar's name, the same as on the sign-up page. Then:
 
 | On the report | What it counts |
 |---|---|
 | **Visits to the sign-up page** | Each time someone opens the sign-up page in a new browser tab. A reload in the same tab is not counted twice. One person on a phone and on a computer is two visits. Known robots and our own automated tests are left out. Counting stops when sign-ups close, at the start of the webinar. |
 | **Registered** | Each person who saved a seat — once, however many times they sign up. Counted the moment the sign-up page accepts the sign-up. Test sign-ups (addresses with `+ur-test-` or `+ur-e2e-`) are left out. Asking for the Toolkit alone is not registering. |
-| **Showed up** | The number you type in after the webinar (§16.7). Until then the card says "Add it after the webinar". |
-| **Where people came from** | The same visits and registrations, split by the link people used (§16.3). The rows: **LinkedIn**, **Instagram**, **Facebook**, **WhatsApp**, **Email newsletter**, **Instagram & Facebook ads**, **LinkedIn ads** and **Other / unknown**. The columns: **Where from**, **Visits** and **Registered**. |
+| **Conversion** | Registered as a share of visits: registered ÷ visits, as a whole percentage. For example, 6 registered from 18 visits shows **33%**. With no visits yet it shows **—**. It is a guide, not an exact rate: one person on a phone and on a computer counts as two visits. |
+| **Where people came from** | The same visits and registrations, split by the link people used (§16.3), each row with its own conversion. The rows: **LinkedIn**, **Instagram**, **Facebook**, **WhatsApp**, **Email newsletter**, **Instagram & Facebook ads**, **LinkedIn ads** and **Other / unknown**. The columns: **Where from**, **Visits**, **Registered** and **Conversion**. |
 | **Total** | The last row of the table. It matches the cards. |
 
 **A person stays in the row of their first sign-up** — the link they used the first time they signed up, for a seat or for the Toolkit. Someone who asked for the Toolkit from your Instagram link, and saves a seat later from anywhere else, stays in **Instagram**.
@@ -1455,14 +1454,14 @@ At the top, under the title: a line that starts "For the webinar on …" with th
 **What the report cannot tell you:**
 
 - **Which post did best.** It counts platforms, not posts. Each platform's own statistics show which of your posts did best.
-- **Who showed up from where.** Everyone joins through the same Zoom link, and Zoom hides most guests' email addresses from its reports. So a show-up cannot be traced to a row. "Showed up" is one total.
+- **Who came to the webinar.** The report counts visits and sign-ups, not who joined on Zoom.
 - **Course or Premium sales.** The report does not count them.
 - **Where some app users came from.** Someone who taps a plain link to the sign-up page — not one of yours — inside the Instagram app lands in **Other / unknown** if the app hides where they came from. With your Instagram link they land in **Instagram**. The same goes for any app.
 
 **Good to know:**
 
-- **The report will not match Mailchimp exactly.** Mailchimp also holds your test contacts and the people from before your "Counting from" day. And the report counts someone whose address Mailchimp will not email, such as someone who unsubscribed in the past: they did sign up.
-- **A row can show more registrations than visits.** A visit is counted by the visitor's own browser, and now and then a browser or a blocker stops it. A sign-up is counted by the site itself. And a person stays in the row of their first sign-up, even when this visit came from another link.
+- **The report will not match Mailchimp exactly.** Mailchimp also holds your test contacts and the people who signed up before your last reset (§16.6). And the report counts someone whose address Mailchimp will not email, such as someone who unsubscribed in the past: they did sign up.
+- **A row can show more registrations than visits**, and so a conversion over 100%. A visit is counted by the visitor's own browser, and now and then a browser or a blocker stops it. A sign-up is counted by the site itself. And a person stays in the row of their first sign-up, even when this visit came from another link.
 - **Vercel's own Analytics page shows other numbers.** It counts every page view, and it cannot tie a visit to a sign-up. For the webinar, use this report.
 
 ### 16.3 Your links · 1 minute
@@ -1486,7 +1485,7 @@ These are the only links your team posts. Each name in bold is also its row on y
 
 ### 16.4 Where each link goes · 5 minutes per platform, once
 
-**Posting any of these links announces the sign-up page.** Your own first links go up at §9.9, after §9.1 to §9.8 are done for the real webinar. Your team posts only after **Counting from** is set (§9.9, §16.6).
+**Posting any of these links announces the sign-up page.** Your own first links go up at §9.9, after §9.1 to §9.8 are done for the real webinar. Your team posts only after you have reset the report (§9.9, §16.6).
 
 **LinkedIn** — in a post, or in a comment under it:
 
@@ -1539,7 +1538,7 @@ If **Link** is not among your stickers, tell me: Instagram does not give it to e
 
 ### 16.5 Ads · 5 minutes per ad
 
-An ad announces the sign-up page too: publish one only after **Counting from** is set (§9.9, §16.6).
+An ad announces the sign-up page too: publish one only after you have reset the report (§9.9, §16.6).
 
 The ads links are for ads only. They put paid clicks in rows of their own.
 
@@ -1577,77 +1576,46 @@ Why:
 - **URL tracking parameters** can also be set for the whole ad account, and then apply to every ad. If you see any there, tell me.
 - Optional check: when your first ad is live, tap it once on your phone. The **LinkedIn ads** row goes up.
 
-### 16.6 Before your team posts: set "Counting from" · 1 minute
+### 16.6 Start again for a new webinar: the reset · 1 minute
 
-Why: the sign-up page is already live, for your team's practice. Without a start day, those practice visits and sign-ups would be in your numbers.
+**A reset deletes the numbers for good.** Every visit and every sign-up the report has counted for this webinar is deleted, and nothing can bring them back. Want to keep them? Take a screenshot of the report first.
+
+When to reset:
+
+- **At go-live, just before your first link goes up** (§9.9). The sign-up page is already live for your team's practice, and the reset clears their practice visits and sign-ups from your numbers.
+- **Again for each new webinar**, at its go-live (§16.7).
+- **Never once your links are up**, until the next webinar: a reset then deletes real visits and sign-ups too.
+
+How:
 
 1. Open your report (§16.1).
-2. Scroll down to **Your numbers**.
-3. Click the box under **Counting from**. (On the page the box names are in capital letters.)
-4. Pick today from the calendar: the day your first link went up (§9.9). Never a later day, or the real visits and sign-ups from your own posts today are left out.
-5. Leave the **Showed up** box as it is.
-6. Click **Save**.
-7. Check: **Saved.** appears under the button, and the line that starts "Counting from" now names that day, for example "Counting from Monday 23 November."
+2. Scroll down to **Start again for a new webinar**.
+3. Type the report password in the **Password** box there. The reset asks for it again, even though you are signed in.
+4. Click **Reset the numbers**.
+5. Check: **Done. Counting starts again from zero.** appears under the button, the **Visits to the sign-up page** and **Registered** cards show **0**, and **Conversion** shows **—**.
 
-If the page says "That date doesn't look right. Pick a day from the calendar.", do steps 3 to 6 again.
+What you may see instead:
+
+| You see | It means | What to do |
+|---|---|---|
+| "That password didn't work, so nothing was reset." | The password was mistyped | Type it again and click **Reset the numbers** |
+| "Too many tries in a short time. Wait 10 minutes and try again." | Too many tries from one place in a short time. Nothing was reset. | Wait 10 minutes |
+| "That didn't reset. Try again in a minute." | The reset did not finish | Refresh the page. If the numbers are not back to zero, try again in a minute. If it stays, tell me. |
+| The password form that opens the report | You were signed out, for example after 30 days. Nothing was reset. | Open the report (§16.1), then do the reset again |
 
 Good to know:
 
-- Counting starts at 00:00 South African time on that day. Your own visits that day count too.
-- Nothing before that day is deleted; it is only left out. If you forget, set the day later: the report counts again from the day you pick.
-- Pick a day still to come, and the numbers stay at 0 until then.
-- To count everything again, clear the box and click **Save**. The line then reads "Counting from the beginning."
-- Test sign-ups never count, whatever the day.
+- The reset deletes this webinar's counts only. Your Mailchimp contacts, their tags and your emails are not touched.
+- Anyone with the report password can reset the report. Give the password only to people you trust with that.
 
-### 16.7 After the webinar: the "Showed up" number · 10 minutes
-
-The number comes from Zoom's participant report.
-
-**Check once, before the webinar.** The report exists only for meetings hosted on a paid Zoom plan (Pro, Business, Education or Enterprise), with the paid licence given to the host **before** the meeting. A free (Basic) account has no participant report, and Zoom cuts its meetings off at 40 minutes. Upgrading afterwards does not make a report for a meeting already held. To check the host's licence:
-
-1. Sign in to the Zoom web portal.
-2. In the navigation menu, click **Profile**.
-3. Scroll down to the **Account** section.
-4. Next to **License**, read the line **Zoom Meetings**. It must name a paid plan, such as **Pro** — not **Basic**.
-
-**After the webinar, wait at least 30 minutes** after it ends: Zoom's report can take that long. Then find the number:
-
-1. Sign in to the Zoom web portal.
-2. Click your profile picture or initials (top right).
-3. Click **My account**. (Some Zoom pages call it **Profile**.)
-4. In the side menu, click **Reports**.
-5. Click **Meetings & Webinars**.
-6. If the **Usage reports** tab is not already open, click it.
-7. Click **Meeting and webinar history**.
-8. Set **From** and **To** to the day of the webinar.
-9. Click **Search**.
-10. Find the webinar's row. Scroll right to the **Participants** column.
-11. Click the number in that column. The **Participants** window opens.
-12. Tick **Show unique users** (top left of the window). It joins up a person listed twice, for example someone who waited in the waiting room and was then let in.
-13. Count the people in the list. Count each person once, even if a name is still there twice.
-14. Leave out yourself and everyone on your team.
-
-For a long list: **Export** (top right of the window) downloads it as a file that opens in Excel.
-
-Then type it in:
-
-1. Open your report (§16.1).
-2. Under **Your numbers**, click the box under **Showed up**.
-3. Type the number.
-4. Leave the **Counting from** box as it is.
-5. Click **Save**.
-6. Check: **Saved.** appears, and the **Showed up** card shows your number.
-
-If the page says "Type a whole number, for example 74.", type digits only and click **Save** again. To correct the number later, type the right one and click **Save**.
-
-### 16.8 The next webinar · 1 minute to read
+### 16.7 The next webinar · 1 minute to read
 
 - The report follows the webinar's id in the code: `conv1` today. It shows that webinar only.
-- A new webinar gets a new id: the same small developer change as its new tags (§3.1, and §12 "Way 1"). The report then starts from zero, with an empty **Counting from** and an empty **Showed up**. The old numbers are kept, but the report does not show them.
+- A new webinar gets a new id: the same small developer change as its new tags (§3.1, and §12 "Way 1"). The report then starts from zero. The old webinar's numbers stay in the database, but the report does not show them.
 - Your links stay the same (§16.3).
-- For every webinar: set **Counting from** before your team posts (§16.6), and type **Showed up** after it (§16.7).
+- For every webinar: reset the report at its go-live, just before your first link goes up (§9.9, §16.6). Take a screenshot first if you want to keep the last webinar's numbers.
 - After each webinar, take the link out of your Instagram bio: between webinars it opens a "not found" page. It goes back at the next go-live (§9.9).
-- If you reuse `conv1` by hand instead (§12, "Way 2"), the report keeps counting into the same webinar. Set **Counting from** to the new go-live day (§9.9), and type the new **Showed up** over the old one. Someone who registered last time and registers again is not counted again.
+- If you reuse `conv1` by hand instead (§12, "Way 2"), the report keeps counting into the same webinar until you reset it. The reset at the new go-live (§16.6) starts it from zero, so someone who registered last time and registers again counts for the new webinar.
 
 **Sources for this section (vendor help pages, read 2026-11-20)**
 
@@ -1677,15 +1645,6 @@ If the page says "Type a whole number, for example 74.", type digits only and cl
 - The new names: campaign, ad set, ad — <https://www.linkedin.com/help/lms/answer/a8323033>
 - Parameters set for the whole account apply to every ad (LinkedIn's developer pages) — <https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/dynamic-utm-tracking>
 
-**Zoom**
-
-- **Meeting and webinar history**, **Participants**, **Show unique users**, **Export**; the plans that have it — <https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0073594>
-- Only paid accounts get reports; up to 30 minutes; no report after a later upgrade — <https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0060623>
-- The 40-minute limit on Basic (free) — <https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0067966>
-- The paid licence must be given to the host; **License**, **Zoom Meetings** — <https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0070458>
-- **Profile**, the **Account** section — <https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0068002>
-- Guests' email addresses are removed from reports — <https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0067831>
-
 **Vercel**
 
 - Web Analytics counts every page view — <https://vercel.com/docs/analytics>
@@ -1703,8 +1662,6 @@ If the page says "Type a whole number, for example 74.", type digits only and cl
 - Where a Mailchimp email's button takes its link.
 - Whether LinkedIn's short link keeps the part of your link after the `?`. Your phone test shows it.
 - How Meta's own added tracking mixes with your link's. The report puts such a click in **Instagram & Facebook ads** either way.
-- Whether Zoom's **Show unique users** also joins up someone who left and came back. That is why §16.7 says to count each person once.
-- Zoom's pages disagree on the menu item (**My account** or **Profile**) and on the wait (15 or 30 minutes). This section uses the longer wait.
 - In Supabase: the button that opens a new, empty query, and the words shown after a successful **Run**.
 
 Next step → `docs/OWNER-ACTIONS.md` Part 9 lists what this sprint needs from you, in order; Part 10 does the same for the report (section 16).

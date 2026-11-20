@@ -1,12 +1,11 @@
 import { createHmac } from "node:crypto";
 import { test, expect } from "../fixtures";
 import {
-  parseReportInputs,
   personCode,
   readReport,
   recordArrival,
   recordSignup,
-  saveReportInputs,
+  resetReport,
 } from "../../../src/lib/webinar/report-store";
 import { SOURCE_KEYS } from "../../../src/lib/webinar/sources";
 
@@ -19,10 +18,11 @@ import { SOURCE_KEYS } from "../../../src/lib/webinar/sources";
  *           personCode);
  *   PR-010  a counted visit is stored as a campaign id and a source key and
  *           nothing else (recordArrival);
- *   PG-016  the report's numbers come from one aggregate call and the inputs
- *           row (readReport);
- *   FM-013  the report's two boxes: what is accepted, and the save
- *           (parseReportInputs, saveReportInputs).
+ *   PG-016  the report's numbers come from one aggregate call (readReport);
+ *   FM-013  "Start again for a new webinar": one call deletes the campaign's
+ *           counted visits and people, and is never retried (resetReport).
+ *           The owner's reset took the place of the report's two boxes at
+ *           Gate B (PROJECT-STATUS D-65) and keeps their ID.
  *
  * As in conversation-route.spec.ts, `globalThis.fetch` is replaced before
  * every test by a stub that records each request and answers only what the
@@ -33,9 +33,9 @@ import { SOURCE_KEYS } from "../../../src/lib/webinar/sources";
  * call: the URL and query, the method, the body, the Prefer header and the
  * abort signal.
  *
- * PRIVACY IS CHECKED AFTER EVERY TEST: no request body and no log line may
- * carry the address or either half of it, the report secret, the service key
- * or a word of what the database said.
+ * PRIVACY IS CHECKED AFTER EVERY TEST: no request body and no log line —
+ * console.error, warn, info or log — may carry the address or either half of
+ * it, the report secret, the service key or a word of what the database said.
  */
 
 const SUPABASE = "https://dummy-project-ref.supabase.co";
@@ -52,8 +52,7 @@ const UPSTREAM_TEXT = "UPSTREAM-SENTINEL reader@example.com";
 const RECORD_PERSON = `POST ${REST}/rpc/record_campaign_person`;
 const INSERT_VISIT = `POST ${REST}/campaign_visits`;
 const REPORT_RPC = `POST ${REST}/rpc/campaign_report`;
-const INPUTS_READ = `GET ${REST}/campaign_report_inputs`;
-const INPUTS_UPSERT = `POST ${REST}/campaign_report_inputs`;
+const RESET_RPC = `POST ${REST}/rpc/reset_campaign_report`;
 
 const ENV_NAMES = [
   "NEXT_PUBLIC_SUPABASE_URL",
@@ -77,10 +76,14 @@ type Answer = (call: Recorded) => Response | Promise<Response>;
 const realFetch = globalThis.fetch;
 const realError = console.error;
 const realWarn = console.warn;
+const realInfo = console.info;
+const realLog = console.log;
 const savedEnv = new Map<string, string | undefined>();
 /** Requests and log lines since the test (or its current case) began. */
 let calls: Recorded[] = [];
 let logged: string[] = [];
+/** The console method that wrote each line of `logged`, in the same order. */
+let levels: string[] = [];
 /** Every request and log line of the test, for the checks in afterEach. */
 let allCalls: Recorded[] = [];
 let allLogged: string[] = [];
@@ -126,6 +129,7 @@ function routes(table: Record<string, () => Response>): Answer {
 function freshCase(): void {
   calls = [];
   logged = [];
+  levels = [];
 }
 
 /**
@@ -189,18 +193,26 @@ test.beforeEach(() => {
 
   calls = [];
   logged = [];
+  levels = [];
   allCalls = [];
   allLogged = [];
   unscripted = 0;
   database = null;
 
-  const capture = (...args: unknown[]) => {
-    const line = args.map(String).join(" ");
-    logged.push(line);
-    allLogged.push(line);
-  };
-  console.error = capture;
-  console.warn = capture;
+  // Every console method a line can leave by: a reset's success line is
+  // console.info, and the privacy checks in afterEach must see it too.
+  const capture =
+    (level: string) =>
+    (...args: unknown[]) => {
+      const line = args.map(String).join(" ");
+      logged.push(line);
+      levels.push(level);
+      allLogged.push(line);
+    };
+  console.error = capture("error");
+  console.warn = capture("warn");
+  console.info = capture("info");
+  console.log = capture("log");
 
   globalThis.fetch = (async (
     input: RequestInfo | URL,
@@ -232,6 +244,8 @@ test.afterEach(() => {
   globalThis.fetch = realFetch;
   console.error = realError;
   console.warn = realWarn;
+  console.info = realInfo;
+  console.log = realLog;
   for (const [name, value] of savedEnv) {
     if (value === undefined) delete process.env[name];
     else process.env[name] = value;
@@ -443,7 +457,7 @@ test.describe("S6.2 report store — counting a visit", () => {
 });
 
 test.describe("S6.2 report store — reading the report", () => {
-  test("PG-016 one aggregate call and the inputs row: eight rows in order, zeros filled in, an unknown source folded into other", async () => {
+  test("PG-016 ONE aggregate call: eight rows in order, zeros filled in, an unknown source folded into other", async () => {
     database = routes({
       [REPORT_RPC]: () =>
         json(200, [
@@ -453,11 +467,11 @@ test.describe("S6.2 report store — reading the report", () => {
           // still add up.
           { source: "tiktok", visits: 2, registered: 1 },
         ]),
-      [INPUTS_READ]: () =>
-        json(200, [{ count_from: "2026-11-23", showed_up: 41 }]),
     });
 
-    expect(await readReport()).toEqual({
+    // The rows and the totals, and nothing else: toStrictEqual also fails on
+    // an extra key whose value is undefined.
+    expect(await readReport()).toStrictEqual({
       rows: [
         { source: "linkedin", visits: 12, registered: 3 },
         { source: "instagram", visits: 0, registered: 0 },
@@ -469,288 +483,130 @@ test.describe("S6.2 report store — reading the report", () => {
         { source: "other", visits: 7, registered: 2 },
       ],
       totals: { visits: 19, registered: 5 },
-      countFrom: "2026-11-23",
-      showedUp: 41,
     });
 
-    // Exactly two requests. No table is read row by row: every number comes
+    // Exactly one request. No table is read row by row: every number comes
     // from the aggregate (a plain select stops at the project's row cap).
-    expect(calls).toHaveLength(2);
-    const rpc = calls.find((call) => call.method === "POST")!;
-    expect(rpc.url).toBe(`${REST}/rpc/campaign_report`);
-    expect(rpc.body).toEqual({ p_campaign: "conv1" });
-    expect(rpc.headers.get("prefer")).toBeNull();
-
-    const read = calls.find((call) => call.method === "GET")!;
-    const url = new URL(read.url);
-    expect(`${url.origin}${url.pathname}`).toBe(
-      `${REST}/campaign_report_inputs`,
-    );
-    expect([...url.searchParams]).toEqual([
-      ["select", "count_from,showed_up"],
-      ["campaign", "eq.conv1"],
-    ]);
-    expect(read.raw).toBe("");
-    // .maybeSingle() in this postgrest-js asks for a LIST and checks the
-    // count itself — which is why the scripted answer above is an array.
-    expect(read.headers.get("accept") ?? "").not.toContain("vnd.pgrst.object");
+    expect(calls).toHaveLength(1);
+    const call = calls[0]!;
+    expect(call.method).toBe("POST");
+    // No query string: the campaign travels in the body.
+    expect(call.url).toBe(`${REST}/rpc/campaign_report`);
+    expect(call.body).toEqual({ p_campaign: "conv1" });
+    expect(call.headers.get("content-type")).toBe("application/json");
+    // Nothing is asked for but the rows: no count.
+    expect(call.headers.get("prefer")).toBeNull();
+    expect(call.signal).toBeInstanceOf(AbortSignal);
     expect(logged).toEqual([]);
   });
 
-  test("PG-016 nothing saved yet: counting from the beginning, and Showed up not added", async () => {
-    database = routes({
-      [REPORT_RPC]: () => json(200, []),
-      [INPUTS_READ]: () => json(200, []),
-    });
-    expect(await readReport()).toEqual({
+  test("PG-016 nothing counted yet, as just after a reset: eight rows of zeros", async () => {
+    database = routes({ [REPORT_RPC]: () => json(200, []) });
+    expect(await readReport()).toStrictEqual({
       rows: SOURCE_KEYS.map((source) => ({ source, visits: 0, registered: 0 })),
       totals: { visits: 0, registered: 0 },
-      countFrom: null,
-      showedUp: null,
     });
+    expect(calls).toHaveLength(1);
+    expect(logged).toEqual([]);
   });
 
-  test("PG-016 an error answer from either call is null — never a partial report", async () => {
+  test("PG-016 an error answer or a dropped connection is null, never a rejection, and is not retried", async () => {
     const scenarios: {
       label: string;
-      table: Record<string, () => Response>;
+      answer: () => Response;
       code: string | null;
     }[] = [
       {
-        label: "the aggregate fails",
-        table: {
-          [REPORT_RPC]: () => postgresError(500, "42883"),
-          [INPUTS_READ]: () => json(200, []),
-        },
+        label: "the aggregate fails (500, 42883)",
+        answer: () => postgresError(500, "42883"),
         code: "42883",
       },
       {
-        label: "the inputs row cannot be read",
-        table: {
-          [REPORT_RPC]: () => json(200, []),
-          [INPUTS_READ]: () => postgresError(403, "42501"),
-        },
+        label: "the aggregate is refused (403, 42501)",
+        answer: () => postgresError(403, "42501"),
         code: "42501",
       },
       {
         label: "the aggregate's connection drops",
-        table: {
-          [REPORT_RPC]: () => {
-            throw new TypeError(`fetch failed for ${SUPABASE}`);
-          },
-          [INPUTS_READ]: () => json(200, []),
+        answer: () => {
+          throw new TypeError(`fetch failed for ${SUPABASE}`);
         },
         code: null,
       },
     ];
     for (const scenario of scenarios) {
       freshCase();
-      database = routes(scenario.table);
-      expect(await readReport(), scenario.label).toBeNull();
+      database = routes({ [REPORT_RPC]: scenario.answer });
+      await expect(readReport(), scenario.label).resolves.toBeNull();
+      expect(calls, `${scenario.label}: one request, no retry`).toHaveLength(1);
       expectOneLine(
         "Webinar report could not be read",
         scenario.code,
         scenario.label,
       );
+      expect(levels, `${scenario.label}: console.error`).toEqual(["error"]);
     }
   });
 });
 
-test.describe("S6.2 report store — the two boxes", () => {
-  test("FM-013 dates: empty, or a real calendar day from 2026-01-01 to 2100-12-31", () => {
-    const accepted: [string, string | null][] = [
-      ["", null],
-      ["2026-11-23", "2026-11-23"],
-      ["2026-01-01", "2026-01-01"],
-      ["2100-12-31", "2100-12-31"],
-      ["2028-02-29", "2028-02-29"],
-      [" 2026-11-23 ", "2026-11-23"],
-      ["   ", null],
-    ];
-    for (const [countFrom, value] of accepted) {
-      expect(
-        parseReportInputs({ countFrom, showedUp: "" }),
-        JSON.stringify(countFrom),
-      ).toEqual({ ok: true, value: { countFrom: value, showedUp: null } });
-    }
-
-    for (const countFrom of [
-      "2026-02-30",
-      "2027-02-29",
-      "2026-13-01",
-      "2026-00-10",
-      "2026-11-00",
-      "2026-11-31",
-      "2025-12-31",
-      "2101-01-01",
-      "23/11/2026",
-      "2026-1-5",
-      "2026-11-23T00:00",
-      "2026/11/23",
-      "20261123",
-      "２０２６-１１-２３",
-      "tomorrow",
-    ]) {
-      expect(
-        parseReportInputs({ countFrom, showedUp: "" }),
-        JSON.stringify(countFrom),
-      ).toEqual({ ok: false, code: "date" });
-    }
-  });
-
-  test("FM-013 numbers: empty, or whole digits from 0 to 100000", () => {
-    const accepted: [string, number | null][] = [
-      ["", null],
-      ["0", 0],
-      ["74", 74],
-      ["007", 7],
-      ["100000", 100000],
-      [" 74 ", 74],
-      ["   ", null],
-    ];
-    for (const [showedUp, value] of accepted) {
-      expect(
-        parseReportInputs({ countFrom: "", showedUp }),
-        JSON.stringify(showedUp),
-      ).toEqual({ ok: true, value: { countFrom: null, showedUp: value } });
-    }
-
-    for (const showedUp of [
-      "100001",
-      "1000000",
-      "-1",
-      "+5",
-      "1.5",
-      "1e3",
-      "0x10",
-      "Infinity",
-      "abc",
-      "1 000",
-      "1,000",
-      "٧٤",
-    ]) {
-      expect(
-        parseReportInputs({ countFrom: "", showedUp }),
-        JSON.stringify(showedUp),
-      ).toEqual({ ok: false, code: "number" });
-    }
-  });
-
-  test("FM-013 both boxes together: both empty clears both, both valid saves both, the date is checked first", () => {
-    expect(parseReportInputs({ countFrom: "", showedUp: "" })).toEqual({
-      ok: true,
-      value: { countFrom: null, showedUp: null },
+test.describe("S6.2 report store — starting again for a new webinar", () => {
+  test("FM-013 a reset is ONE call to reset_campaign_report for this campaign: true, and one line with the numbers deleted", async () => {
+    database = routes({
+      [RESET_RPC]: () => json(200, [{ visits: 13, people: 6 }]),
     });
-    expect(
-      parseReportInputs({ countFrom: "2026-11-23", showedUp: "41" }),
-    ).toEqual({ ok: true, value: { countFrom: "2026-11-23", showedUp: 41 } });
-    expect(parseReportInputs({ countFrom: "nope", showedUp: "nope" })).toEqual({
-      ok: false,
-      code: "date",
-    });
-    expect(
-      parseReportInputs({ countFrom: "2026-11-23", showedUp: "nope" }),
-    ).toEqual({ ok: false, code: "number" });
-  });
-
-  /**
-   * What /report/save hands over is FormData.get(…): a string, a File, or
-   * null when the field is missing from the post. Anything but an empty box
-   * or a valid value is refused with a code — a value that is not a string
-   * too, so a post without a box can never clear what was saved. (Found by
-   * these two tests while they were written; fixed in report-store.ts before
-   * the first commit.)
-   */
-  const NOT_TEXT: [string, unknown][] = [
-    ["a missing field (FormData.get gives null)", null],
-    ["undefined", undefined],
-    ["a number", 41],
-    ["a file", new File(["41"], "upload.txt")],
-    ["an array", ["41"]],
-    ["an object that prints as a value", { toString: () => "41" }],
-    ["a boolean", true],
-  ];
-
-  test("FM-013 a date box that is not text is refused, not read as empty", () => {
-    for (const [label, countFrom] of NOT_TEXT) {
-      expect(parseReportInputs({ countFrom, showedUp: "" }), label).toEqual({
-        ok: false,
-        code: "date",
-      });
-    }
-  });
-
-  test("FM-013 a number box that is not text is refused, not read as empty", () => {
-    for (const [label, showedUp] of NOT_TEXT) {
-      expect(parseReportInputs({ countFrom: "", showedUp }), label).toEqual({
-        ok: false,
-        code: "number",
-      });
-    }
-  });
-
-  test("FM-013 saving is ONE upsert of the campaign's row, merged on campaign", async () => {
-    database = routes({ [INPUTS_UPSERT]: created });
-    const before = Date.now();
-    expect(
-      await saveReportInputs({ countFrom: "2026-11-23", showedUp: 41 }),
-    ).toBe(true);
-    const after = Date.now();
+    expect(await resetReport()).toBe(true);
 
     expect(calls).toHaveLength(1);
     const call = calls[0]!;
-    const url = new URL(call.url);
-    expect(`${url.origin}${url.pathname}`).toBe(
-      `${REST}/campaign_report_inputs`,
-    );
-    expect([...url.searchParams]).toEqual([["on_conflict", "campaign"]]);
-    expect(call.headers.get("prefer")).toBe("resolution=merge-duplicates");
+    expect(call.method).toBe("POST");
+    // No query string: the campaign travels in the body, and it is the only
+    // thing sent. The function deletes that campaign's visits and people.
+    expect(call.url).toBe(`${REST}/rpc/reset_campaign_report`);
+    expect(call.body).toEqual({ p_campaign: "conv1" });
+    expect(call.headers.get("content-type")).toBe("application/json");
+    expect(call.headers.get("prefer")).toBeNull();
     expect(call.signal).toBeInstanceOf(AbortSignal);
 
-    const body = call.body as Record<string, unknown>;
-    expect(Object.keys(body).sort()).toEqual([
-      "campaign",
-      "count_from",
-      "showed_up",
-      "updated_at",
+    // Numbers only, written with console.info: a reset that worked is not an
+    // error.
+    expect(logged).toEqual([
+      "Webinar report reset: 13 visits and 6 people deleted.",
     ]);
-    expect(body).toMatchObject({
-      campaign: "conv1",
-      count_from: "2026-11-23",
-      showed_up: 41,
-    });
-    const stamped = Date.parse(String(body.updated_at));
-    expect(Number.isNaN(stamped), "updated_at is a date").toBe(false);
-    expect(new Date(stamped).toISOString()).toBe(body.updated_at);
-    expect(stamped).toBeGreaterThanOrEqual(before);
-    expect(stamped).toBeLessThanOrEqual(after);
-    expect(logged).toEqual([]);
+    expect(levels).toEqual(["info"]);
   });
 
-  test("FM-013 empty boxes are saved as nulls, which clear the saved values", async () => {
-    database = routes({ [INPUTS_UPSERT]: created });
-    expect(await saveReportInputs({ countFrom: null, showedUp: null })).toBe(
-      true,
-    );
-    expect(calls).toHaveLength(1);
-    // Sent as null, not left out: a merge leaves an absent column alone.
-    expect(calls[0]!.body).toMatchObject({
-      campaign: "conv1",
-      count_from: null,
-      showed_up: null,
-    });
-  });
-
-  test("FM-013 an error answer or a dropped connection is false, never a rejection", async () => {
+  test("FM-013 a failed reset is false, never a rejection: one request, no retry, and a code only in the log", async () => {
     for (const failure of WRITE_FAILURES) {
       freshCase();
-      database = routes({ [INPUTS_UPSERT]: failure.answer });
-      await expect(
-        saveReportInputs({ countFrom: "2026-11-23", showedUp: 41 }),
-        failure.label,
-      ).resolves.toBe(false);
+      database = routes({ [RESET_RPC]: failure.answer });
+      await expect(resetReport(), failure.label).resolves.toBe(false);
       expect(calls, `${failure.label}: one request, no retry`).toHaveLength(1);
-      expectOneLine("Report numbers not saved", failure.code, failure.label);
+      expectOneLine("Webinar report not reset", failure.code, failure.label);
+      expect(levels, `${failure.label}: console.error`).toEqual(["error"]);
     }
+  });
+
+  test("FM-013 a database that never answers is given up by the reset's own time limit", async () => {
+    database = (call) =>
+      new Promise<Response>((_, reject) => {
+        const signal = call.signal;
+        if (!signal) {
+          reject(new Error("no abort signal: this request could hang"));
+          return;
+        }
+        signal.addEventListener("abort", () => reject(signal.reason), {
+          once: true,
+        });
+      });
+
+    const started = Date.now();
+    await expect(resetReport()).resolves.toBe(false);
+    const waited = Date.now() - started;
+
+    expect(calls, "one request, no retry").toHaveLength(1);
+    expect(calls[0]!.signal?.aborted, "the request was given up").toBe(true);
+    expect(waited, "milliseconds the reset waited").toBeLessThan(15_000);
+    expectOneLine("Webinar report not reset", null, "a hung request");
+    expect(levels, "a hung request: console.error").toEqual(["error"]);
   });
 });

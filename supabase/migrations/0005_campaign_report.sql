@@ -1,20 +1,20 @@
 -- 0005_campaign_report.sql — the webinar report (/report): counted visits to the
--- sign-up page, one row per person who signed up, and the two numbers the owner
--- types in. Sprint S6.2.
+-- sign-up page and one row per person who signed up, with the functions that
+-- record a sign-up, count the report and reset it for a new webinar. Sprint S6.2.
 --
--- Classification: ADDITIVE and REVERSIBLE. Three new tables and two new
+-- Classification: ADDITIVE and REVERSIBLE. Two new tables and three new
 -- functions; no existing object is touched and no data is migrated. Applied to
 -- unretire-test first, by the build agent, on the owner's YES of 2026-11-20;
 -- applied to unretire-prod by the owner, by hand, before the merge.
 --
 -- WHAT IS STORED, AND WHAT IS NOT. A campaign id (for example "conv1"), a
--- source key (for example "linkedin"), timestamps, the two numbers the owner
--- types into /report, and — for each person who signed up — a keyed one-way
--- code made on the server from their email address (HMAC-SHA256 with the
--- server-only REPORT_SECRET; src/lib/webinar/report-store.ts). Never an email
--- address, a name, an IP address, a user agent, a referrer or a URL. The code
--- exists so a person who signs up twice is counted once, and so the place that
--- first brought them keeps the credit.
+-- source key (for example "linkedin"), timestamps and — for each person who
+-- signed up — a keyed one-way code made on the server from their email address
+-- (HMAC-SHA256 with the server-only REPORT_SECRET;
+-- src/lib/webinar/report-store.ts). Never an email address, a name, an IP
+-- address, a user agent, a referrer or a URL. The code exists so a person who
+-- signs up twice is counted once, and so the place that first brought them
+-- keeps the credit.
 --
 -- WHY NO RLS POLICY. As in 0003: RLS is enabled and NO policy is created, so
 -- every browser-facing role is denied by default. The table privileges of anon
@@ -39,7 +39,7 @@ comment on table public.campaign_visits is
   'S6.2 webinar report: one row per counted visit to the sign-up page. Campaign id, source key and time only. Service-role only: RLS on with no policy.';
 
 comment on index public.campaign_visits_campaign_created_at_idx is
-  'S6.2 webinar report: campaign_report counts one campaign''s visits from the owner''s "Counting from" day.';
+  'S6.2 webinar report: campaign_report and reset_campaign_report find one campaign''s visits.';
 
 -- One row per person who signed up (either form), per campaign.
 create table if not exists public.campaign_people (
@@ -61,24 +61,8 @@ alter table public.campaign_people enable row level security;
 comment on table public.campaign_people is
   'S6.2 webinar report: one row per person who signed up, keyed by a one-way code made from the email address with a server-only secret (never the address). Service-role only: RLS on with no policy.';
 
--- The two numbers the owner types into /report, per campaign.
-create table if not exists public.campaign_report_inputs (
-  campaign    text        primary key check (campaign ~ '^[a-z0-9-]{1,32}$'),
-  -- Count from 00:00 Africa/Johannesburg on this day; null = from the beginning.
-  count_from  date,
-  -- The attendance number from Zoom; null = not added yet.
-  showed_up   integer     check (showed_up between 0 and 100000),
-  updated_at  timestamptz not null default now()
-);
-
-alter table public.campaign_report_inputs enable row level security;
-
-comment on table public.campaign_report_inputs is
-  'S6.2 webinar report: the "Counting from" date and the "Showed up" number the owner types into /report. Service-role only: RLS on with no policy.';
-
 revoke all on table public.campaign_visits from anon, authenticated;
 revoke all on table public.campaign_people from anon, authenticated;
-revoke all on table public.campaign_report_inputs from anon, authenticated;
 
 -- Record a sign-up in ONE statement, so two submissions racing for the same
 -- person cannot both "win": the first source stays for good, and
@@ -108,10 +92,8 @@ $$;
 -- capped at the project's "Max rows" setting (1000 by default), so counting
 -- rows in the app would silently stop at the cap.
 --
--- One row per source that has visits, registrations or both, counted from
--- 00:00 Africa/Johannesburg on the campaign's count_from day (all rows when
--- it is null). A visit counts by when it happened; a registration by when the
--- person registered.
+-- One row per source that has visits, registered people or both: every visit
+-- of the campaign, and every person of the campaign who has registered.
 create or replace function public.campaign_report(p_campaign text)
 returns table (source text, visits bigint, registered bigint)
 language sql
@@ -119,29 +101,17 @@ stable
 security invoker
 set search_path = ''
 as $$
-  with since as (
-    select coalesce(
-      (select (i.count_from::timestamp at time zone 'Africa/Johannesburg')
-         from public.campaign_report_inputs i
-        where i.campaign = p_campaign),
-      '-infinity'::timestamptz
-    ) as t
-  ),
-  v as (
+  with v as (
     select cv.source, count(*) as n
       from public.campaign_visits cv
-      cross join since
      where cv.campaign = p_campaign
-       and cv.created_at >= since.t
      group by cv.source
   ),
   r as (
     select cpe.source, count(*) as n
       from public.campaign_people cpe
-      cross join since
      where cpe.campaign = p_campaign
        and cpe.registered_at is not null
-       and cpe.registered_at >= since.t
      group by cpe.source
   )
   select coalesce(v.source, r.source),
@@ -152,11 +122,32 @@ as $$
    order by 1;
 $$;
 
+-- "Start again for a new webinar" on /report: deletes every counted visit and
+-- every counted person of the campaign, in ONE statement (both deletes commit
+-- together or not at all), and answers how many of each went. The owner types
+-- the report password to confirm it (src/app/report/reset/route.ts). The
+-- deleted rows cannot be brought back.
+create or replace function public.reset_campaign_report(p_campaign text)
+returns table (visits bigint, people bigint)
+language sql
+security invoker
+set search_path = ''
+as $$
+  with v as (
+    delete from public.campaign_visits where campaign = p_campaign returning 1
+  ),
+  p as (
+    delete from public.campaign_people where campaign = p_campaign returning 1
+  )
+  select (select count(*) from v)::bigint, (select count(*) from p)::bigint;
+$$;
+
 -- SECURITY INVOKER (stated explicitly) is deliberate, as in 0004: the caller
 -- is the service-role client, which already has the rights it needs; a
 -- SECURITY DEFINER function would be a new privilege boundary reachable by
 -- anyone who can call RPC. Execute is then held by service_role alone, so a
--- browser — signed in or not — can neither write a sign-up nor read the totals.
+-- browser — signed in or not — can neither write a sign-up, read the totals
+-- nor reset them.
 revoke all on function public.record_campaign_person(text, text, text, boolean)
   from public, anon, authenticated;
 grant execute on function public.record_campaign_person(text, text, text, boolean)
@@ -167,7 +158,14 @@ revoke all on function public.campaign_report(text)
 grant execute on function public.campaign_report(text)
   to service_role;
 
+revoke all on function public.reset_campaign_report(text)
+  from public, anon, authenticated;
+grant execute on function public.reset_campaign_report(text)
+  to service_role;
+
 comment on function public.record_campaign_person(text, text, text, boolean) is
   'S6.2: records one accepted webinar sign-up in one statement; the first source stays and registered_at is set once. service_role only.';
 comment on function public.campaign_report(text) is
-  'S6.2: the totals behind /report — visits and registrations per source from the campaign''s count_from day (00:00 Africa/Johannesburg). service_role only.';
+  'S6.2: the totals behind /report — visits and registered people per source for one campaign. service_role only.';
+comment on function public.reset_campaign_report(text) is
+  'S6.2: deletes one campaign''s visits and people in one statement, for a new webinar; answers how many of each. service_role only.';

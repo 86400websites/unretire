@@ -843,13 +843,22 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 
 ### 10.2 Gate B — look at the report and approve its words · 10 minutes
 
-- [ ] **10.2a** Wait for my message. It holds the Preview's report address, the report's words as a short list, the new privacy-page sentences in full, the new feature lines (what the tests will check), and one yes/no: may the three big numbers stay in the site's orange (`docs/PROJECT-STATUS.md` D-63)?
+> **✅ First look, 2026-11-20.** You made the report simpler and kept the orange numbers. Your words, to my plan:
+> *"go, yes keep orange"* (`docs/PROJECT-STATUS.md` D-65 quotes your whole message; the orange is D-63). Now
+> look at the simpler page.
+
+- [ ] **10.2a** Wait for my message. It holds the Preview's report address, the report's words as a short list, the new privacy-page sentences in full, and the new feature lines (what the tests will check).
 - [ ] **10.2b** Open the address. Sign in to Vercel if asked.
 - [ ] **10.2c** Type your **test** password in the **Password** box.
 - [ ] **10.2d** Click **Open the report**.
-- [ ] **10.2e** Look at the page. The numbers are test numbers: only the words and the look matter now. What each part means: runbook §16.2.
+- [ ] **10.2e** Look at the page. The numbers are test numbers: only the words and the look matter now. What each part means: runbook §16.2; what the reset does: runbook §16.6. Check that you see, from the top:
+  - **Webinar report**, and under it only the webinar's name, "When Work No Longer Defines You, What Does?";
+  - three cards, with the numbers in orange: **Visits to the sign-up page**, **Registered** and **Conversion**;
+  - the table **Where people came from**, with the columns **Where from**, **Visits**, **Registered** and **Conversion**, and a **Total** row;
+  - at the bottom, **Start again for a new webinar**: one **Password** box and the **Reset the numbers** button;
+  - no "Counting from", no "Showed up" and no **Save** button.
 - [ ] **10.2f** Read the privacy sentences and the feature lines in my message.
-- [ ] **10.2g** Reply **"approved"**, or tell me what to change. One reply covers the whole message, the orange numbers included.
+- [ ] **10.2g** Reply **"approved"**, or tell me what to change. One reply covers the whole message.
 
 ### 10.3 Before the merge — the live database, then the live values · 10 minutes
 
@@ -883,13 +892,13 @@ Then run it:
 
 If you are not sure it ran, running it again does no harm.
 
-### 10.4 At go-live — your links go up, "Counting from", then the phone test · 10 minutes
+### 10.4 At go-live — reset your report, put your links up, then the phone test · 10 minutes
 
 Do this as runbook **§9.9**: after I tell you the live site is checked, **and** after every other go-live step for your real webinar is done (runbook §9.1 to §9.8). **Not before.** Putting a link in your bio or a post announces the sign-up page, and anyone who signs up gets Email 1 at once (the rule at the start of runbook §9). After each tap, close the page that opened.
 
-- [ ] **10.4a** Put the Instagram link in your bio and in a Story, and the LinkedIn link in a post (runbook §16.4).
-- [ ] **10.4b** Open your report on the live site (runbook §16.1), with your **real** password. Set **Counting from** to **today**, the day your first link went up (runbook §16.6). Never a later day: real sign-ups from today would be left out. Your own checks today will be in the numbers, a handful of visits; that is expected.
-- [ ] **10.4c** Write down the **Visits** in the **Instagram** row and in the **LinkedIn** row.
+- [ ] **10.4a** Open your report on the live site (runbook §16.1), with your **real** password. Reset it, just before your links go up (runbook §16.6): type the password again in the box under **Start again for a new webinar**, click **Reset the numbers**, and check that **Done. Counting starts again from zero.** appears. This deletes your team's practice visits and sign-ups.
+- [ ] **10.4b** Put the Instagram link in your bio and in a Story, and the LinkedIn link in a post (runbook §16.4).
+- [ ] **10.4c** Refresh the report. Write down the **Visits** in the **Instagram** row and in the **LinkedIn** row. Both are 0 after the reset, unless a follower has already tapped a link. Your own taps below stay in the numbers, a handful of visits; that is expected.
 - [ ] **10.4d** On your phone, tap the link in your Instagram bio.
 - [ ] **10.4e** On your phone, tap the **Link** sticker on your Instagram Story.
 - [ ] **10.4f** On your phone, tap the link in your LinkedIn post.
@@ -898,9 +907,7 @@ Do this as runbook **§9.9**: after I tell you the live site is checked, **and**
 
 If a link opens a page that says "not found", the live sign-up page is switched off. Tell me.
 
-### 10.5 After the webinar — type "Showed up" · 10 minutes
-
-- [ ] **10.5a** At least 30 minutes after the webinar ends, find the number in Zoom and type it into your report: runbook §16.7.
+**After the webinar there is nothing to type into the report.** It counts by itself. For the next webinar, reset it again at that go-live; take a screenshot first if you want to keep the old numbers (runbook §16.7).
 
 ---
 

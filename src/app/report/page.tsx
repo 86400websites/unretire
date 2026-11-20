@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import PasswordField from "@/app/PasswordField";
-import { formatDisplayParts, getWebinar } from "@/lib/webinar/config";
+import { COPY } from "@/app/conversation/copy";
 import {
   isValidSession,
   REPORT_COOKIE,
@@ -10,14 +10,15 @@ import {
 } from "@/lib/webinar/report-auth";
 import { readReport, type ReportData } from "@/lib/webinar/report-store";
 import {
-  fillReport,
-  isReportMessageCode,
+  isLoginMessageCode,
+  isResetResultCode,
   REPORT_COPY,
-  type ReportMessageCode,
+  type ResetResultCode,
 } from "./copy";
 
 /**
- * /report — the owner's webinar report. Sprint S6.2.
+ * /report — the owner's webinar report. Sprint S6.2, as the owner simplified
+ * it at Gate B on 2026-11-20 (PROJECT-STATUS D-65).
  *
  * PRIVATE. One shared password (docs/TECH-ARCHITECTURE.md §5); never linked,
  * never in the sitemap, and search engines are told not to index it. FOUR
@@ -26,12 +27,15 @@ import {
  *   off    — REPORT_PASSWORD or REPORT_SECRET is missing or too short. One
  *            line; no form and no number. A missing value closes the page.
  *   locked — no valid session cookie: the password form only.
- *   open   — the three cards, the where-from table and the owner's two boxes.
+ *   open   — the webinar's name, three cards (visits, registered,
+ *            conversion), the where-from table and "Start again for a new
+ *            webinar" (POST /report/reset, which asks for the password again).
  *   error  — signed in, but the numbers could not be read.
  *
- * Nothing is read from the database until the session check has passed.
- * Rendered per request: the numbers change all the time and the answer
- * depends on the visitor's cookie.
+ * Nothing is read from the database until the session check has passed. The
+ * counts come from campaign_report (one aggregate call); a conversion is only
+ * the ratio of two of those counts. Rendered per request: the numbers change
+ * all the time and the answer depends on the visitor's cookie.
  */
 export const dynamic = "force-dynamic";
 
@@ -44,31 +48,20 @@ type State = "off" | "locked" | "open" | "error";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-/** The shipped form-field pattern (src/app/conversation/RegisterForm.tsx). */
-const LABEL =
-  "block text-[11px] font-bold tracking-[0.1em] uppercase text-[var(--ur-navy)] mb-2";
-const FIELD =
-  "w-full rounded-xl border border-[#E5E5E5] bg-white px-4 py-3 text-[var(--ur-navy)] placeholder:text-[#9A9080] outline-none focus:border-[var(--ur-crimson)] focus:ring-2 focus:ring-[var(--ur-crimson)]/20 transition-colors";
-const HINT = "mt-2 text-[13px] text-[var(--ur-muted)] leading-[1.6]";
 /** Words, not colour alone: every error is a sentence the reader can read. */
 const ERROR = "text-[13px] text-[#8B1A1A] leading-[1.5]";
 
 const NUMBER = new Intl.NumberFormat("en-GB");
-
-/** "Monday 23 November" for a saved "YYYY-MM-DD" day — no time zone shift. */
-const DAY = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "UTC",
-  weekday: "long",
-  day: "numeric",
-  month: "long",
+const PERCENT = new Intl.NumberFormat("en-GB", {
+  style: "percent",
+  maximumFractionDigits: 0,
 });
 
-function formatDay(isoDay: string): string {
-  const parts = new Map<string, string>();
-  for (const part of DAY.formatToParts(new Date(`${isoDay}T00:00:00Z`))) {
-    parts.set(part.type, part.value);
-  }
-  return `${parts.get("weekday") ?? ""} ${parts.get("day") ?? ""} ${parts.get("month") ?? ""}`;
+/** Registered as a share of visits, as a whole percentage; "—" with no visits. */
+function conversion(registered: number, visits: number): string {
+  return visits > 0
+    ? PERCENT.format(registered / visits)
+    : REPORT_COPY.noConversion;
 }
 
 function first(value: string | string[] | undefined): string | undefined {
@@ -115,69 +108,45 @@ function Card({
   label,
   value,
   name,
-  pending = false,
 }: {
   label: string;
   value: string;
   name: string;
-  /** True while the card shows its "not added yet" words instead of a number. */
-  pending?: boolean;
 }) {
   return (
     <li className="card p-6 sm:p-8" data-report-card={name}>
       <p className="text-[15px] text-[var(--ur-text)]">{label}</p>
-      {pending ? (
-        <p className="mt-3 text-lg font-bold leading-snug text-[var(--ur-muted)]">
-          {value}
-        </p>
-      ) : (
-        <p className="mt-3 text-4xl sm:text-5xl font-bold leading-none text-[var(--ur-crimson)] tabular-nums">
-          {value}
-        </p>
-      )}
+      <p className="mt-3 text-4xl sm:text-5xl font-bold leading-none text-[var(--ur-crimson)] tabular-nums">
+        {value}
+      </p>
     </li>
   );
 }
 
+const NUMBER_CELL = "py-3 px-3 text-right tabular-nums text-[var(--ur-text)]";
+const TOTAL_CELL =
+  "py-3 px-3 text-right font-bold tabular-nums text-[var(--ur-ink)]";
+const HEAD_CELL = "py-3 px-3 font-bold text-[var(--ur-ink)] text-right";
+
 function Open({
   data,
-  code,
-  saved,
+  result,
 }: {
   data: ReportData;
-  code: ReportMessageCode | null;
-  saved: boolean;
+  result: ResetResultCode | null;
 }) {
-  const webinar = getWebinar();
-  const webinarLine = webinar.startsAt
-    ? fillReport(REPORT_COPY.header.webinar, {
-        weekday: formatDisplayParts(webinar.startsAt).weekday,
-        date: formatDisplayParts(webinar.startsAt).date,
-      })
-    : null;
-  const countingLine = data.countFrom
-    ? fillReport(REPORT_COPY.header.countingFrom, {
-        "count from": formatDay(data.countFrom),
-      })
-    : REPORT_COPY.header.countingFromStart;
-
-  const dateError = code === "date" ? REPORT_COPY.messages.date : null;
-  const numberError = code === "number" ? REPORT_COPY.messages.number : null;
-  const formError =
-    code === "save" || code === "busy" || code === "error"
-      ? REPORT_COPY.messages[code]
-      : null;
+  const resetMessage =
+    result === "wrong"
+      ? REPORT_COPY.messages.resetWrong
+      : result === "busy"
+        ? REPORT_COPY.messages.busy
+        : result === "error"
+          ? REPORT_COPY.messages.resetFailed
+          : null;
 
   return (
     <Frame state="open">
-      <div className="mt-5 space-y-2">
-        {webinarLine && (
-          <p className="font-bold text-[var(--ur-navy)]">{webinarLine}</p>
-        )}
-        <p className="lede">
-          {countingLine} {REPORT_COPY.header.howItCounts}
-        </p>
-      </div>
+      <p className="mt-5 font-bold text-[var(--ur-navy)]">{COPY.hero.title}</p>
 
       <ul className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-5">
         <Card
@@ -191,14 +160,9 @@ function Open({
           value={NUMBER.format(data.totals.registered)}
         />
         <Card
-          name="showed-up"
-          label={REPORT_COPY.cards.showedUp}
-          pending={data.showedUp === null}
-          value={
-            data.showedUp === null
-              ? REPORT_COPY.cards.showedUpEmpty
-              : NUMBER.format(data.showedUp)
-          }
+          name="conversion"
+          label={REPORT_COPY.cards.conversion}
+          value={conversion(data.totals.registered, data.totals.visits)}
         />
       </ul>
 
@@ -206,160 +170,103 @@ function Open({
         <h2 id="report-where-heading" className="text-2xl sm:text-3xl mb-5">
           {REPORT_COPY.table.heading}
         </h2>
-        <table
-          aria-labelledby="report-where-heading"
-          className="w-full border-collapse text-left text-[15px]"
-        >
-          <thead>
-            <tr className="border-b border-[var(--ur-border)]">
-              <th
-                scope="col"
-                className="py-3 pr-3 font-bold text-[var(--ur-ink)]"
-              >
-                {REPORT_COPY.table.source}
-              </th>
-              <th
-                scope="col"
-                className="py-3 px-3 font-bold text-[var(--ur-ink)] text-right"
-              >
-                {REPORT_COPY.table.visits}
-              </th>
-              <th
-                scope="col"
-                className="py-3 pl-3 font-bold text-[var(--ur-ink)] text-right"
-              >
-                {REPORT_COPY.table.registered}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.rows.map((row) => (
-              <tr
-                key={row.source}
-                data-report-row={row.source}
-                className="border-b border-[var(--ur-border)]"
-              >
+        <div className="overflow-x-auto">
+          <table
+            aria-labelledby="report-where-heading"
+            className="w-full border-collapse text-left text-[15px]"
+          >
+            <thead>
+              <tr className="border-b border-[var(--ur-border)]">
+                <th
+                  scope="col"
+                  className="py-3 pr-3 font-bold text-[var(--ur-ink)]"
+                >
+                  {REPORT_COPY.table.source}
+                </th>
+                <th scope="col" className={HEAD_CELL}>
+                  {REPORT_COPY.table.visits}
+                </th>
+                <th scope="col" className={HEAD_CELL}>
+                  {REPORT_COPY.table.registered}
+                </th>
+                <th scope="col" className={HEAD_CELL}>
+                  {REPORT_COPY.table.conversion}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.rows.map((row) => (
+                <tr
+                  key={row.source}
+                  data-report-row={row.source}
+                  className="border-b border-[var(--ur-border)]"
+                >
+                  <th
+                    scope="row"
+                    className="py-3 pr-3 font-normal text-[var(--ur-text)]"
+                  >
+                    {REPORT_COPY.sources[row.source]}
+                  </th>
+                  <td className={NUMBER_CELL}>{NUMBER.format(row.visits)}</td>
+                  <td className={NUMBER_CELL}>
+                    {NUMBER.format(row.registered)}
+                  </td>
+                  <td className={NUMBER_CELL}>
+                    {conversion(row.registered, row.visits)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr data-report-row="total">
                 <th
                   scope="row"
-                  className="py-3 pr-3 font-normal text-[var(--ur-text)]"
+                  className="py-3 pr-3 font-bold text-[var(--ur-ink)]"
                 >
-                  {REPORT_COPY.sources[row.source]}
+                  {REPORT_COPY.table.total}
                 </th>
-                <td className="py-3 px-3 text-right tabular-nums text-[var(--ur-text)]">
-                  {NUMBER.format(row.visits)}
+                <td className={TOTAL_CELL}>
+                  {NUMBER.format(data.totals.visits)}
                 </td>
-                <td className="py-3 pl-3 text-right tabular-nums text-[var(--ur-text)]">
-                  {NUMBER.format(row.registered)}
+                <td className={TOTAL_CELL}>
+                  {NUMBER.format(data.totals.registered)}
+                </td>
+                <td className={TOTAL_CELL}>
+                  {conversion(data.totals.registered, data.totals.visits)}
                 </td>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr data-report-row="total">
-              <th
-                scope="row"
-                className="py-3 pr-3 font-bold text-[var(--ur-ink)]"
-              >
-                {REPORT_COPY.table.total}
-              </th>
-              <td className="py-3 px-3 text-right font-bold tabular-nums text-[var(--ur-ink)]">
-                {NUMBER.format(data.totals.visits)}
-              </td>
-              <td className="py-3 pl-3 text-right font-bold tabular-nums text-[var(--ur-ink)]">
-                {NUMBER.format(data.totals.registered)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+            </tfoot>
+          </table>
+        </div>
       </section>
 
-      <section aria-labelledby="report-inputs-heading" className="mt-14">
-        <h2 id="report-inputs-heading" className="text-2xl sm:text-3xl mb-5">
-          {REPORT_COPY.inputs.heading}
+      <section aria-labelledby="report-reset-heading" className="mt-14">
+        <h2 id="report-reset-heading" className="text-2xl sm:text-3xl mb-5">
+          {REPORT_COPY.reset.heading}
         </h2>
+        <div className="space-y-3 mb-6 max-w-2xl">
+          <p className="text-[var(--ur-text)]">{REPORT_COPY.reset.intro}</p>
+          <p className="text-[var(--ur-muted)]">{REPORT_COPY.reset.keep}</p>
+        </div>
         <form
           method="post"
-          action="/report/save"
-          className="card p-7 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl"
+          action="/report/reset"
+          className="card p-7 sm:p-8 flex flex-col gap-5 max-w-md"
         >
-          <div>
-            <label htmlFor="report-count-from" className={LABEL}>
-              {REPORT_COPY.inputs.countFrom}
-            </label>
-            <input
-              id="report-count-from"
-              name="countFrom"
-              type="date"
-              min="2026-01-01"
-              max="2100-12-31"
-              defaultValue={data.countFrom ?? ""}
-              aria-invalid={dateError ? true : undefined}
-              aria-describedby={
-                dateError
-                  ? "report-count-from-hint report-count-from-error"
-                  : "report-count-from-hint"
-              }
-              className={FIELD}
-            />
-            <p id="report-count-from-hint" className={HINT}>
-              {REPORT_COPY.inputs.countFromHint}
+          <PasswordField id="report-reset-password" />
+          <button type="submit" className="btn btn-outline w-full">
+            {REPORT_COPY.reset.button}
+          </button>
+          {result === "done" && (
+            <p role="status" className="text-[13px] text-[var(--ur-navy)]">
+              {REPORT_COPY.reset.done}
             </p>
-            {dateError && (
-              <p id="report-count-from-error" className={`${ERROR} mt-2`}>
-                {dateError}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="report-showed-up" className={LABEL}>
-              {REPORT_COPY.inputs.showedUp}
-            </label>
-            <input
-              id="report-showed-up"
-              name="showedUp"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={100000}
-              step={1}
-              defaultValue={data.showedUp ?? ""}
-              aria-invalid={numberError ? true : undefined}
-              aria-describedby={
-                numberError
-                  ? "report-showed-up-hint report-showed-up-error"
-                  : "report-showed-up-hint"
-              }
-              className={FIELD}
-            />
-            <p id="report-showed-up-hint" className={HINT}>
-              {REPORT_COPY.inputs.showedUpHint}
+          )}
+          {resetMessage && (
+            <p role="alert" className={ERROR}>
+              {resetMessage}
             </p>
-            {numberError && (
-              <p id="report-showed-up-error" className={`${ERROR} mt-2`}>
-                {numberError}
-              </p>
-            )}
-          </div>
-
-          <div className="sm:col-span-2 flex flex-col gap-3">
-            <button
-              type="submit"
-              className="btn btn-crimson w-full sm:w-auto sm:self-start"
-            >
-              {REPORT_COPY.inputs.button}
-            </button>
-            {saved && (
-              <p role="status" className="text-[13px] text-[var(--ur-navy)]">
-                {REPORT_COPY.inputs.saved}
-              </p>
-            )}
-            {formError && (
-              <p role="alert" className={ERROR}>
-                {formError}
-              </p>
-            )}
-          </div>
+          )}
         </form>
       </section>
     </Frame>
@@ -372,8 +279,6 @@ export default async function ReportPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const raw = first(params.e);
-  const code = isReportMessageCode(raw) ? raw : null;
 
   const config = reportConfig();
   if (!config) {
@@ -386,11 +291,12 @@ export default async function ReportPage({
 
   const jar = await cookies();
   if (!isValidSession(jar.get(REPORT_COOKIE)?.value, config)) {
-    const message =
-      code === "wrong" || code === "busy" || code === "error"
-        ? REPORT_COPY.messages[code]
-        : null;
-    return <Locked message={message} />;
+    const code = first(params.e);
+    return (
+      <Locked
+        message={isLoginMessageCode(code) ? REPORT_COPY.messages[code] : null}
+      />
+    );
   }
 
   const data = await readReport();
@@ -402,5 +308,8 @@ export default async function ReportPage({
     );
   }
 
-  return <Open data={data} code={code} saved={first(params.saved) === "1"} />;
+  const result = first(params.r);
+  return (
+    <Open data={data} result={isResetResultCode(result) ? result : null} />
+  );
 }
