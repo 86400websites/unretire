@@ -123,10 +123,10 @@ function Card({
   );
 }
 
-const NUMBER_CELL = "py-3 px-3 text-right tabular-nums text-[var(--ur-text)]";
+const NUMBER_CELL = "py-3 px-2 text-right tabular-nums text-[var(--ur-text)]";
 const TOTAL_CELL =
-  "py-3 px-3 text-right font-bold tabular-nums text-[var(--ur-ink)]";
-const HEAD_CELL = "py-3 px-3 font-bold text-[var(--ur-ink)] text-right";
+  "py-3 px-2 text-right font-bold tabular-nums text-[var(--ur-ink)]";
+const HEAD_CELL = "py-3 px-2 font-bold text-[var(--ur-ink)] text-right";
 
 function Open({
   data,
@@ -173,14 +173,11 @@ function Open({
         <div className="overflow-x-auto">
           <table
             aria-labelledby="report-where-heading"
-            className="w-full border-collapse text-left text-[15px]"
+            className="w-full border-collapse text-left text-[13px] sm:text-[15px]"
           >
             <thead>
               <tr className="border-b border-[var(--ur-border)]">
-                <th
-                  scope="col"
-                  className="py-3 pr-3 font-bold text-[var(--ur-ink)]"
-                >
+                <th scope="col" className="py-3 font-bold text-[var(--ur-ink)]">
                   {REPORT_COPY.table.source}
                 </th>
                 <th scope="col" className={HEAD_CELL}>
@@ -203,7 +200,7 @@ function Open({
                 >
                   <th
                     scope="row"
-                    className="py-3 pr-3 font-normal text-[var(--ur-text)]"
+                    className="py-3 font-normal text-[var(--ur-text)]"
                   >
                     {REPORT_COPY.sources[row.source]}
                   </th>
@@ -219,10 +216,7 @@ function Open({
             </tbody>
             <tfoot>
               <tr data-report-row="total">
-                <th
-                  scope="row"
-                  className="py-3 pr-3 font-bold text-[var(--ur-ink)]"
-                >
+                <th scope="row" className="py-3 font-bold text-[var(--ur-ink)]">
                   {REPORT_COPY.table.total}
                 </th>
                 <td className={TOTAL_CELL}>

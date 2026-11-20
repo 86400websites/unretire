@@ -83,6 +83,8 @@ A campaign id, a source key, timestamps and — per person — `person`, the bas
 | The bodies of `campaign_report` and `reset_campaign_report` | the file's, word for word — `campaign_report` names neither `count_from` nor `campaign_report_inputs` |
 | The comments on the three functions, the two tables and the index | the file's words |
 | Migration history | still one row for 0005: `0005_campaign_report`, version `20261120072915` |
+| `reset_campaign_report` on a throwaway campaign (`zz-s62-check`: 2 visits, 1 person), with `conv1` holding 13 visits and 6 people | answered (2, 1); afterwards `zz-s62-check` held **0** visits and **0** people and `conv1` was **unchanged** (13, 6) — the reset touches one campaign only |
+| The reset end to end, through `POST /report/reset` and the page's own form | on the local production build (2026-11-20: `conv1` went to 0 visits and 0 people) and in both "E2E — Preview" runs at `0cd3fc6` (the report spec's FM-013 reset test passed) |
 
 ## Rollback plan
 
