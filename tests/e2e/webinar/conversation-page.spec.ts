@@ -623,6 +623,8 @@ test.describe("FM-011 — a visitor can save a seat", () => {
         firstName: PROBE_NAME,
         email: PROBE_EMAIL,
         [HONEYPOT_FIELD]: "",
+        // The `source` key arrived in S6.2; an untagged automated visit sends "other".
+        source: "other",
       });
     }
     expect(signups.unscripted.count).toBe(0);
@@ -670,6 +672,8 @@ test.describe("FM-011 — a visitor can save a seat", () => {
         firstName: "",
         email: PROBE_EMAIL,
         [HONEYPOT_FIELD]: "",
+        // The `source` key arrived in S6.2; an untagged automated visit sends "other".
+        source: "other",
       },
     ]);
   });
@@ -787,6 +791,8 @@ test.describe("FM-012 — a visitor can ask for the Toolkit on the same page", (
         firstName: PROBE_NAME,
         email: PROBE_EMAIL,
         [HONEYPOT_FIELD]: "",
+        // The `source` key arrived in S6.2; an untagged automated visit sends "other".
+        source: "other",
       });
     }
     expect(signups.unscripted.count).toBe(0);

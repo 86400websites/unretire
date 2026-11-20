@@ -168,6 +168,8 @@ jobs:
           # `parity: on` input sets it — pull_request and deployment_status runs never do.
           E2E_PARITY: ${{ inputs.parity == 'on' && '1' || '' }}
           E2E_OWNER_MAILBOX: ${{ secrets.E2E_OWNER_MAILBOX }}
+          # S6.2 (D-52): the /report test password — the same value as the Preview's REPORT_PASSWORD.
+          E2E_REPORT_PASSWORD: ${{ secrets.E2E_REPORT_PASSWORD }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

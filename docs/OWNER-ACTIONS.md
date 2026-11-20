@@ -807,6 +807,101 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 
 ---
 
+## PART 10 — Webinar report · S6.2 (added 2026-11-20) · a few minutes at a time
+
+> The report is being built in the branch `claude/s6.2-webinar-report`: one private page, `/report`, with your
+> numbers for each webinar, and one fixed tracking link per platform for your team. Every click you need is in
+> **`docs/WEBINAR-FUNNEL.md` §16** ("the runbook"). This part is only the order. Do the items **in order**.
+> Nothing here needs code. The values go into Vercel and GitHub only — never into a chat, a document or this file.
+>
+> **✅ ANSWERED 2026-11-20 — Gate 0 items 1–3.** Your words: *"go, yes to all"*. Recorded in
+> `docs/PROJECT-STATUS.md` §8: **D-59** (I may make the database change on the test database), **D-60** (Commit
+> and Push, to this branch only), **D-61** (S6.1's records closed out here) and **D-62** (I go from one step to
+> the next without waiting).
+
+### 10.1 Before I can test · 5 minutes
+
+- [ ] **10.1a** Make up a **test** password: 12 or more letters and digits, no spaces. **Not** the one you will use on the live site: this one also goes to the test robot. Keep it in your password manager.
+- [ ] **10.1b** In Vercel, add `REPORT_PASSWORD` for **Preview** only, with that test password. Type: **Secret**. Steps: runbook §3.2, "To add a value that is not there yet" — but skip its step 6 (Redeploy): my next push builds a new Preview, and it picks the value up.
+- [ ] **10.1c** In Vercel, add `REPORT_SECRET` for **Preview** only: 40 or more random letters and digits from a password generator, used nowhere else. Type: **Secret**. Same steps, same skip. You never need it again, so you do not have to keep it.
+- [ ] **10.1d** In GitHub, add the repository secret `E2E_REPORT_PASSWORD`, with the same test password (steps below).
+- [ ] **10.1e** Tell me **"done"**. I check the GitHub secret by its name only. You tell me that `REPORT_PASSWORD` and `REPORT_SECRET` are listed for **Preview**. Never send me a value.
+
+**10.1d, step by step:**
+
+1. Open `https://github.com/86400websites/unretire`.
+2. Under the repository name, click **Settings**.
+3. In the sidebar, click **Secrets and variables**.
+4. Click **Actions**.
+5. Click the **Secrets** tab.
+6. Click **New repository secret**.
+7. In the **Name** field, paste `E2E_REPORT_PASSWORD`.
+8. In the **Secret** field, paste your test password.
+9. Click **Add secret**.
+
+### 10.2 Gate B — look at the report and approve its words · 10 minutes
+
+- [ ] **10.2a** Wait for my message. It holds the Preview's report address, the report's words as a short list, the new privacy-page sentences in full, the new feature lines (what the tests will check), and one yes/no: may the three big numbers stay in the site's orange (`docs/PROJECT-STATUS.md` D-63)?
+- [ ] **10.2b** Open the address. Sign in to Vercel if asked.
+- [ ] **10.2c** Type your **test** password in the **Password** box.
+- [ ] **10.2d** Click **Open the report**.
+- [ ] **10.2e** Look at the page. The numbers are test numbers: only the words and the look matter now. What each part means: runbook §16.2.
+- [ ] **10.2f** Read the privacy sentences and the feature lines in my message.
+- [ ] **10.2g** Reply **"approved"**, or tell me what to change. One reply covers the whole message, the orange numbers included.
+
+### 10.3 Before the merge — the live database, then the live values · 10 minutes
+
+Do these when I tell you the checks are green and the review says APPROVE — **in this order**. The live database must be ready before the new code arrives. (If it is not, the report shows its error line until it is. Sign-ups are never affected.)
+
+- [ ] **10.3a** Run the database change in Supabase, project `unretire-prod` (steps below).
+- [ ] **10.3b** In Vercel, add `REPORT_PASSWORD` for **Production** only: your **real** report password — 12 or more letters and digits, used nowhere else, **not** your test password. Type: **Secret**. Steps: runbook §3.2, "To add a value that is not there yet" — but skip its step 6 (Redeploy): the merge builds the new live site, and it picks the value up. Keep the password in your password manager.
+- [ ] **10.3c** In Vercel, add `REPORT_SECRET` for **Production** only: 40 or more **new** random letters and digits from a password generator — not the Preview one. Type: **Secret**. Same steps, same skip. Set it once and leave it: runbook §2.4 says why.
+- [ ] **10.3d** Merge the pull request on GitHub.
+- [ ] **10.3e** Tell me **"merged"**. I then check the live site, and read the shape of the live database's new tables (never their rows) to confirm the change.
+
+**10.3a, step by step.** First copy the file:
+
+1. Open `https://github.com/86400websites/unretire/blob/claude/s6.2-webinar-report/supabase/migrations/0005_campaign_report.sql`. (After the merge that address is gone; use `https://github.com/86400websites/unretire/blob/master/supabase/migrations/0005_campaign_report.sql` instead.)
+2. In the upper-right corner of the file, click **Raw**. The page now shows the text only.
+3. Press **Ctrl+A** (on a Mac: **Cmd+A**) to select all of it.
+4. Press **Ctrl+C** (on a Mac: **Cmd+C**) to copy it.
+
+Then run it:
+
+5. Open `https://supabase.com/dashboard`. Sign in if asked.
+6. Click the project `unretire-prod`. **Not** `unretire-test`.
+7. Open the **SQL Editor**.
+8. Open a new, empty query. (label not confirmed — tell me if your screen differs)
+9. Click inside the empty editor.
+10. Press **Ctrl+V** (on a Mac: **Cmd+V**) to paste.
+11. Check the start and the end: the text starts with `-- 0005_campaign_report.sql` and ends with `service_role only.';`.
+12. Click **Run**.
+13. Read the message under the editor. It should say the query worked. (The exact words: label not confirmed — tell me if your screen differs.)
+14. If you see an error, or a box that asks you to confirm something, stop. Click nothing in it. Send me a screenshot.
+
+If you are not sure it ran, running it again does no harm.
+
+### 10.4 At go-live — your links go up, "Counting from", then the phone test · 10 minutes
+
+Do this as runbook **§9.9**: after I tell you the live site is checked, **and** after every other go-live step for your real webinar is done (runbook §9.1 to §9.8). **Not before.** Putting a link in your bio or a post announces the sign-up page, and anyone who signs up gets Email 1 at once (the rule at the start of runbook §9). After each tap, close the page that opened.
+
+- [ ] **10.4a** Put the Instagram link in your bio and in a Story, and the LinkedIn link in a post (runbook §16.4).
+- [ ] **10.4b** Open your report on the live site (runbook §16.1), with your **real** password. Set **Counting from** to **today**, the day your first link went up (runbook §16.6). Never a later day: real sign-ups from today would be left out. Your own checks today will be in the numbers, a handful of visits; that is expected.
+- [ ] **10.4c** Write down the **Visits** in the **Instagram** row and in the **LinkedIn** row.
+- [ ] **10.4d** On your phone, tap the link in your Instagram bio.
+- [ ] **10.4e** On your phone, tap the **Link** sticker on your Instagram Story.
+- [ ] **10.4f** On your phone, tap the link in your LinkedIn post.
+- [ ] **10.4g** Refresh the report. **Instagram** should be up by at least two (one for each of your Instagram taps), and **LinkedIn** by at least one. More is fine: your followers may be tapping too.
+- [ ] **10.4h** Tell me what you see. A screenshot of the table is perfect. Then give your team the links (runbook §16.3).
+
+If a link opens a page that says "not found", the live sign-up page is switched off. Tell me.
+
+### 10.5 After the webinar — type "Showed up" · 10 minutes
+
+- [ ] **10.5a** At least 30 minutes after the webinar ends, find the number in Zoom and type it into your report: runbook §16.7.
+
+---
+
 ## What I need back from you
 
 *(Updated 2026-09-04 — **the current asks are Part 8.1–8.4 above** (the morning check and the branch), then 8.5–8.9 when convenient. Earlier, retained:)*

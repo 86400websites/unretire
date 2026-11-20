@@ -7,6 +7,7 @@ import { googleCalendarUrl, joinUrl } from "@/lib/webinar/calendar";
 import { CAMPAIGN, formatDisplayParts, getWebinar } from "@/lib/webinar/config";
 import { webinarState } from "@/lib/webinar/state";
 import { COPY, calendarDescription, fill } from "./copy";
+import ArrivalCounter from "./ArrivalCounter";
 import RegisterForm from "./RegisterForm";
 import ToolkitForm from "./ToolkitForm";
 
@@ -271,6 +272,9 @@ export default function ConversationPage() {
 
       {open ? (
         <>
+          {/* Counts this visit once per tab for the webinar report (S6.2). */}
+          <ArrivalCounter campaign={CAMPAIGN.id} />
+
           {/* ── REGISTER ─────────────────────────────────────── */}
           <section
             id="register"

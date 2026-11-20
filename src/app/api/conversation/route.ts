@@ -8,6 +8,7 @@ import {
 } from "@/lib/mailchimp/client";
 import { CAMPAIGN, getWebinar } from "@/lib/webinar/config";
 import { validateRegistrationPayload } from "@/lib/webinar/registration-payload";
+import { recordSignup } from "@/lib/webinar/report-store";
 import { decideWrite, webinarState } from "@/lib/webinar/state";
 import { COPY, REJECTION_COPY } from "@/app/conversation/copy";
 
@@ -118,7 +119,16 @@ export async function POST(req: NextRequest) {
     // API, so there is no contact to tag. This is the ONE success without a
     // tag — not our failure, not the visitor's mistake — and it is reported as
     // an address that cannot be emailed.
-    if (upsert.kind === "refused-address") return accepted(false);
+    if (upsert.kind === "refused-address") {
+      // Counted for the owner's webinar report (S6.2). Never throws, bounded
+      // by a short timeout, and cannot change this answer.
+      await recordSignup({
+        form: parsed.form,
+        email: parsed.email,
+        source: parsed.source,
+      });
+      return accepted(false);
+    }
 
     if (upsert.kind !== "ok") return upstreamFailed();
 
@@ -139,6 +149,13 @@ export async function POST(req: NextRequest) {
     const tagged = await addTags(parsed.email, [tag]);
     if (!tagged) return upstreamFailed();
 
+    // Counted for the owner's webinar report (S6.2). Never throws, bounded by
+    // a short timeout, and cannot change this answer.
+    await recordSignup({
+      form: parsed.form,
+      email: parsed.email,
+      source: parsed.source,
+    });
     return accepted(emailable);
   } catch (err) {
     // Nothing above is expected to throw. If something does, the caller gets
