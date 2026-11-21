@@ -62,6 +62,8 @@ export const REPORT_COPY = {
     error: "Something went wrong. Try again in a minute.",
     resetWrong: "That password didn't work, so nothing was reset.",
     resetFailed: "That didn't reset. Try again in a minute.",
+    resetStale:
+      "The report changed after you opened this page, so nothing was reset. Check the numbers, then try again.",
     off: "This report isn't switched on yet.",
     loadFailed: "The report couldn't load. Refresh the page in a minute.",
   },
@@ -80,13 +82,14 @@ export function isLoginMessageCode(value: unknown): value is LoginMessageCode {
 }
 
 /** What a reset redirect may carry in ?r= — anything else is ignored. */
-export type ResetResultCode = "done" | "wrong" | "busy" | "error";
+export type ResetResultCode = "done" | "wrong" | "busy" | "error" | "stale";
 
 const RESET_CODES: readonly ResetResultCode[] = [
   "done",
   "wrong",
   "busy",
   "error",
+  "stale",
 ];
 
 export function isResetResultCode(value: unknown): value is ResetResultCode {

@@ -13,7 +13,8 @@ import { rateLimitedResponse } from "../../../src/lib/rate-limit";
  * approves both at Gate B.
  *
  * WHY THIS IS A FUNCTION-LEVEL SPEC, as conversation-route.spec.ts is. The
- * route's contract is an ORDER — dormant or closed, then robots, then the
+ * route's contract is an ORDER — dormant or closed, then robots, then another
+ * site's request (403) and a body not declared as JSON (415), then the
  * limiter, then the body, then the store — and an order can only be seen by
  * counting which upstream requests each call made. So the handler is
  * imported and called directly, and `globalThis.fetch` is replaced before
@@ -106,6 +107,13 @@ const ROBOTS = [
 ];
 
 const ENV_NAMES = [
+  // What this site's own hosts are (src/lib/auth/safe-origin.ts): all unset
+  // here, so only http://localhost counts as this site.
+  "NEXT_PUBLIC_SITE_URL",
+  "VERCEL_ENV",
+  "VERCEL_URL",
+  "VERCEL_BRANCH_URL",
+  "VERCEL_PROJECT_PRODUCTION_URL",
   "NEXT_PUBLIC_SUPABASE_URL",
   "SUPABASE_SECRET_KEY",
   "WEBINAR_STARTS_AT",
@@ -179,21 +187,39 @@ function configure(start: string | null): void {
  */
 async function send(
   body: unknown,
-  { raw, agent = BROWSER }: { raw?: string; agent?: string | null } = {},
+  {
+    raw,
+    agent = BROWSER,
+    contentType = "application/json",
+    origin,
+    fetchSite,
+  }: {
+    raw?: string;
+    agent?: string | null;
+    /** null sends no content-type header at all. */
+    contentType?: string | null;
+    origin?: string;
+    fetchSite?: string;
+  } = {},
 ): Promise<Answer> {
   const headers: Record<string, string> = {
-    "content-type": "application/json",
     "x-forwarded-for": CALLER_IP,
   };
+  if (contentType !== null) headers["content-type"] = contentType;
+  if (origin !== undefined) headers.origin = origin;
+  if (fetchSite !== undefined) headers["sec-fetch-site"] = fetchSite;
   if (agent !== null) {
     headers["user-agent"] = agent;
     agents.push(agent);
   }
+  const text = raw ?? JSON.stringify(body);
   const response = await POST(
     new NextRequest(ROUTE, {
       method: "POST",
       headers,
-      body: raw ?? JSON.stringify(body),
+      // A string body would make the request say text/plain by itself; bytes
+      // say nothing, so "no content type" really sends none.
+      body: contentType === null ? new TextEncoder().encode(text) : text,
     }),
   );
   const answer = {
@@ -298,7 +324,7 @@ test.afterEach(async () => {
   const limitedBody = await rateLimitedResponse(60).text();
   for (const answer of answered) {
     expect(
-      [204, 400, 404, 409, 429, 503],
+      [204, 400, 403, 404, 409, 415, 429, 503],
       `${answer.status} is not a status this route documents`,
     ).toContain(answer.status);
     expect(
@@ -684,5 +710,97 @@ test.describe("S6.2 arrival route — every answer", () => {
       expect(answer.text).not.toContain(BODY_SENTINEL);
     }
     expect(logged.join("\n")).not.toContain(BODY_SENTINEL);
+  });
+});
+
+test.describe("PR-010 — only this site's own page can count a visit (Codex review of S6.2, Finding 3)", () => {
+  /** This site, as src/lib/auth/safe-origin.ts sees it outside Production. */
+  const OWN = "http://localhost:3000";
+
+  test("PR-010 a browser request from another site is refused with 403 before the limiter, and nothing is stored", async () => {
+    const cases: [string, { origin?: string; fetchSite?: string }][] = [
+      ["an Origin that is not this site", { origin: "https://evil.example" }],
+      ["an opaque Origin", { origin: "null" }],
+      ["an Origin that is not a URL", { origin: "not a url" }],
+      ["Sec-Fetch-Site: cross-site, no Origin", { fetchSite: "cross-site" }],
+      [
+        "this site's Origin, but Sec-Fetch-Site: cross-site",
+        { origin: OWN, fetchSite: "cross-site" },
+      ],
+    ];
+    for (const [label, headers] of cases) {
+      const answer = await send({ source: "linkedin" }, headers);
+      expect(answer.status, label).toBe(403);
+    }
+    expect(limiterCalls, "the limiter was asked").toHaveLength(0);
+    expect(inserts, "a visit was stored").toHaveLength(0);
+    expect(sequence).toEqual([]);
+  });
+
+  test("PR-010 a body not declared as JSON is refused with 415 before the limiter — even when it is JSON — and nothing is stored", async () => {
+    const cases: [string, string | null][] = [
+      [
+        "text/plain, as another site's page can send without asking",
+        "text/plain",
+      ],
+      ["a form", "application/x-www-form-urlencoded"],
+      ["multipart", "multipart/form-data; boundary=x"],
+      ["no content type", null],
+      ["a lookalike type", "application/jsonp"],
+    ];
+    for (const [label, contentType] of cases) {
+      const answer = await send({ source: "linkedin" }, { contentType });
+      expect(answer.status, label).toBe(415);
+    }
+    expect(limiterCalls, "the limiter was asked").toHaveLength(0);
+    expect(inserts, "a visit was stored").toHaveLength(0);
+    expect(sequence).toEqual([]);
+  });
+
+  test("PR-010 this site's own page is counted: its Origin, same-origin, JSON with a charset — and so is a caller that sends no Origin", async () => {
+    const own = await send(
+      { source: "linkedin" },
+      {
+        origin: OWN,
+        fetchSite: "same-origin",
+        contentType: "application/json; charset=utf-8",
+      },
+    );
+    expect(own.status).toBe(204);
+    const none = await send({ source: "instagram" });
+    expect(none.status).toBe(204);
+    expect(inserts.map((call) => call.body)).toEqual([
+      { campaign: "conv1", source: "linkedin" },
+      { campaign: "conv1", source: "instagram" },
+    ]);
+  });
+
+  test("PR-010 the order: dormant and closed first, then robots, then another site, then the declared type — a robot from another site is still 204", async () => {
+    configure(null);
+    expect(
+      (await send({ source: "linkedin" }, { origin: "https://evil.example" }))
+        .status,
+      "dormant comes first",
+    ).toBe(404);
+    configure(OPEN_START);
+    expect(
+      (
+        await send(
+          { source: "linkedin" },
+          { origin: "https://evil.example", agent: ROBOTS[0] },
+        )
+      ).status,
+      "a robot is answered before the Origin is looked at",
+    ).toBe(204);
+    expect(
+      (
+        await send(
+          { source: "linkedin" },
+          { origin: "https://evil.example", contentType: "text/plain" },
+        )
+      ).status,
+      "another site is refused before the type is looked at",
+    ).toBe(403);
+    expect(sequence).toEqual([]);
   });
 });

@@ -124,7 +124,28 @@ export type ReportData = {
   /** One row per source key, in the report's order, zeros included. */
   rows: ReportRow[];
   totals: { visits: number; registered: number };
+  /**
+   * When the counting this report shows began — campaign_report's `since`,
+   * exactly as the database wrote it — or null when nothing is counted yet.
+   * Opaque: never parsed here. The page sends it back with a reset, so the
+   * database deletes only the numbers the page showed (resetReport).
+   */
+  since: string | null;
 };
+
+/**
+ * The shape of a `since` value as PostgREST writes a timestamptz: a date, a
+ * time with up to six decimals, and an offset. Anything else is refused, so a
+ * reset never sends the database a value it did not write.
+ */
+const PERIOD_STAMP =
+  /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d{1,6})?(Z|[+-]\d{2}(:?\d{2})?)$/;
+
+export function isPeriodStamp(value: unknown): value is string {
+  return (
+    typeof value === "string" && value.length <= 40 && PERIOD_STAMP.test(value)
+  );
+}
 
 function toCount(value: unknown): number {
   const n = typeof value === "string" ? Number(value) : value;
@@ -157,12 +178,16 @@ export async function readReport(): Promise<ReportData | null> {
       ]),
     );
     const data: unknown = report.data;
+    let since: string | null = null;
     for (const raw of Array.isArray(data) ? data : []) {
       const row = raw as {
         source?: unknown;
         visits?: unknown;
         registered?: unknown;
+        since?: unknown;
       };
+      // Every row carries the same `since`; the first usable one is kept.
+      if (since === null && isPeriodStamp(row.since)) since = row.since;
       // Only the eight keys are ever written; anything else is folded into
       // "other" rather than dropped, so the totals still add up.
       const key: SourceKey = isSourceKey(row.source) ? row.source : "other";
@@ -180,40 +205,58 @@ export async function readReport(): Promise<ReportData | null> {
       { visits: 0, registered: 0 },
     );
 
-    return { rows, totals };
+    return { rows, totals, since };
   } catch (err) {
     console.error(`Webinar report could not be read: ${failure(err)}.`);
     return null;
   }
 }
 
+/** What a reset did: deleted the numbers, found the page out of date, or failed. */
+export type ResetOutcome = "done" | "stale" | "failed";
+
 /**
  * "Start again for a new webinar": deletes every counted visit and every
  * counted person of the current campaign, in one statement
- * (reset_campaign_report, migration 0005). Returns whether it worked; never
- * throws. Only POST /report/reset calls it, after a valid session, this site's
- * own Origin, the rate limit and the report password. Never retried: the Data
- * API does not retry a write, and the owner clicks again if it failed.
+ * (reset_campaign_report, migration 0005) — but only if the campaign's
+ * counting still began at `since`, the value the page showed (null for an
+ * empty report). If a reset happened elsewhere after the page was opened, or
+ * an empty report got its first row, the database deletes nothing and the
+ * answer is "stale". Never throws. Only POST /report/reset calls it, after a
+ * valid session, this site's own Origin, the rate limit, the report password
+ * and the page's campaign. Never retried: the Data API does not retry a write,
+ * and the owner clicks again if it failed.
  */
-export async function resetReport(): Promise<boolean> {
+export async function resetReport(since: string | null): Promise<ResetOutcome> {
   try {
     const { data, error } = await createAdminClient()
-      .rpc("reset_campaign_report", { p_campaign: CAMPAIGN.id })
+      .rpc("reset_campaign_report", {
+        p_campaign: CAMPAIGN.id,
+        p_since: since,
+      })
       .abortSignal(AbortSignal.timeout(RESET_TIMEOUT_MS));
     if (error) {
       console.error(`Webinar report not reset: ${failure(error)}.`);
-      return false;
+      return "failed";
     }
     const row = (Array.isArray(data) ? data[0] : data) as
-      | { visits?: unknown; people?: unknown }
+      | { reset?: unknown; visits?: unknown; people?: unknown }
       | null
       | undefined;
+    if (row?.reset === false) {
+      console.info("Webinar report not reset: the page was out of date.");
+      return "stale";
+    }
+    if (row?.reset !== true) {
+      console.error("Webinar report not reset: unexpected answer.");
+      return "failed";
+    }
     console.info(
-      `Webinar report reset: ${toCount(row?.visits)} visits and ${toCount(row?.people)} people deleted.`,
+      `Webinar report reset: ${toCount(row.visits)} visits and ${toCount(row.people)} people deleted.`,
     );
-    return true;
+    return "done";
   } catch (err) {
     console.error(`Webinar report not reset: ${failure(err)}.`);
-    return false;
+    return "failed";
   }
 }

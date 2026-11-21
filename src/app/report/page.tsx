@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import PasswordField from "@/app/PasswordField";
 import { COPY } from "@/app/conversation/copy";
+import { CAMPAIGN } from "@/lib/webinar/config";
 import {
   isValidSession,
   REPORT_COOKIE,
@@ -142,7 +143,9 @@ function Open({
         ? REPORT_COPY.messages.busy
         : result === "error"
           ? REPORT_COPY.messages.resetFailed
-          : null;
+          : result === "stale"
+            ? REPORT_COPY.messages.resetStale
+            : null;
 
   return (
     <Frame state="open">
@@ -247,6 +250,11 @@ function Open({
           action="/report/reset"
           className="card p-7 sm:p-8 flex flex-col gap-5 max-w-md"
         >
+          {/* The numbers this form deletes are the ones this page shows: the
+              campaign and when its counting began go back with the password, and
+              the reset is refused if either has changed (Codex review, Finding 1). */}
+          <input type="hidden" name="campaign" value={CAMPAIGN.id} />
+          <input type="hidden" name="since" value={data.since ?? ""} />
           <PasswordField id="report-reset-password" />
           <button type="submit" className="btn btn-outline w-full">
             {REPORT_COPY.reset.button}

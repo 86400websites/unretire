@@ -51,6 +51,7 @@ A campaign id, a source key, timestamps and — per person — `person`, the bas
 |---|---|---|---|
 | TEST | 2026-11-20 | builder, via the `supabase-test` MCP `apply_migration` (`0005_campaign_report`, recorded as version `20261120072915`), on the owner's YES of 2026-11-20 (Gate 0 item 1: *"go, yes to all"*). Server confirmed before the call: `supabase-test` → `project_ref=dtdadtggahjsrmevwvbu`. | Catalog and role probes below; functions exercised under the throwaway campaign `zz-s62-check`, then exactly those rows deleted (3 visits, 2 people, 1 inputs row); all three tables then held 0 rows. Security advisors: nothing new — the three tables appear only under the INFO "RLS enabled, no policy" lint, as `rate_limits` does by design; the WARN lines (`increment_rate_limit` and `set_updated_at` search_path, the test-only `rls_auto_enable()` helper, leaked-password protection) all predate this change. |
 | TEST — the Gate B delta | 2026-11-20, after Gate B | builder, after the owner's *"go, yes keep orange"* (D-65; the test database under D-59). Not through `apply_migration`: the migration history still has the one `0005_campaign_report` row, version `20261120072915`, so it keeps one row per repository migration. | What changed, from the first file to today's: `campaign_report` replaced (the same signature, without the date window; its comment updated); `reset_campaign_report` created, with execute revoked from `public`, `anon` and `authenticated` and granted to `service_role` only, and its comment; the index comment set to the file's new words; `campaign_report_inputs` dropped — it held only test values. Then the catalog probes in the second table below. |
+| TEST — the round-1 review delta | 2026-11-21, after the Codex review's round 1 | the owner, by hand: he pasted the whole file — re-runnable since this change — into the SQL editor of `unretire-test` and ran it; his words: *"ok done from my side"*. The builder's tries through `execute_sql` had been declined by the tool's own confirmation for statements that drop something, three times, and the owner chose the by-hand way (a deviation from `supabase/migrations/README.md`, which names `apply_migration`). The migration history keeps its one 0005 row. | Catalog reads and behaviour probes below ("after the round-1 review delta") |
 | PROD | [DATE — the owner, Gate 0 item 5] | [the owner, by hand, in the Supabase SQL editor] | [read-only, through `supabase-prod-readonly` after he applies it: tables, RLS, no policy, grants — no rows read] |
 
 **Verified on `unretire-test`, 2026-11-20, at the first apply** (the file then had three tables and two functions; the probes of what Gate B removed are struck):
@@ -86,11 +87,28 @@ A campaign id, a source key, timestamps and — per person — `person`, the bas
 | `reset_campaign_report` on a throwaway campaign (`zz-s62-check`: 2 visits, 1 person), with `conv1` holding 13 visits and 6 people | answered (2, 1); afterwards `zz-s62-check` held **0** visits and **0** people and `conv1` was **unchanged** (13, 6) — the reset touches one campaign only |
 | The reset end to end, through `POST /report/reset` and the page's own form | on the local production build (2026-11-20: `conv1` went to 0 visits and 0 people) and in both "E2E — Preview" runs at `0cd3fc6` (the report spec's FM-013 reset test passed) |
 
+**Verified on `unretire-test`, 2026-11-21, after the round-1 review delta** (catalog reads, then the functions
+exercised on throwaway campaigns only — never `conv1`):
+
+| Probe | Result |
+|---|---|
+| The report functions in `public` | exactly `campaign_report(text)` → `TABLE(source, visits, registered, since)` and `reset_campaign_report(text, timestamptz)` → `TABLE(reset, visits, people)`, beside the unchanged `record_campaign_person(text, text, text, boolean)`; the earlier one-argument `reset_campaign_report(text)` is **gone** |
+| All three: security / search_path / execute ACL / comments | `SECURITY INVOKER`; `search_path=""`; ACL `{postgres=X/postgres,service_role=X/postgres}`; the file's comments |
+| Both tables: RLS / policies / `anon` and `authenticated` privileges | RLS **on**, **0** policies, **no** privileges |
+| Migration history | still one row for 0005 |
+| `since` as the page receives it (`zz-s62-r1`, one visit) | `2026-11-21T15:55:30.957191+00:00` — PostgREST's JSON form, which `isPeriodStamp` accepts |
+| A reset of that campaign with an old `since`, then with `null` | `reset` **false**, **0** deleted, both times; the visit still there |
+| A reset with the `since` the page showed | `reset` **true**, **1** visit deleted; the campaign then empty |
+| An empty campaign, `since` null | **0** deleted |
+| A Toolkit-only person (`zz-s62-tk`): the report, then a reset from that empty page | **0** report rows; `reset` true, **0** deleted — the row stays (an empty page deletes nothing); once the person registered, a reset with the new `since` deleted it (0 visits, 1 person) |
+| `conv1` during the probes | untouched: 0 visits and 0 people before and after |
+| Throwaway rows left | **none** (no `zz-s62-` rows in either table) |
+
 ## Rollback plan
 
 1. Nothing user-facing depends on these tables for anything but the report: sign-ups never wait on them (`src/app/api/conversation/route.ts` records after Mailchimp has answered, in a call that cannot throw).
 2. Retreat the dependent code first (revert the PR / promote the previous deploy). The previous code never touches these tables.
-3. Prefer keeping the additive schema. If the schema must go, test the down file on `unretire-test` first; a human runs it in Production only after exporting any numbers the owner wants to keep. The down file drops the three functions (`reset_campaign_report`, `campaign_report`, `record_campaign_person`), then the two tables.
+3. Prefer keeping the additive schema. If the schema must go, test the down file on `unretire-test` first; a human runs it in Production only after exporting any numbers the owner wants to keep. The down file drops the three functions — `reset_campaign_report` in both its shapes (the one-argument one from before the Codex review, wherever it still is), `campaign_report`, `record_campaign_person` — then the two tables.
 4. Dropping the tables deletes every counted visit and every sign-up code. Nothing restores them.
 5. Verify `/conversation` sign-ups and the home page afterwards.
 

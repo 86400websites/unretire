@@ -94,6 +94,7 @@ record-keeping, not copy.
 | Wrong password (resetting) | That password didn't work, so nothing was reset. | NEW — needs owner approval |
 | Too many tries (signing in or resetting) | Too many tries in a short time. Wait 10 minutes and try again. | NEW — needs owner approval |
 | The reset failed | That didn't reset. Try again in a minute. | NEW — needs owner approval |
+| The page was out of date (resetting) | The report changed after you opened this page, so nothing was reset. Check the numbers, then try again. | NEW — approved by the owner on 2026-11-21, after the Codex review's Finding 1: offered two wordings, he chose this one (*""The report changed…" (Recommended)"*) |
 | Anything else went wrong | Something went wrong. Try again in a minute. | NEW — needs owner approval |
 | The report's two settings are missing | This report isn't switched on yet. | NEW — needs owner approval |
 | The numbers could not be read | The report couldn't load. Refresh the page in a minute. | NEW — needs owner approval |

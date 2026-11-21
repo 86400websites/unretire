@@ -1601,6 +1601,7 @@ What you may see instead:
 | "That password didn't work, so nothing was reset." | The password was mistyped | Type it again and click **Reset the numbers** |
 | "Too many tries in a short time. Wait 10 minutes and try again." | Too many tries from one place in a short time. Nothing was reset. | Wait 10 minutes |
 | "That didn't reset. Try again in a minute." | The reset did not finish | Refresh the page. If the numbers are not back to zero, try again in a minute. If it stays, tell me. |
+| "The report changed after you opened this page, so nothing was reset. Check the numbers, then try again." | The numbers changed after you opened the page: someone reset them on another screen, or a new webinar started. Nothing was reset. | Look at the numbers now on the page. If you still want to start again, type the password and click **Reset the numbers** again |
 | The password form that opens the report | You were signed out, for example after 30 days. Nothing was reset. | Open the report (§16.1), then do the reset again |
 
 Good to know:

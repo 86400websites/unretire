@@ -53,6 +53,8 @@ const RECORD_PERSON = `POST ${REST}/rpc/record_campaign_person`;
 const INSERT_VISIT = `POST ${REST}/campaign_visits`;
 const REPORT_RPC = `POST ${REST}/rpc/campaign_report`;
 const RESET_RPC = `POST ${REST}/rpc/reset_campaign_report`;
+/** A `since` as PostgREST writes a timestamptz: kept and sent back as is. */
+const SINCE = "2026-11-20T20:47:25.123456+00:00";
 
 const ENV_NAMES = [
   "NEXT_PUBLIC_SUPABASE_URL",
@@ -461,16 +463,16 @@ test.describe("S6.2 report store — reading the report", () => {
     database = routes({
       [REPORT_RPC]: () =>
         json(200, [
-          { source: "linkedin", visits: 12, registered: 3 },
-          { source: "other", visits: 5, registered: 1 },
+          { source: "linkedin", visits: 12, registered: 3, since: SINCE },
+          { source: "other", visits: 5, registered: 1, since: SINCE },
           // Never written by this site; folded into "other", so the totals
           // still add up.
-          { source: "tiktok", visits: 2, registered: 1 },
+          { source: "tiktok", visits: 2, registered: 1, since: SINCE },
         ]),
     });
 
-    // The rows and the totals, and nothing else: toStrictEqual also fails on
-    // an extra key whose value is undefined.
+    // The rows, the totals and when the counting began, and nothing else:
+    // toStrictEqual also fails on an extra key whose value is undefined.
     expect(await readReport()).toStrictEqual({
       rows: [
         { source: "linkedin", visits: 12, registered: 3 },
@@ -483,6 +485,7 @@ test.describe("S6.2 report store — reading the report", () => {
         { source: "other", visits: 7, registered: 2 },
       ],
       totals: { visits: 19, registered: 5 },
+      since: SINCE,
     });
 
     // Exactly one request. No table is read row by row: every number comes
@@ -505,9 +508,40 @@ test.describe("S6.2 report store — reading the report", () => {
     expect(await readReport()).toStrictEqual({
       rows: SOURCE_KEYS.map((source) => ({ source, visits: 0, registered: 0 })),
       totals: { visits: 0, registered: 0 },
+      since: null,
     });
     expect(calls).toHaveLength(1);
     expect(logged).toEqual([]);
+  });
+
+  test("FM-013 when the counting began is kept exactly as the database wrote it — never parsed — and anything else is null", async () => {
+    const cases: [string, unknown, string | null][] = [
+      ["six decimals and an offset", SINCE, SINCE],
+      ["no decimals, Z", "2026-11-20T20:47:25Z", "2026-11-20T20:47:25Z"],
+      [
+        "a space, a short offset",
+        "2026-11-20 20:47:25.5+00",
+        "2026-11-20 20:47:25.5+00",
+      ],
+      ["not a time", "yesterday", null],
+      ["a time with something after it", `${SINCE}; select 1`, null],
+      ["seven decimals", "2026-11-20T20:47:25.1234567+00:00", null],
+      ["a number", 1763671645, null],
+      ["missing", undefined, null],
+    ];
+    for (const [label, written, kept] of cases) {
+      freshCase();
+      database = routes({
+        [REPORT_RPC]: () =>
+          json(200, [
+            { source: "linkedin", visits: 1, registered: 0, since: written },
+          ]),
+      });
+      const report = await readReport();
+      expect(report?.since, label).toBe(kept);
+      expect(report?.totals, label).toEqual({ visits: 1, registered: 0 });
+      expect(logged, label).toEqual([]);
+    }
   });
 
   test("PG-016 an error answer or a dropped connection is null, never a rejection, and is not retried", async () => {
@@ -550,19 +584,20 @@ test.describe("S6.2 report store — reading the report", () => {
 });
 
 test.describe("S6.2 report store — starting again for a new webinar", () => {
-  test("FM-013 a reset is ONE call to reset_campaign_report for this campaign: true, and one line with the numbers deleted", async () => {
+  test("FM-013 a reset is ONE call to reset_campaign_report for this campaign and the since the page showed: done, and one line with the numbers deleted", async () => {
     database = routes({
-      [RESET_RPC]: () => json(200, [{ visits: 13, people: 6 }]),
+      [RESET_RPC]: () => json(200, [{ reset: true, visits: 13, people: 6 }]),
     });
-    expect(await resetReport()).toBe(true);
+    expect(await resetReport(SINCE)).toBe("done");
 
     expect(calls).toHaveLength(1);
     const call = calls[0]!;
     expect(call.method).toBe("POST");
-    // No query string: the campaign travels in the body, and it is the only
-    // thing sent. The function deletes that campaign's visits and people.
+    // No query string: the campaign and the since travel in the body, and
+    // they are all that is sent. The function deletes that campaign's visits
+    // and people — only if its counting still began at that since.
     expect(call.url).toBe(`${REST}/rpc/reset_campaign_report`);
-    expect(call.body).toEqual({ p_campaign: "conv1" });
+    expect(call.body).toEqual({ p_campaign: "conv1", p_since: SINCE });
     expect(call.headers.get("content-type")).toBe("application/json");
     expect(call.headers.get("prefer")).toBeNull();
     expect(call.signal).toBeInstanceOf(AbortSignal);
@@ -575,11 +610,49 @@ test.describe("S6.2 report store — starting again for a new webinar", () => {
     expect(levels).toEqual(["info"]);
   });
 
-  test("FM-013 a failed reset is false, never a rejection: one request, no retry, and a code only in the log", async () => {
+  test("FM-013 an empty report's reset sends since null", async () => {
+    database = routes({
+      [RESET_RPC]: () => json(200, [{ reset: true, visits: 0, people: 0 }]),
+    });
+    expect(await resetReport(null)).toBe("done");
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.body).toEqual({ p_campaign: "conv1", p_since: null });
+  });
+
+  test("FM-013 a page that is out of date is stale: the database deleted nothing, one request, one info line", async () => {
+    database = routes({
+      [RESET_RPC]: () => json(200, [{ reset: false, visits: 0, people: 0 }]),
+    });
+    expect(await resetReport(SINCE)).toBe("stale");
+    expect(calls, "one request, no retry").toHaveLength(1);
+    expect(logged).toEqual([
+      "Webinar report not reset: the page was out of date.",
+    ]);
+    expect(levels).toEqual(["info"]);
+  });
+
+  test("FM-013 an answer that does not say it reset — the old function's shape, or nothing — is a failure, never done", async () => {
+    const answers: [string, unknown][] = [
+      ["the old shape, without reset", [{ visits: 13, people: 6 }]],
+      ["no row", []],
+      ["reset is not a boolean", [{ reset: "true", visits: 1, people: 1 }]],
+    ];
+    for (const [label, answer] of answers) {
+      freshCase();
+      database = routes({ [RESET_RPC]: () => json(200, answer) });
+      await expect(resetReport(SINCE), label).resolves.toBe("failed");
+      expect(logged, label).toEqual([
+        "Webinar report not reset: unexpected answer.",
+      ]);
+      expect(levels, label).toEqual(["error"]);
+    }
+  });
+
+  test("FM-013 a failed reset is failed, never a rejection: one request, no retry, and a code only in the log", async () => {
     for (const failure of WRITE_FAILURES) {
       freshCase();
       database = routes({ [RESET_RPC]: failure.answer });
-      await expect(resetReport(), failure.label).resolves.toBe(false);
+      await expect(resetReport(SINCE), failure.label).resolves.toBe("failed");
       expect(calls, `${failure.label}: one request, no retry`).toHaveLength(1);
       expectOneLine("Webinar report not reset", failure.code, failure.label);
       expect(levels, `${failure.label}: console.error`).toEqual(["error"]);
@@ -600,7 +673,7 @@ test.describe("S6.2 report store — starting again for a new webinar", () => {
       });
 
     const started = Date.now();
-    await expect(resetReport()).resolves.toBe(false);
+    await expect(resetReport(SINCE)).resolves.toBe("failed");
     const waited = Date.now() - started;
 
     expect(calls, "one request, no retry").toHaveLength(1);

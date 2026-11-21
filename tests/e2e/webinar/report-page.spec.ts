@@ -11,6 +11,7 @@ import { COPY } from "../../../src/app/conversation/copy";
 import { REPORT_COPY } from "../../../src/app/report/copy";
 import { SOURCE_KEYS, type SourceKey } from "../../../src/lib/webinar/sources";
 import { guarded } from "./request-guard";
+import { isPreviewHost } from "./test-database";
 
 /**
  * Sprint S6.2 — /report, the owner's webinar report, over HTTP and in a real
@@ -62,19 +63,24 @@ import { guarded } from "./request-guard";
  * resizing the window, so the second profile would add nothing.
  *
  * THE RESET'S LIMIT. A reset uses one of its five tries only once the session
- * and the Origin have passed (src/app/report/reset/route.ts). In a run, only
- * the wrong-password reset and the one real reset get that far — well under
- * five. Every other reset here is refused before the limit, at the session or
- * at the Origin, and costs it nothing.
+ * and the Origin have passed (src/app/report/reset/route.ts). In a run, three
+ * get that far — the wrong-password reset, the stale reset and the one real
+ * reset — under five; only two runs from one runner address inside one
+ * ten-minute window could reach six. Every other reset here is refused before
+ * the limit, at the session or at the Origin, and costs it nothing. The
+ * reset's other cases run without any database in report-reset-route.spec.ts.
  *
  * WHAT IT WRITES — only with the test password: ONE visit, under "other";
  * then, after every test that reads the numbers, ONE real reset, which
  * DELETES every visit and every person counted for the campaign, as the
- * owner's button does. On a Preview that is the test database, so its report
- * starts again from zero after such a run; a local server must use the test
- * database too. Never Production: the harness keeps a run that holds a secret
- * on a Preview (tests/e2e/helpers/target.ts), and testPassword() refuses the
- * live host before a request is sent. No spec sends a valid sign-up (D-22).
+ * owner's button does. So that half runs ONLY on a Vercel Preview of this
+ * project: Previews use the test database, unretire-test, by the hosting
+ * configuration, and tests/e2e/parity/signup.spec.ts proves the binding. On
+ * any other target — a local server, whose database this spec cannot see, or
+ * the live site — testPassword() skips it, by name, before a request is sent
+ * (Codex review of S6.2, Finding 2). The reset's other cases, a stale page
+ * among them, run without any database in report-reset-route.spec.ts. No spec
+ * sends a valid sign-up (D-22).
  *
  * FEW PAGE LOADS. A dev server can take seconds for one browser page load
  * (each load is one more chance of a slow one), and a plain request for the
@@ -138,6 +144,10 @@ const OFF_SKIP =
   "this deployment's report is switched off (REPORT_PASSWORD or REPORT_SECRET is not set); the locked checks do not apply";
 const NO_PASSWORD =
   "E2E_REPORT_PASSWORD is not set, so the signed-in half of the report is not exercised by this run";
+const PREVIEW_ONLY =
+  "the signed-in half stores a visit and deletes every count, so it runs only on a Vercel Preview of " +
+  "this project, whose database is unretire-test (tests/e2e/parity/signup.spec.ts) — never against a " +
+  "server whose database this spec cannot see";
 
 function getPage(
   api: APIRequestContext,
@@ -278,10 +288,12 @@ async function readFunnel(api: APIRequestContext): Promise<Funnel> {
 function testPassword(): string {
   const value = process.env.E2E_REPORT_PASSWORD ?? "";
   test.skip(value === "", NO_PASSWORD);
+  const host = new URL(test.info().project.use.baseURL ?? "").hostname;
   expect(
-    new URL(test.info().project.use.baseURL ?? "").hostname,
+    host,
     "the report spec's signed-in half stores a visit and deletes every count: it never runs against the live site",
   ).not.toBe(PRODUCTION_HOST);
+  test.skip(!isPreviewHost(host), PREVIEW_ONLY);
   return value;
 }
 
@@ -345,10 +357,11 @@ function postReset(
   api: APIRequestContext,
   password: string,
   headers: Record<string, string>,
+  fields: Record<string, string> = {},
 ) {
   return guarded("POST /report/reset", () =>
     api.post("/report/reset", {
-      form: { password },
+      form: { password, ...fields },
       headers,
       maxRedirects: 0,
       failOnStatusCode: false,
@@ -1072,8 +1085,17 @@ test.describe("PG-016 — allowed: with the test password", () => {
     ).toBeVisible();
 
     // What the owner took out at Gate B (D-65) stays out: no box to type a
-    // date or a number into, and none of the old lines.
-    await expect(root.locator("input")).toHaveCount(1);
+    // date or a number into, and none of the old lines. The one box is the
+    // reset's password; beside it the form carries exactly two hidden values,
+    // the campaign and when its counting began (Codex review, Finding 1).
+    await expect(root.locator('input:not([type="hidden"])')).toHaveCount(1);
+    await expect(
+      root
+        .locator('input[type="hidden"]')
+        .evaluateAll((inputs) =>
+          inputs.map((input) => (input as HTMLInputElement).name),
+        ),
+    ).resolves.toEqual(["campaign", "since"]);
     await expect(
       page.locator('input[type="date"], input[type="number"]'),
     ).toHaveCount(0);
@@ -1266,7 +1288,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
     );
   });
 
-  test("FM-013 after a reset the page says what happened: ?r=wrong, ?r=busy and ?r=error are alerts, ?r=done a status line, anything else nothing", async ({
+  test("FM-013 after a reset the page says what happened: ?r=wrong, ?r=busy, ?r=error and ?r=stale are alerts, ?r=done a status line, anything else nothing", async ({
     api,
   }) => {
     testPassword();
@@ -1276,6 +1298,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
       ["wrong", REPORT_COPY.messages.resetWrong],
       ["busy", REPORT_COPY.messages.busy],
       ["error", REPORT_COPY.messages.resetFailed],
+      ["stale", REPORT_COPY.messages.resetStale],
     ] as const) {
       const markup = pageMarkup(
         await signedInHtml(api, `/report?r=${code}`),
@@ -1308,6 +1331,36 @@ test.describe("PG-016 — allowed: with the test password", () => {
     }
   });
 
+  test("FM-013 a reset whose since is no longer when the counting began deletes nothing: the database itself answers ?r=stale", async ({
+    api,
+    baseURL,
+  }) => {
+    const password = testPassword();
+    const before = await numbersNow(api);
+
+    // The case the Codex review's Finding 1 names, and the one only the
+    // database can catch: this campaign, the right password and a well-formed
+    // since — but not the campaign's, as on a page left open across a reset.
+    // The route lets it through; reset_campaign_report must refuse it. The
+    // second of the file's three resets to use a try (THE RESET'S LIMIT).
+    const response = await postReset(
+      api,
+      password,
+      { cookie: sessionCookie(), origin: ownOrigin(baseURL) },
+      { campaign: "conv1", since: "2000-01-01T00:00:00+00:00" },
+    );
+    expect(
+      redirectOf(response),
+      "/report?r=done here means the database deleted numbers no page showed; /report?r=error, that " +
+        "the test database lacks this sprint's reset_campaign_report(text, timestamptz); " +
+        "/report?r=busy, that this caller's resets are limited (five in ten minutes)",
+    ).toEqual(seeOther("/report?r=stale"));
+    expect(await response.text(), "a refusal has no body").toBe("");
+    expect(await numbersNow(api), "a stale reset deleted something").toEqual(
+      before,
+    );
+  });
+
   test("FM-013 the reset, through the page's own form: /report?r=done, the done line, and every count back to zero", async ({
     page,
     baseURL,
@@ -1320,11 +1373,23 @@ test.describe("PG-016 — allowed: with the test password", () => {
     await open(page, "/report");
     await expect(root).toHaveAttribute("data-report-state", "open");
 
+    // The form names what it deletes: this campaign, and when the counting
+    // this page shows began (Codex review, Finding 1). The database deletes
+    // only if that is still so — a reset that came back ?r=stale here would
+    // mean the value did not survive the round trip.
+    const form = root.locator('form[action="/report/reset"]');
+    await expect(
+      form.locator('input[type="hidden"][name="campaign"]'),
+    ).toHaveValue("conv1");
+    await expect(
+      form.locator('input[type="hidden"][name="since"]'),
+    ).toHaveCount(1);
+
     // Reset the way the owner does: the password typed again into the page's
     // own form, which the browser posts with this site's Origin. The box is
     // filled by script — a typed `fill` would put the password in the step's
     // title. This is THE ONE DELETION: every count of the campaign goes, on
-    // purpose, and the second of the file's resets to use a try.
+    // purpose, and the third of the file's resets to use a try.
     const resets = watchRedirects(page, "/report/reset");
     await page.locator("#report-reset-password").evaluate((input, typed) => {
       (input as HTMLInputElement).value = typed;
@@ -1344,7 +1409,8 @@ test.describe("PG-016 — allowed: with the test password", () => {
       resets,
       "a 403 means the browser's Origin is not one of this deployment's hosts; a Location of " +
         "/report?r=busy, that this caller's resets are limited (five in ten minutes); " +
-        "/report?r=error, that the database did not reset",
+        "/report?r=error, that the database did not reset; /report?r=stale, that the page's " +
+        "campaign or start of counting did not match the database's",
     ).toEqual([{ status: 303, location: "/report?r=done" }]);
     // Then the page it leads to, which may take a dev server several seconds.
     await page.waitForURL(

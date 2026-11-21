@@ -1,4 +1,4 @@
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { APIRequestContext, BrowserContext, Page } from "@playwright/test";
 import { test, expect } from "../fixtures";
 import { HONEYPOT_FIELD } from "../../../src/lib/webinar/registration-payload";
 import { guarded } from "./request-guard";
@@ -33,7 +33,8 @@ import { guarded } from "./request-guard";
  * from the same page has been seen.
  *
  * TIME. Each test loads the page once or twice and waits for React each
- * time, inside the project's default time. A longer time is never a fix for
+ * time, inside the project's default time — except the test of a tab another
+ * tab opened, which loads five pages in two tabs and has twice that time. A longer time is never a fix for
  * a slow step (docs/ENVIRONMENT-PARITY.md §6 C4).
  */
 
@@ -74,8 +75,9 @@ type Sent = { method: string; contentType: string; body: unknown };
  * pathnames — never a catch-all, which on a protected Preview takes the
  * document away from the fixture that adds the bypass — and ALWAYS fulfilled.
  * The sign-up is answered as a success, so the page shows its thank-you.
+ * Given the whole context, it answers every tab of it, an opened one too.
  */
-async function intercept(page: Page) {
+async function intercept(page: Page | BrowserContext) {
   const arrivals: Sent[] = [];
   const signups: Record<string, unknown>[] = [];
   await page.route(
@@ -192,6 +194,7 @@ async function tabMemory(page: Page): Promise<Record<string, string>> {
 }
 
 const LINKEDIN = "/conversation?utm_source=linkedin&utm_medium=social";
+const INSTAGRAM = "/conversation?utm_source=instagram&utm_medium=social";
 const META_ADS = "/conversation?utm_source=meta&utm_medium=paid";
 
 test.describe("IN-009 — a visit is counted once per tab, under its platform, and the sign-up carries it", () => {
@@ -277,6 +280,134 @@ test.describe("IN-009 — a visit is counted once per tab, under its platform, a
       },
     ]);
     expect(await tabMemory(page)).toEqual(memory);
+  });
+
+  test("IN-009 a tab another tab opened counts its own visit: a LinkedIn tab opens an Instagram link, and the new tab — though it starts with a copy of the first tab's memory — is counted once under instagram, its sign-ups say instagram, and a reload of it counts nothing more", async ({
+    page,
+    api,
+  }) => {
+    const funnel = await readFunnel(api);
+    test.skip(
+      funnel !== "open",
+      `this deployment's funnel is ${funnel}; there is no counter while registration is not open`,
+    );
+
+    // Two tabs and five page loads, each waiting for React: more work than
+    // the other tests here, not a slower step (see TIME, above).
+    test.setTimeout(60_000);
+
+    // Codex review of S6.2, Finding 4. A visitor's browser in EVERY tab of
+    // this context, the opened one included, and a note of what each page's
+    // memory held before any of the page's own scripts ran.
+    const context = page.context();
+    await context.addInitScript(() => {
+      Object.defineProperty(Navigator.prototype, "webdriver", {
+        configurable: true,
+        get: () => false,
+      });
+      const kept: Record<string, string> = {};
+      for (let i = 0; i < sessionStorage.length; i += 1) {
+        const key = sessionStorage.key(i) ?? "";
+        if (key.startsWith("ur-conv-source:")) {
+          kept[key] = sessionStorage.getItem(key) ?? "";
+        }
+      }
+      (window as unknown as { s62MemoryAtStart: unknown }).s62MemoryAtStart =
+        kept;
+    });
+    const sent = await intercept(context);
+
+    // 1. The first tab, from LinkedIn: one visit.
+    await open(page, LINKEDIN);
+    await waitForHydration(page);
+    await expect
+      .poll(() => sent.arrivals.length, {
+        message: "the first tab's visit was never sent",
+      })
+      .toBeGreaterThan(0);
+    const firstTab = await tabMemory(page);
+    expect(Object.values(firstTab)).toEqual(["linkedin"]);
+
+    // 2. It opens an Instagram link in a new tab that keeps its opener.
+    const [opened] = await Promise.all([
+      context.waitForEvent("page"),
+      page.evaluate((url) => {
+        window.open(url);
+      }, INSTAGRAM),
+    ]);
+    const errors = collectErrors(opened);
+    await opened.waitForLoadState("domcontentloaded");
+    await waitForHydration(opened);
+    // What this test is about: the new tab has an opener, and its memory
+    // started as a copy of the first tab's — the copy that used to stop its
+    // visit and give its sign-ups the first tab's source.
+    expect(
+      await opened.evaluate(() => window.opener !== null),
+      "the new tab has no opener, so it proves nothing",
+    ).toBe(true);
+    expect(
+      await opened.evaluate(
+        () =>
+          (window as unknown as { s62MemoryAtStart: unknown }).s62MemoryAtStart,
+      ),
+      "the new tab did not start with a copy of the first tab's memory, so it proves nothing",
+    ).toEqual(firstTab);
+
+    // 3. Counted once, under its own link, and its sign-up says so.
+    await expect
+      .poll(() => sent.arrivals.length, {
+        message:
+          "the new tab's visit was never sent — the copied memory stopped it",
+      })
+      .toBe(2);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(sent.arrivals).toEqual([
+      {
+        method: "POST",
+        contentType: "application/json",
+        body: { source: "linkedin" },
+      },
+      {
+        method: "POST",
+        contentType: "application/json",
+        body: { source: "instagram" },
+      },
+    ]);
+    expect(Object.values(await tabMemory(opened))).toEqual(["instagram"]);
+    // The first tab keeps its own.
+    expect(await tabMemory(page)).toEqual(firstTab);
+
+    // 4. A reload of the new tab is not a second visit, and its sign-up still
+    //    says where that tab came from.
+    await opened.reload({ waitUntil: "domcontentloaded" });
+    await waitForHydration(opened);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(
+      sent.arrivals,
+      "a reload of the new tab was counted again",
+    ).toHaveLength(2);
+
+    // 5. Its own address loaded again, as by a link to itself — the browser
+    //    keeps one history entry — is not a second visit either.
+    await opened.goto(opened.url(), { waitUntil: "domcontentloaded" });
+    await waitForHydration(opened);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(
+      sent.arrivals,
+      "the new tab's own address, loaded again, was counted again",
+    ).toHaveLength(2);
+
+    // 6. A page inside the site, in the same tab, keeps the tab's source and
+    //    is not counted again.
+    await open(opened, "/conversation");
+    await waitForHydration(opened);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(
+      sent.arrivals,
+      "an in-site page of the new tab was counted again",
+    ).toHaveLength(2);
+
+    expect(errors, "the new tab logged browser errors").toEqual([]);
   });
 
   test("IN-009 a Meta ads link in a fresh tab is counted under meta-ads", async ({

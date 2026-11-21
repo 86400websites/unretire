@@ -872,6 +872,12 @@ Do these when I tell you **"ready for the Codex review"**.
 - [ ] **10.2i** Ask it to run the review in `docs/code-reviews/S6.2-webinar-report-review.md`.
 - [ ] **10.2j** When it finishes, copy its whole answer and paste it to me. If it finds problems, I fix them and we run it again. We go on to 10.3 only when it says **APPROVE**.
 
+> **Round 1, 2026-11-21: REQUEST CHANGES** — three findings that had to be fixed and one that should be, all now
+> fixed (the record and my answers are in `docs/code-reviews/S6.2-webinar-report-review.md`). You approved the
+> new sentence for an out-of-date reset page, said yes to fixing the sign-up form's matching gap (D-67) and to
+> updating the test database, and pasted that update yourself: *"ok done from my side"*. **Round 2:** the same
+> three steps, 10.2h to 10.2j, when I tell you again.
+
 ### 10.3 Before the merge — the live database, then the live values · 10 minutes
 
 Do these when I tell you the checks are green and the review says APPROVE — **in this order**. The live database must be ready before the new code arrives. (If it is not, the report shows its error line until it is. Sign-ups are never affected.)

@@ -72,6 +72,13 @@ const ENV_NAMES = [
   // S6.2: cleared like the rest, so a value in the shell can never switch the
   // report's counting on inside the S6.1 tests.
   "REPORT_SECRET",
+  // S6.2, D-67: what this site's own hosts are (src/lib/auth/safe-origin.ts).
+  // All unset here, so only http://localhost counts as this site.
+  "NEXT_PUBLIC_SITE_URL",
+  "VERCEL_ENV",
+  "VERCEL_URL",
+  "VERCEL_BRANCH_URL",
+  "VERCEL_PROJECT_PRODUCTION_URL",
 ];
 
 type Recorded = {
@@ -165,15 +172,25 @@ const VALID = { form: "register", firstName: "Maher", email: EMAIL };
 async function send(
   body: unknown,
   raw?: string,
+  // S6.2, D-67: the headers that say where a request came from.
+  {
+    contentType = "application/json",
+    origin,
+    fetchSite,
+  }: { contentType?: string | null; origin?: string; fetchSite?: string } = {},
 ): Promise<{ status: number; text: string; headers: Headers }> {
+  const headers: Record<string, string> = { "x-forwarded-for": CALLER_IP };
+  if (contentType !== null) headers["content-type"] = contentType;
+  if (origin !== undefined) headers.origin = origin;
+  if (fetchSite !== undefined) headers["sec-fetch-site"] = fetchSite;
+  const payload = raw ?? JSON.stringify(body);
   const response = await POST(
     new NextRequest("http://localhost:3000/api/conversation", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-forwarded-for": CALLER_IP,
-      },
-      body: raw ?? JSON.stringify(body),
+      headers,
+      // A string body would make the request say text/plain by itself; bytes
+      // say nothing, so "no content type" really sends none.
+      body: contentType === null ? new TextEncoder().encode(payload) : payload,
     }),
   );
   const text = await response.text();
@@ -1287,5 +1304,73 @@ test.describe("S6.2 — every accepted sign-up is counted for the report, and no
       ]);
     }
     expect(records).toEqual([]);
+  });
+});
+
+test.describe("PR-007 — only this site's own page can sign up (S6.2, D-67: the gap the Codex review found in the visit counter)", () => {
+  /** This site, as src/lib/auth/safe-origin.ts sees it outside Production. */
+  const OWN = "http://localhost:3000";
+
+  test("PR-007 a sign-up from another site's page is refused with 403 and the approved sentence, before the limiter: nothing reaches Mailchimp", async () => {
+    const cases: [string, { origin?: string; fetchSite?: string }][] = [
+      ["an Origin that is not this site", { origin: "https://evil.example" }],
+      ["an opaque Origin", { origin: "null" }],
+      ["Sec-Fetch-Site: cross-site, no Origin", { fetchSite: "cross-site" }],
+      [
+        "this site's Origin, but Sec-Fetch-Site: cross-site",
+        { origin: OWN, fetchSite: "cross-site" },
+      ],
+    ];
+    for (const [label, headers] of cases) {
+      const reply = await send(VALID, undefined, headers);
+      expect(reply.status, label).toBe(403);
+      expect(parse(reply.text), label).toEqual({
+        error: COPY.errors.invalidRequest,
+      });
+    }
+    expect(limiterCalls, "the limiter was asked").toHaveLength(0);
+    expect(calls, "Mailchimp was called").toHaveLength(0);
+  });
+
+  test("PR-007 a body not declared as JSON is refused with 415 before the limiter — even a valid sign-up sent as plain text", async () => {
+    const cases: [string, string | null][] = [
+      [
+        "text/plain, as another site's page can send without asking",
+        "text/plain",
+      ],
+      ["a form", "application/x-www-form-urlencoded"],
+      ["no content type", null],
+    ];
+    for (const [label, contentType] of cases) {
+      const reply = await send(VALID, undefined, { contentType });
+      expect(reply.status, label).toBe(415);
+      expect(parse(reply.text), label).toEqual({
+        error: COPY.errors.invalidRequest,
+      });
+    }
+    expect(limiterCalls, "the limiter was asked").toHaveLength(0);
+    expect(calls, "Mailchimp was called").toHaveLength(0);
+  });
+
+  test("PR-007 the site's own form passes both checks: its Origin, same-origin, JSON — on to the limiter and the validator", async () => {
+    const reply = await send({ form: "no-such-form" }, undefined, {
+      origin: OWN,
+      fetchSite: "same-origin",
+      contentType: "application/json; charset=utf-8",
+    });
+    expect(reply.status).toBe(400);
+    expect(limiterCalls, "the limiter was not asked").toHaveLength(1);
+    expect(calls).toHaveLength(0);
+  });
+
+  test("PR-007 dormant still comes first: another site's request to a switched-off funnel is a bodiless 404", async () => {
+    configure(null);
+    const reply = await send(VALID, undefined, {
+      origin: "https://evil.example",
+      contentType: "text/plain",
+    });
+    expect(reply.status).toBe(404);
+    expect(reply.text).toBe("");
+    expect(limiterCalls).toHaveLength(0);
   });
 });

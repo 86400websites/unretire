@@ -399,11 +399,11 @@ test.describe("PR-001/PR-002 — the public write endpoints are guarded", () => 
       ARRIVAL_CLOSED_SKIP,
     );
 
-    // Twelve requests, so with the one above the burst below still starts
-    // well inside the allowance. Never a valid key — see the note above.
+    // Eleven requests, so with the one above the burst below still starts
+    // well inside the allowance. Never a valid key — see the note above. (A
+    // body not declared as JSON is refused before the limiter: the next test.)
     const json = "application/json";
     const rejected: { label: string; body: string; type: string }[] = [
-      { label: "not JSON", body: "source=linkedin", type: "text/plain" },
       { label: "an empty body", body: "", type: json },
       { label: "no source", body: "{}", type: json },
       { label: "the wrong case", body: '{"source":"LinkedIn"}', type: json },
@@ -441,6 +441,76 @@ test.describe("PR-001/PR-002 — the public write endpoints are guarded", () => 
       // The route's own 400 — not the limiter's 429, and never a stored 204.
       expect(res.status(), label).toBe(400);
       // No body at all: nothing sent is ever echoed.
+      expect(await res.text(), label).toBe("");
+      expect(res.headers()["cache-control"], label).toBe("no-store");
+    }
+  });
+
+  test("PR-010 only this site's own page can count a visit: another site's request is refused with 403 and a body not declared as JSON with 415, before the limiter", async ({
+    api,
+  }) => {
+    const funnel = await guarded("GET /conversation", () =>
+      api.get("/conversation", { failOnStatusCode: false }),
+    );
+    test.skip(funnel.status() === 404, ARRIVAL_DORMANT_SKIP);
+    test.skip(
+      (await funnel.text()).includes('data-conv-state="closed"'),
+      ARRIVAL_CLOSED_SKIP,
+    );
+
+    // Codex review of S6.2, Finding 3: any web page could make its own
+    // visitors' browsers post here — a plain-text or form post needs no
+    // permission — and each would be a counted visit. Like everything in this
+    // file the key is INVALID, so a broken gate answers 400 — still a failure
+    // of each check below — and stores nothing. Both checks come before the
+    // limiter, so none of these costs the bucket anything.
+    const valid = '{"source":"S62-not-a-key"}';
+    const refused: {
+      label: string;
+      headers: Record<string, string>;
+      status: number;
+    }[] = [
+      {
+        label: "JSON sent as plain text, as another site's page can",
+        headers: { "Content-Type": "text/plain" },
+        status: 415,
+      },
+      {
+        label: "a form post",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        status: 415,
+      },
+      {
+        label: "another site's Origin",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://evil.example",
+        },
+        status: 403,
+      },
+      {
+        label: "an opaque Origin",
+        headers: { "Content-Type": "application/json", Origin: "null" },
+        status: 403,
+      },
+      {
+        label: "Sec-Fetch-Site: cross-site",
+        headers: {
+          "Content-Type": "application/json",
+          "Sec-Fetch-Site": "cross-site",
+        },
+        status: 403,
+      },
+    ];
+    for (const { label, headers, status } of refused) {
+      const res = await guarded("POST /api/conversation/arrival", () =>
+        api.post("/api/conversation/arrival", {
+          data: valid,
+          headers: { ...headers, "User-Agent": ARRIVAL_UA },
+          failOnStatusCode: false,
+        }),
+      );
+      expect(res.status(), label).toBe(status);
       expect(await res.text(), label).toBe("");
       expect(res.headers()["cache-control"], label).toBe("no-store");
     }

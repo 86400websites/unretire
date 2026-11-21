@@ -8,7 +8,8 @@ import {
   REPORT_COOKIE,
   reportConfig,
 } from "@/lib/webinar/report-auth";
-import { resetReport } from "@/lib/webinar/report-store";
+import { CAMPAIGN } from "@/lib/webinar/config";
+import { isPeriodStamp, resetReport } from "@/lib/webinar/report-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,9 +30,15 @@ export const dynamic = "force-dynamic";
  *   3. rate limit, failing closed (5 tries per 10 minutes per address; at most
  *      ten times the shortest window any route uses — see ../login/route.ts);
  *   4. the report password, typed again into this form and compared in
- *      constant time → else ?r=wrong. A session alone can never reset.
- * Then the reset (one statement, both tables), and back to /report?r=done, or
- * ?r=error if the database refused.
+ *      constant time → else ?r=wrong. A session alone can never reset;
+ *   5. the page's own campaign and `since` (hidden in the form): the campaign
+ *      must still be the current one and `since` well-formed → else
+ *      ?r=stale. A form from before a new webinar, or from before this
+ *      check existed, deletes nothing.
+ * Then the reset — one statement, both tables, and only if the campaign's
+ * counting still began at that `since` (the database checks it in the same
+ * statement; else ?r=stale) — and back to /report?r=done, or ?r=error if the
+ * database refused.
  *
  * Every redirect has a RELATIVE Location: no address is built from a request
  * header (Known issue 42). The password is never logged.
@@ -78,19 +85,33 @@ export async function POST(req: NextRequest) {
     if (limited) return seeOther("/report?r=busy");
 
     // 4.
-    let typed = "";
+    let form: FormData;
     try {
-      const value = (await req.formData()).get("password");
-      typed = typeof value === "string" ? value : "";
+      form = await req.formData();
     } catch {
       return seeOther("/report?r=wrong");
     }
+    const value = form.get("password");
+    const typed = typeof value === "string" ? value : "";
     if (typed.length > MAX_PASSWORD_INPUT || !passwordMatches(typed, config)) {
       return seeOther("/report?r=wrong");
     }
 
+    // 5.
+    const campaign = form.get("campaign");
+    const since = form.get("since");
+    if (campaign !== CAMPAIGN.id) return seeOther("/report?r=stale");
+    if (since !== "" && !isPeriodStamp(since)) {
+      return seeOther("/report?r=stale");
+    }
+
+    const outcome = await resetReport(since === "" ? null : since);
     return seeOther(
-      (await resetReport()) ? "/report?r=done" : "/report?r=error",
+      outcome === "done"
+        ? "/report?r=done"
+        : outcome === "stale"
+          ? "/report?r=stale"
+          : "/report?r=error",
     );
   } catch (err) {
     console.error(

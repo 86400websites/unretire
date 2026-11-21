@@ -8,6 +8,9 @@
 -- (the counting never blocks a sign-up). Run only on unretire-test, only on an
 -- explicit owner instruction.
 
+drop function if exists public.reset_campaign_report(text, timestamptz);
+-- This migration's earlier reset (before the Codex review of S6.2), wherever it
+-- still is: its body is text, so dropping the tables would not remove it.
 drop function if exists public.reset_campaign_report(text);
 drop function if exists public.campaign_report(text);
 drop function if exists public.record_campaign_person(text, text, text, boolean);
