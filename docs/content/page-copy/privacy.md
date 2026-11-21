@@ -2,7 +2,7 @@
 
 - **Source:** `src/app/privacy/page.tsx`, rendered through the shared shell `src/app/LegalPage.tsx`
 - **Extracted:** 2026-11-13 (Sprint S6.1), on branch `claude/s6.1-webinar-funnel` (cut from `origin/master` 7b754f5)
-- **Status:** Sections 1 to 12 are the approved baseline (shipped site — per the retrofit content policy in `docs/content/README.md`). Section 13 records the three additions the owner approved on 2026-11-14 (his words: "privacy ok"); they are now part of sections 2, 4 and 5 below and of the page. Section 14 holds the Sprint S6.2 proposals (the analytics sentence, the rest of Known issue 63, and the site's own abuse limit and database), NEW — waiting for the owner's approval at Gate B; nothing in it is on the page yet.
+- **Status:** Sections 1 to 12 are the approved baseline (shipped site — per the retrofit content policy in `docs/content/README.md`). Section 13 records the three additions the owner approved on 2026-11-14 (his words: "privacy ok"); they are now part of sections 2, 4 and 5 below and of the page. Section 14 holds the Sprint S6.2 proposals (the analytics sentence, the rest of Known issue 63, and the site's own abuse limit and database), ~~NEW — waiting for the owner's approval at Gate B~~ **not adopted**: on 2026-11-21 the owner kept the page as it is (`docs/PROJECT-STATUS.md` D-66); nothing in it is on the page.
 
 Copy below is verbatim from the shipped page, in section order. JavaScript string escapes
 are rendered as their display characters (`“` `”` → “ ”, `—` → —); the
@@ -140,9 +140,9 @@ numbers under "Where" are the numbers before the additions.
 
 ---
 
-## 14. Proposed additions — Sprint S6.2 (NEW — needs owner approval at Gate B)
+## 14. Proposed additions — Sprint S6.2 (NOT ADOPTED — the owner kept the page as it is, 2026-11-21)
 
-**Not approved yet.** Drafted 2026-11-20 (Sprint S6.2, `docs/sprint-prompts/S6.2-webinar-report.md` step 3).
+~~**Not approved yet.**~~ **Not adopted — the owner, 2026-11-21, verbatim: *"As for privacy policy, keep as is."*** Asked whether he meant these sentences or the page as it is, he chose "Leave the page unchanged" (`docs/PROJECT-STATUS.md` D-66). So `src/app/privacy/page.tsx` is unchanged, Known issue 63 stays open, and the drafts below stay as written, for whenever the page is next corrected: they are not approved copy. Drafted 2026-11-20 (Sprint S6.2, `docs/sprint-prompts/S6.2-webinar-report.md` step 3).
 They close the rest of `docs/PROJECT-STATUS.md` Known issue 63: the analytics sentence, a Premium purchase
 adding the buyer to the email list, and the older `/webinar` page's extra fields. (f) and (g), added after the
 S6.2 review of 2026-11-20, say what the page never said about the site's own abuse limit and database. Every claim was checked

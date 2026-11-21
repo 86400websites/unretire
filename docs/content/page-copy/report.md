@@ -1,8 +1,8 @@
-# Webinar report page (`/report`) — copy for owner approval (Sprint S6.2)
+# Webinar report page (`/report`) — approved copy (approved by the owner on 2026-11-21, Gate B, Sprint S6.2)
 
 - **Source:** written for this page (Sprint S6.2, `docs/sprint-prompts/S6.2-webinar-report.md` step 3) · shipped strings cited by file:line
 - **Drafted:** 2026-11-20 (Sprint S6.2), on branch `claude/s6.2-webinar-report` (cut from `origin/master` fa5faef). **Simplified the same day at Gate B** on the owner's direction (PROJECT-STATUS D-65), verbatim: *"ok please note that, we remove "For the webinar on Thursday 13 December Counting from Friday 6 November. Each visit is counted once per browser tab, and each person once. Test sign-ups are left out." and counting from too so we just keep the table and then the 2 cards and we remove showed up and too as it requires manual action.. and we just make it like conversion pecrecentage, etc.. and we can just mention that this is for webinar title... thats all and we can reset it for new webinar with a password so we enter the password and it resets then start counting again.. somehting like this so we keep it very simple?"* — then, to the plan shown to him: *"go, yes keep orange"*.
-- **Status:** DRAFT — every string marked NEW waits for the owner's approval at Gate B, when he sees the simplified page on the Preview. The page is private (password, no search-engine indexing), so these strings never reach the public site.
+- **Status:** APPROVED by the owner on 2026-11-21 (Gate B, after he saw the simplified page on the Preview), as written. His reply, verbatim: *"Ok approved, thank you. As for privacy policy, keep as is. Let me know when we are ready for the codex review and give me the updated checklist that we had"* (its privacy half is `docs/PROJECT-STATUS.md` D-66). The rows keep their Source labels as drafted. The page is private (password, no search-engine indexing), so these strings never reach the public site.
 
 The code copies these strings character for character into `src/app/report/copy.ts`. Lines marked **Note:** are
 record-keeping, not copy.

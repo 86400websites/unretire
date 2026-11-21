@@ -847,18 +847,30 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 > *"go, yes keep orange"* (`docs/PROJECT-STATUS.md` D-65 quotes your whole message; the orange is D-63). Now
 > look at the simpler page.
 
-- [ ] **10.2a** Wait for my message. It holds the Preview's report address, the report's words as a short list, the new privacy-page sentences in full, and the new feature lines (what the tests will check).
-- [ ] **10.2b** Open the address. Sign in to Vercel if asked.
-- [ ] **10.2c** Type your **test** password in the **Password** box.
-- [ ] **10.2d** Click **Open the report**.
-- [ ] **10.2e** Look at the page. The numbers are test numbers: only the words and the look matter now. What each part means: runbook §16.2; what the reset does: runbook §16.6. Check that you see, from the top:
+- [x] **10.2a** Wait for my message. It holds the Preview's report address, the report's words as a short list, the new privacy-page sentences in full, and the new feature lines (what the tests will check).
+- [x] **10.2b** Open the address. Sign in to Vercel if asked.
+- [x] **10.2c** Type your **test** password in the **Password** box.
+- [x] **10.2d** Click **Open the report**.
+- [x] **10.2e** Look at the page. The numbers are test numbers: only the words and the look matter now. What each part means: runbook §16.2; what the reset does: runbook §16.6. Check that you see, from the top:
   - **Webinar report**, and under it only the webinar's name, "When Work No Longer Defines You, What Does?";
   - three cards, with the numbers in orange: **Visits to the sign-up page**, **Registered** and **Conversion**;
   - the table **Where people came from**, with the columns **Where from**, **Visits**, **Registered** and **Conversion**, and a **Total** row;
   - at the bottom, **Start again for a new webinar**: one **Password** box and the **Reset the numbers** button;
   - no "Counting from", no "Showed up" and no **Save** button.
-- [ ] **10.2f** Read the privacy sentences and the feature lines in my message.
-- [ ] **10.2g** Reply **"approved"**, or tell me what to change. One reply covers the whole message.
+- [x] **10.2f** Read the privacy sentences and the feature lines in my message.
+- [x] **10.2g** Reply **"approved"**, or tell me what to change. One reply covers the whole message.
+
+> **✅ APPROVED 2026-11-21.** Your words: *"Ok approved, thank you. As for privacy policy, keep as is."* The report's words and the feature lines are
+> approved. Asked about the privacy page, you chose **"Leave the page unchanged"**: it stays as it is
+> (`docs/PROJECT-STATUS.md` D-66). You also tried the reset on the test copy: the test numbers went to zero.
+
+### Between 10.2 and 10.3 — the Codex review · a few minutes
+
+Do these when I tell you **"ready for the Codex review"**.
+
+- [ ] **10.2h** Open Codex in the project folder, the way you did for S6.1 (PART 9.3a).
+- [ ] **10.2i** Ask it to run the review in `docs/code-reviews/S6.2-webinar-report-review.md`.
+- [ ] **10.2j** When it finishes, copy its whole answer and paste it to me. If it finds problems, I fix them and we run it again. We go on to 10.3 only when it says **APPROVE**.
 
 ### 10.3 Before the merge — the live database, then the live values · 10 minutes
 
