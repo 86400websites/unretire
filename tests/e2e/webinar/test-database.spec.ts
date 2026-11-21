@@ -3,7 +3,7 @@ import {
   isPreviewHost,
   isTestDatabase,
   isWorkflowPreview,
-  TEST_DATABASE_REF,
+  TEST_DATABASE_ORIGIN,
 } from "./test-database";
 
 /**
@@ -13,13 +13,13 @@ import {
  * report spec stores a visit and deletes every count, so it may do so only
  * against the Preview the workflow resolved, and only when that deployment
  * says its report uses the test database (the independent review of S6.2:
- * round 1, Finding 2; round 2, Finding 1). A CI run always meets both, so
- * without this file a weakened guard would stay green.
+ * round 1, Finding 2; round 2, Finding 1; round 3, Finding 1). A CI run
+ * always meets both, so without this file a weakened guard would stay green.
  */
 
 const PREVIEW = "https://unretire-abc123-86400-s-projects.vercel.app";
-/** unretire-prod's project ref (supabase/migrations/README.md). */
-const PRODUCTION_DATABASE_REF = "hcjivvlwxltyiycfbttc";
+/** unretire-prod's origin (its project ref is in supabase/migrations/README.md). */
+const PRODUCTION_DATABASE_ORIGIN = "https://hcjivvlwxltyiycfbttc.supabase.co";
 
 test("S6.2 harness — a host has a Preview's shape, and the production branch's alias and every other host do not", () => {
   for (const host of [
@@ -85,20 +85,38 @@ test("S6.2 harness — the test password and the writes go only to the Preview t
   }
 });
 
-test("S6.2 harness — nothing is stored or reset unless the deployment says its report uses the test database", () => {
-  expect(isTestDatabase(TEST_DATABASE_REF)).toBe(true);
-  // The test project, by name — a renamed constant must turn this red.
-  expect(TEST_DATABASE_REF).toBe("dtdadtggahjsrmevwvbu");
+test("S6.2 harness — nothing is stored or reset unless the deployment names EXACTLY the test database's origin", () => {
+  expect(isTestDatabase(TEST_DATABASE_ORIGIN)).toBe(true);
+  // The test project, by its whole address — a changed constant must turn
+  // this red.
+  expect(TEST_DATABASE_ORIGIN).toBe("https://dtdadtggahjsrmevwvbu.supabase.co");
 
-  for (const [label, ref] of [
-    ["a Preview given the live database", PRODUCTION_DATABASE_REF],
-    ["a deployment that does not say (an older build)", null],
+  const refused: [string, string | null | undefined][] = [
+    ["a Preview given the live database", PRODUCTION_DATABASE_ORIGIN],
+    ["a deployment that carries no marker (any other database)", null],
     ["nothing read yet", undefined],
     ["an empty value", ""],
-    ["another project", "abcdefghijklmnopqrst"],
-    ["the right name with something after it", `${TEST_DATABASE_REF}.evil`],
-    ["the right name in another case", TEST_DATABASE_REF.toUpperCase()],
-  ] as const) {
-    expect(isTestDatabase(ref), label).toBe(false);
+    ["another project", "https://abcdefghijklmnopqrst.supabase.co"],
+    // The independent review's round 3, Finding 1: the right first label on
+    // another domain — a gateway that could route anywhere — is not the test
+    // database.
+    [
+      "the right first label on a different domain",
+      "https://dtdadtggahjsrmevwvbu.gateway.invalid",
+    ],
+    [
+      "the right host as a label of another domain",
+      "https://dtdadtggahjsrmevwvbu.supabase.co.evil.invalid",
+    ],
+    ["the project's name alone", "dtdadtggahjsrmevwvbu"],
+    ["the host without its scheme", "dtdadtggahjsrmevwvbu.supabase.co"],
+    ["http, not https", "http://dtdadtggahjsrmevwvbu.supabase.co"],
+    ["a port", "https://dtdadtggahjsrmevwvbu.supabase.co:8443"],
+    ["a trailing slash", `${TEST_DATABASE_ORIGIN}/`],
+    ["a path", `${TEST_DATABASE_ORIGIN}/rest/v1`],
+    ["another case", TEST_DATABASE_ORIGIN.toUpperCase()],
+  ];
+  for (const [label, origin] of refused) {
+    expect(isTestDatabase(origin), label).toBe(false);
   }
 });

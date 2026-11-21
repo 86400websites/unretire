@@ -5,7 +5,7 @@ import {
   readReport,
   recordArrival,
   recordSignup,
-  reportDatabaseRef,
+  reportTestDatabase,
   resetReport,
 } from "../../../src/lib/webinar/report-store";
 import { SOURCE_KEYS } from "../../../src/lib/webinar/sources";
@@ -93,6 +93,11 @@ let allLogged: string[] = [];
 let unscripted = 0;
 /** How the Data API answers. Null: every request is one no test scripted. */
 let database: Answer | null = null;
+/**
+ * The Data API every request of a test must go to (checked in afterEach): the
+ * fake project's, unless a test configures another address and says so here.
+ */
+let dataApi = REST;
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -201,6 +206,7 @@ test.beforeEach(() => {
   allLogged = [];
   unscripted = 0;
   database = null;
+  dataApi = REST;
 
   // Every console method a line can leave by: a reset's success line is
   // console.info, and the privacy checks in afterEach must see it too.
@@ -259,7 +265,7 @@ test.afterEach(() => {
 
   for (const call of allCalls) {
     expect(
-      call.url.startsWith(`${REST}/`),
+      call.url.startsWith(`${dataApi}/`),
       "a request went somewhere other than the Data API",
     ).toBe(true);
     expect(call.signal, "a request was made without a timeout").toBeInstanceOf(
@@ -734,34 +740,94 @@ test.describe("S6.2 report store — starting again for a new webinar", () => {
   });
 });
 
-test.describe("S6.2 report store — which database (the independent review's round 2, Finding 1)", () => {
-  test("PG-016 the report names its database: the project in the address every request of this module goes to", async () => {
-    // beforeEach points the module at https://dummy-project-ref.supabase.co.
-    expect(reportDatabaseRef()).toBe("dummy-project-ref");
+test.describe("S6.2 report store — which database (the independent review: round 2, Finding 1; round 3, Finding 1)", () => {
+  /** unretire-test's whole origin (its project ref: supabase/migrations/README.md). */
+  const TEST_DATABASE = "https://dtdadtggahjsrmevwvbu.supabase.co";
 
-    // And that is where a request really goes: the name is not a second,
-    // separate setting that could say one thing while the client does another.
-    database = routes({ [REPORT_RPC]: () => json(200, []) });
+  test("PG-016 the report carries the test database's marker when that is exactly where every request of this module goes", async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = TEST_DATABASE;
+    dataApi = `${TEST_DATABASE}/rest/v1`;
+    expect(reportTestDatabase()).toBe(TEST_DATABASE);
+
+    // And that is where a request really goes: the marker is not a second,
+    // separate setting that could say one thing while the client does
+    // another. (The stub answers; nothing leaves this machine.)
+    database = routes({
+      [`POST ${TEST_DATABASE}/rest/v1/rpc/campaign_report`]: () =>
+        json(200, []),
+    });
     await readReport();
     expect(calls).toHaveLength(1);
-    expect(new URL(calls[0]!.url).hostname).toBe(
-      `${reportDatabaseRef()}.supabase.co`,
-    );
+    expect(new URL(calls[0]!.url).origin).toBe(reportTestDatabase());
   });
 
-  test("PG-016 the name follows the configured address, and is null when there is none to read", async () => {
+  test("PG-016 no other address gets the marker: the configured value must be the test database's origin as written, character for character", async () => {
+    // beforeEach points the module at https://dummy-project-ref.supabase.co:
+    // some other project.
+    expect(reportTestDatabase()).toBeNull();
+
     const cases: [string, string | undefined, string | null][] = [
+      ["the test project", TEST_DATABASE, TEST_DATABASE],
       [
-        "the test project",
-        "https://dtdadtggahjsrmevwvbu.supabase.co",
-        "dtdadtggahjsrmevwvbu",
+        "the test project, with the one trailing slash a pasted address can have",
+        `${TEST_DATABASE}/`,
+        TEST_DATABASE,
+      ],
+      ["the live project", "https://hcjivvlwxltyiycfbttc.supabase.co", null],
+      ["another project", "https://abcdefghijklmnopqrst.supabase.co", null],
+      // The independent review's round 3, Finding 1: the test project's name
+      // as the first label of ANOTHER domain — a gateway that could route
+      // anywhere — is not the test database.
+      [
+        "the right first label on a different domain",
+        "https://dtdadtggahjsrmevwvbu.gateway.invalid",
+        null,
       ],
       [
-        "the live project",
-        "https://hcjivvlwxltyiycfbttc.supabase.co",
-        "hcjivvlwxltyiycfbttc",
+        "the right host as a label of another domain",
+        `${TEST_DATABASE}.evil.invalid`,
+        null,
       ],
-      ["a trailing path", "https://abc123.supabase.co/rest/v1", "abc123"],
+      [
+        "the right host in another one's path",
+        "https://evil.invalid/dtdadtggahjsrmevwvbu.supabase.co",
+        null,
+      ],
+      [
+        "the right host as another one's credentials",
+        `${TEST_DATABASE}@evil.invalid`,
+        null,
+      ],
+      // The right host, spelt any other way: nothing is parsed, so nothing
+      // is forgiven.
+      ["a path", `${TEST_DATABASE}/rest/v1`, null],
+      ["two trailing slashes", `${TEST_DATABASE}//`, null],
+      ["a trailing backslash", `${TEST_DATABASE}\\`, null],
+      ["a query", `${TEST_DATABASE}/?to=elsewhere`, null],
+      ["an empty query", `${TEST_DATABASE}?`, null],
+      ["a fragment", `${TEST_DATABASE}/#x`, null],
+      ["an empty fragment", `${TEST_DATABASE}#`, null],
+      ["a port", `${TEST_DATABASE}:8443`, null],
+      ["the default port, written out", `${TEST_DATABASE}:443`, null],
+      ["a trailing dot on the host", `${TEST_DATABASE}.`, null],
+      [
+        "a name and a password",
+        "https://user:pass@dtdadtggahjsrmevwvbu.supabase.co",
+        null,
+      ],
+      ["a name alone", "https://user@dtdadtggahjsrmevwvbu.supabase.co", null],
+      [
+        "a password alone",
+        "https://:pass@dtdadtggahjsrmevwvbu.supabase.co",
+        null,
+      ],
+      ["an empty name", "https://@dtdadtggahjsrmevwvbu.supabase.co", null],
+      ["http, not https", "http://dtdadtggahjsrmevwvbu.supabase.co", null],
+      ["another case", TEST_DATABASE.toUpperCase(), null],
+      ["a space before", ` ${TEST_DATABASE}`, null],
+      ["a space after", `${TEST_DATABASE} `, null],
+      ["a line break after", `${TEST_DATABASE}\n`, null],
+      ["a local database", "http://127.0.0.1:54321", null],
       ["not set", undefined, null],
       ["empty", "", null],
       ["not an address", "not a url", null],
@@ -769,7 +835,7 @@ test.describe("S6.2 report store — which database (the independent review's ro
     for (const [label, value, expected] of cases) {
       if (value === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
       else process.env.NEXT_PUBLIC_SUPABASE_URL = value;
-      expect(reportDatabaseRef(), label).toBe(expected);
+      expect(reportTestDatabase(), label).toBe(expected);
     }
   });
 });

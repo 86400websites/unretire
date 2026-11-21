@@ -11,7 +11,7 @@ import {
 } from "@/lib/webinar/report-auth";
 import {
   readReport,
-  reportDatabaseRef,
+  reportTestDatabase,
   type ReportData,
 } from "@/lib/webinar/report-store";
 import {
@@ -35,9 +35,11 @@ import {
  *   open   — the webinar's name, three cards (visits, registered,
  *            conversion), the where-from table and "Start again for a new
  *            webinar" (POST /report/reset, which asks for the password again).
- *            Only this state also names the database the numbers come from
- *            (data-report-db, the Supabase project's public name): the spec
- *            that resets the report reads it before it writes anything.
+ *            Only this state can also carry a database marker
+ *            (data-report-db), and only on a deployment whose numbers come
+ *            from the TEST database: that database's whole public address.
+ *            Every other deployment, Production included, carries none. The
+ *            spec that resets the report reads it before it writes anything.
  *   error  — signed in, but the numbers could not be read.
  *
  * Nothing is read from the database until the session check has passed. The
@@ -82,7 +84,7 @@ function Frame({
   children,
 }: {
   state: State;
-  /** The open report only: which database its numbers come from. */
+  /** The open report only, and only on the test database: its origin. */
   database?: string | null;
   children: ReactNode;
 }) {
@@ -168,7 +170,7 @@ function Open({
             : null;
 
   return (
-    <Frame state="open" database={reportDatabaseRef()}>
+    <Frame state="open" database={reportTestDatabase()}>
       <p className="mt-5 font-bold text-[var(--ur-navy)]">{COPY.hero.title}</p>
 
       <ul className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-5">

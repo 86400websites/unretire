@@ -882,8 +882,13 @@ Do these when I tell you **"ready for the Codex review"**.
 > be fixed (the reset test must prove it is on the test database) and two should be (a tab opened by another
 > tab; Toolkit-only sign-ups and the reset). All three are fixed, and this time I updated the test database
 > myself. You accepted one rare, written-down counting limit on 2026-11-22: *"Yes, accept it (Recommended)"*
-> (`docs/PROJECT-STATUS.md` D-68; in plain words in runbook §16.2). **Round 3:** the same three steps, 10.2h to
-> 10.2j, when I tell you again.
+> (`docs/PROJECT-STATUS.md` D-68; in plain words in runbook §16.2). You then ran round 3 the same way.
+>
+> **Round 3, 2026-11-22: REQUEST CHANGES** — everything from rounds 1 and 2 was found fixed. One finding was left,
+> and it had to be fixed: before the reset test deletes anything it checks that it is on the test database, and
+> that check read only the first part of the database's address. It now needs the whole address to match,
+> exactly. Fixed; nothing for you to do or decide, and nothing changed on the report you see or in either
+> database. **Round 4:** the same three steps, 10.2h to 10.2j, when I tell you again.
 
 ### 10.3 Before the merge — the live database, then the live values · 10 minutes
 

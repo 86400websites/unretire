@@ -14,7 +14,7 @@ import { guarded } from "./request-guard";
 import {
   isTestDatabase,
   isWorkflowPreview,
-  TEST_DATABASE_REF,
+  TEST_DATABASE_ORIGIN,
 } from "./test-database";
 
 /**
@@ -89,7 +89,8 @@ import {
  *      Deployments API (E2E_PREVIEW_ORIGIN, which only that workflow sets) —
  *      never an address typed by hand, a local server or the live site;
  *   2. before anything is stored or deleted, the signed-in report itself must
- *      say its numbers come from unretire-test (data-report-db). The sign-in
+ *      say its numbers come from unretire-test — by that database's whole
+ *      origin, exactly (data-report-db; round 3, Finding 1). The sign-in
  *      test reads it and FAILS if it names anything else, which stops every
  *      test after it; each test that stores or deletes checks it again.
  * The reset's other cases, a stale page among them, run without any database
@@ -162,8 +163,8 @@ const PREVIEW_ONLY =
   "against the Preview the E2E — Preview workflow resolved (E2E_PREVIEW_ORIGIN, which only that " +
   "workflow sets) — never against an address typed by hand, whose database this spec cannot know";
 const WRONG_DATABASE =
-  "the signed-in report did not say that its numbers come from the test database (data-report-db), so " +
-  "nothing is stored or reset";
+  "the signed-in report did not carry the test database's marker (data-report-db: that database's whole " +
+  "origin, exactly), so nothing is stored or reset";
 
 function getPage(
   api: APIRequestContext,
@@ -337,8 +338,8 @@ function testPassword(): string {
 
 /**
  * Proof 2 (see WHAT IT WRITES): what the signed-in report says its database
- * is — the Supabase project named by data-report-db — read by the sign-in
- * test, before anything is stored or deleted. Null until then.
+ * is — the whole origin in data-report-db — read by the sign-in test, before
+ * anything is stored or deleted. Null until then.
  */
 let database: string | null = null;
 
@@ -503,7 +504,8 @@ function reportRoot(page: Page) {
 
 /**
  * The names of the data the page root carries: its state — and, on the open
- * report only, the name of its database (data-report-db).
+ * report of a deployment that uses the test database only, that database's
+ * marker (data-report-db).
  */
 async function rootData(page: Page): Promise<string[]> {
   return reportRoot(page).evaluate((el) =>
@@ -965,17 +967,19 @@ test.describe("PG-016 — allowed: with the test password", () => {
     const html = await signedInHtml(api, "/report");
     expect(hasNumbers(html)).toBe(true);
 
-    // PROOF 2, before any test stores or deletes: the report names the
-    // database its numbers come from, and it is the test one. Anything else —
-    // a Preview given the live database's values, or a build that does not
-    // say — FAILS here, and in this serial file that stops every test after
-    // it: no visit is stored and nothing is reset.
+    // PROOF 2, before any test stores or deletes: the report carries the
+    // test database's marker — that database's whole origin, which the page
+    // gives only when it is exactly where its numbers come from. No marker —
+    // a Preview given the live database's values, or an address that only
+    // begins with the test project's name — or any other value FAILS here,
+    // and in this serial file that stops every test after it: no visit is
+    // stored and nothing is reset.
     database = attribute(html, "data-report-db") || null;
     expect(
       database,
-      "this deployment's report does not use the test database, unretire-test (or does not say which it " +
-        "uses): its Supabase values are wrong for a Preview, and nothing may be stored or reset on it",
-    ).toBe(TEST_DATABASE_REF);
+      "this deployment's report does not carry the test database's marker — its address is not exactly " +
+        "unretire-test's: its Supabase values are wrong for a Preview, and nothing may be stored or reset on it",
+    ).toBe(TEST_DATABASE_ORIGIN);
   });
 
   test("PG-016 open, in a real browser: the form signs in; the webinar's name, three cards, eight rows in order and a total, each conversion its own ratio, and the reset form — in the copy's words", async ({
@@ -1037,11 +1041,11 @@ test.describe("PG-016 — allowed: with the test password", () => {
       "a script on the page can read the session",
     ).toBe(false);
 
-    // The open report's root carries its state and the name of its database
-    // — the test one, which the sign-in test read before any write — and
-    // nothing else. (Off and locked, above, carry the state alone.)
+    // The open report's root carries its state and the test database's
+    // marker — its whole origin, which the sign-in test read before any write
+    // — and nothing else. (Off and locked, above, carry the state alone.)
     expect(await rootData(page)).toEqual(["reportState", "reportDb"]);
-    await expect(root).toHaveAttribute("data-report-db", TEST_DATABASE_REF);
+    await expect(root).toHaveAttribute("data-report-db", TEST_DATABASE_ORIGIN);
 
     // The page around the numbers: the heading, then the webinar's name —
     // the sign-up page's own title, so the two can never differ.

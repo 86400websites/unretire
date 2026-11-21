@@ -136,23 +136,39 @@ export type ReportData = {
 };
 
 /**
- * Which Supabase project this deployment's report reads and writes: the first
- * label of NEXT_PUBLIC_SUPABASE_URL's host — the address createAdminClient
- * (src/lib/supabase/admin.ts) gives every request this module makes. Null when
- * it cannot be read. Not a secret: it is the public part of the project's
- * address. The signed-in report carries it (data-report-db), so the one spec
- * that writes to and resets the report can check, before it does either, that
- * the deployment it is talking to uses the test database (the Codex review of
- * S6.2, round 2, Finding 1).
+ * The whole origin of unretire-test, the project's test database (its project
+ * ref is in supabase/migrations/README.md). A literal, never a setting: a
+ * value the environment could rewrite would be the deployment vouching for
+ * itself. Not a secret — it is that project's public address.
  */
-export function reportDatabaseRef(): string | null {
-  try {
-    const host = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname;
-    const ref = host.split(".")[0] ?? "";
-    return /^[a-z0-9-]{1,63}$/.test(ref) ? ref : null;
-  } catch {
-    return null;
-  }
+const TEST_DATABASE_ORIGIN = "https://dtdadtggahjsrmevwvbu.supabase.co";
+
+/**
+ * The test database's origin — when, and ONLY when, that is exactly where
+ * this deployment's report reads and writes. Null on every other deployment,
+ * Production included: the page then carries no database marker at all.
+ *
+ * The signed-in report carries the answer (data-report-db), so the one spec
+ * that writes to and resets the report can check, before it does either, that
+ * the deployment it is talking to uses the test database (the independent
+ * review of S6.2: round 2, Finding 1).
+ *
+ * EXACT, OR NOTHING (round 3, Finding 1). What is compared is
+ * NEXT_PUBLIC_SUPABASE_URL itself — the address createAdminClient
+ * (src/lib/supabase/admin.ts) gives every request this module makes — AS
+ * WRITTEN, character for character, with the test database's origin; one
+ * trailing slash, which a pasted address can have and the client ignores, is
+ * the only other spelling. Nothing is parsed, so nothing is normalised: a
+ * host that merely begins with the test project's name, a port (even :443),
+ * credentials, a path, a query, a fragment, another case or a stray space is
+ * a different string, and gets no marker.
+ */
+export function reportTestDatabase(): string | null {
+  const configured = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return configured === TEST_DATABASE_ORIGIN ||
+    configured === `${TEST_DATABASE_ORIGIN}/`
+    ? TEST_DATABASE_ORIGIN
+    : null;
 }
 
 /**
