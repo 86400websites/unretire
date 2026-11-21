@@ -868,9 +868,9 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 
 Do these when I tell you **"ready for the Codex review"**.
 
-- [ ] **10.2h** Open Codex in the project folder, the way you did for S6.1 (PART 9.3a).
-- [ ] **10.2i** Ask it to run the review in `docs/code-reviews/S6.2-webinar-report-review.md`.
-- [ ] **10.2j** When it finishes, copy its whole answer and paste it to me. If it finds problems, I fix them and we run it again. We go on to 10.3 only when it says **APPROVE**.
+- [x] **10.2h** *(Done 2026-11-22, four rounds.)* Open Codex in the project folder, the way you did for S6.1 (PART 9.3a).
+- [x] **10.2i** *(Done 2026-11-22.)* Ask it to run the review in `docs/code-reviews/S6.2-webinar-report-review.md`.
+- [x] **10.2j** *(Done 2026-11-22: round 4 said **APPROVE**.)* When it finishes, copy its whole answer and paste it to me. If it finds problems, I fix them and we run it again. We go on to 10.3 only when it says **APPROVE**.
 
 > **Round 1, 2026-11-21: REQUEST CHANGES** — three findings that had to be fixed and one that should be, all now
 > fixed (the record and my answers are in `docs/code-reviews/S6.2-webinar-report-review.md`). You approved the
@@ -888,7 +888,10 @@ Do these when I tell you **"ready for the Codex review"**.
 > and it had to be fixed: before the reset test deletes anything it checks that it is on the test database, and
 > that check read only the first part of the database's address. It now needs the whole address to match,
 > exactly. Fixed; nothing for you to do or decide, and nothing changed on the report you see or in either
-> database. **Round 4:** the same three steps, 10.2h to 10.2j, when I tell you again.
+> database. You then ran round 4 the same way.
+>
+> **Round 4, 2026-11-22: ✅ APPROVE — no findings.** The review is finished. Next is 10.3, below: the live
+> database, the two live values, then the merge.
 
 ### 10.3 Before the merge — the live database, then the live values · 10 minutes
 
