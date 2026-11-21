@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures";
+import { guarded } from "../webinar/request-guard";
 
 /**
  * Sprint S4.5c — the red→green proof for Known issue 5, pre-launch review
@@ -320,5 +321,295 @@ test.describe("PR-001/PR-002 — the public write endpoints are guarded", () => 
     expect(limited!.body.toLowerCase()).not.toContain("mailchimp");
     expect(limited!.body.toLowerCase()).not.toContain("zoom");
     expect(limited!.body).not.toContain('"ok":true');
+  });
+
+  /**
+   * PR-010 — POST /api/conversation/arrival, the webinar report's visit
+   * counter (Sprint S6.2).
+   *
+   * A bucket of its own (endpoint "conversation-arrival", 60 a minute) —
+   * src/app/api/conversation/arrival/route.ts. Elsewhere in the suite only
+   * tests/e2e/webinar/report-page.spec.ts sends it a real visit (one, and it
+   * waits out a 429 if the burst below has just filled the bucket); the
+   * browser specs answer the counter's requests in the browser.
+   *
+   * ⚠ EVERY PAYLOAD BELOW IS INVALID. A valid one would be STORED as a visit
+   * and show on the owner's report. Each is refused by the route's own checks
+   * before anything is written: the body is not JSON, or it has no `source`,
+   * or its `source` is not exactly one of the report's eight keys.
+   *
+   * The route decides the funnel's state FIRST: dormant answers 404 and
+   * closed 409 to everything, before the limiter and the body. So each test
+   * asks for the page with a GET, which costs the bucket nothing, and skips,
+   * visibly, unless registration is open.
+   *
+   * The user agent is an ordinary browser's, on purpose: the route answers a
+   * robot with 204 before the limiter and the validator, so what the test
+   * client happens to call itself must never decide what these tests prove.
+   */
+  const ARRIVAL_LIMIT = 60;
+  const ARRIVAL_UA =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+  const ARRIVAL_DORMANT_SKIP =
+    "the webinar funnel is dormant on this deployment; /api/conversation/arrival answers 404 to everything";
+  const ARRIVAL_CLOSED_SKIP =
+    "registration has closed on this deployment; /api/conversation/arrival answers 409 to everything";
+
+  test("PR-010 an invalid visit is answered by the app, not by a failed control", async ({
+    api,
+  }) => {
+    const funnel = await guarded("GET /conversation", () =>
+      api.get("/conversation", { failOnStatusCode: false }),
+    );
+    test.skip(funnel.status() === 404, ARRIVAL_DORMANT_SKIP);
+    test.skip(
+      (await funnel.text()).includes('data-conv-state="closed"'),
+      ARRIVAL_CLOSED_SKIP,
+    );
+
+    // The fail-closed tripwire for this bucket: 400 means the limiter let the
+    // request through to the route's own check; 429 on the FIRST request
+    // means the control could not be applied and no visit can be counted.
+    const res = await guarded("POST /api/conversation/arrival", () =>
+      api.post("/api/conversation/arrival", {
+        data: { source: "no-such-source" },
+        headers: { "User-Agent": ARRIVAL_UA },
+        failOnStatusCode: false,
+      }),
+    );
+
+    expect(
+      res.status(),
+      "429 here means the abuse control is failing closed and no visit can be counted — " +
+        "check that migrations 0003 and 0004 are applied to this environment's database",
+    ).toBe(400);
+    expect(await res.text(), "a refusal has no body").toBe("");
+    expect(res.headers()["cache-control"]).toBe("no-store");
+  });
+
+  test("PR-010 /api/conversation/arrival refuses anything but one of the eight keys, and echoes nothing", async ({
+    api,
+  }) => {
+    const funnel = await guarded("GET /conversation", () =>
+      api.get("/conversation", { failOnStatusCode: false }),
+    );
+    test.skip(funnel.status() === 404, ARRIVAL_DORMANT_SKIP);
+    test.skip(
+      (await funnel.text()).includes('data-conv-state="closed"'),
+      ARRIVAL_CLOSED_SKIP,
+    );
+
+    // Eleven requests, so with the one above the burst below still starts
+    // well inside the allowance. Never a valid key — see the note above. (A
+    // body not declared as JSON is refused before the limiter: the next test.)
+    const json = "application/json";
+    const rejected: { label: string; body: string; type: string }[] = [
+      { label: "an empty body", body: "", type: json },
+      { label: "no source", body: "{}", type: json },
+      { label: "the wrong case", body: '{"source":"LinkedIn"}', type: json },
+      { label: "a padded key", body: '{"source":" other"}', type: json },
+      {
+        label: "not one of the eight",
+        body: '{"source":"tiktok"}',
+        type: json,
+      },
+      { label: "a number", body: '{"source":7}', type: json },
+      { label: "a list", body: '{"source":["linkedin"]}', type: json },
+      { label: "a list body", body: '["linkedin"]', type: json },
+      { label: "a string body", body: '"linkedin"', type: json },
+      // The server never reads link tags: the browser turns them into a key.
+      {
+        label: "link tags",
+        body: '{"utm_source":"linkedin","utm_medium":"social"}',
+        type: json,
+      },
+      {
+        label: "markup",
+        body: '{"source":"<script>S62-ECHO</script>"}',
+        type: json,
+      },
+    ];
+
+    for (const { label, body, type } of rejected) {
+      const res = await guarded("POST /api/conversation/arrival", () =>
+        api.post("/api/conversation/arrival", {
+          data: body,
+          headers: { "Content-Type": type, "User-Agent": ARRIVAL_UA },
+          failOnStatusCode: false,
+        }),
+      );
+      // The route's own 400 — not the limiter's 429, and never a stored 204.
+      expect(res.status(), label).toBe(400);
+      // No body at all: nothing sent is ever echoed.
+      expect(await res.text(), label).toBe("");
+      expect(res.headers()["cache-control"], label).toBe("no-store");
+    }
+  });
+
+  test("PR-010 only this site's own page can count a visit: another site's request is refused with 403 and a body not declared as JSON with 415, before the limiter", async ({
+    api,
+  }) => {
+    const funnel = await guarded("GET /conversation", () =>
+      api.get("/conversation", { failOnStatusCode: false }),
+    );
+    test.skip(funnel.status() === 404, ARRIVAL_DORMANT_SKIP);
+    test.skip(
+      (await funnel.text()).includes('data-conv-state="closed"'),
+      ARRIVAL_CLOSED_SKIP,
+    );
+
+    // Codex review of S6.2, Finding 3: any web page could make its own
+    // visitors' browsers post here — a plain-text or form post needs no
+    // permission — and each would be a counted visit. Like everything in this
+    // file the key is INVALID, so a broken gate answers 400 — still a failure
+    // of each check below — and stores nothing. Both checks come before the
+    // limiter, so none of these costs the bucket anything.
+    const valid = '{"source":"S62-not-a-key"}';
+    const refused: {
+      label: string;
+      headers: Record<string, string>;
+      status: number;
+    }[] = [
+      {
+        label: "JSON sent as plain text, as another site's page can",
+        headers: { "Content-Type": "text/plain" },
+        status: 415,
+      },
+      {
+        label: "a form post",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        status: 415,
+      },
+      {
+        label: "another site's Origin",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://evil.example",
+        },
+        status: 403,
+      },
+      {
+        label: "an opaque Origin",
+        headers: { "Content-Type": "application/json", Origin: "null" },
+        status: 403,
+      },
+      {
+        label: "Sec-Fetch-Site: cross-site",
+        headers: {
+          "Content-Type": "application/json",
+          "Sec-Fetch-Site": "cross-site",
+        },
+        status: 403,
+      },
+    ];
+    for (const { label, headers, status } of refused) {
+      const res = await guarded("POST /api/conversation/arrival", () =>
+        api.post("/api/conversation/arrival", {
+          data: valid,
+          headers: { ...headers, "User-Agent": ARRIVAL_UA },
+          failOnStatusCode: false,
+        }),
+      );
+      expect(res.status(), label).toBe(status);
+      expect(await res.text(), label).toBe("");
+      expect(res.headers()["cache-control"], label).toBe("no-store");
+    }
+  });
+
+  test("PR-010 a burst of visits past the limit is refused, and says when to come back", async ({
+    api,
+  }) => {
+    const funnel = await guarded("GET /conversation", () =>
+      api.get("/conversation", { failOnStatusCode: false }),
+    );
+    test.skip(funnel.status() === 404, ARRIVAL_DORMANT_SKIP);
+    test.skip(
+      (await funnel.text()).includes('data-conv-state="closed"'),
+      ARRIVAL_CLOSED_SKIP,
+    );
+    // About fifty more round trips — up to three allowances if the minute
+    // turns over mid-burst. The loop is bounded: a limiter that never fires
+    // fails the test rather than hanging.
+    test.setTimeout(150_000);
+
+    let limited: {
+      retryAfter: string | null;
+      cacheControl: string | null;
+      body: string;
+    } | null = null;
+
+    for (
+      let attempt = 0;
+      attempt < ARRIVAL_LIMIT * 3 && !limited;
+      attempt += 1
+    ) {
+      const res = await guarded("POST /api/conversation/arrival", () =>
+        api.post("/api/conversation/arrival", {
+          data: { source: "S62-not-a-key" },
+          headers: { "User-Agent": ARRIVAL_UA },
+          failOnStatusCode: false,
+        }),
+      );
+      if (res.status() === 429) {
+        limited = {
+          retryAfter: res.headers()["retry-after"] ?? null,
+          cacheControl: res.headers()["cache-control"] ?? null,
+          body: await res.text(),
+        };
+      } else {
+        // Until the limit is reached, the route's own check is what answers.
+        expect(res.status()).toBe(400);
+      }
+    }
+
+    expect(
+      limited,
+      `no 429 after ${ARRIVAL_LIMIT * 3} invalid visits — the visit counter is not rate limited`,
+    ).not.toBeNull();
+    // Whole seconds, within the limiter's one-minute window.
+    expect(
+      limited!.retryAfter,
+      "a refused caller must be told when to come back",
+    ).toMatch(/^\d+$/);
+    expect(Number(limited!.retryAfter)).toBeGreaterThan(0);
+    expect(Number(limited!.retryAfter)).toBeLessThanOrEqual(60);
+    expect(limited!.cacheControl).toBe("no-store");
+    expect(limited!.body, "the refusal echoed the request").not.toContain(
+      "S62-not-a-key",
+    );
+  });
+
+  test("PR-010 a robot is answered 204 before anything is read — and nothing is stored", async ({
+    api,
+  }) => {
+    const funnel = await guarded("GET /conversation", () =>
+      api.get("/conversation", { failOnStatusCode: false }),
+    );
+    test.skip(funnel.status() === 404, ARRIVAL_DORMANT_SKIP);
+    test.skip(
+      (await funnel.text()).includes('data-conv-state="closed"'),
+      ARRIVAL_CLOSED_SKIP,
+    );
+
+    // Invalid on purpose, like everything in this file: a robot is answered
+    // before the body is read, so a body that is not even JSON still gets the
+    // quiet 204 — and could not be stored if the robot check were missing,
+    // because the validator would then refuse it with 400 instead.
+    for (const robot of [
+      "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+      "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36",
+    ]) {
+      const res = await guarded("POST /api/conversation/arrival", () =>
+        api.post("/api/conversation/arrival", {
+          data: "not json",
+          headers: { "Content-Type": "text/plain", "User-Agent": robot },
+          failOnStatusCode: false,
+        }),
+      );
+      expect(res.status(), robot).toBe(204);
+      expect(await res.text(), robot).toBe("");
+      expect(res.headers()["cache-control"], robot).toBe("no-store");
+    }
   });
 });

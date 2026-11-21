@@ -2,7 +2,7 @@
 
 - **Source:** `src/app/privacy/page.tsx`, rendered through the shared shell `src/app/LegalPage.tsx`
 - **Extracted:** 2026-11-13 (Sprint S6.1), on branch `claude/s6.1-webinar-funnel` (cut from `origin/master` 7b754f5)
-- **Status:** Sections 1 to 12 are the approved baseline (shipped site — per the retrofit content policy in `docs/content/README.md`). Section 13 records the three additions the owner approved on 2026-11-14 (his words: "privacy ok"); they are now part of sections 2, 4 and 5 below and of the page.
+- **Status:** Sections 1 to 12 are the approved baseline (shipped site — per the retrofit content policy in `docs/content/README.md`). Section 13 records the three additions the owner approved on 2026-11-14 (his words: "privacy ok"); they are now part of sections 2, 4 and 5 below and of the page. Section 14 holds the Sprint S6.2 proposals (the analytics sentence, the rest of Known issue 63, and the site's own abuse limit and database), ~~NEW — waiting for the owner's approval at Gate B~~ **not adopted**: on 2026-11-21 the owner kept the page as it is (`docs/PROJECT-STATUS.md` D-66); nothing in it is on the page.
 
 Copy below is verbatim from the shipped page, in section order. JavaScript string escapes
 are rendered as their display characters (`“` `”` → “ ”, `—` → —); the
@@ -66,6 +66,7 @@ Lines marked **Note:** are record-keeping, not copy. The page has no images.
 > (`src/app/layout.tsx:11` and `:121`). It is recorded here because it is what the shipped page
 > says. The correction is `docs/PROJECT-STATUS.md` Known issue 63 and belongs to Sprint S6.2;
 > section 13 below does not touch it.
+> **Sprint S6.2:** the proposed correction is section 14 (a) below.
 
 ## 7. How long we keep it
 
@@ -136,3 +137,71 @@ numbers under "Where" are the numbers before the additions.
 > describe that. Third, the older `/webinar` page also sends a last name and a country to
 > Mailchimp when the visitor gives them (`src/app/api/webinar/route.ts:103-104` and its
 > header comment); (a) describes the new webinar page only.
+
+---
+
+## 14. Proposed additions — Sprint S6.2 (NOT ADOPTED — the owner kept the page as it is, 2026-11-21)
+
+~~**Not approved yet.**~~ **Not adopted — the owner, 2026-11-21, verbatim: *"As for privacy policy, keep as is."*** Asked whether he meant these sentences or the page as it is, he chose "Leave the page unchanged" (`docs/PROJECT-STATUS.md` D-66). So `src/app/privacy/page.tsx` is unchanged, Known issue 63 stays open, and the drafts below stay as written, for whenever the page is next corrected: they are not approved copy. Drafted 2026-11-20 (Sprint S6.2, `docs/sprint-prompts/S6.2-webinar-report.md` step 3).
+They close the rest of `docs/PROJECT-STATUS.md` Known issue 63: the analytics sentence, a Premium purchase
+adding the buyer to the email list, and the older `/webinar` page's extra fields. (f) and (g), added after the
+S6.2 review of 2026-11-20, say what the page never said about the site's own abuse limit and database. Every claim was checked
+against the code named under **Why**, and the Vercel Web Analytics claims against Vercel's own pages, read on
+2026-11-20. `src/app/privacy/page.tsx` changes only after the owner approves these words. The item numbers
+under "Where" are the numbers on the page today.
+
+### (a) Cookies — the analytics sentence (replaces section 6, paragraph 1)
+
+- **Where:** section 6, "Cookies" — replaces paragraph 1, "We do not use advertising or tracking cookies, and there is no analytics tracking on this site." Paragraph 2 stays as it is, after the three paragraphs below.
+- **Proposed copy (NEW — needs owner approval), three paragraphs:**
+  1. We do not use advertising or tracking cookies. We do count visits, in two ways that set no cookie.
+  2. First, Vercel Web Analytics, a tool of our hosting provider, counts page views across the site: the page, the site that sent you there, your browser and operating system, your type of device and your rough location. It recognises a returning visitor for one day only, and its counts are not tied to your name, your email address or your IP address.
+  3. Second, on our webinar page we count each visit and note which site or app sent you there, LinkedIn or Instagram for example, so we can see which platforms bring people to the page. Your browser tab remembers that the visit was counted until you close it, so a reload is not counted twice. If you then register or ask for the Toolkit, we keep a scrambled code made from your email address, so each person is counted once. The code is made with a secret key that stays on our server, and we keep it only with the webinar it belongs to, the site or app that sent you when you first signed up, and when you signed up and registered — never with your address.
+- **Why:**
+  - Vercel Web Analytics is on every page (`src/app/layout.tsx:11` and `:121`, a plain `<Analytics />`). Vercel's overview, https://vercel.com/docs/analytics: "Web Analytics only stores anonymized data and does not use cookies"; "visitors are identified by a hash created from the incoming request"; "The generated hash is valid for a single day, at which point it is automatically reset." Vercel's Privacy and Compliance page, https://vercel.com/docs/analytics/privacy-policy, lists what is stored with each data point (time, URL, path, referrer, filtered query parameters, location to city level, operating system, browser, device type, script version) and says the data is not "tied to or associated with any individual, customer, or IP address".
+  - The sign-up page's own counting: `src/app/conversation/ArrivalCounter.tsx` and `src/app/conversation/tab-source.ts` (one count per browser tab, remembered in the tab's sessionStorage — no cookie); `src/app/api/conversation/arrival/route.ts` and `src/lib/webinar/report-store.ts` (stored with the count: the campaign, the site or app, the time — never an IP address, browser details or the address of the page; the visit first passes the site's abuse limit, which is (f) below). The scrambled code: `personCode` in `src/lib/webinar/report-store.ts`, a keyed one-way hash (HMAC-SHA256 with `REPORT_SECRET`, which stays on the server); migration `supabase/migrations/0005_campaign_report.sql` stores the code with the campaign, the source of the person's first accepted sign-up (either form — the key their tab remembered then), the first sign-up time and the first registration time (`campaign_people`: `campaign`, `person`, `source`, `created_at`, `registered_at`), never the address. "Our webinar page" is the name section 4, item 4 already uses for `/conversation`; the older page is "our older webinar page" in (e), and it has no counter. "Never with your address" is the honest claim, not "cannot be turned back": whoever holds the key and an address can make that address's code again, which is how a returning person is recognised.
+  - "set no cookie" covers visitors. The private `/report` page sets one sign-in cookie for the owner's team only; paragraph 2's "the cookies we do set are the ones that make signing in work" already describes that kind of cookie.
+- **Note:** Vercel describes Web Analytics, not its whole platform: its platform-wide privacy notice (https://vercel.com/legal/privacy-notice) says it collects visitors' IP addresses with ordinary traffic. That is the request logging the page already describes in section 4, item 7, and in section 5's Vercel item.
+
+### (b) Who processes it — Vercel (section 5, item 7)
+
+- **Where:** section 5, "Who processes it for us" — the **Vercel** item.
+- **Today:** **Vercel** — hosting and request logs.
+- **Proposed copy (NEW — needs owner approval):** **Vercel** — hosting, request logs and page-view counts (Vercel Web Analytics).
+- **Why:** as (a).
+
+### (c) What we collect — the webinar sign-up page (new item after section 4, item 4)
+
+- **Where:** section 4, "What we collect, and why" — a new list item after item 4 ("If you register for a webinar, …") and before item 5 ("If you use the contact, community or enterprise form: …").
+- **Proposed copy (NEW — needs owner approval):** **If you visit our webinar page:** a count of your visit and the site or app that sent you there; the count itself holds nothing that identifies you. If you register or ask for the Toolkit there, also the scrambled code described under Cookies.
+- **Why:** as (a). "The count itself" because the visit also passes the abuse limit of item 7, which (f) describes.
+
+### (d) What we collect — a Premium purchase (section 4, item 2)
+
+- **Where:** section 4, item 2 ("If you buy the course or Premium: …") — a new sentence after "… so we stop sending you offers for something you own." and before "**We never see or store your card details.**", which stays the item's last sentence.
+- **Proposed copy (NEW — needs owner approval):** If you buy Premium, we also add you to our email list if you are not on it already, and tag you there as a Premium member so our Premium emails reach you. If you unsubscribed before, this does not subscribe you again.
+- **Why:** `tagPremiumMember` in `src/app/api/stripe/webhook/route.ts` (called for a Premium purchase only, after the paid grant): a Mailchimp upsert with `status_if_new: "subscribed"` — which sets the status of a NEW contact only, so an existing unsubscribed contact keeps its status — then the tag `premium`.
+
+### (e) What we collect — the older webinar page (section 4, item 4)
+
+- **Where:** section 4, item 4 ("If you register for a webinar, or ask for the Toolkit on the webinar page: …") — a new last sentence.
+- **Proposed copy (NEW — needs owner approval):** Our older webinar page also asks for your last name and your country.
+- **Why:** `src/app/webinar/WebinarForm.tsx` sends `lastName` (optional) and `country` (a list that starts on South Africa); `src/app/api/webinar/route.ts` passes them to Mailchimp as the merge fields LNAME and COUNTRY.
+
+### (f) What we collect — automatically: the abuse limit (section 4, item 7)
+
+- **Where:** section 4, item 7 ("**Automatically:** ordinary web-server request logs kept by our hosting provider, …") — a new last sentence.
+- **Proposed copy (NEW — needs owner approval):** To stop abuse, our site also keeps a scrambled form of your IP address when you send most of our forms or open our webinar page, so it can limit how often the same connection does that. It is deleted automatically the next time someone uses one of those forms or that page, ten minutes or more later.
+- **Why:** `src/lib/rate-limit.ts` (`bucketFor`: an unkeyed SHA-256 of the endpoint name and the IP address, stored in `rate_limits`, migration `0003`) runs for the contact, community and enterprise forms (`/api/form`), the email sign-ups — newsletter, assessment and free downloads (`/api/subscribe`) — the webinar sign-ups on `/conversation` (`/api/conversation`) and, new in S6.2, each counted visit to that page (`/api/conversation/arrival`), plus the report's own password and reset routes (list them with `grep -rn "checkRateLimit(" src`). "Most": the older `/webinar` form (`/api/webinar`), the account forms (create account, log in, forgot password — `src/app/auth/actions.ts`) and the signed-in members' routes do not use it. **When rows go:** each ACCEPTED request to a rate-limited route deletes every route's rows that started more than ten of the calling route's windows earlier — about ten minutes when one of the public 60-second routes is used (`sweepExpired`, called only after a request is let through). Page views, a refused (429) request and the routes without the limiter delete nothing, so on a quiet site the rows stay until someone uses one of those forms or the page; no schedule deletes them. Hence the copy states the rule, not a period. Re-check this sentence when `docs/PROJECT-STATUS.md` Known issue 71's fix changes the cutoff. Not new in S6.2 for the forms — the page has never said it — but S6.2 is the first to do it for someone who only opens a page (found by the S6.2 review, 2026-11-20).
+
+### (g) Who processes it — Supabase (section 5, item 1)
+
+- **Where:** section 5, "Who processes it for us" — the **Supabase** item.
+- **Today:** **Supabase** — accounts, sign-in sessions, and the record of what you have access to.
+- **Proposed copy (NEW — needs owner approval):** **Supabase** — accounts, sign-in sessions, the record of what you have access to and of your Premium downloads, our webinar counts and the scrambled sign-up codes, and the abuse limit.
+- **Why:** the webinar counts and codes are in Supabase (migration `0005`: `campaign_visits`, `campaign_people`); the abuse limit is (f) (`rate_limits`, migration `0003`); the Premium downloads record is section 4, item 6 (`book_downloads`, migration `0002`), which this item has never named.
+
+### What changes with them
+
+- **The date line (section 2):** "Last updated 14 November 2026" becomes the day the S6.2 pull request merges — section 11 promises a new date. The builder sets it just before the merge.
+- **Nothing about how long the counts are kept** is proposed: no code deletes them on a schedule, so the page promises no period.

@@ -7,6 +7,7 @@ import {
   type RegistrationForm,
 } from "@/lib/webinar/registration-payload";
 import { COPY, KNOWN_MESSAGES, REJECTION_COPY } from "./copy";
+import { sourceForSignup } from "./tab-source";
 
 /**
  * The register form on /conversation, and the form body it shares with the
@@ -122,6 +123,8 @@ export function SignupForm({
           firstName: checked.firstName,
           email: checked.email,
           [HONEYPOT_FIELD]: trap ? "on" : "",
+          // Where this tab came from, for the webinar report (Sprint S6.2).
+          source: sourceForSignup(),
         }),
       });
       const data: unknown = await response.json().catch(() => null);

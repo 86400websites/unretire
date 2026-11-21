@@ -143,7 +143,7 @@ Since 2026-11-14 the words and the design of each email are in your nine HTML fi
 Each email's Mailchimp name, subject, preview text, link addresses and send rule are in the paste sheet:
 `docs/content/email-copy/conv1.md`. This runbook does not repeat the emails. §9.5 lists only the words in them that change with the date.
 
-### 2.4 The five Vercel values — what each one is for
+### 2.4 The Vercel values — what each one is for
 
 You asked where these are used. Here is every place.
 
@@ -154,6 +154,8 @@ You asked where these are used. Here is every place.
 | `WEBINAR_OFFER_ENDS_AT` | The moment the offer closes | The deadline shown on the replay page, and the moment the offer block changes to "This offer has now closed." Empty = the replay page shows no offer at all. The offer also stays hidden until the replay link is set. | `2029-12-20T23:59:00+02:00` — always `23:59` on the last day, never `00:00` the next day | **Config** |
 | `WEBINAR_OFFER_CODE` | The discount code | Shown on the replay page as "Use code … at checkout." **It only shows the code.** The discount itself is the Stripe code you create in §9.3; the two must be the same word. | Letters, digits and hyphens only. 3 to 40 characters. Example: `TESTCODE` | **Config** |
 | `WEBINAR_REPLAY_URL` | The link to the recording | The "Watch the replay" link on the replay page. Empty = the replay page says "Coming Soon". | Starts with `https://` | **Config** |
+| `REPORT_PASSWORD` | The password of your report (§16.1). **Preview:** a test password. **Production:** your real one, used nowhere else. | The password boxes on `/report` (to open it, and to confirm a reset). Together with `REPORT_SECRET` it is the report's on/off switch: if either is missing or too short, the report says "This report isn't switched on yet." Changing it signs everyone out, you included. | 12 or more letters and digits, no spaces. Never the same in Preview and Production. Keep it in your password manager: Vercel never shows it again. | **Secret** |
+| `REPORT_SECRET` | 40 or more random letters and digits from a password generator. A different one for Preview and for Production. | Nobody ever types it. It locks the report's sign-in, and it turns each sign-up's email address into a scrambled code, so each person is counted once without the address being kept. Changing it signs everyone out, and anyone who signs up again afterwards counts as a new person. Set it once and leave it. | 40 or more letters and digits, no spaces | **Secret** |
 
 **Config** = you can read the value again later. **Secret** = write-only; Vercel never shows it again.
 
@@ -767,7 +769,7 @@ I then run the check and confirm that contact now carries `purchased-course` and
 
 Do not skip ahead. Each step depends on the one before.
 
-**Do not announce the webinar, and give nobody the page's address, until every step of §9 is done.** From the moment the live page is on (§9.4), anyone who signs up gets Email 1 at once.
+**Do not announce the webinar, and give nobody the page's address, until §9.1 to §9.8 are done — §9.9 is where your links go up.** From the moment the live page is on (§9.4), anyone who signs up gets Email 1 at once.
 
 **Before you start: send me the real details** (the list is in §9.5, Path A). I return the nine final files while you do §9.1 to §9.3.
 
@@ -844,6 +846,7 @@ Sandbox coupons and live coupons are separate. Making one does not make the othe
 Use §3.2. Tick **Production** only. Do not touch the **Preview** rows.
 
 - [ ] **Before you Redeploy:** the final Email 1 and Email 2 are already in their flows (§9.5), or both flows are paused (§5.4, steps 1 to 6). Until then the two flows still hold the sample date.
+- [ ] **The report — once, not every webinar:** migration 0005 has been run in Supabase `unretire-prod`, and `REPORT_PASSWORD` and `REPORT_SECRET` are set for **Production**. You did these before the report was merged (`docs/OWNER-ACTIONS.md` PART 10, item 10.3; what each value is: §2.4; the report itself: §16). If one is missing, do it now from there. The Redeploy below picks up the values.
 - [ ] `WEBINAR_ZOOM_URL` — **Edit** the Production row. Paste the invite link from §9.2.
 - [ ] `WEBINAR_STARTS_AT` — add it. Shape: `2029-12-13T16:00:00+02:00`.
 - [ ] `WEBINAR_OFFER_ENDS_AT` — add it. **23:59 on the last day**, for example `2029-12-20T23:59:00+02:00`. Never `00:00` the next day: Email 9 goes out at 09:00 on the offer-end date, and it would then be scheduled after the offer had closed.
@@ -1174,6 +1177,15 @@ For each person who has bought the course or Premium:
 4. Make your change.
 5. Schedule it again with the nine steps above.
 
+### 9.9 Reset your report, put your links up, then the phone test · 10 minutes
+
+Do these in order, as `docs/OWNER-ACTIONS.md` PART 10, item 10.4 lists them:
+
+- [ ] Reset your report, just before your first link goes up (§16.6). The reset deletes your team's practice visits and sign-ups, so the numbers start again from zero.
+- [ ] Put the links in your Instagram bio, one Instagram Story and one LinkedIn post (§16.4).
+- [ ] Do the phone test (10.4c to 10.4h). Your own taps stay in the numbers, a handful of visits; that is expected.
+- [ ] Only now give your team the links in §16.3, and only those.
+
 ## 10. Webinar week
 
 | When | What happens by itself | What you do |
@@ -1243,7 +1255,7 @@ If any of those five is missed, people get the wrong emails. When in doubt, use 
 - **The join link is not a door.** Anyone who has `…/conversation/join` reaches the meeting, registered or not. The meeting's own settings are the control.
 - **It does not email people who unsubscribed.** They see a message on the page saying we can't send email to that address, and they are not resubscribed. One case is different: a contact **you archived** who signs up again is put back on the list, because they have just asked for the emails. If that person had unsubscribed before you archived them, Mailchimp is expected to refuse, and they see the same message; this one case has not been tried against your real account.
 - **It does not deliver a Toolkit file or a workbook.** Neither file exists yet. Email 2's link opens `/tools`. Email 7's workbook link is still the placeholder `{{WORKBOOK_URL}}` for that reason.
-- **It does not count anything.** No analytics, no tracking links. That is a later sprint.
+- **It does not track people.** Since Sprint S6.2 it counts visits and sign-ups for your private report (section 16), but it keeps no names or email addresses for that, and it cannot tell you which post someone saw or whether a particular person came to the webinar.
 - **It does not change the old `/webinar` page** or add the new page to the sitemap. Both are small developer changes at go-live.
 
 ## 14. Troubleshooting
@@ -1392,4 +1404,266 @@ Four pages that are not Mailchimp's were also looked at, for the saved-template 
 - What Mailchimp does if the postal address is missing from the code. The extra-footer rule is written only for a missing unsubscribe link.
 - Whether Mailchimp hands the pasted code back to the job exactly as you pasted it. The first `check` after you paste shows it.
 
-Next step → `docs/OWNER-ACTIONS.md` Part 9 lists what this sprint needs from you, in order.
+## 16. Your report and tracking links (a few minutes at a time)
+
+Your report is a private page. For the current webinar it shows how many people visited the sign-up page, how many registered, the conversion (registered as a share of visits), and where they came from. Your team posts one fixed link per platform: that is how the report tells the platforms apart.
+
+Built in Sprint S6.2 (`docs/sprint-prompts/S6.2-webinar-report.md`). What that sprint needs from you, in order: `docs/OWNER-ACTIONS.md` PART 10.
+
+**Vendor screens change.** Every Meta, Instagram and LinkedIn click path in this section, and every GitHub and Supabase click path in `docs/OWNER-ACTIONS.md` PART 10, was checked against that vendor's own help page on **2026-11-20**. The pages are listed at the end of this section. Where a label could not be confirmed it says **(label not confirmed — tell me if your screen differs)**.
+
+**The report's own words are drafts** until you approve them (`docs/OWNER-ACTIONS.md` PART 10, item 10.2). This section quotes them as they are today. If you change one, I change this section to match.
+
+### 16.1 Open your report · 1 minute
+
+1. Open `https://www.unretireproject.com/report`.
+2. Type the report password in the **Password** box.
+3. Click **Open the report**.
+
+- No page of the site links to the report, and search engines are told not to list it. Give the address and the password only to people who should see the numbers.
+- It works on a phone too.
+- You stay signed in on that browser for 30 days.
+- The numbers change as people visit and sign up. Refresh the page to see the latest.
+- The password is the value of `REPORT_PASSWORD` in Vercel (§2.4). Vercel never shows it again, so keep it in your password manager.
+- To change the password: edit `REPORT_PASSWORD` for **Production** (§3.2), then Redeploy. That signs everyone out, you included.
+- **On the Preview** (the test copy), use the address I send you when we test, and your **test** password — never the real one. Sign in to Vercel if asked.
+
+What you may see instead:
+
+| You see | It means | What to do |
+|---|---|---|
+| "That password didn't work. Try again." | The password was mistyped | Type it again |
+| "Too many tries in a short time. Wait 10 minutes and try again." | Too many tries from one place in a short time | Wait 10 minutes |
+| "This report isn't switched on yet." | `REPORT_PASSWORD` or `REPORT_SECRET` is missing, or too short, in that copy of the site | Add or correct it (§2.4, §3.2), then Redeploy |
+| "The report couldn't load. Refresh the page in a minute." | The report could not read its numbers | Refresh in a minute. If it stays, tell me. |
+
+### 16.2 What each number means · 3 minutes to read
+
+At the top, under the title: the webinar's name, the same as on the sign-up page. Then:
+
+| On the report | What it counts |
+|---|---|
+| **Visits to the sign-up page** | Each time someone opens the sign-up page in a new browser tab. A reload in the same tab is not counted twice. One person on a phone and on a computer is two visits. Known robots and our own automated tests are left out. Counting stops when sign-ups close, at the start of the webinar. |
+| **Registered** | Each person who saved a seat — once, however many times they sign up. Counted the moment the sign-up page accepts the sign-up. Test sign-ups (addresses with `+ur-test-` or `+ur-e2e-`) are left out. Asking for the Toolkit alone is not registering. |
+| **Conversion** | Registered as a share of visits: registered ÷ visits, as a whole percentage. For example, 6 registered from 18 visits shows **33%**. With no visits yet it shows **—**. It is a guide, not an exact rate: one person on a phone and on a computer counts as two visits. |
+| **Where people came from** | The same visits and registrations, split by the link people used (§16.3), each row with its own conversion. The rows: **LinkedIn**, **Instagram**, **Facebook**, **WhatsApp**, **Email newsletter**, **Instagram & Facebook ads**, **LinkedIn ads** and **Other / unknown**. The columns: **Where from**, **Visits**, **Registered** and **Conversion**. |
+| **Total** | The last row of the table. It matches the cards. |
+
+**A person stays in the row of their first sign-up** — the link they used the first time they signed up, for a seat or for the Toolkit. Someone who asked for the Toolkit from your Instagram link, and saves a seat later from anywhere else, stays in **Instagram**.
+
+**What the report cannot tell you:**
+
+- **Which post did best.** It counts platforms, not posts. Each platform's own statistics show which of your posts did best.
+- **Who came to the webinar.** The report counts visits and sign-ups, not who joined on Zoom.
+- **Course or Premium sales.** The report does not count them.
+- **Where some app users came from.** Someone who taps a plain link to the sign-up page — not one of yours — inside the Instagram app lands in **Other / unknown** if the app hides where they came from. With your Instagram link they land in **Instagram**. The same goes for any app.
+
+**Good to know:**
+
+- **The report will not match Mailchimp exactly.** Mailchimp also holds your test contacts and the people who signed up before your last reset (§16.6). And the report counts someone whose address Mailchimp will not email, such as someone who unsubscribed in the past: they did sign up.
+- **A row can show more registrations than visits**, and so a conversion over 100%. A visit is counted by the visitor's own browser, and now and then a browser or a blocker stops it. A sign-up is counted by the site itself. And a person stays in the row of their first sign-up, even when this visit came from another link.
+- **Vercel's own Analytics page shows other numbers.** It counts every page view, and it cannot tie a visit to a sign-up. For the webinar, use this report.
+- **When a website opens your sign-up page in a new tab.** That tab is counted as its own visit, under its own link. One rare case is a known limit, which you accepted on 2026-11-22: if the first tab is then closed (or that website cuts the tie between the two tabs) and the new tab shows another page of the site before the sign-up page, that one visit can be missed and its sign-up credited to the first tab's link. The same can happen in a few older browsers. A tab like that can also be counted twice if it leaves the site and comes back by a link. None of this touches people who tap your links in Instagram, LinkedIn, Facebook, WhatsApp or an email.
+
+### 16.3 Your links · 1 minute
+
+These are the only links your team posts. Each name in bold is also its row on your report.
+
+| Where to use it | Link |
+|---|---|
+| **LinkedIn** — posts and comments | `https://www.unretireproject.com/conversation?utm_source=linkedin&utm_medium=social` |
+| **Instagram** — your bio and Story Link stickers | `https://www.unretireproject.com/conversation?utm_source=instagram&utm_medium=social` |
+| **Facebook** — posts | `https://www.unretireproject.com/conversation?utm_source=facebook&utm_medium=social` |
+| **WhatsApp** — messages and status | `https://www.unretireproject.com/conversation?utm_source=whatsapp&utm_medium=social` |
+| **Email newsletter** — the newsletter's button | `https://www.unretireproject.com/conversation?utm_source=newsletter&utm_medium=email` |
+| **Instagram & Facebook ads** — every Instagram or Facebook ad (§16.5) | `https://www.unretireproject.com/conversation?utm_source=meta&utm_medium=paid` |
+| **LinkedIn ads** — every LinkedIn ad (§16.5) | `https://www.unretireproject.com/conversation?utm_source=linkedin&utm_medium=paid` |
+
+- **Copy, never type.** Copy a link from this table, or from the sheet I give you. Never copy one back out of a post, a message or your browser's address bar: it may have picked up extra text there.
+- **One link per platform.** Every LinkedIn post and comment uses the LinkedIn link. Your Instagram bio and every Story sticker use the Instagram link. And so on.
+- **The same links every webinar.** They never change.
+- **Anything else counts as Other / unknown:** the plain address, a search, a forwarded email, a link on another site. (A visit that comes straight from LinkedIn, Instagram or Facebook without one of your links can still land in its own row, if the visitor's app says where they came from.)
+
+### 16.4 Where each link goes · 5 minutes per platform, once
+
+**Posting any of these links announces the sign-up page.** Your own first links go up at §9.9, after §9.1 to §9.8 are done for the real webinar. Your team posts only after you have reset the report (§9.9, §16.6).
+
+**LinkedIn** — in a post, or in a comment under it:
+
+1. Paste the **LinkedIn** link (§16.3) into the post or the comment.
+2. Post it as usual.
+
+LinkedIn shortens a long link once you click **Post**. Its help pages do not say whether the short link keeps the part after the `?`. Your phone test at go-live shows it (§9.9; `docs/OWNER-ACTIONS.md` PART 10, item 10.4).
+
+**Instagram** — your bio, and a Story's **Link** sticker. Meta's help pages name only these places where a link can be tapped on Instagram. Do not rely on a link in a post's caption.
+
+Your bio, at each go-live (§9.9):
+
+1. Open the Instagram app.
+2. Go to your profile.
+3. Tap **Edit profile**.
+4. Tap **Links**.
+5. Tap **Add external link**.
+6. Paste the **Instagram** link (§16.3). (The box: label not confirmed — tell me if your screen differs.)
+7. Tap **Done**.
+
+If other websites are already there, you can move this one to the top with **Options**, then **Reorder links**.
+
+A Story, each time:
+
+1. Make the Story as usual.
+2. Tap **Stickers**.
+3. Tap **Link**.
+4. Paste the **Instagram** link (§16.3).
+5. Optional: tap **See Preview** to check it.
+6. Place the sticker and share the Story as usual.
+
+If **Link** is not among your stickers, tell me: Instagram does not give it to every account.
+
+**Facebook** — in a post:
+
+1. Paste the **Facebook** link (§16.3) into the post.
+2. Post it as usual.
+
+**WhatsApp** — in a message or your status:
+
+1. Paste the **WhatsApp** link (§16.3) into the message or the status.
+2. Send it as usual.
+
+**Your email newsletter** — its button:
+
+1. In Mailchimp, open the newsletter email.
+2. Click its button.
+3. Paste the **Email newsletter** link (§16.3) as the button's web address. (Where it goes: label not confirmed — tell me if your screen differs.)
+4. Send or schedule the email as usual.
+
+### 16.5 Ads · 5 minutes per ad
+
+An ad announces the sign-up page too: publish one only after you have reset the report (§9.9, §16.6).
+
+The ads links are for ads only. They put paid clicks in rows of their own.
+
+**Instagram and Facebook ads — in Meta Ads Manager, never with a Boost button:**
+
+1. In Ads Manager, set up the campaign and the ad set as usual.
+2. At the ad, under **Ad setup**, choose **Create ad** — not **Use existing post**.
+3. Only if the campaign's objective is Awareness: tick **Add a destination**.
+4. In **Website URL**, paste the **Instagram & Facebook ads** link (§16.3).
+5. Below **Tracking**, leave **URL parameters** empty. Do not use **Build a URL parameter**.
+6. Finish and publish the ad as usual.
+
+Why:
+
+- **Never Boost.** A boost is made from the post itself. Facebook's boost form has no box for another link, and Meta does not say whether an Instagram boost keeps the part of your link after the `?`. Either way the paid clicks would miss the ads row. A Story with a **Link** sticker cannot be boosted at all.
+- **Not "Use existing post".** That ad uses the post's own link: your unpaid link.
+- **URL parameters stays empty.** Anything typed there replaces the matching part of your link.
+- **Meta may add its own tracking to an ad's link** (since 1 January 2024): a source of Facebook or Instagram, and a medium of "paid". Such a click still lands in **Instagram & Facebook ads**.
+- Meta is changing its ad screens from October 2026. The **Website URL** box may sit somewhere else on your screen, but Meta's help pages still call it **Website URL**.
+- Optional check: when your first ad is live, tap it once on your phone. The **Instagram & Facebook ads** row goes up.
+
+**LinkedIn ads — in Campaign Manager, always a new ad:**
+
+1. In Campaign Manager, set up the campaign and the ad set as usual. (LinkedIn is renaming its screens: a "campaign" used to be called a "campaign group", and an "ad set" a "campaign". You may still see the old names.)
+2. In the ad set's settings, leave the optional **URL tracking parameters** empty.
+3. On the **Ads in this ad set** page, click **Create ad**.
+4. Click **Start from a blank ad**.
+5. In **Destination URL**, paste the **LinkedIn ads** link (§16.3).
+6. Finish the ad as usual.
+
+Why:
+
+- **Never sponsor a post that is already on your Page** (**Browse existing content**), and never press **Boost** on a Page post. Each keeps the post's own link — your unpaid LinkedIn link — so the paid clicks would land in **LinkedIn**, not in **LinkedIn ads**. A new ad made this way does not appear as a post on your Page.
+- **What LinkedIn adds to your link.** **URL tracking parameters**, if anyone sets them, are added to the end of your link; LinkedIn says they never replace or remove what is already in it. When a setting called enhanced conversion tracking is on, LinkedIn also adds its own click code, `li_fat_id`. Neither moves a click to another row: your own part of the link stays first, and the report goes by it. Leave **URL tracking parameters** empty anyway, so the link stays exactly as you pasted it.
+- **URL tracking parameters** can also be set for the whole ad account, and then apply to every ad. If you see any there, tell me.
+- Optional check: when your first ad is live, tap it once on your phone. The **LinkedIn ads** row goes up.
+
+### 16.6 Start again for a new webinar: the reset · 1 minute
+
+**A reset deletes the numbers for good.** Every visit and every sign-up the report has counted for this webinar is deleted, and nothing can bring them back. Want to keep them? Take a screenshot of the report first.
+
+When to reset:
+
+- **At go-live, just before your first link goes up** (§9.9). The sign-up page is already live for your team's practice, and the reset clears their practice visits and sign-ups from your numbers.
+- **Again for each new webinar**, at its go-live (§16.7).
+- **Never once your links are up**, until the next webinar: a reset then deletes real visits and sign-ups too.
+
+How:
+
+1. Open your report (§16.1).
+2. Scroll down to **Start again for a new webinar**.
+3. Type the report password in the **Password** box there. The reset asks for it again, even though you are signed in.
+4. Click **Reset the numbers**.
+5. Check: **Done. Counting starts again from zero.** appears under the button, the **Visits to the sign-up page** and **Registered** cards show **0**, and **Conversion** shows **—**.
+
+What you may see instead:
+
+| You see | It means | What to do |
+|---|---|---|
+| "That password didn't work, so nothing was reset." | The password was mistyped | Type it again and click **Reset the numbers** |
+| "Too many tries in a short time. Wait 10 minutes and try again." | Too many tries from one place in a short time. Nothing was reset. | Wait 10 minutes |
+| "That didn't reset. Try again in a minute." | The reset did not finish | Refresh the page. If the numbers are not back to zero, try again in a minute. If it stays, tell me. |
+| "The report changed after you opened this page, so nothing was reset. Check the numbers, then try again." | The numbers changed after you opened the page: someone reset them on another screen, or a new webinar started. Nothing was reset. | Look at the numbers now on the page. If you still want to start again, type the password and click **Reset the numbers** again |
+| The password form that opens the report | You were signed out, for example after 30 days. Nothing was reset. | Open the report (§16.1), then do the reset again |
+
+Good to know:
+
+- The reset deletes this webinar's counts only. Your Mailchimp contacts, their tags and your emails are not touched.
+- Anyone with the report password can reset the report. Give the password only to people you trust with that.
+
+### 16.7 The next webinar · 1 minute to read
+
+- The report follows the webinar's id in the code: `conv1` today. It shows that webinar only.
+- A new webinar gets a new id: the same small developer change as its new tags (§3.1, and §12 "Way 1"). The report then starts from zero. The old webinar's numbers stay in the database, but the report does not show them.
+- Your links stay the same (§16.3).
+- For every webinar: reset the report at its go-live, just before your first link goes up (§9.9, §16.6). Take a screenshot first if you want to keep the last webinar's numbers.
+- After each webinar, take the link out of your Instagram bio: between webinars it opens a "not found" page. It goes back at the next go-live (§9.9).
+- If you reuse `conv1` by hand instead (§12, "Way 2"), the report keeps counting into the same webinar until you reset it. The reset at the new go-live (§16.6) starts it from zero, so someone who registered last time and registers again counts for the new webinar.
+
+**Sources for this section (vendor help pages, read 2026-11-20)**
+
+**Meta (Instagram and Facebook)**
+
+- The **Website URL** box; **Add a destination** — <https://help.instagram.com/887370848459462>
+- The ad's destination comes after its creative — <https://www.facebook.com/business/help/1174990279685960?locale=en_US>
+- **Tracking**, **URL parameters**, **Build a URL parameter**; a URL parameter replaces the same one in the link; what Meta may add by itself since 1 January 2024 — <https://www.facebook.com/business/help/1016122818401732?locale=en_US>
+- **Ad setup**: **Create ad** or **Use existing post**; the ad screens changing from October 2026 — <https://www.facebook.com/business/help/1006187918591258?locale=en_US>
+- Boosting a Facebook post: no box for a link — <https://www.facebook.com/business/help/347839548598012?locale=en_US>
+- A Story with a **Link** sticker cannot be boosted — <https://help.instagram.com/2281642782069520>
+- An Instagram promotion may take a link, and says nothing about the part after the `?` — <https://help.instagram.com/384793215494212>
+- Your profile's websites: **Edit profile**, **Links**, **Add external link**, **Done**, **Options**, **Reorder links** — <https://help.instagram.com/362497417173378>
+- The Story **Link** sticker: **Stickers**, **Link**, **See Preview** — <https://help.instagram.com/151273688993748>
+- Who does not get the **Link** sticker — <https://about.instagram.com/blog/announcements/expanding-sharing-links-in-stories-to-everyone>
+
+**LinkedIn**
+
+- **Create ad**, **Start from a blank ad**, **Destination URL** — <https://www.linkedin.com/help/lms/answer/a422234>
+- **URL tracking parameters** are added to the end and never replace anything — <https://www.linkedin.com/help/lms/answer/a5968064>
+- **URL tracking parameters** as an optional ad set setting — <https://www.linkedin.com/help/lms/answer/a1324756> and <https://www.linkedin.com/help/lms/answer/a423332>
+- A sponsored Page post keeps its own link; **Browse existing content** — <https://www.linkedin.com/help/lms/answer/a420316> and <https://www.linkedin.com/help/lms/answer/a7484265>
+- **Boost** has no box for a link — <https://www.linkedin.com/help/lms/answer/a451493> and <https://www.linkedin.com/help/lms/answer/a446611>
+- A new ad does not appear as a post on your Page — <https://www.linkedin.com/help/lms/answer/a423213>
+- The `li_fat_id` click code (enhanced conversion tracking) — <https://www.linkedin.com/help/lms/answer/a423304>
+- Long links are shortened when you click **Post** — <https://www.linkedin.com/help/linkedin/answer/a521889>
+- The new names: campaign, ad set, ad — <https://www.linkedin.com/help/lms/answer/a8323033>
+- Parameters set for the whole account apply to every ad (LinkedIn's developer pages) — <https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/dynamic-utm-tracking>
+
+**Vercel**
+
+- Web Analytics counts every page view — <https://vercel.com/docs/analytics>
+
+**GitHub and Supabase** (the steps in `docs/OWNER-ACTIONS.md` PART 10)
+
+- **Settings**, **Secrets and variables**, **Actions**, **Secrets**, **New repository secret**, **Name**, **Secret**, **Add secret** — <https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets>
+- **Raw** — <https://docs.github.com/en/repositories/working-with-files/using-files/viewing-and-understanding-files>
+- **SQL Editor**, **Run** — <https://supabase.com/docs/guides/getting-started/quickstarts/nextjs> and <https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs>
+
+**What the vendor pages did not confirm** (each is marked in the steps above, or said there):
+
+- Whether a link typed into an Instagram caption can be tapped. Meta's pages say nothing either way; press reports from March 2026 describe a test for some Meta Verified subscribers. This section assumes it cannot.
+- The name of the box you paste into on Instagram's **Add external link** screen.
+- Where a Mailchimp email's button takes its link.
+- Whether LinkedIn's short link keeps the part of your link after the `?`. Your phone test shows it.
+- How Meta's own added tracking mixes with your link's. The report puts such a click in **Instagram & Facebook ads** either way.
+- In Supabase: the button that opens a new, empty query, and the words shown after a successful **Run**.
+
+Next step → `docs/OWNER-ACTIONS.md` Part 9 lists what this sprint needs from you, in order; Part 10 does the same for the report (section 16).

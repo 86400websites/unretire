@@ -168,6 +168,15 @@ jobs:
           # `parity: on` input sets it — pull_request and deployment_status runs never do.
           E2E_PARITY: ${{ inputs.parity == 'on' && '1' || '' }}
           E2E_OWNER_MAILBOX: ${{ secrets.E2E_OWNER_MAILBOX }}
+          # S6.2 (D-52): the /report test password — the same value as the Preview's REPORT_PASSWORD.
+          E2E_REPORT_PASSWORD: ${{ secrets.E2E_REPORT_PASSWORD }}
+          # S6.2 (independent review, round 2, Finding 1): the origin the step above resolved through
+          # GitHub's Deployments API — a deployment GitHub recorded as a successful PREVIEW of the tested
+          # commit. Only this workflow sets it. The report spec sends the test password, and writes to or
+          # resets the report, only when its target is exactly this origin: a hand-typed
+          # PLAYWRIGHT_BASE_URL is never enough, because a Production deployment's own address has the
+          # same shape.
+          E2E_PREVIEW_ORIGIN: ${{ steps.preview.outputs.url }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

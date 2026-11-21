@@ -27,6 +27,13 @@ import { COPY } from "../../../src/app/conversation/copy";
  * The client's own classification of an upstream answer is proven in
  * mailchimp-client.spec.ts. This file proves what the ROUTE turns each
  * outcome into, and that nothing from upstream reaches a response or a log.
+ *
+ * Sprint S6.2 adds the last block — draft FEATURE-LIST line IN-009, the
+ * webinar report's registration count. Every block above runs with
+ * REPORT_SECRET cleared (it is in ENV_NAMES), so the report's counting is off
+ * and their unscripted-request check proves the route makes no request beyond
+ * S6.1's; the last block sets an obviously fake one and proves what the
+ * counting does.
  */
 
 const KEY = "dummy-not-a-real-key-us99";
@@ -62,6 +69,16 @@ const ENV_NAMES = [
   "WEBINAR_OFFER_CODE",
   "WEBINAR_ZOOM_URL",
   "WEBINAR_REPLAY_URL",
+  // S6.2: cleared like the rest, so a value in the shell can never switch the
+  // report's counting on inside the S6.1 tests.
+  "REPORT_SECRET",
+  // S6.2, D-67: what this site's own hosts are (src/lib/auth/safe-origin.ts).
+  // All unset here, so only http://localhost counts as this site.
+  "NEXT_PUBLIC_SITE_URL",
+  "VERCEL_ENV",
+  "VERCEL_URL",
+  "VERCEL_BRANCH_URL",
+  "VERCEL_PROJECT_PRODUCTION_URL",
 ];
 
 type Recorded = {
@@ -155,15 +172,25 @@ const VALID = { form: "register", firstName: "Maher", email: EMAIL };
 async function send(
   body: unknown,
   raw?: string,
+  // S6.2, D-67: the headers that say where a request came from.
+  {
+    contentType = "application/json",
+    origin,
+    fetchSite,
+  }: { contentType?: string | null; origin?: string; fetchSite?: string } = {},
 ): Promise<{ status: number; text: string; headers: Headers }> {
+  const headers: Record<string, string> = { "x-forwarded-for": CALLER_IP };
+  if (contentType !== null) headers["content-type"] = contentType;
+  if (origin !== undefined) headers.origin = origin;
+  if (fetchSite !== undefined) headers["sec-fetch-site"] = fetchSite;
+  const payload = raw ?? JSON.stringify(body);
   const response = await POST(
     new NextRequest("http://localhost:3000/api/conversation", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-forwarded-for": CALLER_IP,
-      },
-      body: raw ?? JSON.stringify(body),
+      headers,
+      // A string body would make the request say text/plain by itself; bytes
+      // say nothing, so "no content type" really sends none.
+      body: contentType === null ? new TextEncoder().encode(payload) : payload,
     }),
   );
   const text = await response.text();
@@ -673,5 +700,677 @@ test.describe("S6.1 sign-up route — step 7: every Mailchimp outcome", () => {
       () => problem(500, "Internal Server Error"),
     );
     expect((await send(VALID)).status).toBe(502);
+  });
+});
+
+/**
+ * Sprint S6.2 — draft FEATURE-LIST line IN-009: the webinar report's
+ * registration count. The route calls recordSignup
+ * (src/lib/webinar/report-store.ts) immediately before each of its two
+ * success answers, and nowhere else.
+ *
+ * Every test here runs with REPORT_SECRET set to an obviously fake value, and
+ * with the file's stub wrapped so that it ALSO answers the record function,
+ * recording each call. Every other request still goes to the file's stub,
+ * which counts one no test scripted — and the file's afterEach, with all its
+ * leak checks, still runs after each of these tests.
+ */
+test.describe("S6.2 — every accepted sign-up is counted for the report, and nothing else is", () => {
+  /** Obviously fake, and 40 characters: the counting needs 32 or more. */
+  const FAKE_REPORT_SECRET = "dummy-report-secret-not-a-real-one-00000";
+  const RECORD = `${SUPABASE}/rest/v1/rpc/record_campaign_person`;
+
+  /**
+   * The report's eight keys, typed out on purpose: the link contract is fixed,
+   * so a renamed or dropped key must turn this file red.
+   */
+  const KEYS = [
+    "linkedin",
+    "instagram",
+    "facebook",
+    "whatsapp",
+    "email",
+    "meta-ads",
+    "linkedin-ads",
+    "other",
+  ];
+
+  /** D-22 test addresses: both prefixes, and the rule ignores case. */
+  const TEST_ADDRESSES = [
+    "reader+ur-test-s62@example.com",
+    "reader+ur-e2e-run-7@example.com",
+    "Reader+UR-TEST-Caps@Example.com",
+  ];
+
+  type Answer = Awaited<ReturnType<typeof send>>;
+  type Answers = (() => Response | Promise<Response>)[];
+  type RecordResponder = (call: Recorded) => Response | Promise<Response>;
+
+  /** Each record call, in order. */
+  let records: Recorded[] = [];
+  /** Every request, in order, by kind — WHEN the record call happens. */
+  let sequence: string[] = [];
+  /** What the record function answers. The default: done (it returns void). */
+  let recorder: RecordResponder = () => new Response(null, { status: 204 });
+
+  /**
+   * The keyed code the route must send instead of the address:
+   * base64url(HMAC-SHA256(REPORT_SECRET, "conv-person:v1:" + the trimmed,
+   * lower-cased address)) — the sprint record, step 5. Typed out, so a
+   * change to the code turns this file red.
+   */
+  function personCode(email: string): string {
+    return crypto
+      .createHmac("sha256", FAKE_REPORT_SECRET)
+      .update(`conv-person:v1:${email.trim().toLowerCase()}`, "utf8")
+      .digest("base64url");
+  }
+
+  function kindOf(url: string, method: string): string {
+    if (url.startsWith(`${SUPABASE}/rest/v1/rpc/increment_rate_limit`)) {
+      return "limiter";
+    }
+    if (url.startsWith(`${SUPABASE}/rest/v1/rate_limits`)) return "sweep";
+    if (url.startsWith(`${MAILCHIMP}/`)) return `mailchimp ${method}`;
+    return "unexpected";
+  }
+
+  /**
+   * The same request twice, Mailchimp answering the same way both times:
+   * counted (REPORT_SECRET set), then uncounted (unset).
+   */
+  async function sendTwice(body: unknown, ...answers: Answers) {
+    const recordsBefore = records.length;
+
+    calls = [];
+    script(...answers);
+    const countedLogsFrom = logged.length;
+    const counted = await send(body);
+    const countedLogs = logged.slice(countedLogsFrom);
+    const countedCalls = calls;
+    const countedRecords = records.length - recordsBefore;
+
+    delete process.env.REPORT_SECRET;
+    calls = [];
+    script(...answers);
+    const uncountedLogsFrom = logged.length;
+    const uncounted = await send(body);
+    const uncountedLogs = logged.slice(uncountedLogsFrom);
+    const uncountedCalls = calls;
+    const uncountedRecords = records.length - recordsBefore - countedRecords;
+    process.env.REPORT_SECRET = FAKE_REPORT_SECRET;
+
+    return {
+      counted,
+      uncounted,
+      countedRecords,
+      uncountedRecords,
+      countedCalls,
+      uncountedCalls,
+      countedLogs,
+      uncountedLogs,
+    };
+  }
+
+  /** Status, body and headers, byte for byte. */
+  function expectSameAnswer(
+    actual: Answer,
+    expected: Answer,
+    label: string,
+  ): void {
+    expect(actual.status, label).toBe(expected.status);
+    expect(actual.text, label).toBe(expected.text);
+    expect([...actual.headers], label).toEqual([...expected.headers]);
+  }
+
+  test.beforeEach(() => {
+    // REPORT_SECRET is in ENV_NAMES: the file's beforeEach cleared it, and
+    // the file's afterEach puts back whatever the shell had.
+    process.env.REPORT_SECRET = FAKE_REPORT_SECRET;
+    records = [];
+    sequence = [];
+    recorder = () => new Response(null, { status: 204 });
+
+    const fileStub = globalThis.fetch;
+    globalThis.fetch = (async (
+      input: RequestInfo | URL,
+      init?: RequestInit,
+    ): Promise<Response> => {
+      const url =
+        typeof input === "string" || input instanceof URL
+          ? String(input)
+          : input.url;
+      const method = init?.method ?? "GET";
+      if (url.startsWith(RECORD)) {
+        const call: Recorded = {
+          url,
+          method,
+          body: init?.body ? JSON.parse(String(init.body)) : {},
+          signal: init?.signal ?? null,
+        };
+        sequence.push("record");
+        records.push(call);
+        return recorder(call);
+      }
+      sequence.push(kindOf(url, method));
+      // Everything else is the file's stub's business — including counting
+      // a request no test scripted.
+      return fileStub(input, init);
+    }) as typeof fetch;
+  });
+
+  test.afterEach(() => {
+    // Every record call: four parameters, a timeout, and never the address
+    // or any part of it, in any case.
+    const addresses = [EMAIL, ...TEST_ADDRESSES].map((address) =>
+      address.toLowerCase(),
+    );
+    const forbidden = [
+      ...addresses,
+      ...addresses.map((address) => address.split("@")[0]!),
+      hashOf(EMAIL),
+    ];
+    for (const call of records) {
+      expect(call.url, "the record call went somewhere else").toBe(RECORD);
+      expect(call.method).toBe("POST");
+      expect(
+        call.signal,
+        "a record call was made without a timeout",
+      ).toBeInstanceOf(AbortSignal);
+      expect(Object.keys(call.body).sort()).toEqual([
+        "p_campaign",
+        "p_person",
+        "p_registered",
+        "p_source",
+      ]);
+      // The shape migration 0005 enforces on campaign_people.person.
+      expect(String(call.body.p_person)).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      const sent = JSON.stringify(call.body).toLowerCase();
+      for (const text of forbidden) {
+        expect(sent, "the record call carried the address").not.toContain(text);
+      }
+    }
+  });
+
+  test("IN-009 a tagged register sign-up is counted once, after Mailchimp, as registered, under the source it carried", async () => {
+    let count = 0;
+    for (const key of KEYS) {
+      calls = [];
+      sequence = [];
+      script(() => member("subscribed"), tagged);
+
+      const reply = await send({ ...VALID, source: key });
+      expect(reply.status, key).toBe(200);
+      expect(parse(reply.text), key).toEqual({ ok: true, emailable: true });
+      // Once, and last: after the upsert AND the tag have landed.
+      expect(sequence, key).toEqual([
+        "limiter",
+        "sweep",
+        "mailchimp PUT",
+        "mailchimp POST",
+        "record",
+      ]);
+      count += 1;
+      expect(records, key).toHaveLength(count);
+      expect(records[count - 1]!.body, key).toEqual({
+        p_campaign: "conv1",
+        p_person: personCode(EMAIL),
+        p_source: key,
+        p_registered: true,
+      });
+    }
+  });
+
+  test("IN-009 every other accepted outcome is counted once and last: not emailable, archived, or archived and refused", async () => {
+    const PUT = "mailchimp PUT";
+    const POST = "mailchimp POST";
+    const outcomes: [string, Answers, string[]][] = [
+      ["unsubscribed", [() => member("unsubscribed"), tagged], [PUT, POST]],
+      ["cleaned", [() => member("cleaned"), tagged], [PUT, POST]],
+      ["pending", [() => member("pending"), tagged], [PUT, POST]],
+      ["transactional", [() => member("transactional"), tagged], [PUT, POST]],
+      [
+        "archived, then resubscribed",
+        [() => member("archived"), () => member("subscribed"), tagged],
+        [PUT, PUT, POST],
+      ],
+      [
+        "archived, and the update refused",
+        [
+          () => member("archived"),
+          () => problem(400, "Member In Compliance State"),
+          tagged,
+        ],
+        [PUT, PUT, POST],
+      ],
+    ];
+    for (const [label, answers, mailchimpCalls] of outcomes) {
+      calls = [];
+      sequence = [];
+      script(...answers);
+
+      const reply = await send({ ...VALID, source: "facebook" });
+      expect(reply.status, label).toBe(200);
+      expect(sequence, label).toEqual([
+        "limiter",
+        "sweep",
+        ...mailchimpCalls,
+        "record",
+      ]);
+      expect(records[records.length - 1]!.body, label).toEqual({
+        p_campaign: "conv1",
+        p_person: personCode(EMAIL),
+        p_source: "facebook",
+        p_registered: true,
+      });
+    }
+    expect(records).toHaveLength(outcomes.length);
+  });
+
+  test("IN-009 the Toolkit form is counted as a sign-up, not as a registration", async () => {
+    script(() => member("subscribed"), tagged);
+    const reply = await send({
+      form: "toolkit",
+      email: EMAIL,
+      source: "instagram",
+    });
+
+    expect(parse(reply.text)).toEqual({ ok: true, emailable: true });
+    expect(sequence).toEqual([
+      "limiter",
+      "sweep",
+      "mailchimp PUT",
+      "mailchimp POST",
+      "record",
+    ]);
+    expect(records).toHaveLength(1);
+    expect(records[0]!.body).toEqual({
+      p_campaign: "conv1",
+      p_person: personCode(EMAIL),
+      p_source: "instagram",
+      p_registered: false,
+    });
+  });
+
+  test("IN-009 no source, or one that is not a key, is counted under 'other' and changes nothing else", async () => {
+    const bodies: unknown[] = [
+      VALID,
+      { ...VALID, source: "tiktok" },
+      { ...VALID, source: "LinkedIn" },
+      { ...VALID, source: "newsletter" },
+      { ...VALID, source: "" },
+      { ...VALID, source: 42 },
+      { ...VALID, source: null },
+      { ...VALID, source: ["linkedin"] },
+      { ...VALID, source: { key: "linkedin" } },
+    ];
+    for (const body of bodies) {
+      calls = [];
+      script(() => member("subscribed"), tagged);
+
+      const reply = await send(body);
+      const label = JSON.stringify(body);
+      expect(parse(reply.text), label).toEqual({ ok: true, emailable: true });
+      expect(records[records.length - 1]!.body, label).toEqual({
+        p_campaign: "conv1",
+        p_person: personCode(EMAIL),
+        p_source: "other",
+        p_registered: true,
+      });
+    }
+    expect(records).toHaveLength(bodies.length);
+  });
+
+  test("IN-009 the one success without a tag — a forgotten or compliance-state address — is counted once too", async () => {
+    for (const title of [
+      "Forgotten Email Not Subscribed",
+      "Member In Compliance State",
+    ]) {
+      for (const form of ["register", "toolkit"]) {
+        const label = `${title}, ${form}`;
+        calls = [];
+        sequence = [];
+        script(() => problem(400, title));
+
+        const reply = await send({ ...VALID, form, source: "whatsapp" });
+        expect(reply.status, label).toBe(200);
+        expect(parse(reply.text), label).toEqual({
+          ok: true,
+          emailable: false,
+        });
+        expect(sequence, label).toEqual([
+          "limiter",
+          "sweep",
+          "mailchimp PUT",
+          "record",
+        ]);
+        expect(records[records.length - 1]!.body, label).toEqual({
+          p_campaign: "conv1",
+          p_person: personCode(EMAIL),
+          p_source: "whatsapp",
+          p_registered: form === "register",
+        });
+      }
+    }
+    expect(records).toHaveLength(4);
+  });
+
+  test("IN-009 no refusal is ever counted: 400, 404, 409, 429, 502 or 503", async () => {
+    const SOURCED = { ...VALID, source: "linkedin" };
+
+    // 400 — the body, then the validator.
+    expect((await send(null, "{not json")).status).toBe(400);
+    expect((await send({ ...SOURCED, form: "no-such-form" })).status).toBe(400);
+    expect((await send({ ...SOURCED, email: "nope" })).status).toBe(400);
+    expect(
+      (await send({ ...SOURCED, topic: "filled by a script" })).status,
+    ).toBe(400);
+
+    // 400 — Mailchimp judged the address not real.
+    calls = [];
+    script(() =>
+      problem(400, "Invalid Resource", {
+        errors: [{ field: "email_address", message: UPSTREAM_TEXT }],
+      }),
+    );
+    const checkEmail = await send(SOURCED);
+    expect(checkEmail.status).toBe(400);
+    expect(parse(checkEmail.text)).toEqual({ error: COPY.errors.checkEmail });
+
+    // 502 — the upsert failed; the tag did not land; archived, resubscribed,
+    // and then the tag did not land.
+    const upstreamFailures: Answers[] = [
+      [() => problem(500, "Internal Server Error")],
+      [() => member("subscribed"), () => problem(500, "Internal Server Error")],
+      [
+        () => member("archived"),
+        () => member("subscribed"),
+        () => problem(500, "Internal Server Error"),
+      ],
+    ];
+    for (const answers of upstreamFailures) {
+      calls = [];
+      script(...answers);
+      expect((await send(SOURCED)).status).toBe(502);
+    }
+
+    // 503 — Mailchimp is not configured.
+    delete process.env.MAILCHIMP_API_KEY;
+    expect((await send(SOURCED)).status).toBe(503);
+    process.env.MAILCHIMP_API_KEY = KEY;
+
+    // 429 — limited, and a limiter that cannot answer.
+    limiter = () => json(200, 11);
+    expect((await send(SOURCED)).status).toBe(429);
+    limiter = () => json(500, { message: "limiter unavailable" });
+    expect((await send(SOURCED)).status).toBe(429);
+    limiter = () => json(200, 1);
+
+    // 409 — the webinar has started.
+    configure(PAST_START);
+    expect((await send(SOURCED)).status).toBe(409);
+
+    // 404 — dormant.
+    configure(null);
+    expect((await send(SOURCED)).status).toBe(404);
+
+    expect(records, "a refusal was counted").toEqual([]);
+    expect(sequence).not.toContain("record");
+  });
+
+  test("IN-009 counting that works, answers 500, throws, or never answers before its timeout leaves the answer byte-identical", async () => {
+    let cutOff = 0;
+    const outcomes: [string, RecordResponder, number][] = [
+      ["the count is stored", () => new Response(null, { status: 204 }), 0],
+      [
+        "the record function answers 500",
+        () =>
+          json(500, {
+            code: "42P01",
+            message: UPSTREAM_TEXT,
+            details: UPSTREAM_TEXT,
+            hint: UPSTREAM_TEXT,
+          }),
+        1,
+      ],
+      [
+        "the record request throws",
+        () => {
+          throw new TypeError(`fetch failed for ${SUPABASE} ${UPSTREAM_TEXT}`);
+        },
+        1,
+      ],
+      [
+        "the record request never answers",
+        (call) =>
+          new Promise<Response>((_, reject) => {
+            const signal = call.signal;
+            if (!signal) {
+              // The afterEach names the missing timeout; do not hang the run.
+              reject(new TypeError("no timeout on the record call"));
+              return;
+            }
+            signal.addEventListener(
+              "abort",
+              () => {
+                const reason = signal.reason as { name?: unknown } | undefined;
+                if (reason?.name === "TimeoutError") cutOff += 1;
+                reject(signal.reason);
+              },
+              { once: true },
+            );
+          }),
+        1,
+      ],
+    ];
+    // The two places a sign-up is accepted.
+    const successes: [string, Answers, boolean][] = [
+      ["tagged", [() => member("subscribed"), tagged], true],
+      [
+        "an address Mailchimp may not add",
+        [() => problem(400, "Member In Compliance State")],
+        false,
+      ],
+    ];
+
+    for (const [outcome, respond, logLines] of outcomes) {
+      for (const [point, answers, emailable] of successes) {
+        const label = `${outcome}, ${point}`;
+        recorder = respond;
+
+        const started = Date.now();
+        const run = await sendTwice(
+          { ...VALID, source: "linkedin" },
+          ...answers,
+        );
+        expect(
+          Date.now() - started,
+          `${label}: the visitor was kept waiting`,
+        ).toBeLessThan(10_000);
+
+        expect(run.countedRecords, label).toBe(1);
+        expect(run.uncountedRecords, label).toBe(0);
+        expectSameAnswer(run.counted, run.uncounted, label);
+        expect(parse(run.counted.text), label).toEqual({ ok: true, emailable });
+        // The log is the uncounted request's log — the route's own lines,
+        // unchanged — plus, for a failure, ONE line at the end naming a code
+        // or an error's name: nothing from upstream.
+        expect(
+          run.countedLogs.slice(0, run.uncountedLogs.length),
+          label,
+        ).toEqual(run.uncountedLogs);
+        const added = run.countedLogs.slice(run.uncountedLogs.length);
+        expect(added, label).toHaveLength(logLines);
+        for (const line of added) {
+          expect(line, label).toMatch(
+            /^Sign-up not counted for the report: [A-Za-z0-9_]+\.$/,
+          );
+        }
+      }
+    }
+    expect(
+      cutOff,
+      "the record call that never answered must end on its own timeout",
+    ).toBe(successes.length);
+  });
+
+  test("IN-009 a +ur-test- or +ur-e2e- address is never counted, and gets the same answer", async () => {
+    for (const address of TEST_ADDRESSES) {
+      const run = await sendTwice(
+        { ...VALID, email: address, source: "linkedin" },
+        () => member("subscribed"),
+        tagged,
+      );
+      expect(run.countedRecords, address).toBe(0);
+      expect(run.uncountedRecords, address).toBe(0);
+      expectSameAnswer(run.counted, run.uncounted, address);
+      expect(parse(run.counted.text), address).toEqual({
+        ok: true,
+        emailable: true,
+      });
+      // The file's afterEach pins every Mailchimp call to EMAIL's member;
+      // these went to the test address's own, so that check is made here.
+      for (const call of [...run.countedCalls, ...run.uncountedCalls]) {
+        expect(call.signal, address).toBeInstanceOf(AbortSignal);
+        expect(
+          call.url.startsWith(
+            `${MAILCHIMP}/members/${hashOf(address.toLowerCase())}`,
+          ),
+          address,
+        ).toBe(true);
+      }
+    }
+    expect(sequence, "a test sign-up reached the report").not.toContain(
+      "record",
+    );
+    expect(logged, "a test sign-up was logged").toEqual([]);
+
+    // The control: the same sign-up from an ordinary address IS counted, so
+    // the zero above is the rule's doing.
+    calls = [];
+    script(() => member("subscribed"), tagged);
+    expect((await send({ ...VALID, source: "linkedin" })).status).toBe(200);
+    expect(records).toHaveLength(1);
+  });
+
+  test("IN-009 one person is one code, whatever the spelling or the form, so the database can keep their first source", async () => {
+    const signUps: unknown[] = [
+      { ...VALID, email: "  Reader@Example.COM  ", source: "linkedin" },
+      { form: "toolkit", email: EMAIL, source: "instagram" },
+      { ...VALID, email: EMAIL.toUpperCase() },
+    ];
+    for (const body of signUps) {
+      calls = [];
+      script(() => member("subscribed"), tagged);
+      expect((await send(body)).status).toBe(200);
+    }
+
+    expect(records.map((call) => call.body.p_person)).toEqual(
+      signUps.map(() => personCode(EMAIL)),
+    );
+    // Each call names the source of ITS sign-up; record_campaign_person keeps
+    // the person's first one (migration 0005).
+    expect(records.map((call) => call.body.p_source)).toEqual([
+      "linkedin",
+      "instagram",
+      "other",
+    ]);
+    expect(records.map((call) => call.body.p_registered)).toEqual([
+      true,
+      false,
+      true,
+    ]);
+  });
+
+  test("IN-009 with REPORT_SECRET unset or too short the counting is off: no record call, and the same requests as S6.1", async () => {
+    const settings: [string, string | undefined][] = [
+      ["unset", undefined],
+      ["31 characters", FAKE_REPORT_SECRET.slice(0, 31)],
+    ];
+    for (const [label, value] of settings) {
+      if (value === undefined) delete process.env.REPORT_SECRET;
+      else process.env.REPORT_SECRET = value;
+      calls = [];
+      sequence = [];
+      script(() => member("subscribed"), tagged);
+
+      const reply = await send({ ...VALID, source: "linkedin" });
+      expect(parse(reply.text), label).toEqual({ ok: true, emailable: true });
+      expect(sequence, label).toEqual([
+        "limiter",
+        "sweep",
+        "mailchimp PUT",
+        "mailchimp POST",
+      ]);
+    }
+    expect(records).toEqual([]);
+  });
+});
+
+test.describe("PR-007 — only this site's own page can sign up (S6.2, D-67: the gap the Codex review found in the visit counter)", () => {
+  /** This site, as src/lib/auth/safe-origin.ts sees it outside Production. */
+  const OWN = "http://localhost:3000";
+
+  test("PR-007 a sign-up from another site's page is refused with 403 and the approved sentence, before the limiter: nothing reaches Mailchimp", async () => {
+    const cases: [string, { origin?: string; fetchSite?: string }][] = [
+      ["an Origin that is not this site", { origin: "https://evil.example" }],
+      ["an opaque Origin", { origin: "null" }],
+      ["Sec-Fetch-Site: cross-site, no Origin", { fetchSite: "cross-site" }],
+      [
+        "this site's Origin, but Sec-Fetch-Site: cross-site",
+        { origin: OWN, fetchSite: "cross-site" },
+      ],
+    ];
+    for (const [label, headers] of cases) {
+      const reply = await send(VALID, undefined, headers);
+      expect(reply.status, label).toBe(403);
+      expect(parse(reply.text), label).toEqual({
+        error: COPY.errors.invalidRequest,
+      });
+    }
+    expect(limiterCalls, "the limiter was asked").toHaveLength(0);
+    expect(calls, "Mailchimp was called").toHaveLength(0);
+  });
+
+  test("PR-007 a body not declared as JSON is refused with 415 before the limiter — even a valid sign-up sent as plain text", async () => {
+    const cases: [string, string | null][] = [
+      [
+        "text/plain, as another site's page can send without asking",
+        "text/plain",
+      ],
+      ["a form", "application/x-www-form-urlencoded"],
+      ["no content type", null],
+    ];
+    for (const [label, contentType] of cases) {
+      const reply = await send(VALID, undefined, { contentType });
+      expect(reply.status, label).toBe(415);
+      expect(parse(reply.text), label).toEqual({
+        error: COPY.errors.invalidRequest,
+      });
+    }
+    expect(limiterCalls, "the limiter was asked").toHaveLength(0);
+    expect(calls, "Mailchimp was called").toHaveLength(0);
+  });
+
+  test("PR-007 the site's own form passes both checks: its Origin, same-origin, JSON — on to the limiter and the validator", async () => {
+    const reply = await send({ form: "no-such-form" }, undefined, {
+      origin: OWN,
+      fetchSite: "same-origin",
+      contentType: "application/json; charset=utf-8",
+    });
+    expect(reply.status).toBe(400);
+    expect(limiterCalls, "the limiter was not asked").toHaveLength(1);
+    expect(calls).toHaveLength(0);
+  });
+
+  test("PR-007 dormant still comes first: another site's request to a switched-off funnel is a bodiless 404", async () => {
+    configure(null);
+    const reply = await send(VALID, undefined, {
+      origin: "https://evil.example",
+      contentType: "text/plain",
+    });
+    expect(reply.status).toBe(404);
+    expect(reply.text).toBe("");
+    expect(limiterCalls).toHaveLength(0);
   });
 });
