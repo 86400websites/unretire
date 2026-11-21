@@ -33,8 +33,9 @@ import { guarded } from "./request-guard";
  * from the same page has been seen.
  *
  * TIME. Each test loads the page once or twice and waits for React each
- * time, inside the project's default time — except the test of a tab another
- * tab opened, which loads five pages in two tabs and has twice that time. A longer time is never a fix for
+ * time, inside the project's default time — except the two tests of a tab
+ * another tab opened, which load five or six pages in two tabs and have twice
+ * that time. A longer time is never a fix for
  * a slow step (docs/ENVIRONMENT-PARITY.md §6 C4).
  */
 
@@ -66,6 +67,36 @@ async function asVisitor(page: Page): Promise<void> {
       get: () => false,
     });
   });
+}
+
+/**
+ * A visitor's browser in EVERY tab of the context, an opened one included,
+ * and a note of what each page's memory held before any of the page's own
+ * scripts ran (read back with memoryAtStart).
+ */
+async function asVisitorInEveryTab(context: BrowserContext): Promise<void> {
+  await context.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, "webdriver", {
+      configurable: true,
+      get: () => false,
+    });
+    const kept: Record<string, string> = {};
+    for (let i = 0; i < sessionStorage.length; i += 1) {
+      const key = sessionStorage.key(i) ?? "";
+      if (key.startsWith("ur-conv-source:")) {
+        kept[key] = sessionStorage.getItem(key) ?? "";
+      }
+    }
+    (window as unknown as { s62MemoryAtStart: unknown }).s62MemoryAtStart =
+      kept;
+  });
+}
+
+/** What this page's memory held before its own scripts ran. */
+function memoryAtStart(page: Page): Promise<unknown> {
+  return page.evaluate(
+    () => (window as unknown as { s62MemoryAtStart: unknown }).s62MemoryAtStart,
+  );
 }
 
 type Sent = { method: string; contentType: string; body: unknown };
@@ -296,25 +327,9 @@ test.describe("IN-009 — a visit is counted once per tab, under its platform, a
     // the other tests here, not a slower step (see TIME, above).
     test.setTimeout(60_000);
 
-    // Codex review of S6.2, Finding 4. A visitor's browser in EVERY tab of
-    // this context, the opened one included, and a note of what each page's
-    // memory held before any of the page's own scripts ran.
+    // Codex review of S6.2, round 1, Finding 4.
     const context = page.context();
-    await context.addInitScript(() => {
-      Object.defineProperty(Navigator.prototype, "webdriver", {
-        configurable: true,
-        get: () => false,
-      });
-      const kept: Record<string, string> = {};
-      for (let i = 0; i < sessionStorage.length; i += 1) {
-        const key = sessionStorage.key(i) ?? "";
-        if (key.startsWith("ur-conv-source:")) {
-          kept[key] = sessionStorage.getItem(key) ?? "";
-        }
-      }
-      (window as unknown as { s62MemoryAtStart: unknown }).s62MemoryAtStart =
-        kept;
-    });
+    await asVisitorInEveryTab(context);
     const sent = await intercept(context);
 
     // 1. The first tab, from LinkedIn: one visit.
@@ -346,10 +361,7 @@ test.describe("IN-009 — a visit is counted once per tab, under its platform, a
       "the new tab has no opener, so it proves nothing",
     ).toBe(true);
     expect(
-      await opened.evaluate(
-        () =>
-          (window as unknown as { s62MemoryAtStart: unknown }).s62MemoryAtStart,
-      ),
+      await memoryAtStart(opened),
       "the new tab did not start with a copy of the first tab's memory, so it proves nothing",
     ).toEqual(firstTab);
 
@@ -408,6 +420,131 @@ test.describe("IN-009 — a visit is counted once per tab, under its platform, a
     ).toHaveLength(2);
 
     expect(errors, "the new tab logged browser errors").toEqual([]);
+  });
+
+  test("IN-009 a tab another tab opened still counts its own visit when the sign-up page is its SECOND page: opened on the home page, it follows an Instagram link — counted once under instagram, and not again on a reload or after going back and on again", async ({
+    page,
+    api,
+  }) => {
+    const funnel = await readFunnel(api);
+    test.skip(
+      funnel !== "open",
+      `this deployment's funnel is ${funnel}; there is no counter while registration is not open`,
+    );
+
+    // Two tabs and six page loads, each waiting for React: more work than the
+    // other tests here, not a slower step (see TIME, above).
+    test.setTimeout(60_000);
+
+    // Codex review of S6.2, round 2, Finding 2: the copied memory was told
+    // apart only on an opened tab's first page.
+    const context = page.context();
+    await asVisitorInEveryTab(context);
+    const sent = await intercept(context);
+
+    // 1. The first tab, from LinkedIn: one visit.
+    await open(page, LINKEDIN);
+    await waitForHydration(page);
+    await expect
+      .poll(() => sent.arrivals.length, {
+        message: "the first tab's visit was never sent",
+      })
+      .toBeGreaterThan(0);
+    const firstTab = await tabMemory(page);
+    expect(Object.values(firstTab)).toEqual(["linkedin"]);
+
+    // 2. It opens the site's HOME page in a new tab that keeps its opener.
+    //    Nothing is counted there, and the new tab's memory is a copy.
+    const [opened] = await Promise.all([
+      context.waitForEvent("page"),
+      page.evaluate(() => {
+        window.open("/");
+      }),
+    ]);
+    await opened.waitForLoadState("domcontentloaded");
+    expect(
+      await opened.evaluate(() => window.opener !== null),
+      "the new tab has no opener, so it proves nothing",
+    ).toBe(true);
+    expect(
+      await memoryAtStart(opened),
+      "the new tab did not start with a copy of the first tab's memory, so it proves nothing",
+    ).toEqual(firstTab);
+
+    // 3. Its second page: the sign-up page, by an Instagram link.
+    await open(opened, INSTAGRAM);
+    await waitForHydration(opened);
+    // (At least 2: on a Preview, Vercel's toolbar frame may add to the count.)
+    expect(
+      await opened.evaluate(() => window.history.length),
+      "the sign-up page is the new tab's first page, so it proves nothing",
+    ).toBeGreaterThan(1);
+    expect(
+      await memoryAtStart(opened),
+      "the copied memory was gone before the sign-up page loaded, so it proves nothing",
+    ).toEqual(firstTab);
+
+    // 4. Counted once, under its own link, and its sign-up says so.
+    await expect
+      .poll(() => sent.arrivals.length, {
+        message:
+          "the new tab's visit was never sent — the copied memory stopped it",
+      })
+      .toBe(2);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(sent.arrivals).toEqual([
+      {
+        method: "POST",
+        contentType: "application/json",
+        body: { source: "linkedin" },
+      },
+      {
+        method: "POST",
+        contentType: "application/json",
+        body: { source: "instagram" },
+      },
+    ]);
+    expect(Object.values(await tabMemory(opened))).toEqual(["instagram"]);
+    // The first tab keeps its own.
+    expect(await tabMemory(page)).toEqual(firstTab);
+
+    // 5. A reload is not a second visit.
+    await opened.reload({ waitUntil: "domcontentloaded" });
+    await waitForHydration(opened);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(
+      sent.arrivals,
+      "a reload of the new tab was counted again",
+    ).toHaveLength(2);
+
+    // 6. Back to the home page and on to the sign-up page again: the browser
+    //    drops the page that wrote the tab's key and makes a new one, but the
+    //    tab is the same tab — not counted again, and still Instagram.
+    //    (Back by naming the tab's first page, not by "one step back": on a
+    //    Preview, one step back could be a step inside Vercel's toolbar frame.)
+    await Promise.all([
+      opened.waitForURL((url) => url.pathname === "/", {
+        waitUntil: "domcontentloaded",
+      }),
+      opened.evaluate(() => {
+        const history = (
+          window as unknown as {
+            navigation: {
+              entries(): { key: string }[];
+              traverseTo(key: string): unknown;
+            };
+          }
+        ).navigation;
+        history.traverseTo(history.entries()[0]!.key);
+      }),
+    ]);
+    await open(opened, "/conversation");
+    await waitForHydration(opened);
+    expect(await register(opened, sent.signups)).toEqual(signup("instagram"));
+    expect(
+      sent.arrivals,
+      "the new tab was counted again after going back and on again",
+    ).toHaveLength(2);
   });
 
   test("IN-009 a Meta ads link in a fresh tab is counted under meta-ads", async ({

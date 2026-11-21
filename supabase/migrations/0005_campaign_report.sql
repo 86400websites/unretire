@@ -10,10 +10,11 @@
 --
 -- RE-RUNNABLE. Every statement can run again on a database that already has
 -- this migration, in an earlier shape or this one: the tables and the index
--- are created only if missing, and the two report functions are dropped and
--- created again (their shape changed after the Codex review of S6.2, and a
--- function's result columns cannot be changed in place). Those two drops touch
--- only this migration's own functions, and do nothing where they never were.
+-- are created only if missing, every function is created or replaced, and the
+-- two shapes this migration had before the Codex review of S6.2 are dropped
+-- first (a function's result columns cannot be changed in place, and the old
+-- one-argument reset must not survive). Those two drops touch only this
+-- migration's own functions, and do nothing where they never were.
 --
 -- WHAT IS STORED, AND WHAT IS NOT. A campaign id (for example "conv1"), a
 -- source key (for example "linkedin"), timestamps and — for each person who
@@ -98,7 +99,8 @@ $$;
 
 -- This migration's own earlier shapes (before the Codex review of S6.2): the
 -- report without `since`, and a reset with no `since` check, which must not
--- survive beside the new one. A no-op where they never existed.
+-- survive beside the new one. A no-op where they never existed. (The first
+-- also drops the current report function, which is created again just below.)
 drop function if exists public.campaign_report(text);
 drop function if exists public.reset_campaign_report(text);
 
@@ -107,19 +109,23 @@ drop function if exists public.reset_campaign_report(text);
 -- rows in the app would silently stop at the cap.
 --
 -- One row per source that has visits, registered people or both: every visit
--- of the campaign, and every person of the campaign who has registered.
+-- of the campaign, and every person of the campaign who has registered. When
+-- no source has either, ONE row with a null source and zeros, so that `since`
+-- still reaches the page.
 --
--- Every row also carries `since`: when the counting the report shows began —
--- the earliest counted visit (created_at) or registration (registered_at) of
--- the campaign. A visit is stamped when it is stored and a registration once,
--- so `since` changes when a reset deletes the rows, when an empty campaign
--- gets its first row, and — only in a period's first moments — when a row
--- whose transaction started earlier is stored a moment later (now() is a
--- transaction's start time). The page sends it back with a reset, and
--- reset_campaign_report refuses a reset whose `since` is no longer the
--- campaign's; a refreshed page then sends the new one. No row at all means
--- nothing is counted, and `since` is then null on both sides.
-create function public.campaign_report(p_campaign text)
+-- Every row carries `since`: when the campaign's first row was stored — the
+-- earliest created_at among ALL its rows, counted visits and people alike,
+-- people who only asked for the Toolkit included (the report does not count
+-- them, but a reset deletes them, so they must be part of what a reset
+-- confirms). Null only when the campaign holds no row at all. A row's
+-- created_at is set once, when it is stored, so `since` changes when a reset
+-- deletes the rows, when an empty campaign gets its first row, and — only in
+-- a period's first moments — when a row whose transaction started earlier is
+-- stored a moment later (now() is a transaction's start time). The page sends
+-- it back with a reset, and reset_campaign_report refuses a reset whose
+-- `since` is no longer the campaign's; a refreshed page then sends the new
+-- one.
+create or replace function public.campaign_report(p_campaign text)
 returns table (source text, visits bigint, registered bigint, since timestamptz)
 language sql
 stable
@@ -139,23 +145,29 @@ as $$
        and cpe.registered_at is not null
      group by cpe.source
   ),
+  c as (
+    select coalesce(v.source, r.source) as source,
+           coalesce(v.n, 0) as visits,
+           coalesce(r.n, 0) as registered
+      from v
+      full outer join r on r.source = v.source
+  ),
   s as (
     select least(
       (select min(cv.created_at)
          from public.campaign_visits cv
         where cv.campaign = p_campaign),
-      (select min(cpe.registered_at)
+      (select min(cpe.created_at)
          from public.campaign_people cpe
         where cpe.campaign = p_campaign)
     ) as since
   )
-  select coalesce(v.source, r.source),
-         coalesce(v.n, 0)::bigint,
-         coalesce(r.n, 0)::bigint,
+  select c.source,
+         coalesce(c.visits, 0)::bigint,
+         coalesce(c.registered, 0)::bigint,
          s.since
-    from v
-    full outer join r on r.source = v.source
-   cross join s
+    from s
+    left join c on true
    order by 1;
 $$;
 
@@ -165,17 +177,17 @@ $$;
 -- went. The owner types the report password to confirm it
 -- (src/app/report/reset/route.ts). The deleted rows cannot be brought back.
 --
--- ONLY THE NUMBERS THE PAGE SHOWED. p_since is the `since` campaign_report
--- gave the page (null when it showed nothing). If the campaign's `since` is
+-- ONLY WHAT THE PAGE STOOD FOR. p_since is the `since` campaign_report gave
+-- the page (null when the campaign held no row). If the campaign's `since` is
 -- no longer the same — a reset happened elsewhere after the page was opened,
--- or an empty report got its first row — nothing is deleted and `reset` is
+-- or an empty campaign got its first row — nothing is deleted and `reset` is
 -- false: the page was out of date. The check and the deletes are one
--- statement, so nothing can slip between them. A page that showed nothing
--- (p_since null) deletes nothing either: the only rows such a campaign can
--- hold are people who asked for the Toolkit and have not registered, which no
--- page shows, so they go with the next reset from a page that shows numbers.
-drop function if exists public.reset_campaign_report(text, timestamptz);
-create function public.reset_campaign_report(
+-- statement, so nothing can slip between them. A null p_since never deletes:
+-- it can only match a campaign that holds no row, where there is nothing to
+-- delete. Any stored row — a Toolkit-only person too — gives the campaign a
+-- `since`, so a reset that answers true has left nothing of the campaign
+-- behind.
+create or replace function public.reset_campaign_report(
   p_campaign text,
   p_since    timestamptz
 )
@@ -189,7 +201,7 @@ as $$
       (select min(cv.created_at)
          from public.campaign_visits cv
         where cv.campaign = p_campaign),
-      (select min(cpe.registered_at)
+      (select min(cpe.created_at)
          from public.campaign_people cpe
         where cpe.campaign = p_campaign)
     ) is not distinct from p_since as unchanged
@@ -237,6 +249,6 @@ grant execute on function public.reset_campaign_report(text, timestamptz)
 comment on function public.record_campaign_person(text, text, text, boolean) is
   'S6.2: records one accepted webinar sign-up in one statement; the first source stays and registered_at is set once. service_role only.';
 comment on function public.campaign_report(text) is
-  'S6.2: the totals behind /report — visits and registered people per source for one campaign, and since: when that counting began. service_role only.';
+  'S6.2: the totals behind /report — visits and registered people per source for one campaign, and since: when the campaign''s first row was stored (null when it holds none). service_role only.';
 comment on function public.reset_campaign_report(text, timestamptz) is
-  'S6.2: deletes one campaign''s visits and people in one statement, for a new webinar — only if its since is still the one the page showed; answers whether it did and how many of each. service_role only.';
+  'S6.2: deletes every row of one campaign''s visits and people in one statement, for a new webinar — only if its since is still the one the page was given, and never for a null one; answers whether it did and how many of each. service_role only.';

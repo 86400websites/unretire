@@ -242,7 +242,7 @@ test.describe("FM-013 — the reset deletes only the numbers its page showed (Co
     ]);
   });
 
-  test("FM-013 an empty report's form sends an empty since, and the database is asked with since null", async () => {
+  test("FM-013 the form of a campaign with no row at all sends an empty since, and the database is asked with since null", async () => {
     database = () => json(200, [{ reset: true, visits: 0, people: 0 }]);
     expect(await reset(pageForm({ since: "" }))).toEqual(
       seeOther("/report?r=done"),

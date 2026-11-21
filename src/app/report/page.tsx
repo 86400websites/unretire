@@ -9,7 +9,11 @@ import {
   REPORT_COOKIE,
   reportConfig,
 } from "@/lib/webinar/report-auth";
-import { readReport, type ReportData } from "@/lib/webinar/report-store";
+import {
+  readReport,
+  reportDatabaseRef,
+  type ReportData,
+} from "@/lib/webinar/report-store";
 import {
   isLoginMessageCode,
   isResetResultCode,
@@ -31,6 +35,9 @@ import {
  *   open   — the webinar's name, three cards (visits, registered,
  *            conversion), the where-from table and "Start again for a new
  *            webinar" (POST /report/reset, which asks for the password again).
+ *            Only this state also names the database the numbers come from
+ *            (data-report-db, the Supabase project's public name): the spec
+ *            that resets the report reads it before it writes anything.
  *   error  — signed in, but the numbers could not be read.
  *
  * Nothing is read from the database until the session check has passed. The
@@ -69,9 +76,22 @@ function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function Frame({ state, children }: { state: State; children: ReactNode }) {
+function Frame({
+  state,
+  database,
+  children,
+}: {
+  state: State;
+  /** The open report only: which database its numbers come from. */
+  database?: string | null;
+  children: ReactNode;
+}) {
   return (
-    <section className="bg-white" data-report-state={state}>
+    <section
+      className="bg-white"
+      data-report-state={state}
+      data-report-db={database ?? undefined}
+    >
       <div className="max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
         <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem]">
           {REPORT_COPY.header.title}
@@ -148,7 +168,7 @@ function Open({
             : null;
 
   return (
-    <Frame state="open">
+    <Frame state="open" database={reportDatabaseRef()}>
       <p className="mt-5 font-bold text-[var(--ur-navy)]">{COPY.hero.title}</p>
 
       <ul className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-5">

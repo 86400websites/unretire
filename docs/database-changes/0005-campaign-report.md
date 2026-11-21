@@ -10,7 +10,7 @@ Filled from `docs/templates/SUPABASE-CHANGE-TEMPLATE.md`. Sprint **S6.2** (`docs
 | Migration number | `0005` |
 | Sprint / PR | S6.2 / #[PR_NUMBER — set when the PR opens] |
 | Supabase project(s) | `unretire-test` (`dtdadtggahjsrmevwvbu`, TEST) · `unretire-prod` (`hcjivvlwxltyiycfbttc`, PROD) — refs only, never keys |
-| Change class | **Additive and reversible (schema).** Two new tables and three new functions; no existing object is touched and no data is migrated. |
+| Change class | **Additive and reversible (schema).** Two new tables and three new functions; no existing object is touched and no data is migrated. The file is re-runnable: before it creates its two report functions it drops this migration's own earlier shapes of them ("What and why", below). |
 | Data impact | None at apply time (the tables start empty). Afterwards the tables hold report data only — see "What is stored". The owner's reset (`reset_campaign_report`) deletes one campaign's rows of the two new tables, for good. |
 | Recovery source | Not needed to apply. A rollback that drops the tables deletes the counted data; nothing restores it (see "Recovery limits"). |
 
@@ -21,10 +21,10 @@ The owner asked for a report of each webinar: visits to the sign-up page, people
 - `public.campaign_visits` — one row per counted visit to `/conversation` (once per browser tab): campaign id, source key, time.
 - `public.campaign_people` — one row per person who signed up, per campaign: a keyed one-way code (`person`), the source of their **first** accepted sign-up, when they registered (null for a Toolkit-only sign-up), when the row was made.
 - `public.record_campaign_person(text, text, text, boolean)` — records one accepted sign-up in **one statement**: the first source stays for good and `registered_at` is set once, so two racing submissions cannot both win.
-- `public.campaign_report(text)` — every count on `/report`, aggregated in the database: visits and registered people per source, for the whole campaign (no date window). A plain select through the Data API is capped by the project's "Max rows" setting, so counting rows in the app would silently stop at the cap.
-- `public.reset_campaign_report(text)` — "Start again for a new webinar": deletes every `campaign_visits` row and every `campaign_people` row of one campaign in **one statement** (both deletes commit together or not at all) and returns how many of each went (`visits`, `people`). Only `POST /report/reset` calls it, through `resetReport()`, after a valid session, this site's own Origin, the rate limit and the report password typed again.
+- `public.campaign_report(text)` — every count on `/report`, aggregated in the database: visits and registered people per source, for the whole campaign (no date window), and on every row `since`: when the campaign's first row was stored — the earliest `created_at` among all its rows, people who only asked for the Toolkit included; null only when the campaign holds no row. When no source has a visit or a registered person it returns one row with no source and zeros, so `since` still reaches the page. A plain select through the Data API is capped by the project's "Max rows" setting, so counting rows in the app would silently stop at the cap.
+- `public.reset_campaign_report(text, timestamptz)` — "Start again for a new webinar": deletes every `campaign_visits` row and every `campaign_people` row of one campaign in **one statement** (both deletes commit together or not at all), **only if** the campaign's `since` is still the one the page was given (`p_since`) and never for a null one, and returns whether it did and how many of each went (`reset`, `visits`, `people`). The `since` check came with the independent review (round 1, Finding 1; round 2, Finding 3). Only `POST /report/reset` calls it, through `resetReport()`, after a valid session, this site's own Origin, the rate limit and the report password typed again.
 
-No `DROP`, `DELETE` or type change on any existing object. (The two `delete` statements inside `reset_campaign_report` touch only the two new tables, and run only when the owner resets the report.)
+~~No `DROP`, `DELETE` or type change on any existing object.~~ No `DROP`, `DELETE` or type change on any object outside this migration. Since the independent review the file drops two of its OWN earlier function shapes before it creates the current ones: `campaign_report(text)` — its result gained `since`, and a function's result columns cannot be changed in place — and the one-argument `reset_campaign_report(text)`, which had no `since` check and must not survive beside the new one. Both drops do nothing on a database that never had those shapes, Production among them. (The two `delete` statements inside `reset_campaign_report` touch only the two new tables, and run only when the owner resets the report.)
 
 ### What is stored
 
@@ -33,7 +33,7 @@ A campaign id, a source key, timestamps and — per person — `person`, the bas
 ## Files
 
 - Up-SQL: `supabase/migrations/0005_campaign_report.sql`
-- Down-SQL: `supabase/migrations/0005_campaign_report.down.sql` — drops the three functions and the two tables (schema only; it deletes the counted data and restores nothing).
+- Down-SQL: `supabase/migrations/0005_campaign_report.down.sql` — drops the three functions — the reset in both its shapes, the one-argument one from before the review wherever it still is — and the two tables (schema only; it deletes the counted data and restores nothing).
 - Access policy changes included in the same PR: RLS **enabled with no policy** on both tables (the 0003 pattern); table privileges of `anon` and `authenticated` **revoked**; execute on all three functions revoked from `public`, `anon` and `authenticated` and granted to `service_role` only (the 0004 pattern).
 
 ## Security check
@@ -42,7 +42,7 @@ A campaign id, a source key, timestamps and — per person — `person`, the bas
 - [x] Writes are server-only: only the service-role client (`src/lib/webinar/report-store.ts`) reads, writes or deletes these tables' rows. There is no per-user row; nothing is owner-scoped because no browser role can reach the tables.
 - [x] No anonymous read/write path: the public visit endpoint writes through the server, never through the Data API.
 - [x] The one delete path needs the password typed again: `reset_campaign_report` runs only from `POST /report/reset`, after a valid session, this site's own Origin, the rate limit (5 per 600 s, failing closed) and the report password. A session alone cannot reset, and a refused request deletes nothing.
-- [x] Privileged functions: all three `SECURITY INVOKER`, `search_path` pinned to `''`, schema-qualified names throughout, execute held by `service_role` only, minimal returns (`void`; three columns of counts; two counts).
+- [x] Privileged functions: all three `SECURITY INVOKER`, `search_path` pinned to `''`, schema-qualified names throughout, execute held by `service_role` only, minimal returns (`void`; counts and the campaign's `since`; a yes or no and two counts).
 - [x] No secret, key or connection string in the SQL, the PR or this record.
 
 ## Applied and verified
@@ -52,6 +52,7 @@ A campaign id, a source key, timestamps and — per person — `person`, the bas
 | TEST | 2026-11-20 | builder, via the `supabase-test` MCP `apply_migration` (`0005_campaign_report`, recorded as version `20261120072915`), on the owner's YES of 2026-11-20 (Gate 0 item 1: *"go, yes to all"*). Server confirmed before the call: `supabase-test` → `project_ref=dtdadtggahjsrmevwvbu`. | Catalog and role probes below; functions exercised under the throwaway campaign `zz-s62-check`, then exactly those rows deleted (3 visits, 2 people, 1 inputs row); all three tables then held 0 rows. Security advisors: nothing new — the three tables appear only under the INFO "RLS enabled, no policy" lint, as `rate_limits` does by design; the WARN lines (`increment_rate_limit` and `set_updated_at` search_path, the test-only `rls_auto_enable()` helper, leaked-password protection) all predate this change. |
 | TEST — the Gate B delta | 2026-11-20, after Gate B | builder, after the owner's *"go, yes keep orange"* (D-65; the test database under D-59). Not through `apply_migration`: the migration history still has the one `0005_campaign_report` row, version `20261120072915`, so it keeps one row per repository migration. | What changed, from the first file to today's: `campaign_report` replaced (the same signature, without the date window; its comment updated); `reset_campaign_report` created, with execute revoked from `public`, `anon` and `authenticated` and granted to `service_role` only, and its comment; the index comment set to the file's new words; `campaign_report_inputs` dropped — it held only test values. Then the catalog probes in the second table below. |
 | TEST — the round-1 review delta | 2026-11-21, after the Codex review's round 1 | the owner, by hand: he pasted the whole file — re-runnable since this change — into the SQL editor of `unretire-test` and ran it; his words: *"ok done from my side"*. The builder's tries through `execute_sql` had been declined by the tool's own confirmation for statements that drop something, three times, and the owner chose the by-hand way (a deviation from `supabase/migrations/README.md`, which names `apply_migration`). The migration history keeps its one 0005 row. | Catalog reads and behaviour probes below ("after the round-1 review delta") |
+| TEST — the round-2 review delta | 2026-11-22 (19:08 UTC on 2026-11-21) | builder, through the `supabase-test` MCP `execute_sql`, in ONE call: the file's two `create or replace function` statements (`campaign_report`, `reset_campaign_report`) with their `revoke`/`grant` and `comment` lines, word for word. No `DROP` is needed from the round-1 shape — the signatures and result columns are unchanged — and the tool declines statements that drop. On the owner's YES for the test database (D-59; again on 2026-11-21: *"Yes, update the test database (Recommended)"*). The migration history keeps its one 0005 row. | Catalog reads and behaviour probes below ("after the round-2 review delta") |
 | PROD | [DATE — the owner, Gate 0 item 5] | [the owner, by hand, in the Supabase SQL editor] | [read-only, through `supabase-prod-readonly` after he applies it: tables, RLS, no policy, grants — no rows read] |
 
 **Verified on `unretire-test`, 2026-11-20, at the first apply** (the file then had three tables and two functions; the probes of what Gate B removed are struck):
@@ -103,6 +104,26 @@ exercised on throwaway campaigns only — never `conv1`):
 | A Toolkit-only person (`zz-s62-tk`): the report, then a reset from that empty page | **0** report rows; `reset` true, **0** deleted — the row stays (an empty page deletes nothing); once the person registered, a reset with the new `since` deleted it (0 visits, 1 person) |
 | `conv1` during the probes | untouched: 0 visits and 0 people before and after |
 | Throwaway rows left | **none** (no `zz-s62-` rows in either table) |
+
+**Verified on `unretire-test`, 2026-11-22, after the round-2 review delta** (catalog reads, then the functions
+exercised on throwaway campaigns only — never `conv1`). It supersedes the Toolkit-only row of the table above:
+a campaign that holds only Toolkit sign-ups now has a `since`, and a reset that is given it deletes them.
+
+| Probe | Result |
+|---|---|
+| The report functions in `public` | exactly `campaign_report(text)` → `TABLE(source, visits, registered, since)`, `reset_campaign_report(text, timestamptz)` → `TABLE(reset, visits, people)` and `record_campaign_person(text, text, text, boolean)`; all `SECURITY INVOKER`, `search_path=""`, ACL `{postgres=X/postgres,service_role=X/postgres}`, the file's comments |
+| The two changed bodies against the file | **identical**: `md5(prosrc)` and the length equal the file's text between its `$$` marks for both (`campaign_report` 997 characters, `reset_campaign_report` 797). `record_campaign_person`, which this delta did not touch, is the file's body with Windows line endings (345 characters against 338 — the owner's paste of round 1): the same words |
+| An empty campaign (`zz-s62-r2-empty`) | the report: **one** row — no source, 0 and 0, `since` null. A reset with null: `reset` true, 0 and 0 deleted |
+| A Toolkit-only campaign (`zz-s62-r2-tk`: one person from `linkedin`, not registered) | the report: **one** row — no source, 0 and 0, and a `since` (`2026-11-21T19:08:11.399171+00:00`) |
+| Its reset with null (a page opened before that sign-up), then with an old `since` | `reset` **false** both times, nothing deleted; the person still there |
+| Its reset with the `since` the page was given | `reset` **true**: 0 visits and **1** person deleted |
+| The same person then registers from `instagram` | the report credits **instagram** — 0 visits, 1 registered: the scenario of the review's round-2 Finding 3 |
+| A counted campaign whose first row is a Toolkit-only person (`zz-s62-r2-mix`: that person from `email`, then a `linkedin` visit and a registered `linkedin` person) | the report: one row, `linkedin` 1 and 1, and no row without a source; its `since` is the Toolkit person's `created_at` (`2026-11-21T19:08:46.354956+00:00`), the first row stored |
+| Its reset with the time of the first visit instead | `reset` **false**, nothing deleted (1 visit and 2 people still there) |
+| Its reset with the `since` the page was given | `reset` **true**: **1** visit and **2** people deleted |
+| `conv1` during the probes | untouched: 0 visits and 0 people before and after |
+| Throwaway rows left | **none** (no `zz-s62-` rows in either table) |
+| Migration history | still one row for 0005 |
 
 ## Rollback plan
 

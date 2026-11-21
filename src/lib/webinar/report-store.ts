@@ -125,13 +125,35 @@ export type ReportData = {
   rows: ReportRow[];
   totals: { visits: number; registered: number };
   /**
-   * When the counting this report shows began — campaign_report's `since`,
-   * exactly as the database wrote it — or null when nothing is counted yet.
+   * When the campaign's first row was stored — campaign_report's `since`,
+   * exactly as the database wrote it — or null when the campaign holds no row
+   * at all. It covers every row a reset deletes, people who only asked for the
+   * Toolkit included, so it can be set while every number here is zero.
    * Opaque: never parsed here. The page sends it back with a reset, so the
-   * database deletes only the numbers the page showed (resetReport).
+   * database deletes only what the page stood for (resetReport).
    */
   since: string | null;
 };
+
+/**
+ * Which Supabase project this deployment's report reads and writes: the first
+ * label of NEXT_PUBLIC_SUPABASE_URL's host — the address createAdminClient
+ * (src/lib/supabase/admin.ts) gives every request this module makes. Null when
+ * it cannot be read. Not a secret: it is the public part of the project's
+ * address. The signed-in report carries it (data-report-db), so the one spec
+ * that writes to and resets the report can check, before it does either, that
+ * the deployment it is talking to uses the test database (the Codex review of
+ * S6.2, round 2, Finding 1).
+ */
+export function reportDatabaseRef(): string | null {
+  try {
+    const host = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname;
+    const ref = host.split(".")[0] ?? "";
+    return /^[a-z0-9-]{1,63}$/.test(ref) ? ref : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * The shape of a `since` value as PostgREST writes a timestamptz: a date, a
@@ -188,6 +210,9 @@ export async function readReport(): Promise<ReportData | null> {
       };
       // Every row carries the same `since`; the first usable one is kept.
       if (since === null && isPeriodStamp(row.since)) since = row.since;
+      // A row with no source counts nothing: it is how `since` arrives when
+      // no source has a visit or a registered person.
+      if (row.source === null || row.source === undefined) continue;
       // Only the eight keys are ever written; anything else is folded into
       // "other" rather than dropped, so the totals still add up.
       const key: SourceKey = isSourceKey(row.source) ? row.source : "other";
@@ -218,11 +243,11 @@ export type ResetOutcome = "done" | "stale" | "failed";
 /**
  * "Start again for a new webinar": deletes every counted visit and every
  * counted person of the current campaign, in one statement
- * (reset_campaign_report, migration 0005) — but only if the campaign's
- * counting still began at `since`, the value the page showed (null for an
- * empty report). If a reset happened elsewhere after the page was opened, or
- * an empty report got its first row, the database deletes nothing and the
- * answer is "stale". Never throws. Only POST /report/reset calls it, after a
+ * (reset_campaign_report, migration 0005) — but only if the campaign's first
+ * row is still the one stored at `since`, the value the page was given (null
+ * for a campaign with no row). If a reset happened elsewhere after the page
+ * was opened, or an empty campaign got its first row, the database deletes
+ * nothing and the answer is "stale". Never throws. Only POST /report/reset calls it, after a
  * valid session, this site's own Origin, the rate limit, the report password
  * and the page's campaign. Never retried: the Data API does not retry a write,
  * and the owner clicks again if it failed.

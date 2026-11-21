@@ -875,8 +875,15 @@ Do these when I tell you **"ready for the Codex review"**.
 > **Round 1, 2026-11-21: REQUEST CHANGES** — three findings that had to be fixed and one that should be, all now
 > fixed (the record and my answers are in `docs/code-reviews/S6.2-webinar-report-review.md`). You approved the
 > new sentence for an out-of-date reset page, said yes to fixing the sign-up form's matching gap (D-67) and to
-> updating the test database, and pasted that update yourself: *"ok done from my side"*. **Round 2:** the same
-> three steps, 10.2h to 10.2j, when I tell you again.
+> updating the test database, and pasted that update yourself: *"ok done from my side"*. You then ran round 2
+> the same way.
+>
+> **Round 2, 2026-11-21: REQUEST CHANGES** — round 1's two main points were found fixed; one new finding had to
+> be fixed (the reset test must prove it is on the test database) and two should be (a tab opened by another
+> tab; Toolkit-only sign-ups and the reset). All three are fixed, and this time I updated the test database
+> myself. You accepted one rare, written-down counting limit on 2026-11-22: *"Yes, accept it (Recommended)"*
+> (`docs/PROJECT-STATUS.md` D-68; in plain words in runbook §16.2). **Round 3:** the same three steps, 10.2h to
+> 10.2j, when I tell you again.
 
 ### 10.3 Before the merge — the live database, then the live values · 10 minutes
 

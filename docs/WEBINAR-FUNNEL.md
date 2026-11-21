@@ -1463,6 +1463,7 @@ At the top, under the title: the webinar's name, the same as on the sign-up page
 - **The report will not match Mailchimp exactly.** Mailchimp also holds your test contacts and the people who signed up before your last reset (§16.6). And the report counts someone whose address Mailchimp will not email, such as someone who unsubscribed in the past: they did sign up.
 - **A row can show more registrations than visits**, and so a conversion over 100%. A visit is counted by the visitor's own browser, and now and then a browser or a blocker stops it. A sign-up is counted by the site itself. And a person stays in the row of their first sign-up, even when this visit came from another link.
 - **Vercel's own Analytics page shows other numbers.** It counts every page view, and it cannot tie a visit to a sign-up. For the webinar, use this report.
+- **When a website opens your sign-up page in a new tab.** That tab is counted as its own visit, under its own link. One rare case is a known limit, which you accepted on 2026-11-22: if the first tab is then closed (or that website cuts the tie between the two tabs) and the new tab shows another page of the site before the sign-up page, that one visit can be missed and its sign-up credited to the first tab's link. The same can happen in a few older browsers. A tab like that can also be counted twice if it leaves the site and comes back by a link. None of this touches people who tap your links in Instagram, LinkedIn, Facebook, WhatsApp or an email.
 
 ### 16.3 Your links · 1 minute
 

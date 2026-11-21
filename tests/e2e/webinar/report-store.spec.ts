@@ -5,6 +5,7 @@ import {
   readReport,
   recordArrival,
   recordSignup,
+  reportDatabaseRef,
   resetReport,
 } from "../../../src/lib/webinar/report-store";
 import { SOURCE_KEYS } from "../../../src/lib/webinar/sources";
@@ -504,14 +505,63 @@ test.describe("S6.2 report store — reading the report", () => {
   });
 
   test("PG-016 nothing counted yet, as just after a reset: eight rows of zeros", async () => {
-    database = routes({ [REPORT_RPC]: () => json(200, []) });
+    // A campaign with no row at all: the function's one row has no source
+    // and no since. (No row at all is read the same way.)
+    for (const [label, answer] of [
+      [
+        "one row without a source",
+        [{ source: null, visits: 0, registered: 0, since: null }],
+      ],
+      ["no row", []],
+    ] as const) {
+      freshCase();
+      database = routes({ [REPORT_RPC]: () => json(200, answer) });
+      expect(await readReport(), label).toStrictEqual({
+        rows: SOURCE_KEYS.map((source) => ({
+          source,
+          visits: 0,
+          registered: 0,
+        })),
+        totals: { visits: 0, registered: 0 },
+        since: null,
+      });
+      expect(calls, label).toHaveLength(1);
+      expect(logged, label).toEqual([]);
+    }
+  });
+
+  test("FM-013 a report with nothing to count still carries since: a row with no source counts nothing — it is how the reset learns of people who only asked for the Toolkit", async () => {
+    // The independent review's round 2, Finding 3: such people are not on
+    // the report, but a reset must delete them, so the page must be able to
+    // send their campaign's since back.
+    database = routes({
+      [REPORT_RPC]: () =>
+        json(200, [{ source: null, visits: 0, registered: 0, since: SINCE }]),
+    });
     expect(await readReport()).toStrictEqual({
       rows: SOURCE_KEYS.map((source) => ({ source, visits: 0, registered: 0 })),
       totals: { visits: 0, registered: 0 },
-      since: null,
+      since: SINCE,
     });
-    expect(calls).toHaveLength(1);
     expect(logged).toEqual([]);
+  });
+
+  test("PG-016 a row with no source is never counted, whatever numbers it carries — not even under other", async () => {
+    database = routes({
+      [REPORT_RPC]: () =>
+        json(200, [
+          { source: null, visits: 9, registered: 9, since: SINCE },
+          { source: "linkedin", visits: 2, registered: 1, since: SINCE },
+        ]),
+    });
+    const report = await readReport();
+    expect(report?.totals).toEqual({ visits: 2, registered: 1 });
+    expect(report?.rows.find((row) => row.source === "other")).toEqual({
+      source: "other",
+      visits: 0,
+      registered: 0,
+    });
+    expect(report?.since).toBe(SINCE);
   });
 
   test("FM-013 when the counting began is kept exactly as the database wrote it — never parsed — and anything else is null", async () => {
@@ -610,7 +660,7 @@ test.describe("S6.2 report store — starting again for a new webinar", () => {
     expect(levels).toEqual(["info"]);
   });
 
-  test("FM-013 an empty report's reset sends since null", async () => {
+  test("FM-013 a campaign with no row at all: the reset sends since null", async () => {
     database = routes({
       [RESET_RPC]: () => json(200, [{ reset: true, visits: 0, people: 0 }]),
     });
@@ -681,5 +731,45 @@ test.describe("S6.2 report store — starting again for a new webinar", () => {
     expect(waited, "milliseconds the reset waited").toBeLessThan(15_000);
     expectOneLine("Webinar report not reset", null, "a hung request");
     expect(levels, "a hung request: console.error").toEqual(["error"]);
+  });
+});
+
+test.describe("S6.2 report store — which database (the independent review's round 2, Finding 1)", () => {
+  test("PG-016 the report names its database: the project in the address every request of this module goes to", async () => {
+    // beforeEach points the module at https://dummy-project-ref.supabase.co.
+    expect(reportDatabaseRef()).toBe("dummy-project-ref");
+
+    // And that is where a request really goes: the name is not a second,
+    // separate setting that could say one thing while the client does another.
+    database = routes({ [REPORT_RPC]: () => json(200, []) });
+    await readReport();
+    expect(calls).toHaveLength(1);
+    expect(new URL(calls[0]!.url).hostname).toBe(
+      `${reportDatabaseRef()}.supabase.co`,
+    );
+  });
+
+  test("PG-016 the name follows the configured address, and is null when there is none to read", async () => {
+    const cases: [string, string | undefined, string | null][] = [
+      [
+        "the test project",
+        "https://dtdadtggahjsrmevwvbu.supabase.co",
+        "dtdadtggahjsrmevwvbu",
+      ],
+      [
+        "the live project",
+        "https://hcjivvlwxltyiycfbttc.supabase.co",
+        "hcjivvlwxltyiycfbttc",
+      ],
+      ["a trailing path", "https://abc123.supabase.co/rest/v1", "abc123"],
+      ["not set", undefined, null],
+      ["empty", "", null],
+      ["not an address", "not a url", null],
+    ];
+    for (const [label, value, expected] of cases) {
+      if (value === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+      else process.env.NEXT_PUBLIC_SUPABASE_URL = value;
+      expect(reportDatabaseRef(), label).toBe(expected);
+    }
   });
 });

@@ -11,7 +11,11 @@ import { COPY } from "../../../src/app/conversation/copy";
 import { REPORT_COPY } from "../../../src/app/report/copy";
 import { SOURCE_KEYS, type SourceKey } from "../../../src/lib/webinar/sources";
 import { guarded } from "./request-guard";
-import { isPreviewHost } from "./test-database";
+import {
+  isTestDatabase,
+  isWorkflowPreview,
+  TEST_DATABASE_REF,
+} from "./test-database";
 
 /**
  * Sprint S6.2 — /report, the owner's webinar report, over HTTP and in a real
@@ -30,13 +34,16 @@ import { isPreviewHost } from "./test-database";
  * webinar specs: a deployment without REPORT_PASSWORD and REPORT_SECRET shows
  * the "not switched on" line, and the locked checks then skip, visibly.
  *
- * ALLOWED ONLY WITH E2E_REPORT_PASSWORD. The signed-in half needs the
- * deployment's test password, which only the "E2E — Preview" workflow holds
- * (a repository secret), or a local shell that sets it for one run. Without
- * it those tests SKIP, visibly. A skip is not a pass: the run that counts as
- * evidence is the one whose report shows they ran. With it, a deployment
- * whose report is switched off is a FAILURE, not a skip — the secret says the
- * report is meant to be on.
+ * ALLOWED ONLY WITH THE TEST PASSWORD AND A PROVEN PREVIEW. The signed-in
+ * half needs the deployment's test password AND the origin the "E2E —
+ * Preview" workflow resolved for this run (E2E_REPORT_PASSWORD, a repository
+ * secret, and E2E_PREVIEW_ORIGIN; only that workflow sets both — see WHAT IT
+ * WRITES). Without the password, or anywhere but that Preview, those tests
+ * SKIP, visibly: a password set by hand in a local shell is never enough. A
+ * skip is not a pass: the run that counts as evidence is the one whose
+ * report shows they ran. In CI the password without the proven origin is a
+ * FAILURE, not a skip, and so is a deployment whose report is switched off —
+ * the secret says the report is meant to be on.
  *
  * THE PASSWORD AND THE SESSION ARE NEVER PRINTED.
  *   • Neither reaches an `expect`: each is reduced to true/false first.
@@ -73,14 +80,20 @@ import { isPreviewHost } from "./test-database";
  * WHAT IT WRITES — only with the test password: ONE visit, under "other";
  * then, after every test that reads the numbers, ONE real reset, which
  * DELETES every visit and every person counted for the campaign, as the
- * owner's button does. So that half runs ONLY on a Vercel Preview of this
- * project: Previews use the test database, unretire-test, by the hosting
- * configuration, and tests/e2e/parity/signup.spec.ts proves the binding. On
- * any other target — a local server, whose database this spec cannot see, or
- * the live site — testPassword() skips it, by name, before a request is sent
- * (Codex review of S6.2, Finding 2). The reset's other cases, a stale page
- * among them, run without any database in report-reset-route.spec.ts. No spec
- * sends a valid sign-up (D-22).
+ * owner's button does. That is safe only on the test database, and a
+ * hostname cannot prove a database, so the signed-in half needs TWO PROOFS
+ * (./test-database.ts; the independent review of S6.2 — round 1, Finding 2,
+ * and round 2, Finding 1) and skips, by name, when either is missing:
+ *   1. before the test password is sent anywhere, the target must be exactly
+ *      the Preview the "E2E — Preview" workflow resolved through GitHub's
+ *      Deployments API (E2E_PREVIEW_ORIGIN, which only that workflow sets) —
+ *      never an address typed by hand, a local server or the live site;
+ *   2. before anything is stored or deleted, the signed-in report itself must
+ *      say its numbers come from unretire-test (data-report-db). The sign-in
+ *      test reads it and FAILS if it names anything else, which stops every
+ *      test after it; each test that stores or deletes checks it again.
+ * The reset's other cases, a stale page among them, run without any database
+ * in report-reset-route.spec.ts. No spec sends a valid sign-up (D-22).
  *
  * FEW PAGE LOADS. A dev server can take seconds for one browser page load
  * (each load is one more chance of a slow one), and a plain request for the
@@ -145,9 +158,12 @@ const OFF_SKIP =
 const NO_PASSWORD =
   "E2E_REPORT_PASSWORD is not set, so the signed-in half of the report is not exercised by this run";
 const PREVIEW_ONLY =
-  "the signed-in half stores a visit and deletes every count, so it runs only on a Vercel Preview of " +
-  "this project, whose database is unretire-test (tests/e2e/parity/signup.spec.ts) — never against a " +
-  "server whose database this spec cannot see";
+  "the signed-in half sends the test password, stores a visit and deletes every count, so it runs only " +
+  "against the Preview the E2E — Preview workflow resolved (E2E_PREVIEW_ORIGIN, which only that " +
+  "workflow sets) — never against an address typed by hand, whose database this spec cannot know";
+const WRONG_DATABASE =
+  "the signed-in report did not say that its numbers come from the test database (data-report-db), so " +
+  "nothing is stored or reset";
 
 function getPage(
   api: APIRequestContext,
@@ -280,10 +296,22 @@ async function readFunnel(api: APIRequestContext): Promise<Funnel> {
 }
 
 /**
+ * Proof 1 (see WHAT IT WRITES): this run's target is exactly the Preview the
+ * workflow resolved. Without it the test password is sent nowhere.
+ */
+function targetIsWorkflowPreview(): boolean {
+  return isWorkflowPreview(
+    test.info().project.use.baseURL,
+    process.env.E2E_PREVIEW_ORIGIN,
+  );
+}
+
+/**
  * The test password, or a visible skip. The signed-in half stores a visit and
  * deletes every count, so it never runs against the live site: the harness
  * lets a run reach it only as the morning check, which holds no secret, and
- * this refuses it before a single request is sent.
+ * this refuses it before a single request is sent. And the password goes
+ * only to the Preview the workflow resolved (proof 1).
  */
 function testPassword(): string {
   const value = process.env.E2E_REPORT_PASSWORD ?? "";
@@ -293,7 +321,34 @@ function testPassword(): string {
     host,
     "the report spec's signed-in half stores a visit and deletes every count: it never runs against the live site",
   ).not.toBe(PRODUCTION_HOST);
-  test.skip(!isPreviewHost(host), PREVIEW_ONLY);
+  const proven = targetIsWorkflowPreview();
+  // In CI the password comes from the "E2E — Preview" workflow, which passes
+  // the origin it resolved beside it. The password without that proof means
+  // the workflow is broken: a FAILURE there, never a quiet skip that would
+  // leave the run green with this half not run.
+  expect(
+    proven || !process.env.CI,
+    "E2E_REPORT_PASSWORD is set in CI, but E2E_PREVIEW_ORIGIN does not name this run's target: the " +
+      "E2E — Preview workflow must pass both, or the report's signed-in half would be skipped unnoticed",
+  ).toBe(true);
+  test.skip(!proven, PREVIEW_ONLY);
+  return value;
+}
+
+/**
+ * Proof 2 (see WHAT IT WRITES): what the signed-in report says its database
+ * is — the Supabase project named by data-report-db — read by the sign-in
+ * test, before anything is stored or deleted. Null until then.
+ */
+let database: string | null = null;
+
+/**
+ * The test password for a test that STORES OR DELETES: both proofs, or a
+ * visible skip. Every such test starts with this, before any request.
+ */
+function passwordForWrites(): string {
+  const value = testPassword();
+  test.skip(!isTestDatabase(database), WRONG_DATABASE);
   return value;
 }
 
@@ -446,7 +501,10 @@ function reportRoot(page: Page) {
   return page.locator("[data-report-state]");
 }
 
-/** The page root carries its state and no other data. */
+/**
+ * The names of the data the page root carries: its state — and, on the open
+ * report only, the name of its database (data-report-db).
+ */
 async function rootData(page: Page): Promise<string[]> {
   return reportRoot(page).evaluate((el) =>
     Object.keys((el as HTMLElement).dataset),
@@ -904,7 +962,20 @@ test.describe("PG-016 — allowed: with the test password", () => {
     session = value;
 
     // That cookie opens the report, numbers and all.
-    expect(hasNumbers(await signedInHtml(api, "/report"))).toBe(true);
+    const html = await signedInHtml(api, "/report");
+    expect(hasNumbers(html)).toBe(true);
+
+    // PROOF 2, before any test stores or deletes: the report names the
+    // database its numbers come from, and it is the test one. Anything else —
+    // a Preview given the live database's values, or a build that does not
+    // say — FAILS here, and in this serial file that stops every test after
+    // it: no visit is stored and nothing is reset.
+    database = attribute(html, "data-report-db") || null;
+    expect(
+      database,
+      "this deployment's report does not use the test database, unretire-test (or does not say which it " +
+        "uses): its Supabase values are wrong for a Preview, and nothing may be stored or reset on it",
+    ).toBe(TEST_DATABASE_REF);
   });
 
   test("PG-016 open, in a real browser: the form signs in; the webinar's name, three cards, eight rows in order and a total, each conversion its own ratio, and the reset form — in the copy's words", async ({
@@ -966,9 +1037,14 @@ test.describe("PG-016 — allowed: with the test password", () => {
       "a script on the page can read the session",
     ).toBe(false);
 
+    // The open report's root carries its state and the name of its database
+    // — the test one, which the sign-in test read before any write — and
+    // nothing else. (Off and locked, above, carry the state alone.)
+    expect(await rootData(page)).toEqual(["reportState", "reportDb"]);
+    await expect(root).toHaveAttribute("data-report-db", TEST_DATABASE_REF);
+
     // The page around the numbers: the heading, then the webinar's name —
     // the sign-up page's own title, so the two can never differ.
-    expect(await rootData(page)).toEqual(["reportState"]);
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.locator("h1")).toHaveText(REPORT_COPY.header.title);
     await expect(root.locator("h1 + p")).toHaveText(COPY.hero.title);
@@ -1161,7 +1237,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
     api,
     baseURL,
   }) => {
-    testPassword();
+    passwordForWrites();
     const funnel = await readFunnel(api);
     test.skip(
       funnel !== "open",
@@ -1213,7 +1289,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
     api,
     baseURL,
   }) => {
-    const password = testPassword();
+    const password = passwordForWrites();
     const before = await numbersNow(api);
     const own = ownOrigin(baseURL);
 
@@ -1269,7 +1345,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
     api,
     baseURL,
   }) => {
-    testPassword();
+    passwordForWrites();
     const before = await numbersNow(api);
 
     // Signed in and from this site, so this reset passes the session and the
@@ -1335,7 +1411,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
     api,
     baseURL,
   }) => {
-    const password = testPassword();
+    const password = passwordForWrites();
     const before = await numbersNow(api);
 
     // The case the Codex review's Finding 1 names, and the one only the
@@ -1365,7 +1441,7 @@ test.describe("PG-016 — allowed: with the test password", () => {
     page,
     baseURL,
   }) => {
-    const password = testPassword();
+    const password = passwordForWrites();
     const errors = collectErrors(page);
     const root = reportRoot(page);
 
@@ -1475,8 +1551,12 @@ test.describe("PR-011 — last: the sign-in limiter", () => {
     );
 
     // FAILS CLOSED: while the limit holds, even the right password is turned
-    // away — the limit is checked before the password is.
-    const password = process.env.E2E_REPORT_PASSWORD ?? "";
+    // away — the limit is checked before the password is. The test password
+    // is sent only to the Preview the workflow resolved (proof 1, as in
+    // testPassword); anywhere else this last step is left out.
+    const password = targetIsWorkflowPreview()
+      ? (process.env.E2E_REPORT_PASSWORD ?? "")
+      : "";
     if (password !== "") {
       expect(
         redirectOf(await signIn(api, password)),
