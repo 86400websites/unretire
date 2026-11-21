@@ -15,6 +15,12 @@ import {
  * pull request. The route's reachability, its 400 and its rate limit are
  * covered over HTTP by tests/e2e/abuse/public-write-endpoints.spec.ts, with
  * payloads this file proves are refused before any fetch.
+ *
+ * Sprint S6.2 adds the optional `source` field — draft FEATURE-LIST line
+ * IN-009 (the sign-up carries the tab's source). The last block proves it can
+ * never decide a sign-up: one of the report's eight keys passes through,
+ * anything else or nothing becomes "other", a valid source never rescues an
+ * invalid payload, and an invalid one never refuses a valid payload.
  */
 
 /** Narrow an accepted result, failing loudly instead of silently skipping. */
@@ -45,6 +51,8 @@ test.describe("S6.1 registration payload — what is accepted", () => {
       form: "register",
       email: "reader@example.com",
       firstName: "Maher",
+      // `source` arrived in S6.2 (the webinar report); none was sent: "other".
+      source: "other",
     });
     expect(accept({ ...VALID, form: "toolkit" }).form).toBe("toolkit");
     expect([...REGISTRATION_FORMS]).toEqual(["register", "toolkit"]);
@@ -64,6 +72,8 @@ test.describe("S6.1 registration payload — what is accepted", () => {
       "firstName",
       "form",
       "ok",
+      // `source` arrived in S6.2 (the webinar report).
+      "source",
     ]);
     expect(
       ({} as Record<string, unknown>).polluted,
@@ -213,6 +223,194 @@ test.describe("S6.1 registration payload — what is refused", () => {
       expect(Object.keys(parsed).sort()).toEqual(["code", "ok"]);
       const { code } = parsed as { code: string };
       expect(CODES.has(code), `unexpected code: "${code}"`).toBe(true);
+    }
+  });
+});
+
+test.describe("S6.2 registration payload — the optional source", () => {
+  /**
+   * The report's eight keys, typed out on purpose: the link contract is fixed
+   * (the sprint record's "Link contract"), so a renamed or dropped key must
+   * turn this file red instead of quietly following src/lib/webinar/sources.ts.
+   */
+  const KEYS = [
+    "linkedin",
+    "instagram",
+    "facebook",
+    "whatsapp",
+    "email",
+    "meta-ads",
+    "linkedin-ads",
+    "other",
+  ];
+
+  /**
+   * Values that are not a key, of every type a caller can send — including
+   * the values the links carry (utm_source=newsletter, utm_medium=paid),
+   * which are not keys themselves.
+   */
+  const NOT_KEYS: unknown[] = [
+    "tiktok",
+    "LinkedIn",
+    "LINKEDIN",
+    " linkedin",
+    "linkedin ",
+    "newsletter",
+    "meta",
+    "paid",
+    "Other",
+    "meta_ads",
+    "",
+    "constructor",
+    "__proto__",
+    42,
+    0,
+    true,
+    false,
+    null,
+    undefined,
+    {},
+    { key: "linkedin" },
+    ["linkedin"],
+    { toString: () => "linkedin" },
+  ];
+
+  /** Every shape the S6.1 cases above accept. */
+  const ACCEPTED: Record<string, unknown>[] = [
+    VALID,
+    { ...VALID, form: "toolkit" },
+    { form: "toolkit", email: "reader@example.com" },
+    {
+      form: "register",
+      firstName: "  Maher  ",
+      email: "  reader@example.com  ",
+    },
+    { ...VALID, firstName: "" },
+    { ...VALID, [HONEYPOT_FIELD]: "" },
+    { ...VALID, firstName: "n".repeat(100) },
+    { ...VALID, email: `${"a".repeat(242)}@example.com` },
+  ];
+
+  /** A value, written out for an expect message. */
+  function label(value: unknown): string {
+    return JSON.stringify(value) ?? String(value);
+  }
+
+  test("IN-009 each of the eight keys passes through as the source, on both forms, and changes nothing else", () => {
+    for (const body of ACCEPTED) {
+      for (const key of KEYS) {
+        expect(accept({ ...body, source: key }), key).toEqual({
+          ...accept(body),
+          source: key,
+        });
+      }
+    }
+  });
+
+  test("IN-009 an unknown string, a number, an object, null, an empty string or no source at all is 'other' — never a refusal", () => {
+    for (const body of ACCEPTED) {
+      // No source at all.
+      expect(accept(body).source).toBe("other");
+      // `accept` throws if any of these is refused.
+      for (const source of NOT_KEYS) {
+        expect(accept({ ...body, source }), label(source)).toEqual({
+          ...accept(body),
+          source: "other",
+        });
+      }
+    }
+    // A key smuggled in through the prototype of a JSON body is not the
+    // body's own source.
+    expect(
+      accept(
+        JSON.parse(
+          '{"form":"register","email":"reader@example.com","__proto__":{"source":"linkedin"}}',
+        ),
+      ).source,
+    ).toBe("other");
+  });
+
+  test("IN-009 a valid source never rescues an invalid payload: every S6.1 refusal keeps its code, and carries no source", () => {
+    // The S6.1 refusals above, case for case. A body that is not an object
+    // (null, a string, a number) cannot carry a source at all; an ARRAY can
+    // be given one as a property, and is still refused.
+    const refused: [
+      Record<string, unknown> | unknown[],
+      RegistrationErrorCode,
+    ][] = [
+      [{}, "invalid-request"],
+      [[], "invalid-request"],
+      [["a"], "invalid-request"],
+      [
+        { form: "register", email: "nope", [HONEYPOT_FIELD]: "x" },
+        "invalid-request",
+      ],
+      [{ ...VALID, email: `${"a".repeat(243)}@example.com` }, "email-too-long"],
+      [{ ...VALID, firstName: "n".repeat(101) }, "name-too-long"],
+    ];
+    for (const form of [
+      undefined,
+      null,
+      "",
+      "Register",
+      "register ",
+      "purchased-course",
+      "conv1-registered",
+      "premium",
+      42,
+      ["register"],
+      { toString: () => "register" },
+    ]) {
+      refused.push([{ ...VALID, form }, "invalid-request"]);
+    }
+    for (const value of [
+      "x",
+      " ",
+      "https://spam.example",
+      0,
+      1,
+      false,
+      null,
+      {},
+      [],
+    ]) {
+      refused.push([{ ...VALID, [HONEYPOT_FIELD]: value }, "invalid-request"]);
+    }
+    for (const email of [
+      undefined,
+      null,
+      "",
+      "   ",
+      "not-an-email",
+      "no-at-sign.example",
+      "spaces in@example.com",
+      "trailing@",
+      "@example.com",
+      "two@@example.com",
+      42,
+      ["a@b.co"],
+      { toString: () => "x@y.z" },
+    ]) {
+      refused.push([{ ...VALID, email }, "invalid-email"]);
+    }
+    for (const firstName of [42, null, ["Maher"], { name: "Maher" }, true]) {
+      refused.push([{ ...VALID, firstName }, "invalid-request"]);
+    }
+
+    for (const [body, code] of refused) {
+      expect(rejection(body), `${label(body)} without a source`).toBe(code);
+      for (const source of [...KEYS, ...NOT_KEYS]) {
+        const withSource = Array.isArray(body)
+          ? Object.assign([...body], { source })
+          : { ...body, source };
+        const parsed = validateRegistrationPayload(withSource);
+        expect(
+          parsed.ok ? "ACCEPTED" : parsed.code,
+          `${label(body)} with source ${label(source)}`,
+        ).toBe(code);
+        // Still only { ok, code }: a source never rides out on a refusal.
+        expect(Object.keys(parsed).sort()).toEqual(["code", "ok"]);
+      }
     }
   });
 });

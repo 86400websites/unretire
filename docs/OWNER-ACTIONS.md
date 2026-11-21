@@ -807,6 +807,143 @@ No money moves: this is the test copy of the site and Stripe's test card. It pro
 
 ---
 
+## PART 10 — Webinar report · S6.2 (added 2026-11-20) · a few minutes at a time
+
+> The report is being built in the branch `claude/s6.2-webinar-report`: one private page, `/report`, with your
+> numbers for each webinar, and one fixed tracking link per platform for your team. Every click you need is in
+> **`docs/WEBINAR-FUNNEL.md` §16** ("the runbook"). This part is only the order. Do the items **in order**.
+> Nothing here needs code. The values go into Vercel and GitHub only — never into a chat, a document or this file.
+>
+> **✅ ANSWERED 2026-11-20 — Gate 0 items 1–3.** Your words: *"go, yes to all"*. Recorded in
+> `docs/PROJECT-STATUS.md` §8: **D-59** (I may make the database change on the test database), **D-60** (Commit
+> and Push, to this branch only), **D-61** (S6.1's records closed out here) and **D-62** (I go from one step to
+> the next without waiting).
+
+### 10.1 Before I can test · 5 minutes
+
+- [x] **10.1a** Make up a **test** password: 12 or more letters and digits, no spaces. **Not** the one you will use on the live site: this one also goes to the test robot. Keep it in your password manager.
+- [x] **10.1b** In Vercel, add `REPORT_PASSWORD` for **Preview** only, with that test password. Type: **Secret**. Steps: runbook §3.2, "To add a value that is not there yet" — but skip its step 6 (Redeploy): my next push builds a new Preview, and it picks the value up.
+- [x] **10.1c** In Vercel, add `REPORT_SECRET` for **Preview** only: 40 or more random letters and digits from a password generator, used nowhere else. Type: **Secret**. Same steps, same skip. You never need it again, so you do not have to keep it.
+- [x] **10.1d** In GitHub, add the repository secret `E2E_REPORT_PASSWORD`, with the same test password (steps below).
+- [x] **10.1e** Tell me **"done"**. I check the GitHub secret by its name only. You tell me that `REPORT_PASSWORD` and `REPORT_SECRET` are listed for **Preview**. Never send me a value.
+
+> **✅ DONE 2026-11-20.** Your words: *"Ok done"*, with screenshots: Vercel lists `REPORT_PASSWORD` and `REPORT_SECRET` for **Preview**, both locked, and GitHub says "Repository secret added" for `E2E_REPORT_PASSWORD` (I checked it by name only).
+
+**10.1d, step by step:**
+
+1. Open `https://github.com/86400websites/unretire`.
+2. Under the repository name, click **Settings**.
+3. In the sidebar, click **Secrets and variables**.
+4. Click **Actions**.
+5. Click the **Secrets** tab.
+6. Click **New repository secret**.
+7. In the **Name** field, paste `E2E_REPORT_PASSWORD`.
+8. In the **Secret** field, paste your test password.
+9. Click **Add secret**.
+
+### 10.2 Gate B — look at the report and approve its words · 10 minutes
+
+> **✅ First look, 2026-11-20.** You made the report simpler and kept the orange numbers. Your words, to my plan:
+> *"go, yes keep orange"* (`docs/PROJECT-STATUS.md` D-65 quotes your whole message; the orange is D-63). Now
+> look at the simpler page.
+
+- [x] **10.2a** Wait for my message. It holds the Preview's report address, the report's words as a short list, the new privacy-page sentences in full, and the new feature lines (what the tests will check).
+- [x] **10.2b** Open the address. Sign in to Vercel if asked.
+- [x] **10.2c** Type your **test** password in the **Password** box.
+- [x] **10.2d** Click **Open the report**.
+- [x] **10.2e** Look at the page. The numbers are test numbers: only the words and the look matter now. What each part means: runbook §16.2; what the reset does: runbook §16.6. Check that you see, from the top:
+  - **Webinar report**, and under it only the webinar's name, "When Work No Longer Defines You, What Does?";
+  - three cards, with the numbers in orange: **Visits to the sign-up page**, **Registered** and **Conversion**;
+  - the table **Where people came from**, with the columns **Where from**, **Visits**, **Registered** and **Conversion**, and a **Total** row;
+  - at the bottom, **Start again for a new webinar**: one **Password** box and the **Reset the numbers** button;
+  - no "Counting from", no "Showed up" and no **Save** button.
+- [x] **10.2f** Read the privacy sentences and the feature lines in my message.
+- [x] **10.2g** Reply **"approved"**, or tell me what to change. One reply covers the whole message.
+
+> **✅ APPROVED 2026-11-21.** Your words: *"Ok approved, thank you. As for privacy policy, keep as is."* The report's words and the feature lines are
+> approved. Asked about the privacy page, you chose **"Leave the page unchanged"**: it stays as it is
+> (`docs/PROJECT-STATUS.md` D-66). You also tried the reset on the test copy: the test numbers went to zero.
+
+### Between 10.2 and 10.3 — the Codex review · a few minutes
+
+Do these when I tell you **"ready for the Codex review"**.
+
+- [x] **10.2h** *(Done 2026-11-22, four rounds.)* Open Codex in the project folder, the way you did for S6.1 (PART 9.3a).
+- [x] **10.2i** *(Done 2026-11-22.)* Ask it to run the review in `docs/code-reviews/S6.2-webinar-report-review.md`.
+- [x] **10.2j** *(Done 2026-11-22: round 4 said **APPROVE**.)* When it finishes, copy its whole answer and paste it to me. If it finds problems, I fix them and we run it again. We go on to 10.3 only when it says **APPROVE**.
+
+> **Round 1, 2026-11-21: REQUEST CHANGES** — three findings that had to be fixed and one that should be, all now
+> fixed (the record and my answers are in `docs/code-reviews/S6.2-webinar-report-review.md`). You approved the
+> new sentence for an out-of-date reset page, said yes to fixing the sign-up form's matching gap (D-67) and to
+> updating the test database, and pasted that update yourself: *"ok done from my side"*. You then ran round 2
+> the same way.
+>
+> **Round 2, 2026-11-21: REQUEST CHANGES** — round 1's two main points were found fixed; one new finding had to
+> be fixed (the reset test must prove it is on the test database) and two should be (a tab opened by another
+> tab; Toolkit-only sign-ups and the reset). All three are fixed, and this time I updated the test database
+> myself. You accepted one rare, written-down counting limit on 2026-11-22: *"Yes, accept it (Recommended)"*
+> (`docs/PROJECT-STATUS.md` D-68; in plain words in runbook §16.2). You then ran round 3 the same way.
+>
+> **Round 3, 2026-11-22: REQUEST CHANGES** — everything from rounds 1 and 2 was found fixed. One finding was left,
+> and it had to be fixed: before the reset test deletes anything it checks that it is on the test database, and
+> that check read only the first part of the database's address. It now needs the whole address to match,
+> exactly. Fixed; nothing for you to do or decide, and nothing changed on the report you see or in either
+> database. You then ran round 4 the same way.
+>
+> **Round 4, 2026-11-22: ✅ APPROVE — no findings.** The review is finished. Next is 10.3, below: the live
+> database, the two live values, then the merge.
+
+### 10.3 Before the merge — the live database, then the live values · 10 minutes
+
+Do these when I tell you the checks are green and the review says APPROVE — **in this order**. The live database must be ready before the new code arrives. (If it is not, the report shows its error line until it is. Sign-ups are never affected.)
+
+- [ ] **10.3a** Run the database change in Supabase, project `unretire-prod` (steps below).
+- [ ] **10.3b** In Vercel, add `REPORT_PASSWORD` for **Production** only: your **real** report password — 12 or more letters and digits, used nowhere else, **not** your test password. Type: **Secret**. Steps: runbook §3.2, "To add a value that is not there yet" — but skip its step 6 (Redeploy): the merge builds the new live site, and it picks the value up. Keep the password in your password manager.
+- [ ] **10.3c** In Vercel, add `REPORT_SECRET` for **Production** only: 40 or more **new** random letters and digits from a password generator — not the Preview one. Type: **Secret**. Same steps, same skip. Set it once and leave it: runbook §2.4 says why.
+- [ ] **10.3d** Merge the pull request on GitHub.
+- [ ] **10.3e** Tell me **"merged"**. I then check the live site, and read the shape of the live database's new tables (never their rows) to confirm the change.
+
+**10.3a, step by step.** First copy the file:
+
+1. Open `https://github.com/86400websites/unretire/blob/claude/s6.2-webinar-report/supabase/migrations/0005_campaign_report.sql`. (After the merge that address is gone; use `https://github.com/86400websites/unretire/blob/master/supabase/migrations/0005_campaign_report.sql` instead.)
+2. In the upper-right corner of the file, click **Raw**. The page now shows the text only.
+3. Press **Ctrl+A** (on a Mac: **Cmd+A**) to select all of it.
+4. Press **Ctrl+C** (on a Mac: **Cmd+C**) to copy it.
+
+Then run it:
+
+5. Open `https://supabase.com/dashboard`. Sign in if asked.
+6. Click the project `unretire-prod`. **Not** `unretire-test`.
+7. Open the **SQL Editor**.
+8. Open a new, empty query. (label not confirmed — tell me if your screen differs)
+9. Click inside the empty editor.
+10. Press **Ctrl+V** (on a Mac: **Cmd+V**) to paste.
+11. Check the start and the end: the text starts with `-- 0005_campaign_report.sql` and ends with `service_role only.';`.
+12. Click **Run**.
+13. Read the message under the editor. It should say the query worked. (The exact words: label not confirmed — tell me if your screen differs.)
+14. If you see an error, or a box that asks you to confirm something, stop. Click nothing in it. Send me a screenshot.
+
+If you are not sure it ran, running it again does no harm.
+
+### 10.4 At go-live — reset your report, put your links up, then the phone test · 10 minutes
+
+Do this as runbook **§9.9**: after I tell you the live site is checked, **and** after every other go-live step for your real webinar is done (runbook §9.1 to §9.8). **Not before.** Putting a link in your bio or a post announces the sign-up page, and anyone who signs up gets Email 1 at once (the rule at the start of runbook §9). After each tap, close the page that opened.
+
+- [ ] **10.4a** Open your report on the live site (runbook §16.1), with your **real** password. Reset it, just before your links go up (runbook §16.6): type the password again in the box under **Start again for a new webinar**, click **Reset the numbers**, and check that **Done. Counting starts again from zero.** appears. This deletes your team's practice visits and sign-ups.
+- [ ] **10.4b** Put the Instagram link in your bio and in a Story, and the LinkedIn link in a post (runbook §16.4).
+- [ ] **10.4c** Refresh the report. Write down the **Visits** in the **Instagram** row and in the **LinkedIn** row. Both are 0 after the reset, unless a follower has already tapped a link. Your own taps below stay in the numbers, a handful of visits; that is expected.
+- [ ] **10.4d** On your phone, tap the link in your Instagram bio.
+- [ ] **10.4e** On your phone, tap the **Link** sticker on your Instagram Story.
+- [ ] **10.4f** On your phone, tap the link in your LinkedIn post.
+- [ ] **10.4g** Refresh the report. **Instagram** should be up by at least two (one for each of your Instagram taps), and **LinkedIn** by at least one. More is fine: your followers may be tapping too.
+- [ ] **10.4h** Tell me what you see. A screenshot of the table is perfect. Then give your team the links (runbook §16.3).
+
+If a link opens a page that says "not found", the live sign-up page is switched off. Tell me.
+
+**After the webinar there is nothing to type into the report.** It counts by itself. For the next webinar, reset it again at that go-live; take a screenshot first if you want to keep the old numbers (runbook §16.7).
+
+---
+
 ## What I need back from you
 
 *(Updated 2026-09-04 — **the current asks are Part 8.1–8.4 above** (the morning check and the branch), then 8.5–8.9 when convenient. Earlier, retained:)*

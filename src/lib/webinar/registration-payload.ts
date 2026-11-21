@@ -20,7 +20,11 @@
  *      rest of the page's copy; the route maps a code to its sentence. That
  *      keeps wording out of this library, and it means a rejection can never
  *      be built from the caller's input or from an upstream response.
+ *
+ * Its one import, ./sources (Sprint S6.2), is itself pure and import-free.
  */
+
+import { isSourceKey, type SourceKey } from "./sources";
 
 /** RFC-shaped enough to reject junk without rejecting real addresses. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -73,6 +77,12 @@ export type RegistrationAccepted = {
   email: string;
   /** Trimmed; an empty string when none was given. */
   firstName: string;
+  /**
+   * Where this visitor came from, for the webinar report (Sprint S6.2). One of
+   * the report's source keys; anything else — or nothing — is "other". It can
+   * never cause a rejection: a sign-up is never refused over a report detail.
+   */
+  source: SourceKey;
 };
 export type RegistrationValidation =
   | RegistrationAccepted
@@ -134,5 +144,6 @@ export function validateRegistrationPayload(
     form: form as RegistrationForm,
     email: email.trim(),
     firstName: typeof firstName === "string" ? firstName.trim() : "",
+    source: isSourceKey(fields.source) ? fields.source : "other",
   };
 }
